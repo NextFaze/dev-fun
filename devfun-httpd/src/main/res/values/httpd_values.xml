@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <integer name="df_httpd_default_port">0</integer>
+
+</resources>

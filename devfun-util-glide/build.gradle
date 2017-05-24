@@ -1,0 +1,28 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+description = "Module that provides some utility functions when using Glide.\n" +
+        "\n" +
+        "Does not do anything without Glide. Should be on your debug configuration 'debugCompile'.\""
+
+project.configureAndroidLibrary(this)
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
+dependencies {
+    // Dev Fun
+    kapt project(':devfun-compiler')
+    compile project(':devfun-annotations')
+
+    // Kotlin
+    compile project.kotlinStdLib
+    compile project.kotlinCoroutines
+
+    // Glide - https://github.com/bumptech/glide
+    provided project.glide
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<lint>
+
+    <!-- Aren't reachable on device -->
+    <issue id="InvalidPackage">
+        <ignore path="*/rhino-*.jar"/>
+        <ignore path="*/logback-android-core-*.jar"/>
+    </issue>
+
+</lint>

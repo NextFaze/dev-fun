@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+    <appender name="logcat"
+              class="ch.qos.logback.classic.android.LogcatAppender">
+        <tagEncoder>
+            <pattern>%logger%nopex</pattern>
+        </tagEncoder>
+        <encoder>
+            <pattern>%msg%n%ex</pattern>
+        </encoder>
+    </appender>
+
+    <root level="TRACE">
+        <appender-ref ref="logcat"/>
+    </root>
+
+</configuration>

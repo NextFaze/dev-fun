@@ -1,0 +1,77 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+project.doConfigureAndroidLibrary(this, false)
+
+dependencies {
+    // Kotlin
+    compile project.kotlinStdLib
+
+    // Support libs
+    compile project.supportAppCompat
+
+    // DevFun
+    compile project(':devfun')
+    compile project(':devfun-annotations')
+    compile project(':devfun-compiler')
+    compile project(':devfun-httpd')
+    compile project(':devfun-httpd-frontend')
+    compile project(':devfun-inject-dagger2')
+    compile project(':devfun-menu')
+    compile project(':devfun-stetho')
+    compile project(':devfun-util-glide')
+    compile project(':devfun-util-leakcanary')
+//    compile fileTree(new File("${rootProject.project(':demo').buildDir}/libs/jarForDokka.jar"))
+}
+
+apply plugin: 'org.jetbrains.dokka-android'
+dokka {
+    if (file('Module.md').exists()) {
+        includes = ['Module.md']
+    }
+
+    moduleName = 'gh-pages'
+    outputFormat = 'gfm'
+    outputDirectory = '.'
+    dokkaFatJar = project.dokkaFatJar
+}
+
+project.afterEvaluate {
+    def mainDokkaTask = project.getTasksByName('dokka', false).first()
+    rootProject.getTasksByName('dokka', true).forEach { libDokkaTask ->
+        mainDokkaTask.sourceDirs += libDokkaTask.project.isAndroid ?
+                libDokkaTask.project.android.sourceSets.main.java.srcDirs :
+                libDokkaTask.project.sourceSets.main.allSource
+
+        libDokkaTask.dependsOn 'assemble'
+
+        mainDokkaTask.linkMapping {
+            dir = "$rootDir/${libDokkaTask.project.name}/src/main/java"
+            url = "https://github.com/NextFaze/dev-fun/tree/master/${libDokkaTask.project.name}/src/main/java"
+            suffix = "#L"
+        }
+
+        if (libDokkaTask != mainDokkaTask) {
+            mainDokkaTask.dependsOn libDokkaTask
+        }
+    }
+
+    mainDokkaTask.dependsOn clearDokkaTask
+
+    // WIP - we don't actually want this in docs though (only source linking to repo)...
+//    // Add demo
+//    def demoProject = rootProject.project(':demo')
+//    mainDokkaTask.sourceDirs += demoProject.android.sourceSets.main.java.srcDirs
+//    mainDokkaTask.linkMapping {
+//        dir = "$rootDir/${demoProject.name}/src/main/java"
+//        url = "https://github.com/NextFaze/dev-fun/tree/master/${demoProject.name}/src/main/java"
+//        suffix = "#L"
+//    }
+//
+//    mainDokkaTask.sourceDirs += demoProject.android.sourceSets.debug.java.srcDirs
+//    mainDokkaTask.linkMapping {
+//        dir = "$rootDir/${demoProject.name}/src/debug/java"
+//        url = "https://github.com/NextFaze/dev-fun/tree/master/${demoProject.name}/src/debug/java"
+//        suffix = "#L"
+//    }
+}

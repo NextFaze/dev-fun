@@ -1,0 +1,25 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+description = "Experimental module that allows generated methods to be invoked from Chrome's Dev Tools JavaScript console.\n" +
+        "\n" +
+        "Should only be used if you are using Stetho. Should be on your debug configuration 'debugCompile'."
+
+project.configureAndroidLibrary(this)
+
+dependencies {
+    // Dev Fun
+    compile project(':devfun')
+
+    // Kotlin
+    compile project.kotlinStdLib
+
+    // Stetho - https://github.com/facebook/stetho
+    compile project.stetho
+    compile project.stethoJsRhino
+
+    // Google AutoService - https://github.com/google/auto/tree/master/service
+    kapt project.autoService
+    provided project.autoService
+}

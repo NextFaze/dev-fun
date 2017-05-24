@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">DevFun Demo</string>
+
+    <!-- Welcome Screen -->
+
+    <string name="sign_in">Sign In</string>
+    <string name="create_account">Create Account</string>
+    <string name="devfun_demo">@string/app_name</string>
+    <string name="welcome_desc">This is a demo application featuring the NextFaze DevFun library and related support libs.
+        \n\nSign-in and account creation are currently unavailable\n(i.e. use dev. menu).
+    </string>
+
+    <!-- Authentication Screen -->
+
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short (min: 5)</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">Contacts permissions are needed for providing email completions.</string>
+
+    <!-- Register Screen -->
+
+    <string name="register">Register</string>
+    <string name="given_name">Given Name</string>
+    <string name="family_name">Family Name</string>
+    <string name="user_name">User Name</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="date_of_birth_hint">Date of Birth (yyyy-mm-dd)</string>
+    <string name="error_invalid_user">User is too short (min: 5)</string>
+    <string name="error_invalid_dob">This date of birth is invalid. Expecting: yyyy-mm-dd</string>
+
+    <string-array name="genders">
+        <item>Other</item>
+        <item>Female</item>
+        <item>Male</item>
+    </string-array>
+
+    <string name="tester">Tester</string>
+
+    <!-- Main Screen -->
+
+    <string name="import_">Import</string>
+    <string name="gallery">Gallery</string>
+    <string name="slideshow">Slideshow</string>
+    <string name="tools">Tools</string>
+    <string name="communicate">Communicate</string>
+    <string name="share">Share</string>
+    <string name="send">Send</string>
+
+    <string name="name_format">%1$s %2$s</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+</resources>

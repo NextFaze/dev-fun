@@ -1,0 +1,156 @@
+buildscript {
+    apply from: 'configuration.gradle'
+
+    repositories {
+        mavenLocal()
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+        maven { url "https://maven.google.com" }
+        jcenter()
+        maven { url 'https://jitpack.io' }
+    }
+
+    dependencies {
+        // Annotations, Compiler, Core, HTTPD, HTTPD-FrontEnd, Inject-Dagger2, Menu, Stetho, Util-Glide, Util-LeakCanary
+        classpath project.kotlinPlugin
+
+        // Core, HTTPD, HTTPD-FrontEnd, Inject-Dagger2, Menu, Stetho, Util-Glide, Util-LeakCanary
+        classpath project.androidPlugin
+
+        classpath project.dokkaPlugin
+        classpath project.dokkaAndroidPlugin
+
+        classpath project.bintrayPlugin
+    }
+}
+
+apply from: 'configuration.gradle'
+
+allprojects {
+    repositories {
+        mavenLocal()
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+        maven { url "https://maven.google.com" }
+        jcenter()
+        maven { url 'https://jitpack.io' }
+    }
+
+    println("\n${project.name}")
+    println(">> group=${project.group}")
+    println(">> artifact=${project.name}")
+    println(">> version=${project.version}")
+
+    if (VERSION_SNAPSHOT) {
+        configurations.all {
+            // check for updates every build
+            resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+        }
+    }
+}
+println("")
+
+def dokkaDir = "${rootDir.absolutePath}/gh-pages"
+task clearDokka(type: Delete) {
+    delete fileTree(dir: dokkaDir, excludes: [".git", "assets", "_config.yml", "README.md"])
+}
+ext.clearDokkaTask = clearDokka
+
+ext.configureDokka = { project ->
+    delegate = project
+
+    ext.isAndroid = project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')
+    if (isAndroid) {
+        apply plugin: 'org.jetbrains.dokka-android'
+    } else {
+        apply plugin: 'org.jetbrains.dokka'
+    }
+
+    dokka {
+        externalDocumentationLink {
+            url = "https://nextfaze.github.io/dev-fun/"
+        }
+        dokkaFatJar = project.dokkaFatJar
+    }
+
+    task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+        dependsOn 'assemble'
+        includes = ['Module.md']
+        linkMapping {
+            dir = "src/main/java"
+            url = "https://github.com/NextFaze/dev-fun/tree/master/${project.name}/src/main/java"
+            suffix = "#L"
+        }
+        outputFormat = 'javadoc'
+        outputDirectory = "$buildDir/dokkaJavadoc"
+        externalDocumentationLink {
+            url = "https://nextfaze.github.io/dev-fun/"
+        }
+        dokkaFatJar = project.dokkaFatJar
+        sourceDirs += isAndroid ?
+                project.android.sourceSets.main.java.srcDirs :
+                project.sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar) {
+        classifier 'javadoc'
+        dependsOn 'dokkaJavadoc'
+        from "$buildDir/dokkaJavadoc"
+    }
+}
+
+ext.configurePublishing = { project ->
+    delegate = project
+    apply from: project.publishing
+}
+
+ext.configureAndroidLibrary = { project ->
+    delegate = project
+    doConfigureAndroidLibrary(project, true)
+}
+
+ext.doConfigureAndroidLibrary = { project, withPublishing ->
+    delegate = project
+
+    ext.isAndroid = true
+
+    android {
+        compileSdkVersion project.compileSdkVersion
+        buildToolsVersion project.buildToolsVersion
+
+        defaultConfig {
+            minSdkVersion project.minSdkVersion
+            targetSdkVersion project.targetSdkVersion
+            versionCode project.versionCode
+            versionName project.versionName
+
+            testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    // We're using KAPT so ignore annotationProcessor configuration dependencies
+                    includeCompileClasspath false
+                    if (VERSION_SNAPSHOT) {
+                        argument 'devfun.debug.verbose', 'true'
+                    }
+                }
+            }
+
+            buildConfigField "boolean", "VERSION_SNAPSHOT", VERSION_SNAPSHOT
+        }
+
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            }
+        }
+
+        resourcePrefix "df_${project.name.replace("devfun-", "")}_"
+    }
+
+    if (withPublishing) {
+        configureDokka(project)
+        configurePublishing(project)
+    }
+}
+
+apply from: 'plant_uml.gradle'

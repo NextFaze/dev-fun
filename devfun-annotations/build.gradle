@@ -1,0 +1,20 @@
+apply plugin: 'kotlin'
+
+description = "Contains the annotations @DeveloperFunction and @DeveloperCategory, and various interface definitions.\n" +
+        "\n" +
+        "As this library is primarily interface definitions and inline functions, it will have a" +
+        "negligible impact on your method count and dex sizes. Apply to your main 'compile' configuration."
+
+dependencies {
+    // Kotlin
+    compile project.kotlinStdLib
+
+    // Android Support Annotations
+    compile project.supportAnnotations
+
+    // Logging
+    compile project.slf4jApi
+}
+
+configureDokka(this)
+configurePublishing(this)

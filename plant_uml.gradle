@@ -1,0 +1,39 @@
+def umlDir = "${rootDir.absolutePath}/gh-pages/assets/uml"
+task clearRenderedPlantUml(type: Delete) {
+    delete fileTree(umlDir) { exclude '**/*.puml' }.files
+}
+
+task renderPlantUml() {
+    description = "Render Plant UML diagrams."
+    group = "documentation"
+    dependsOn clearRenderedPlantUml
+
+    doLast {
+        def jarFile = new File(getStringProperty("plantUmlJar", "_working/plantuml.2017.10.jar"))
+        if (!jarFile.exists()) {
+            throw new FileNotFoundException("Plant UML JAR not found at $jarFile\nSet using -PplantUmlJar=<path to jar>")
+        }
+        def stdOut = new ByteArrayOutputStream()
+        def stdErr = new ByteArrayOutputStream()
+        try {
+            // TODO Find/use Gradle plugin.
+            exec {
+                workingDir rootDir
+                commandLine 'java', '-jar', jarFile.absolutePath, "$umlDir/*.puml", '-o', umlDir
+                standardOutput = stdOut
+                errorOutput = stdErr
+            }
+            println stdOut.toString().trim()
+        } catch (Throwable t) {
+            System.err.println(stdErr.toString().trim())
+            t.printStackTrace()
+        } finally {
+            stdOut.close()
+            stdErr.close()
+        }
+    }
+}
+
+def getStringProperty(String name, String defaultValue) {
+    return hasProperty(name) ? project.properties[name].toString() : defaultValue
+}

@@ -1,0 +1,21 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+description = "Module that provides some utility functions when using Leak Canary.\n" +
+        "\n" +
+        "Does not do anything without Leak Canary. Should be on your debug configuration 'debugCompile'.\""
+
+project.configureAndroidLibrary(this)
+
+dependencies {
+    // Dev Fun
+    kapt project(':devfun-compiler')
+    compile project(':devfun-annotations')
+
+    // Kotlin
+    compile project.kotlinStdLib
+
+    // Leak Canary - https://github.com/square/leakcanary
+    provided project.leakCanary
+}

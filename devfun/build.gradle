@@ -1,0 +1,27 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+description = "Core DevFun library that initializes and manages DevFun modules.\n" +
+        "\n"
+        "On its own does not provide any functionality. Use with 'devfun-menu' or 'devfun-httpd', etc. Should be in your 'debugCompile' configuration."
+
+project.configureAndroidLibrary(this)
+
+dependencies {
+    // Dev Fun
+    kapt project(':devfun-compiler')
+    compile project(':devfun-annotations')
+
+    // Kotlin
+    compile project.kotlinStdLib
+    compile project.kotlinReflect
+
+    // Support libs
+    compile project.supportAppCompat
+
+    // Google AutoService - https://github.com/google/auto/tree/master/service
+    kapt project.autoService
+    provided project.autoService
+}

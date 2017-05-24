@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.nextfaze.devfun.demo">
+
+    <application android:name=".DemoApplication"
+                 android:allowBackup="false"
+                 android:icon="@mipmap/ic_launcher"
+                 android:label="@string/app_name"
+                 android:roundIcon="@mipmap/ic_launcher_round"
+                 android:supportsRtl="true"
+                 android:theme="@style/AppTheme">
+
+        <!--<provider android:name="com.nextfaze.devfun.core.DevFunInitializerProvider"-->
+                  <!--android:authorities="*"-->
+                  <!--tools:ignore="ExportedContentProvider"-->
+                  <!--tools:node="remove"/>-->
+
+        <activity android:name=".SplashActivity"
+                  android:theme="@style/AppTheme.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".WelcomeActivity"
+                  android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".AuthenticateActivity"
+                  android:label="@string/auth_sign_in"/>
+
+        <activity android:name=".RegisterActivity"
+                  android:label="@string/register"/>
+
+        <activity android:name=".MainActivity"
+                  android:theme="@style/AppTheme.NoActionBar"/>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/demo/demo.iml" filepath="$PROJECT_DIR$/demo/demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dev-fun.iml" filepath="$PROJECT_DIR$/dev-fun.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun/devfun.iml" filepath="$PROJECT_DIR$/devfun/devfun.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-annotations/d2ev-fun-annotations.iml" filepath="$PROJECT_DIR$/devfun-annotations/d2ev-fun-annotations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-compiler/devfun2-compiler.iml" filepath="$PROJECT_DIR$/devfun-compiler/devfun2-compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-httpd/devfun-httpd.iml" filepath="$PROJECT_DIR$/devfun-httpd/devfun-httpd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-httpd-frontend/devfun-httpd-frontend.iml" filepath="$PROJECT_DIR$/devfun-httpd-frontend/devfun-httpd-frontend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-inject-dagger2/devfun-inject-dagger2.iml" filepath="$PROJECT_DIR$/devfun-inject-dagger2/devfun-inject-dagger2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-menu/devfff-fun-menu.iml" filepath="$PROJECT_DIR$/devfun-menu/devfff-fun-menu.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-stetho/devfun-stetho.iml" filepath="$PROJECT_DIR$/devfun-stetho/devfun-stetho.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-util-glide/devfun-util-glide.iml" filepath="$PROJECT_DIR$/devfun-util-glide/devfun-util-glide.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-util-leakcanary/devfun-util-leakcanary.iml" filepath="$PROJECT_DIR$/devfun-util-leakcanary/devfun-util-leakcanary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dokka/dokka.iml" filepath="$PROJECT_DIR$/dokka/dokka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
+    </modules>
+  </component>
+</project>

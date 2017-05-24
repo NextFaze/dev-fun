@@ -1,0 +1,28 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+description = "Module that adds a local HTTP server (uses NanoHttpD).\n" +
+        "\n" +
+        "Provides a single 'POST' method 'invoke' with one parameter 'hashCode' - expecting FunctionItem.hashCode()\n" +
+        "Use with 'devfun-httpd-frontend'. Should be on your debug configuration 'debugCompile'."
+
+project.configureAndroidLibrary(this)
+
+dependencies {
+    // Dev Fun
+    kapt project(':devfun-compiler')
+    compile project(':devfun')
+
+    // Kotlin
+    compile project.kotlinStdLib
+    compile project.kotlinReflect
+
+    // Http Server
+    compile 'org.nanohttpd:nanohttpd:2.3.1'
+    compile 'org.nanohttpd:nanohttpd-nanolets:2.3.1'
+
+    // Google AutoService - https://github.com/google/auto/tree/master/service
+    kapt project.autoService
+    provided project.autoService
+}

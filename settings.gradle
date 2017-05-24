@@ -1,0 +1,13 @@
+include ':devfun',
+        ':devfun-annotations',
+        ':devfun-compiler',
+        ':devfun-httpd',
+        ':devfun-httpd-frontend',
+        ':devfun-inject-dagger2',
+        ':devfun-menu',
+        ':devfun-stetho',
+        ':devfun-util-glide',
+        ':devfun-util-leakcanary',
+        ':demo',
+        ':dokka',
+        ':test'

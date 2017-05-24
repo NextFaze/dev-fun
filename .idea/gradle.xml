@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/demo" />
+            <option value="$PROJECT_DIR$/devfun" />
+            <option value="$PROJECT_DIR$/devfun-annotations" />
+            <option value="$PROJECT_DIR$/devfun-compiler" />
+            <option value="$PROJECT_DIR$/devfun-httpd" />
+            <option value="$PROJECT_DIR$/devfun-httpd-frontend" />
+            <option value="$PROJECT_DIR$/devfun-inject-dagger2" />
+            <option value="$PROJECT_DIR$/devfun-menu" />
+            <option value="$PROJECT_DIR$/devfun-stetho" />
+            <option value="$PROJECT_DIR$/devfun-util-glide" />
+            <option value="$PROJECT_DIR$/devfun-util-leakcanary" />
+            <option value="$PROJECT_DIR$/dokka" />
+            <option value="$PROJECT_DIR$/test" />
+          </set>
+        </option>
+        <option name="resolveModulePerSourceSet" value="false" />
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

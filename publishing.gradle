@@ -1,0 +1,158 @@
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+ext.isAndroid = project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')
+
+if (!isAndroid) {
+    apply plugin: 'java-library' // https://github.com/gradle/gradle/issues/1118
+}
+
+task sourceJar(type: Jar) {
+    classifier 'sources'
+
+    if (isAndroid) {
+        dependsOn 'assemble'
+        from android.sourceSets.main.java.srcDirs
+    } else {
+        from sourceSets.main.allSource
+    }
+}
+
+def pomConfig = {
+    name "${project.group}:${project.name}"
+    url POM_URL
+
+    organization {
+        name "NextFaze"
+        url "https://www.nextfaze.com/"
+    }
+
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+
+    scm {
+        connection "scm:git:git://github.com/NextFaze/dev-fun.git"
+        developerConnection "scm:git:ssh://github.com:NextFaze/dev-fun.git"
+        url "http://github.com/NextFaze/dev-fun/tree/master"
+        tag GIT_TAG_REF
+    }
+
+    issueManagement {
+        system "GitHub Issues"
+        url POM_ISSUES_URL
+    }
+
+    developers {
+        developer {
+            id "alex2069"
+            name "Alex Waters"
+            email "awaters@nextfaze.com"
+            organization "NextFaze"
+            organizationUrl "https://www.nextfaze.com"
+        }
+    }
+}
+
+publishing {
+    def repoUrl = VERSION_SNAPSHOT.toBoolean() ? DEVFUN_PUBLISH_URL_SNAPSHOT : DEVFUN_PUBLISH_URL
+    if (!repoUrl.isEmpty()) {
+        repositories {
+            maven {
+                url repoUrl
+                credentials {
+                    username = DEVFUN_PUBLISH_USER
+                    password = DEVFUN_PUBLISH_PASSWORD
+                }
+            }
+        }
+    }
+    publications {
+        mavenJava(MavenPublication) {
+            if (isAndroid) {
+                artifact bundleRelease
+            } else {
+                from components.java
+            }
+
+            artifact sourceJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().children().first() + pomConfig
+                asNode().appendNode('description', project.description)
+
+                if (isAndroid) {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    // Iterate over the dependencies (we don't want hidden/test ones), adding a <dependency> node for each
+                    configurations.all { config ->
+                        if (config.name.startsWith("_") ||
+                                config.name.startsWith("default") ||
+                                config.name.startsWith("kapt") ||
+                                config.name.startsWith("test"))
+                            return
+
+                        allDependencies.each { dep ->
+                            if (dep.group != null && (dep.name != null || "unspecified" == dep.name) && dep.version != null) {
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                dependencyNode.appendNode('groupId', dep.group)
+                                dependencyNode.appendNode('artifactId', dep.name)
+                                dependencyNode.appendNode('version', dep.version)
+                                dependencyNode.appendNode('scope', config.name)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    dryRun = true
+    publish = true
+    override = true
+
+    user = DEVFUN_BINTRAY_USER
+    key = DEVFUN_BINTRAY_KEY
+    publications = ['mavenJava']
+
+    pkg {
+        repo = 'dev-fun'
+        name = project.name
+        userOrg = 'nextfaze'
+        desc = project.description
+
+        websiteUrl = POM_URL
+        issueTrackerUrl = POM_ISSUES_URL
+        vcsUrl = 'https://github.com/NextFaze/dev-fun.git'
+
+        licenses = ['Apache-2.0']
+
+        githubRepo = "NextFaze/dev-fun"
+        githubReleaseNotesFile = "README.md"
+
+        version {
+            name = project.deployVersion
+            desc = project.description
+            released = new Date()
+            vcsTag = GIT_TAG_REF
+
+            gpg {
+                sign = true
+            }
+
+            mavenCentralSync {
+                sync = false
+                user = DEVFUN_MAVEN_USER
+                password = DEVFUN_MAVEN_PASSWORD
+            }
+        }
+    }
+}
+
+project.getTasksByName('bintrayUpload', false).first().dependsOn 'javadocJar', 'sourceJar', 'generatePomFileForMavenJavaPublication'
