@@ -1,0 +1,97 @@
+@startuml
+title Lifecycle
+
+start
+
+partition "Source Code\n//Kotlin or Java//" {
+    :Annotate methods;
+    note
+        ""**@DeveloperFunction**""
+        ""fun myAmazingFunction() {""
+        ""    ...""
+        ""}""
+    end note
+}
+
+partition "Annotation Processing\nDevFunProcessor" {
+    ->\nKAPT\n;
+    :Process annotations;
+    split
+        :""@DeveloperFunction"";
+        :""FunctionDefinition"";
+    split again
+        :""@DeveloperCategory"";
+        :""CategoryDefinition"";
+    end split
+    :Output definitions to\n""DevFunGenerated"" implementation;
+}
+
+partition "Using module\nDevMenu etc." {
+    ->\nRuntime;\nModule requesting items\n\n;
+    :Java ""ServiceLoader"" loads\nimplementations of ""DevFunGenerated"";
+
+    partition Functions {
+        while (""FunctionTransformer.accept"")
+            note
+                They can accept or ignore a definition
+                    ""FunctionTransformer.accept()""
+
+                Return zero, one, or many items //(""null"" also skips)//
+                    ""FunctionTransformer.apply()"":
+                        ""FunctionDefinition"" → ""FunctionItem""
+                Anything other than ""null"" finishes current definition.
+
+                == Transformer Ordering ==
+
+                1. ""RequiresApiTransformer"" → [0, 1]
+                    //(drop if SDK_MIN not supported)//
+
+                2. ""ContextTransformer"" → [0, 1]
+                    //(accept if context aware)//
+
+                3. ""CustomProviderTransformer"" → [0, ∞)
+                    //(accept if/and pass to user transformer)//
+
+                4. ""SingleFunctionTransformer"" → [1]
+                    //(accept all)//
+            end note
+
+            if (true) then (transform)
+            :""FunctionDefinition"";
+            -> [0 → ∞);
+            :""FunctionItem""(s);
+            else (ignore)
+            endif
+        endwhile
+    }
+
+    ->\nGroup items and\ndetermine categories\n;
+
+    partition Categories {
+        while (Group → Filter → Order)
+            note
+                Automatically generated from the class name
+                    SomeAmazingClass → "Some Amazing Class"
+
+                But can be manually specified at class level.
+                    ""@DeveloperCategory("Debug")""
+
+                They are automatically grouped by name.
+                    i.e. ""@DeveloperCategory("Debug")"" on
+                    multiple classes will be merged.
+
+                Ordered by ""DeveloperCategory.order"" then ""name"".
+            end note
+
+            :""CategoryDefinition"";
+            ->Generate undefined;
+            :""CategoryItem"";
+        endwhile
+    }
+
+    ->\n\nResult to module\n;
+}
+
+stop
+
+@enduml

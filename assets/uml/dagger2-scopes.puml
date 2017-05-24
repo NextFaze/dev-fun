@@ -1,0 +1,50 @@
+@startuml
+skinparam componentStyle uml2
+
+title Dagger 2.x Complex Scopes
+
+package "@Singleton" {
+    component MyApplication [
+        ""SingletonScope""
+        ----------
+        ""MyHttpClient""
+        ""MyApiClient""
+        ...
+    ]
+}
+
+package "@ParentScope" {
+    component MyParentScope [
+        ""MyParentScope""
+        ----------
+        ""SomeObject1""
+        ""SomeObject2""
+        ...
+    ]
+
+    MyParentScope <-up- MyApplication
+
+}
+
+package "@ChildScope" {
+    component MyChildScope2 [
+        ""MyChildScope"" (2)
+        ----------
+        ""PerScopeObject""
+        ""SomeFactory""
+        ...
+    ]
+
+    component MyChildScope1 [
+        ""MyChildScope"" (1)
+        ----------
+        ""PerScopeObject""
+        ""SomeOtherObject""
+        ...
+    ]
+
+    MyChildScope2 <-up- MyParentScope
+    MyChildScope1 <-up- MyParentScope
+}
+
+@enduml

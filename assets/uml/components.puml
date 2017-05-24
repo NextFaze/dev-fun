@@ -1,0 +1,49 @@
+@startuml
+skinparam componentStyle uml2
+
+title Component Dependencies
+
+package "compile" {
+    [devfun-annotations] as Annotations [[https://nextfaze.github.io/dev-fun/]]
+}
+
+package "kaptDebug" {
+    [devfun-compiler] as Compiler [[https://nextfaze.github.io/dev-fun/]]
+    Annotations <-- Compiler
+}
+
+package "debugCompile" {
+    node "Core Modules" {
+        [devfun] as DevFun [[https://nextfaze.github.io/dev-fun/]]
+        Annotations <-- DevFun
+
+        [devfun-menu] as Menu [[https://nextfaze.github.io/dev-fun/]]
+        DevFun <-- Menu
+
+        rectangle "Experimental" {
+            [devfun-httpd] as HttpD [[https://nextfaze.github.io/dev-fun/]]
+            DevFun <-- HttpD
+
+            [devfun-httpd-frontend] as HttpD_FrontEnd [[https://nextfaze.github.io/dev-fun/]]
+            HttpD <-down- HttpD_FrontEnd
+
+            [devfun-stetho] as Stetho [[https://nextfaze.github.io/dev-fun/]]
+            DevFun <-- Stetho
+        }
+    }
+
+    node "Util Modules" {
+        [devfun-util-glide] as Util_Glide [[https://nextfaze.github.io/dev-fun/]]
+        Annotations <--- Util_Glide
+
+        [devfun-util-leakcanary] as Util_LeakCanary [[https://nextfaze.github.io/dev-fun/]]
+        Annotations <-- Util_LeakCanary
+    }
+
+    node "Inject Modules" {
+        [devfun-inject-dagger2] as Inject_Dagger2 [[https://nextfaze.github.io/dev-fun/]]
+        DevFun <-- Inject_Dagger2
+    }
+}
+
+@enduml

@@ -1,0 +1,32 @@
+$dokka.format:gfm
+$dokka.linkExtension:md
+$dokka.location:com.nextfaze.devfun.internal$activityManager#android.content.Contextcom.nextfaze.devfun.internal/android.content.-context/activity-manager.md
+$dokka.location:com.nextfaze.devfun.internal$connectivityManager#android.content.Contextcom.nextfaze.devfun.internal/android.content.-context/connectivity-manager.md
+$dokka.location:com.nextfaze.devfun.internal$d(org.slf4j.Logger, kotlin.Throwable, kotlin.Boolean, kotlin.Function0((kotlin.String)))com.nextfaze.devfun.internal/org.slf4j.-logger/d.md
+$dokka.location:com.nextfaze.devfun.internal$e(org.slf4j.Logger, kotlin.Throwable, kotlin.Boolean, kotlin.Function0((kotlin.String)))com.nextfaze.devfun.internal/org.slf4j.-logger/e.md
+$dokka.location:com.nextfaze.devfun.internal$i(org.slf4j.Logger, kotlin.Throwable, kotlin.Boolean, kotlin.Function0((kotlin.String)))com.nextfaze.devfun.internal/org.slf4j.-logger/i.md
+$dokka.location:com.nextfaze.devfun.internal$registerActivityLifecycleCallbacks(android.content.Context, android.app.Application.ActivityLifecycleCallbacks)com.nextfaze.devfun.internal/android.content.-context/register-activity-lifecycle-callbacks.md
+$dokka.location:com.nextfaze.devfun.internal$registerOnActivityCreated(android.content.Context, kotlin.Function2((android.app.Activity, android.os.Bundle, kotlin.Unit)))com.nextfaze.devfun.internal/android.content.-context/register-on-activity-created.md
+$dokka.location:com.nextfaze.devfun.internal$registerOnActivityResumedAndStopped(android.content.Context, kotlin.Function1((android.app.Activity, kotlin.Unit)), kotlin.Function1((android.app.Activity, kotlin.Unit)))com.nextfaze.devfun.internal/android.content.-context/register-on-activity-resumed-and-stopped.md
+$dokka.location:com.nextfaze.devfun.internal$splitCamelCase(kotlin.String)com.nextfaze.devfun.internal/kotlin.-string/split-camel-case.md
+$dokka.location:com.nextfaze.devfun.internal$splitSimpleName#kotlin.reflect.KClass((kotlin.Any))com.nextfaze.devfun.internal/kotlin.reflect.-k-class/split-simple-name.md
+$dokka.location:com.nextfaze.devfun.internal$t(org.slf4j.Logger, kotlin.Throwable, kotlin.Boolean, kotlin.Function0((kotlin.String)))com.nextfaze.devfun.internal/org.slf4j.-logger/t.md
+$dokka.location:com.nextfaze.devfun.internal$unregister(android.app.Application.ActivityLifecycleCallbacks, android.content.Context)com.nextfaze.devfun.internal/android.app.-application.-activity-lifecycle-callbacks/unregister.md
+$dokka.location:com.nextfaze.devfun.internal$w(org.slf4j.Logger, kotlin.Throwable, kotlin.Boolean, kotlin.Function0((kotlin.String)))com.nextfaze.devfun.internal/org.slf4j.-logger/w.md
+$dokka.location:com.nextfaze.devfun.internal$wifiManager#android.content.Contextcom.nextfaze.devfun.internal/android.content.-context/wifi-manager.md
+$dokka.location:com.nextfaze.devfun.internal$windowManager#android.content.Contextcom.nextfaze.devfun.internal/android.content.-context/window-manager.md
+com.nextfaze.devfun.annotations
+com.nextfaze.devfun.compiler
+com.nextfaze.devfun.core
+com.nextfaze.devfun.generated
+com.nextfaze.devfun.httpd
+com.nextfaze.devfun.httpd.frontend
+com.nextfaze.devfun.inject
+com.nextfaze.devfun.inject.dagger2
+com.nextfaze.devfun.internal
+com.nextfaze.devfun.menu
+com.nextfaze.devfun.menu.controllers
+com.nextfaze.devfun.stetho
+com.nextfaze.devfun.utils.glide
+com.nextfaze.devfun.utils.leakcanary
+wiki
