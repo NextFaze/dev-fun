@@ -5,4 +5,4 @@ Generates an index page with links that invoke items.
 - **Depends on HttpD.**
 
 # Package com.nextfaze.devfun.httpd.frontend
-Shows index 
+Website using SB Admin 2 allowing function invocation from a browser.
