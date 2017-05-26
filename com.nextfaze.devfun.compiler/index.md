@@ -2,7 +2,8 @@
 
 ## Package com.nextfaze.devfun.compiler
 
-Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io/dev-fun/annotations/com.nextfaze.devfun.annotations/-developer-function/) and [DeveloperCategory](https://nextfaze.github.io/dev-fun/annotations/com.nextfaze.devfun.annotations/-developer-category/) annotations.
+Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-function/)
+ and [DeveloperCategory](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-category/) annotations.
 
 ### Types
 

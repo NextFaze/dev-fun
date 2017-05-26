@@ -2,7 +2,8 @@
 
 ## Package com.nextfaze.devfun.inject.dagger2
 
-Provides default heavy-reflection based Dagger 2 injector and convenience functions for reflectively locating object instances from Dagger 2.x `@Component` objects.
+Provides default heavy-reflection based Dagger 2 injector and convenience functions for reflectively
+ locating object instances from Dagger 2.x `@Component` objects.
 
 ### Types
 

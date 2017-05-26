@@ -2,7 +2,7 @@
 
 ## Package com.nextfaze.devfun.core
 
-Core [DevFun](https://nextfaze.github.io/dev-fun/core/com.nextfaze.devfun.core/-dev-fun/) package - handles loading and processing of modules and definitions.
+Core [DevFun](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.core/-dev-fun/) package - handles loading and processing of modules and definitions.
 
 ### Types
 
