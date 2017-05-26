@@ -72,6 +72,13 @@ Can be categorized into 4 types:
 - Inject: facilitate dependency injection for function invocation.
 - Util:  frequently used or just handy functions (e.g. show Glide memory use).
 
+Add repository to module: _(will be put on JCenter &amp; MavenCentral eventually)_
+```gradle
+repositories {
+    maven { url 'https://dl.bintray.com/nextfaze/dev-fun' }
+}
+```
+
 Add dependencies to build.gradle:
 ```gradle
     // Annotations, Compiler, and Developer Menu
