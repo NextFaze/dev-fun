@@ -13,13 +13,14 @@ import android.support.annotation.RequiresApi
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.app.AlertDialog
 import android.view.*
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.*
-import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.*
+import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
 
 /**
  * Controls the floating cog overlay.
@@ -99,7 +100,7 @@ class CogOverlay constructor(context: Context,
         removeCurrentWindow()
         val windowView = View.inflate(application, R.layout.df_menu_cog_overlay, null).also { windowView = it } ?: throw RuntimeException("Failed to inflate cog overlay")
         val cog = windowView.cogButton.apply {
-            background.setTintList(ContextCompat.getColorStateList(application, R.color.df_menu_cog_background))
+            DrawableCompat.setTintList(background, ContextCompat.getColorStateList(application, R.color.df_menu_cog_background))
         }
 
         windowView.setOnDragListener(object : View.OnDragListener {
