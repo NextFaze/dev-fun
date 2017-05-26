@@ -59,7 +59,7 @@ Contains the annotations [DeveloperFunction] and [DeveloperCategory], and variou
 This library contains primarily interface definitions and inline functions, and will have a
 negligible impact on your method count and dex sizes. Apply to your main `compile` configuration:
 ```gradle
-compile 'com.nextfaze.devfun:devfun-annotations:0.1.0'
+compile 'com.nextfaze.devfun:devfun-annotations:0.1.1'
 ```
 
 
@@ -68,7 +68,7 @@ Annotation processor [DevFunProcessor] that handles [DeveloperFunction] and [Dev
 
 This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.
 ```gradle
-kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.0'
+kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.1'
 ```
 
 Configuration options can be applied using Android DSL:
@@ -97,7 +97,7 @@ Core of [DevFun]. Loads modules and definitions.
 
 Apply to your non-main configuration:
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun:0.1.0'
+debugCompile 'com.nextfaze.devfun:devfun:0.1.1'
 ```
 
 Modules are loaded by [DevFun] using Java's [ServiceLoader].
@@ -115,7 +115,7 @@ See the demo app [DemoInstanceProvider](https://github.com/NextFaze/dev-fun/tree
 ### Menu
 Adds a developer menu [DevMenu], accessible by a floating cog [CogOverlay] (long-press to drag) or device button sequence [KeySequence].
 ```gradle
-debugCompile 'com.nextfaze.devfun:menu:0.1.0'
+debugCompile 'com.nextfaze.devfun:menu:0.1.1'
 ```
 
 Button sequence: *(this is not configurable at the moment but is intended to be eventually)*
@@ -141,7 +141,7 @@ Adds module [InjectFromDagger2] which adds an [InstanceProvider] that reflective
 
 Provides default heavy-reflection based Dagger 2 injector and convenience functions for reflectively locating object instances from Dagger 2.x `@Component` objects.
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.0'
+debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.1'
 ```
 
 It only really supports simple graphs by finding provides methods/fields that match (or are a super type) of the requested type (scoping is not considered etc.).
@@ -168,7 +168,7 @@ _Still playing with this concept and naming conventions etc._
 ### Glide
 Module [GlideUtils] provides some utility functions when using Glide.
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.0'
+debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.1'
 ```
 
 Features:
@@ -180,7 +180,7 @@ Features:
 ### Leak Canary
 Module [LeakCanaryUtils] provides some utility functions when using Leak Canary.
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.0'
+debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.1'
 ```
 
 Features:
@@ -205,7 +205,7 @@ Module [DevHttpD] adds a local HTTP server (uses [NanoHttpD](https://github.com/
 
 Provides a single `POST` method `invoke` with one parameter `hashCode` (expecting [FunctionItem.hashCode])
 ```gradle
-debugCompile 'com.nextfaze.devfun:httpd:0.1.0'
+debugCompile 'com.nextfaze.devfun:httpd:0.1.1'
 ```
 
 Use with HttpD Front-end.
@@ -238,7 +238,7 @@ Module [HttpFrontEnd] generates an admin interface using SB Admin 2 (similar to 
 
 __Depends on [DevHttpD].__
 ```gradle
-debugCompile 'com.nextfaze.devfun:httpd-frontend:0.1.0'
+debugCompile 'com.nextfaze.devfun:httpd-frontend:0.1.1'
 ```
 
 Page is extremely simple/static at the moment:
@@ -250,7 +250,7 @@ Page is extremely simple/static at the moment:
 ### Stetho
 Module [DevStetho] allows generated methods to be invoked from Chrome's Dev Tools JavaScript console.
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.0'
+debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.1'
 ```
 
 Opening console will show available functions.
