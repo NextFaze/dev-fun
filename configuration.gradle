@@ -72,14 +72,9 @@ ext {
 
     publishing = project.file('publishing.gradle')
 
-    // Latest Dokka
-//    dokkaPlugin = 'com.github.Kotlin.dokka:dokka-gradle-plugin:-SNAPSHOT'
-//    dokkaAndroidPlugin = 'com.github.Kotlin.dokka:dokka-android-gradle-plugin:-SNAPSHOT'
-//    dokkaFatJar = 'com.github.Kotlin.dokka:dokka-fatjar:-SNAPSHOT'
-
-    dokkaPlugin = 'com.github.alex2069.dokka:dokka-gradle-plugin:5c7070ffe5101058adf8c59ef8907dfb97210470'
-    dokkaAndroidPlugin = 'com.github.alex2069.dokka:dokka-android-gradle-plugin:5c7070ffe5101058adf8c59ef8907dfb97210470'
-    dokkaFatJar = 'com.github.alex2069.dokka:dokka-fatjar:5c7070ffe5101058adf8c59ef8907dfb97210470'
+    dokkaPlugin = 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.14'
+    dokkaAndroidPlugin = 'org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.14'
+    dokkaFatJar = 'org.jetbrains.dokka:dokka-fatjar:0.9.14'
 }
 
 allprojects {
