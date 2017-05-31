@@ -371,12 +371,14 @@ class DevFunProcessor : AbstractProcessor() {
         //
 
         fun generateFunctionDefinition(element: ExecutableElement) {
+            var usingInstanceProvider = false
+
             fun Element.toInstance(forStaticUse: Boolean = false): String = when {
                 this is TypeElement && (forStaticUse || isKObject) -> when {
                     isClassPublic -> this.toString()
                     else -> "${this.toClass()}.privateObjectInstance"
                 }
-                else -> "$INSTANCE_PROVIDER_NAME[${this.toClass()}]!!"
+                else -> "$INSTANCE_PROVIDER_NAME[${this.toClass()}]!!".also { usingInstanceProvider = true }
             }
 
             val clazz = element.enclosingElement as TypeElement
@@ -447,6 +449,7 @@ class DevFunProcessor : AbstractProcessor() {
             // Arguments
             val receiver = clazz.toInstance(element.isStatic)
             val needReceiverArg = !callFunDirectly && !element.isStatic
+            var usingProvidedArgs = false
             val args = run generateInvocationArgs@ {
                 val arguments = ArrayList<String>()
                 if (needReceiverArg) {
@@ -454,6 +457,7 @@ class DevFunProcessor : AbstractProcessor() {
                 }
 
                 element.parameters.forEachIndexed { index, arg ->
+                    usingProvidedArgs = true
                     arguments += "$PROVIDED_ARGS_NAME.getNonNullOrElse($index) { ${arg.toInstance()} }"
                 }
 
@@ -486,8 +490,8 @@ class DevFunProcessor : AbstractProcessor() {
                 }
             }
 
-            val instanceProviderArg = if (args.isEmpty() && (element.isStatic || element.isKObject)) "_" else INSTANCE_PROVIDER_NAME
-            val providedArg = if (args.isEmpty()) "_" else PROVIDED_ARGS_NAME
+            val instanceProviderArg = if (!usingInstanceProvider) "_" else INSTANCE_PROVIDER_NAME
+            val providedArg = if (!usingProvidedArgs) "_" else PROVIDED_ARGS_NAME
             val invocationArgs = "$instanceProviderArg, $providedArg"
 
             // Debug info

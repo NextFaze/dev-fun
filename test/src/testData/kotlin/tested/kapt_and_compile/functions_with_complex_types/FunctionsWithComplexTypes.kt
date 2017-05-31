@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("UNUSED_PARAMETER", "unused")
 
 package tested.kapt_and_compile.functions_with_complex_types
 

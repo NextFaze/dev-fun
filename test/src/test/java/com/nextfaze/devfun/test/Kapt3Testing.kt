@@ -18,9 +18,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.sun.tools.javac.tree.JCTree
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
-import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
-import org.jetbrains.kotlin.cli.common.messages.PrintingMessageCollector
+import org.jetbrains.kotlin.cli.common.messages.*
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -309,7 +307,7 @@ data class TestContext(val testMethodName: String,
             freeArgs.add(sourcesOutputDir.canonicalPath)
         }
 
-        val collector = PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, compilerArgs.verbose)
+        val collector = ThrowingPrintingMessageCollector(compilerArgs.verbose)
         val compiler = K2JVMCompiler()
         val exitCode = compiler.exec(collector, Services.EMPTY, compilerArgs)
         assertTrue("Expected compiler exit code of ${ExitCode.OK}(${ExitCode.OK.code}) but got $exitCode(${exitCode.code})") { exitCode == ExitCode.OK }
@@ -402,6 +400,19 @@ data class TestContext(val testMethodName: String,
 //
 // Kapt3 test helpers - adapted from Kotlin's Kapt3 test sources
 //
+
+private class ThrowingPrintingMessageCollector(verbose: Boolean,
+                                               private val throwOnWarnings: Boolean = true) :
+        PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, verbose) {
+
+    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
+        super.report(severity, message, location)
+
+        if (throwOnWarnings && (severity == CompilerMessageSeverity.WARNING || severity == CompilerMessageSeverity.STRONG_WARNING)) {
+            throw RuntimeException("$severity message=$message @$location")
+        }
+    }
+}
 
 internal class Kapt3ExtensionForTests(
         private val processors: List<Processor>,

@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("UNUSED_PARAMETER", "unused")
 
 package tested.generation_order
 

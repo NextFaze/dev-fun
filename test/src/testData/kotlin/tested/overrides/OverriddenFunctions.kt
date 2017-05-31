@@ -14,6 +14,7 @@ object OverriddenFunctions : TestInstanceProviders {
 
 @Suppress("UNCHECKED_CAST")
 private class OverriddenFunctionsInstanceProvider : InstanceProvider {
+    @Suppress("IMPLICIT_CAST_TO_ANY")
     override fun <T : Any> get(clazz: KClass<out T>): T? = when {
         clazz.isSubclassOf(of_BaseClass::class) -> of_SubClass()
         clazz.isSubclassOf(of_InternalBaseClass::class) -> of_InternalSubClass()
