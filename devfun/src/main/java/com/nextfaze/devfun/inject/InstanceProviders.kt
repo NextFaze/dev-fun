@@ -68,7 +68,7 @@ class CompositeInstanceProvider : RequiringInstanceProvider {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class KObjectInstanceProvider : InstanceProvider {
     override fun <T : Any> get(clazz: KClass<out T>): T? {
-        if (clazz.visibility == KVisibility.PUBLIC) {
+        if (clazz.visibility != KVisibility.PRIVATE) {
             return clazz.objectInstance?.let { return it }
         } else {
             try {
