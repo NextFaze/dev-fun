@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.nextfaze.devfun.demo">
 
     <application android:name=".DemoApplication"
@@ -10,6 +11,12 @@
                  android:supportsRtl="true"
                  android:theme="@style/AppTheme">
 
+        <!-- Remove LeakCanary launcher icon -->
+        <activity android:name="com.squareup.leakcanary.internal.DisplayLeakActivity">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <!-- Uncomment to remove automatic DevFun initialization -->
         <!--<provider android:name="com.nextfaze.devfun.core.DevFunInitializerProvider"-->
                   <!--android:authorities="*"-->
                   <!--tools:ignore="ExportedContentProvider"-->
