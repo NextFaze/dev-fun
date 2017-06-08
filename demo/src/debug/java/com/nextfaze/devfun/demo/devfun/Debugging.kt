@@ -9,12 +9,18 @@ import android.support.annotation.RequiresApi
 import android.support.v7.app.AlertDialog
 import android.util.DisplayMetrics
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.core.DebugException
 import com.nextfaze.devfun.demo.logger
 import com.nextfaze.devfun.demo.t
-import com.nextfaze.devfun.internal.activityManager
+import com.nextfaze.devfun.internal.*
 
 object Debugging {
     private val log = logger()
+
+    @DeveloperFunction fun crashApp() {
+        log.d { "throw DebugException()" }
+        throw DebugException()
+    }
 
     @DeveloperFunction("Force GC") fun forceGarbageCollection() = System.gc()
     @DeveloperFunction("Throw NPE") fun throwNullPointerException(): Unit = throw NullPointerException("Debug")

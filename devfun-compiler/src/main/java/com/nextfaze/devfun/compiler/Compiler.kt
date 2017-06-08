@@ -565,12 +565,10 @@ private data class SimpleInvokeResult(override val value: Any?, override val exc
 private inline fun invokeFunction(function: () -> Any?): InvokeResult {
     try {
         return SimpleInvokeResult(function(), null)
+    } catch (de: DebugException) {
+        throw de
     } catch (t: Throwable) {
-        val cause = t.cause
-        when {
-            cause is DebugException -> throw cause
-            else -> return SimpleInvokeResult(null, cause ?: t)
-        }
+        return SimpleInvokeResult(null, t)
     }
 }
 
