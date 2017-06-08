@@ -21,7 +21,7 @@ interface ApplicationComponent : MainInjector {
     fun retainedComponent(retainedModule: RetainedModule): RetainedComponent
 }
 
-internal typealias Initializer = (application: Application) -> Unit
+typealias Initializer = (application: Application) -> Unit
 
 @Module(includes = arrayOf(AndroidModule::class, MainModule::class, BuildTypeModule::class))
 class ApplicationModule {
