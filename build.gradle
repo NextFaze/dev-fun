@@ -122,6 +122,7 @@ ext.doConfigureAndroidLibrary = { project, withPublishing ->
             versionCode project.versionCode
             versionName project.versionName
 
+            consumerProguardFile '../proguard-rules-common.pro'
             testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
 
             javaCompileOptions {
@@ -135,13 +136,6 @@ ext.doConfigureAndroidLibrary = { project, withPublishing ->
             }
 
             buildConfigField "boolean", "VERSION_SNAPSHOT", VERSION_SNAPSHOT
-        }
-
-        buildTypes {
-            release {
-                minifyEnabled false
-                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            }
         }
 
         resourcePrefix "df_${project.name.replace("devfun-", "")}_"

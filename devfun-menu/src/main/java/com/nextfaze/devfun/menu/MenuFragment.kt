@@ -35,6 +35,7 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     private val log = logger()
     private val handler = Handler(getMainLooper())
 
+    private val devMenu by lazy { devFun.devMenu }
     private val categories by lazy { devFun.categories }
     private var categoryItems = emptyList<Any>()
     private var selectedCategoryIdx = -1
@@ -177,12 +178,12 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     }
 
     override fun onStart() {
-        devFun.devMenu.onShown()
+        devMenu.onShown()
         super.onStart()
     }
 
     override fun onDismiss(dialog: DialogInterface) {
-        devFun.devMenu.onDismissed()
+        devMenu.onDismissed()
         super.onDismiss(dialog)
     }
 

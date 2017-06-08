@@ -1,5 +1,6 @@
 package com.nextfaze.devfun.core
 
+import android.support.annotation.Keep
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.reflect.Method
@@ -15,7 +16,7 @@ private object ExceptionInvokeResult : InvokeResult {
 private object ExceptionFunctionDefinition : FunctionDefinition {
     override val method: Method = this::exception.javaMethod!!
     override val invoke: FunctionInvoke get() = { _, _ -> ExceptionInvokeResult }
-    fun exception() = Unit
+    @Keep fun exception() = Unit
 }
 
 private object ExceptionCategoryDefinition : CategoryDefinition {

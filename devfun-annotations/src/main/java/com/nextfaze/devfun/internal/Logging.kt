@@ -2,6 +2,7 @@
 
 package com.nextfaze.devfun.internal
 
+import android.support.annotation.Keep
 import android.support.annotation.RestrictTo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,6 +27,7 @@ inline fun <reified T : Any> T.logger(): Logger = LoggerFactory.getLogger(T::cla
  *
  * @internal Intended for use across DevFun libraries.
  */
+@Keep
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun logger(name: String): Logger = LoggerFactory.getLogger(name)
 

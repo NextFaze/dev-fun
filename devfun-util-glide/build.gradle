@@ -8,6 +8,12 @@ description = "Module that provides some utility functions when using Glide.\n" 
 
 project.configureAndroidLibrary(this)
 
+android {
+    defaultConfig {
+        consumerProguardFile 'proguard-rules-consumer.pro'
+    }
+}
+
 kotlin {
     experimental {
         coroutines 'enable'

@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.annotations
 
 import com.nextfaze.devfun.core.*
-import kotlin.annotation.AnnotationRetention.SOURCE
+import kotlin.annotation.AnnotationRetention.BINARY
 import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.reflect.KClass
@@ -111,7 +111,7 @@ import kotlin.reflect.KClass
  * @param order Order of this category when listed. Ordering will be by [order] (-∞ → +∞) then by name ([value])
  */
 @Target(CLASS)
-@Retention(SOURCE)
+@Retention(BINARY)
 annotation class DeveloperCategory(val value: String = "",
                                    val group: String = "",
                                    val order: Int = 0)
@@ -254,7 +254,7 @@ annotation class DeveloperCategory(val value: String = "",
  * @see SimpleFunctionItem
  */
 @Target(FUNCTION)
-@Retention(SOURCE)
+@Retention(BINARY)
 annotation class DeveloperFunction(val value: String = "",
                                    val category: DeveloperCategory = DeveloperCategory(),
                                    val requiresApi: Int = 0,

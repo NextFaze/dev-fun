@@ -1,25 +1,82 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in /home/awaters/dev/android-sdk/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
+######
 #
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# The DevFun libraries will work with proguard, but only cover their own sources.
+#
+# If you want your app to also function with proguard you will need effectively the same configuration that DevFun uses
+# but using your own package.
+#
+######
 
-# Add any project specific keep options here:
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+###### The following entries are required for the app to function with DevFun when proguard is enabled. ######
+
+
+#
+# DevFun generates a map at compile-time to usages of @DeveloperFunction and @DeveloperCategory that is loaded using
+# Java's ServiceLoader (which loads via reflection).
+#
+# NB: Remember to use the correct package if you override the generated package via APT options.
+#
+# Keep DevFun generated class
+-keep class your.package.goes.here.** extends com.nextfaze.devfun.generated.DevFunGenerated
+
+
+#
+# If you implement your own DevFunModule you may need to explicitly keep it (as it's loaded via ServiceLoader).
+#
+# Keep DevFunModule
+-keep class your.package.goes.here.MyDevFunModule
+
+
+#
+# If you have @DeveloperFunction methods that are unreferenced you will need to tell proguard to keep them.
+#
+# Keep @DeveloperFunction methods
+-keep class your.package.goes.here.** {
+    @com.nextfaze.devfun.annotations.DeveloperFunction *;
+}
+
+
+#
+# Similarly for @DeveloperCategory annotated classes.
+#
+# Keep @DeveloperCategory classes
+-keep @com.nextfaze.devfun.annotations.DeveloperCategory class your.package.goes.here.**
+
+
+#
+# Kotlin objects generate an "INSTANCE" field. To retrieve a KObject at runtime it must remain named as such.
+#
+# Don't rename KObject INSTANCE field
+-keepclassmembernames class your.package.goes.here.** {
+    public static final ** INSTANCE;
+}
+
+
+#
+# If you use @Constructable then we need to ensure they (and their contructor) are kept.
+#
+# Keep @Constructable types and their constructor
+-keep @com.nextfaze.devfun.inject.Constructable class your.package.goes.here.** {
+    <init>(...);
+}
+
+
+
+
+
+
+
+
+###### These entries are unrelated to DevFun - needed for the purposes of the demo. ######
+
+# Ignore warnings
+-dontwarn **
+
+# Keep Logback
+-keep class ch.qos.** { *; }
+
+# Keep GlideModule
+-keep class com.bumptech.glide.integration.okhttp3.OkHttpGlideModule

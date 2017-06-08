@@ -14,7 +14,6 @@ import com.nextfaze.devfun.internal.*
 import java.util.ArrayDeque
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility
-import kotlin.reflect.jvm.isAccessible
 
 private inline fun <reified T : Any> KClass<*>.isSubclassOf() = T::class.java.isAssignableFrom(this.java)
 private fun <T : Any> KClass<*>.isSubclassOf(clazz: KClass<T>) = clazz.java.isAssignableFrom(this.java)
@@ -98,20 +97,27 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
     private val root = rootInstanceProvider ?: this
 
     override fun <T : Any> get(clazz: KClass<out T>): T? {
-        // Must be @Constructable
-        if (requireConstructable && clazz.annotations.none { it is Constructable }) {
+        /*
+        Using Java reflection (faster and better ProGuard comparability).
+         */
+
+        // must be annotated @Constructable
+        if (requireConstructable && clazz.java.annotations.none { it is Constructable }) {
             return null
         }
-        if (clazz.constructors.isEmpty()) {
-            throw ClassInstanceNotFoundException("Could not get instance of @Constructable $clazz and no constructors found (is it an interface?)")
+
+        // must have a single constructor
+        val constructors = clazz.java.constructors
+        if (constructors.isEmpty()) {
+            throw ClassInstanceNotFoundException("Could not get instance of @Constructable $clazz; No constructors found (is it an interface?)")
         }
-        // Instantiate new instance
-        if (clazz.constructors.size != 1) {
-            throw ClassInstanceNotFoundException("Could not get instance of @Constructable $clazz and more than one constructor found")
+        if (constructors.size != 1) {
+            throw ClassInstanceNotFoundException("Could not get instance of @Constructable $clazz: Multiple constructors found; \n${constructors.joinToString("\n")}")
         }
         log.t { "> Constructing new instance of $clazz" }
-        val constructor = clazz.constructors.first().apply { isAccessible = true }
-        return constructor.call(*(constructor.parameters.map { root[it.type.classifier as KClass<*>] }.toTypedArray()))
+        val ctor = constructors.first().apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        return ctor.newInstance(*(ctor.parameterTypes.map { root[it.kotlin] }.toTypedArray())) as T
     }
 }
 

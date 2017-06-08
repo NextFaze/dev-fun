@@ -35,6 +35,8 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix '.debug'
+            minifyEnabled true // enable to demonstrate
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled false

@@ -259,19 +259,29 @@ See [com.nextfaze.devfun.compiler](https://nextfaze.github.io/dev-fun/com.nextfa
 
 
 ## Proguard
-Interactions with proguard are currently untested. Proguard rules will be added in the future - though this is a low
-priority as DevFun is not intended to be used on release builds. In the interim, if something is being removed that
-shouldn't be use the support annotation `@Keep`.
+Support for proguard exists, however it has not been tested extensively beyond the demo app.
 
-In general though, classes/functions that are `public` or `internal` will be directly referenced in generated code, 
-other visibilities will be accessed reflectively.
+If you wish to use DevFun with Proguard you will need to configure your app to keep DevFun related code (the DevFun
+ libraries handle themselves). See the demo [proguard-rules.pro](https://github.com/NextFaze/dev-fun/blob/master/demo/proguard-rules.pro)
+ for a sample and related details.  
 
-For implementations where you *want* them to be removed (e.g. auto-login items for test accounts [SignInFunctionTransformer](https://github.com/NextFaze/dev-fun/blob/master/demo/src/main/java/com/nextfaze/devfun/demo/AuthenticateScreen.kt#L179)),
- the compiler will strip it from release builds if the sensitive code/values are surrounded in an 
- `if (BuildConfig.DEBUG) { ... } else { .. }` block.
- 
-At the moment the Transformer needs to be in the main source tree (or wherever it's being used). I'm looking into better
- ways to handle this (suggestions welcome).
+Rules that are supplied by DevFun libraries can be found in [proguard-rules-common.pro](https://github.com/NextFaze/dev-fun/blob/master/proguard-rules-common.pro) 
+(the Glide util module also adds a couple).
+
+If everything used by DevFun (the annotated classes and functions) is public or internal (see demo rules otherwise) then
+ all you need to do is keep the generated file:
+```proguard
+# Keep DevFun generated class
+-keep class your.package.goes.here.** extends com.nextfaze.devfun.generated.DevFunGenerated
+```
+
+### Transformers
+At the moment transformers needs to be in the main source tree (or wherever it's being used) as its class is referenced
+ in the annotation. If for some reason you cannot use proguard but need sensitive code/values removed (e.g. auto-login
+ items for test accounts à la [SignInFunctionTransformer](https://github.com/NextFaze/dev-fun/blob/master/demo/src/main/java/com/nextfaze/devfun/demo/AuthenticateScreen.kt#L179)),
+ then surrounding the values in an `if (BuildConfig.DEBUG) { ... } else { .. }` block will allow the compiler to remove
+ it as "dead code" during release builds.
+I'm looking into better ways to handle this (suggestions welcome).
 
 
 ## Getting `ClassInstanceNotFoundException`
