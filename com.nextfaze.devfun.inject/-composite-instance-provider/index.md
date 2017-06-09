@@ -2,7 +2,7 @@
 
 # CompositeInstanceProvider
 
-`class CompositeInstanceProvider : `[`RequiringInstanceProvider`](../-requiring-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L31)
+`class CompositeInstanceProvider : `[`RequiringInstanceProvider`](../-requiring-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L30)
 
 Instance provider that delegates to other providers.
 
