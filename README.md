@@ -31,6 +31,7 @@ number of means - such as an automatically generated "Developer Menu".
   - [Resources task throwing `NullPointerException`](#resources-task-throwing-nullpointerexception)
   - [Compiler Options](#compiler-options)
   - [Proguard](#proguard)
+    - [Transformers](#transformers)
   - [Getting `ClassInstanceNotFoundException`](#getting-classinstancenotfoundexception)
 - [Build](#build)
 - [License](#license)
@@ -82,26 +83,26 @@ repositories {
 Add dependencies to build.gradle:
 ```gradle
     // Annotations, Compiler, and Developer Menu
-    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.1'
-    compile 'com.nextfaze.devfun:devfun-annotations:0.1.1'
-    // debugCompile 'com.nextfaze.devfun:devfun:0.1.1' // shared lib - transitive from menu et al.
-    debugCompile 'com.nextfaze.devfun:devfun-menu:0.1.1'
+    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.2'
+    compile 'com.nextfaze.devfun:devfun-annotations:0.1.2'
+    // debugCompile 'com.nextfaze.devfun:devfun:0.1.2' // shared lib - transitive from menu et al.
+    debugCompile 'com.nextfaze.devfun:devfun-menu:0.1.2'
     
     // Dagger 2.x component inspector - only if using Dagger!
-    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.1'
+    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.2'
     
     // Chrome Dev Tools JavaScript console integration
-    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.1'
+    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.2'
         
     // HTTP server and simple index page
-    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.1.1'
-    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.1.1'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.1.2'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.1.2'
     
     // Glide util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.1'
+    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.2'
     
     // Leak Canary util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.1'
+    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.2'
 ```
 
 That's it!
