@@ -3,6 +3,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <string name="df_devfun">DevFun</string>
-    <string name="df_devfun_about">NextFaze Developer Tools.\nVersion <xliff:g id="version" example="0.1.2" notranslate="true">%1$s</xliff:g>\n\n    https://github.com/NextFaze/dev-fun</string>
+    <string name="df_devfun_about">NextFaze Developer Tools.\nVersion <xliff:g id="version" example="0.1.3" notranslate="true">%1$s</xliff:g>\n\n    https://github.com/NextFaze/dev-fun</string>
 
 </resources>
