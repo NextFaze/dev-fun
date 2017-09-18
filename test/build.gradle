@@ -35,32 +35,32 @@ android {
 
 dependencies {
     // Dev Fun
-    testCompile project(':devfun-compiler')
-    testCompile project(':devfun')
+    testImplementation project(':devfun-compiler')
+    testImplementation project(':devfun')
 
     // TestNG - http://testng.org
-    testCompile 'org.testng:testng:6.11'
+    testImplementation 'org.testng:testng:6.11'
 
     // Logging - https://logback.qos.ch
-    testCompile 'ch.qos.logback:logback-core:1.2.1'
-    testCompile 'ch.qos.logback:logback-classic:1.2.1'
+    testImplementation 'ch.qos.logback:logback-core:1.2.2'
+    testImplementation 'ch.qos.logback:logback-classic:1.2.2'
 
     // Kotlin
-    testCompile "org.jetbrains.kotlin:kotlin-annotation-processing:$kotlinVersion"
-    testCompile "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
-    testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-annotation-processing:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
     // Mockito - http://mockito.org/
-    testCompile 'org.mockito:mockito-inline:2.7.14'
-    testCompile 'com.nhaarman:mockito-kotlin:1.3.0'
+    testImplementation 'org.mockito:mockito-inline:2.11.0'
+    testImplementation 'com.nhaarman:mockito-kotlin:1.5.0'
 
     // Javac Tools
     def toolsJar = new File("${System.properties['java.home']}/../lib/tools.jar")
     if (!toolsJar.exists()) {
         throw new RuntimeException("Tools jar not found at ${toolsJar.canonicalPath}")
     }
-    testCompile files(toolsJar.canonicalPath)
+    testImplementation files(toolsJar.canonicalPath)
 
     // Full Java
     def bootJars = System.properties.get('sun.boot.class.path').toString().split(File.pathSeparator)
@@ -70,7 +70,7 @@ dependencies {
             jars += new File(path)
         }
     }
-    testCompile files(jars)
+    testImplementation files(jars)
 }
 
 // Configure TestNG

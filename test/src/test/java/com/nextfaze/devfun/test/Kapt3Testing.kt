@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.cli.common.messages.*
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.cli.jvm.config.addJavaSourceRoots
 import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
 import org.jetbrains.kotlin.codegen.AbstractClassBuilder
 import org.jetbrains.kotlin.codegen.ClassBuilder
@@ -30,13 +29,12 @@ import org.jetbrains.kotlin.codegen.ClassBuilderFactory
 import org.jetbrains.kotlin.codegen.ClassBuilderMode
 import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.com.intellij.openapi.Disposable
-import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.Services
-import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.kapt3.AbstractKapt3Extension
-import org.jetbrains.kotlin.kapt3.diagnostic.DefaultErrorMessagesKapt3
+import org.jetbrains.kotlin.kapt3.AptMode
+import org.jetbrains.kotlin.kapt3.KaptContext
 import org.jetbrains.kotlin.kapt3.javac.KaptJavaFileObject
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter
 import org.jetbrains.kotlin.kapt3.util.KaptLogger
@@ -93,7 +91,7 @@ abstract class AbstractKotlinKapt3Tester {
     protected val processors: List<Processor>
         get() = listOf<Processor>(DevFunProcessor())
 
-    private val kotlinStdLib = PathUtil.getPathUtilJar()
+    private val kotlinStdLib = PathUtil.pathUtilJar
     private val kotlinTestLib = PathUtil.getResourcePathForClass(Asserter::class.java)
     private val annotationsJar = PathUtil.getResourcePathForClass(DeveloperCategory::class.java)
     private val androidJar = PathUtil.getResourcePathForClass(Build::class.java)
@@ -251,7 +249,11 @@ data class TestContext(val testMethodName: String,
     lateinit var classLoader: ClassLoader
 
     fun runKapt(compileClasspath: List<File>, processors: List<Processor>) {
-        val config = newConfiguration(compileClasspath)
+        val config = CompilerConfiguration().apply {
+            put(CommonConfigurationKeys.MODULE_NAME, moduleName)
+            addJvmClasspathRoots(PathUtil.getJdkClassesRootsFromCurrentJre())
+            addJvmClasspathRoots(compileClasspath)
+        }
         val env = KotlinCoreEnvironment.createForTests(createDisposable(testDir.name) {}, config, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         val ktFiles = files.map { createFile(it.name, it.readText(), env.project) }
 
@@ -263,30 +265,18 @@ data class TestContext(val testMethodName: String,
                 options = kaptOptions,
                 stubsOutputDir = stubsDir,
                 incrementalDataOutputDir = incrementalDir)
-        val errorMessages = DefaultErrorMessagesKapt3()
 
         try {
             AnalysisHandlerExtension.registerExtension(env.project, kapt3Extension)
-            Extensions.getRootArea().getExtensionPoint(DefaultErrorMessages.Extension.EP_NAME).registerExtension(errorMessages)
 
-            generateFiles(env, ktFiles, Kapt3BuilderFactory())
+            GenerationUtils.compileFiles(ktFiles, env, Kapt3BuilderFactory())
 
             kapt3Extension.savedStubs ?: error("Stubs were not saved")
             kapt3Extension.savedBindings ?: error("Bindings were not saved")
         } finally {
             AnalysisHandlerExtension.unregisterExtension(env.project, kapt3Extension)
-            Extensions.getRootArea().getExtensionPoint(DefaultErrorMessages.Extension.EP_NAME).unregisterExtension(errorMessages)
         }
     }
-
-    private fun newConfiguration(classpath: List<File> = listOf(), javaSource: List<File> = listOf()) =
-            CompilerConfiguration().apply {
-                put(CommonConfigurationKeys.MODULE_NAME, moduleName)
-                addJavaSourceRoots(javaSource)
-//                addJvmClasspathRoots(PathUtil.getJdkClassesRootsFromCurrentJre()) // 1.1.3
-                addJvmClasspathRoots(PathUtil.getJdkClassesRoots())
-                addJvmClasspathRoots(classpath)
-            }
 
     fun runCompile(compileClasspath: List<File>) {
         sourcesOutputDir.mkdirs()
@@ -344,20 +334,7 @@ data class TestContext(val testMethodName: String,
     val funDefs by lazy { devFun.definitions.flatMap { it.functionDefinitions }.toSet() }
     val catDefs by lazy { devFun.definitions.flatMap { it.categoryDefinitions }.toSet() }
 
-    val allItems by lazy { devFun.categories.flatMap { it.items }.toSet().groupBy { it.function } }
-
-//    internal val instances by lazy {
-//        CompositeInstanceProvider().apply {
-//            this += ConstructingInstanceProvider(this, false)
-//            this += KObjectInstanceProvider()
-//            this += captureInstance<InstanceProvider> { this }
-//            this += PrimitivesInstanceProvider()
-//            this += SimpleTypesInstanceProvider()
-//            classLoader.loadClasses<InstanceProvider>(instanceProviders).forEach {
-//                this@apply += this@apply[it]
-//            }
-//        }
-//    }
+    private val allItems by lazy { devFun.categories.flatMap { it.items }.toSet().groupBy { it.function } }
 
     fun testInvocations(log: Logger) {
         funDefs.forEach { fd ->
@@ -405,7 +382,7 @@ private class ThrowingPrintingMessageCollector(verbose: Boolean,
                                                private val throwOnWarnings: Boolean = true) :
         PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, verbose) {
 
-    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
+    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
         super.report(severity, message, location)
 
         if (throwOnWarnings && (severity == CompilerMessageSeverity.WARNING || severity == CompilerMessageSeverity.STRONG_WARNING)) {
@@ -424,9 +401,8 @@ internal class Kapt3ExtensionForTests(
         stubsOutputDir: File,
         incrementalDataOutputDir: File
 ) : AbstractKapt3Extension(
-        compileClasspath = PathUtil.getJdkClassesRoots() + PathUtil.getKotlinPathsForIdeaPlugin().runtimePath + compileClasspath,
-        //        compileClasspath = PathUtil.getJdkClassesRootsFromCurrentJre() + PathUtil.getKotlinPathsForIdeaPlugin().stdlibPath + compileClasspath,
-        annotationProcessingClasspath = listOf(),
+        compileClasspath = PathUtil.getJdkClassesRootsFromCurrentJre() + PathUtil.kotlinPathsForIdeaPlugin.stdlibPath + compileClasspath,
+        annotationProcessingClasspath = emptyList(),
         javaSourceRoots = javaSourceRoots,
         sourcesOutputDir = sourcesOutputDir,
         classFilesOutputDir = classFilesOutputDir,
@@ -435,11 +411,11 @@ internal class Kapt3ExtensionForTests(
         options = options,
         javacOptions = emptyMap(),
         annotationProcessors = "",
-        aptOnly = false,
-        //        aptMode = AptMode.WITH_COMPILATION, // 1.1.3
+        aptMode = AptMode.STUBS_AND_APT,
         pluginInitializedTime = System.currentTimeMillis(),
-        logger = KaptLogger(KAPT_VERBOSE),
-        correctErrorTypes = true
+        logger = KaptLogger(true),
+        correctErrorTypes = true,
+        compilerConfiguration = CompilerConfiguration.EMPTY
 ) {
     var savedStubs: List<String>? = null
     var savedBindings: Map<String, KaptJavaFileObject>? = null
@@ -454,32 +430,19 @@ internal class Kapt3ExtensionForTests(
         super.saveStubs(stubs)
     }
 
-    override fun saveIncrementalData(generationState: GenerationState,
+    override fun saveIncrementalData(kaptContext: KaptContext<GenerationState>,
                                      messageCollector: MessageCollector,
                                      converter: ClassFileToSourceStubConverter) {
         if (savedBindings != null) {
             error("Bindings are already saved")
         }
         savedBindings = converter.bindings
-        super.saveIncrementalData(generationState, messageCollector, converter)
+        super.saveIncrementalData(kaptContext, messageCollector, converter)
     }
-
-    // 1.1.3
-//    override fun saveIncrementalData(kaptContext: KaptContext<GenerationState>,
-//                                     messageCollector: MessageCollector,
-//                                     converter: ClassFileToSourceStubConverter) {
-//        if (savedBindings != null) {
-//            error("Bindings are already saved")
-//        }
-//        savedBindings = converter.bindings
-//        super.saveIncrementalData(kaptContext, messageCollector, converter)
-//    }
 }
 
 internal class Kapt3BuilderFactory : ClassBuilderFactory {
-//    private val log = logger()
-
-    internal val compiledClasses = mutableListOf<ClassNode>()
+    private val compiledClasses = mutableListOf<ClassNode>()
     internal val origins = mutableMapOf<Any, JvmDeclarationOrigin>()
 
     override fun getClassBuilderMode(): ClassBuilderMode = ClassBuilderMode.KAPT3
@@ -558,7 +521,7 @@ private class WrappingUrlClassLoader(urls: List<URL>,
         return if (name.startsWith(testedRoot) || name.startsWith(packageRoot)) {
             try {
                 super.loadClass(name, resolve)
-            } catch(t: Throwable) {
+            } catch (t: Throwable) {
                 wrapped.loadClass(name)
             }
         } else {

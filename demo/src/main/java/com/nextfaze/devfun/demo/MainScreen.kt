@@ -2,9 +2,9 @@ package com.nextfaze.devfun.demo
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.content.IntentCompat.FLAG_ACTIVITY_CLEAR_TASK
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.view.Menu
@@ -12,10 +12,13 @@ import android.view.MenuItem
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.inject.ActivityInjector
 import com.nextfaze.devfun.demo.kotlin.startActivity
-import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.android.synthetic.main.main_activity.*
-import kotlinx.android.synthetic.main.nav_header_main.*
+import kotlinx.android.synthetic.main.app_bar_main.floatingActionButton
+import kotlinx.android.synthetic.main.app_bar_main.toolbarView
+import kotlinx.android.synthetic.main.content_main.helloWorldTextView
+import kotlinx.android.synthetic.main.main_activity.drawerLayout
+import kotlinx.android.synthetic.main.main_activity.navigationView
+import kotlinx.android.synthetic.main.nav_header_main.navHeaderEmail
+import kotlinx.android.synthetic.main.nav_header_main.navHeaderName
 import javax.inject.Inject
 
 class MainActivity : BaseActivity() {

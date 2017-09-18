@@ -3,7 +3,7 @@ package com.nextfaze.devfun.demo.inject
 import android.app.Activity
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.trello.rxlifecycle.components.support.RxAppCompatActivity
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent

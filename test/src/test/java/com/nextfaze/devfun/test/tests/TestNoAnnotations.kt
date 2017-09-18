@@ -15,6 +15,7 @@ class TestNoAnnotations : AbstractKotlinKapt3Tester() {
     @DataProvider(name = "testNoAnnotationsData")
     fun testNoAnnotationsData(testMethod: Method) = singleFileTests(testMethod, NoAnnotations::class)
 
+    @Suppress("UNUSED_PARAMETER")
     @Test(dataProvider = "testNoAnnotationsData")
     fun testNoAnnotations(test: TestContext) {
         val generated = ServiceLoader.load(DevFunGenerated::class.java)

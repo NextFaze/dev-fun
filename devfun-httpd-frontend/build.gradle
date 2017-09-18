@@ -11,12 +11,12 @@ project.configureAndroidLibrary(this)
 dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')
-    compile project(':devfun-httpd')
+    api project(':devfun-httpd')
 
     // Kotlin
-    compile project.kotlinStdLib
+    api project.kotlinStdLib
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt project.autoService
-    provided project.autoService
+    compileOnly project.autoService
 }

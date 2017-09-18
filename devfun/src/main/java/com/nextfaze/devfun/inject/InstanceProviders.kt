@@ -158,7 +158,7 @@ internal class AndroidInstanceProvider(context: Context,
 
         // Views
         if (activity != null && clazz.isSubclassOf<View>()) {
-            (activity.findViewById(android.R.id.content) as? ViewGroup)?.let { traverseViewHierarchy(it, clazz) }?.let { return it }
+            activity.findViewById<ViewGroup>(android.R.id.content)?.let { traverseViewHierarchy(it, clazz) }?.let { return it }
             if (activity is FragmentActivity) {
                 activity.supportFragmentManager.iterateChildren().forEach {
                     (it?.view as? ViewGroup)?.let { traverseViewHierarchy(it, clazz) }?.let { return it }

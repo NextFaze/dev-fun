@@ -10,16 +10,16 @@ project.configureAndroidLibrary(this)
 
 dependencies {
     // Dev Fun
-    compile project(':devfun')
+    api project(':devfun')
 
     // Kotlin
-    compile project.kotlinStdLib
+    api project.kotlinStdLib
 
     // Stetho - https://github.com/facebook/stetho
-    compile project.stetho
-    compile project.stethoJsRhino
+    api project.stetho
+    implementation project.stethoJsRhino
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt project.autoService
-    provided project.autoService
+    compileOnly project.autoService
 }

@@ -20,13 +20,15 @@ class TestKaptOrdering : AbstractKotlinKapt3Tester() {
 
     private lateinit var firstPass: List<String>
 
+    @Suppress("UNUSED_PARAMETER")
     @Test(dataProvider = "testGenerationOrderData")
-    fun testGenerationOrderFistPass(test: TestContext) {
+    fun testGenerationOrderFirstPass(test: TestContext) {
         val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()
         firstPass = devFun.functionDefinitions.map { it.method.toString().substringBefore('$') }
     }
 
-    @Test(dataProvider = "testGenerationOrderData", dependsOnMethods = arrayOf("testGenerationOrderFistPass"))
+    @Suppress("UNUSED_PARAMETER")
+    @Test(dataProvider = "testGenerationOrderData", dependsOnMethods = arrayOf("testGenerationOrderFirstPass"))
     fun testGenerationOrder(test: TestContext) {
         val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()
         val secondPass = devFun.functionDefinitions.map { it.method.toString().substringBefore('$') }

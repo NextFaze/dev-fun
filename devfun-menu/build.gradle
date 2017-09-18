@@ -12,18 +12,17 @@ project.configureAndroidLibrary(this)
 dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')
-    compile project(':devfun')
+    api project(':devfun')
 
     // Kotlin
-    compile project.kotlinStdLib
-    compile project.kotlinReflect
+    api project.kotlinStdLib
 
     // Support libs
-    compile project.supportAppCompat
-    compile project.supportRecyclerView
-    compile project.supportConstraintLayout
+    api project.supportAppCompat
+    implementation project.supportRecyclerView
+    implementation project.supportConstraintLayout
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt project.autoService
-    provided project.autoService
+    compileOnly project.autoService
 }

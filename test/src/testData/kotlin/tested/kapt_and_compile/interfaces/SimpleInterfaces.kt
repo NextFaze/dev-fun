@@ -11,7 +11,7 @@ object SimpleInterfaces : TestInstanceProviders {
     override val testProviders: List<KClass<out InstanceProvider>> get() = listOf(SimpleInterfacesInstanceProvider::class)
 }
 
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
 private class SimpleInterfacesInstanceProvider : InstanceProvider {
     override fun <T : Any> get(clazz: KClass<out T>): T? = when {
         clazz.isSubclassOf(si_Interface::class) -> si_InterfaceImpl()

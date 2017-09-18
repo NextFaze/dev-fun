@@ -23,12 +23,12 @@ kotlin {
 dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')
-    compile project(':devfun-annotations')
+    api project(':devfun-annotations')
 
     // Kotlin
-    compile project.kotlinStdLib
-    compile project.kotlinCoroutines
+    api project.kotlinStdLib
+    implementation project.kotlinCoroutines
 
     // Glide - https://github.com/bumptech/glide
-    provided project.glide
+    compileOnly project.glide
 }

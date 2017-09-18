@@ -48,69 +48,69 @@ android {
 dependencies {
     // Dev Fun
     kaptDebug project(':devfun-compiler')
-    compile project(':devfun-annotations')
-    debugCompile project(':devfun-inject-dagger2')
-    debugCompile project(':devfun-menu')
-    debugCompile project(':devfun-httpd')
-    debugCompile project(':devfun-httpd-frontend')
+    implementation project(':devfun-annotations')
+    debugImplementation project(':devfun-inject-dagger2')
+    debugImplementation project(':devfun-menu')
+    debugImplementation project(':devfun-httpd')
+    debugImplementation project(':devfun-httpd-frontend')
 
     // Kotlin
-    compile project.kotlinStdLib
-    compile project.kotlinCoroutines
-    compile project.kotlinCoroutinesAndroid
+    implementation project.kotlinStdLib
+    implementation project.kotlinCoroutines
+    implementation project.kotlinCoroutinesAndroid
 
     // Support libs
-    compile project.supportAppCompat
-    compile project.supportDesign
-    compile project.supportConstraintLayout
-    compile 'com.android.support:multidex:1.0.1'
+    implementation project.supportAppCompat
+    implementation project.supportDesign
+    implementation project.supportConstraintLayout
+    implementation 'com.android.support:multidex:1.0.2'
 
     // Logging - https://github.com/tony19/logback-android
-    compile project.slf4jApi
-    compile 'com.github.tony19:logback-android-core:1.1.1-6'
-    compile('com.github.tony19:logback-android-classic:1.1.1-6') {
+    implementation project.slf4jApi
+    implementation 'com.github.tony19:logback-android-core:1.1.1-6'
+    implementation('com.github.tony19:logback-android-classic:1.1.1-6') {
         exclude group: 'com.google.android', module: 'android'
     }
 
     // Dagger 2 - https://github.com/google/dagger
     kapt project.daggerCompiler
-    compile project.dagger
-    provided project.daggerAnnotations
+    implementation project.dagger
+    compileOnly project.daggerAnnotations
 
     // OkHttp - https://github.com/square/okhttp
-    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.0'
 
     // Joda Time - https://github.com/dlew/joda-time-android
-    compile 'net.danlew:android.joda:2.9.9'
+    implementation 'net.danlew:android.joda:2.9.9'
 
     // Stetho - https://github.com/facebook/stetho
-    debugCompile project.stetho
-    debugCompile project.stethoJsRhino
-    debugCompile project(':devfun-stetho')
+    debugImplementation project.stetho
+    debugImplementation project.stethoJsRhino
+    debugImplementation project(':devfun-stetho')
 
     // Glide - https://github.com/bumptech/glide
-    compile project.glide
-    compile 'com.github.bumptech.glide:okhttp3-integration:1.5.0@aar'
-    debugCompile project(':devfun-util-glide')
+    implementation project.glide
+    implementation 'com.github.bumptech.glide:okhttp3-integration:1.5.0@aar'
+    debugImplementation project(':devfun-util-glide')
 
     // Leak Canary - https://github.com/square/leakcanary
-    debugCompile project.leakCanary
-    debugCompile project(':devfun-util-leakcanary')
+    debugImplementation project.leakCanary
+    debugImplementation project(':devfun-util-leakcanary')
 
     // RxJava: Reactive Extensions for the JVM - https://github.com/ReactiveX/RxJava
-    compile 'io.reactivex:rxjava:1.3.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.5'
 
     // RxJava bindings for Android - https://github.com/ReactiveX/RxAndroid
-    compile 'io.reactivex:rxandroid:1.2.1'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
     // RxKotlin
-    compile 'io.reactivex:rxkotlin:1.0.0'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.1.0'
 
     // RxLifecycle - https://github.com/trello/RxLifecycle
-    compile 'com.trello:rxlifecycle:1.0'
-    compile 'com.trello:rxlifecycle-android:1.0'
-    compile 'com.trello:rxlifecycle-components:1.0'
-    compile 'com.trello:rxlifecycle-kotlin:1.0'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle:2.2.0'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.0'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.0'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-kotlin:2.2.0'
 }
 
 //task jarForDokka(type: Jar) {

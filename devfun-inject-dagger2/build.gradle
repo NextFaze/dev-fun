@@ -11,15 +11,15 @@ project.configureAndroidLibrary(this)
 dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')
-    compile project(':devfun')
+    api project(':devfun')
 
     // Kotlin
-    compile project.kotlinStdLib
+    api project.kotlinStdLib
 
     // Dagger 2 - https://github.com/google/dagger
-    provided project.dagger
+    implementation project.dagger
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt project.autoService
-    provided project.autoService
+    compileOnly project.autoService
 }

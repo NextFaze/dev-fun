@@ -26,39 +26,39 @@ ext {
 
     bintrayPlugin = 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 
-    androidPlugin = 'com.android.tools.build:gradle:2.4.0-alpha7'
+    androidPlugin = 'com.android.tools.build:gradle:3.0.0'
     androidMavenGradlePlugin = 'com.github.dcendents:android-maven-gradle-plugin:1.5'
 
-    compileSdkVersion = 25
-    buildToolsVersion = '25.0.2'
+    compileSdkVersion = 26
+    buildToolsVersion = '26.0.2'
 
     minSdkVersion = 15
-    targetSdkVersion = 25
+    targetSdkVersion = 26
     versionCode = 1
     versionName = deployVersion
 
-    kotlinVersion = '1.1.2-3'
+    kotlinVersion = '1.1.51'
     kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
     kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
-    kotlinCoroutinesVersion = '0.15'
+    kotlinCoroutinesVersion = '0.18'
     kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
-    supportVersion = '25.3.1'
+    supportVersion = '26.1.0'
     supportRecyclerView = "com.android.support:recyclerview-v7:$supportVersion"
     supportAppCompat = "com.android.support:appcompat-v7:$supportVersion"
     supportDesign = "com.android.support:design:$supportVersion"
     supportAnnotations = "com.android.support:support-annotations:$supportVersion"
     supportConstraintLayout = 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    daggerVersion = '2.11-rc2'
+    daggerVersion = '2.11'
     daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
     dagger = "com.google.dagger:dagger:$daggerVersion"
     daggerAnnotations = 'org.glassfish:javax.annotation:10.0-b28'
 
-    slf4jApi = 'org.slf4j:slf4j-api:1.7.22'
+    slf4jApi = 'org.slf4j:slf4j-api:1.7.25'
 
     autoService = 'com.google.auto.service:auto-service:1.0-rc3'
 
@@ -68,13 +68,13 @@ ext {
 
     glide = 'com.github.bumptech.glide:glide:3.7.0'
 
-    leakCanary = 'com.squareup.leakcanary:leakcanary-android:1.5.1'
+    leakCanary = 'com.squareup.leakcanary:leakcanary-android:1.5.3'
 
     publishing = project.file('publishing.gradle')
 
-    dokkaPlugin = 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.14'
-    dokkaAndroidPlugin = 'org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.14'
-    dokkaFatJar = 'org.jetbrains.dokka:dokka-fatjar:0.9.14'
+    dokkaPlugin = 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.15'
+    dokkaAndroidPlugin = 'org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.15'
+    dokkaFatJar = 'org.jetbrains.dokka:dokka-fatjar:0.9.15'
 }
 
 allprojects {

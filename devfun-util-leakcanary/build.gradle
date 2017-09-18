@@ -11,11 +11,11 @@ project.configureAndroidLibrary(this)
 dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')
-    compile project(':devfun-annotations')
+    api project(':devfun-annotations')
 
     // Kotlin
-    compile project.kotlinStdLib
+    api project.kotlinStdLib
 
     // Leak Canary - https://github.com/square/leakcanary
-    provided project.leakCanary
+    compileOnly project.leakCanary
 }

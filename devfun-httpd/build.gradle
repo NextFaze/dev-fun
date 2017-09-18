@@ -12,17 +12,17 @@ project.configureAndroidLibrary(this)
 dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')
-    compile project(':devfun')
+    api project(':devfun')
 
     // Kotlin
-    compile project.kotlinStdLib
-    compile project.kotlinReflect
+    api project.kotlinStdLib
+    implementation project.supportAppCompat
 
     // Http Server
-    compile 'org.nanohttpd:nanohttpd:2.3.1'
-    compile 'org.nanohttpd:nanohttpd-nanolets:2.3.1'
+    api 'org.nanohttpd:nanohttpd:2.3.1'
+    api 'org.nanohttpd:nanohttpd-nanolets:2.3.1'
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt project.autoService
-    provided project.autoService
+    compileOnly project.autoService
 }

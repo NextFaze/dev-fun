@@ -1,8 +1,8 @@
 package com.nextfaze.devfun.demo.inject
 
 import android.os.Bundle
-import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
-import com.trello.rxlifecycle.components.support.RxFragment
+import com.trello.rxlifecycle2.components.support.RxAppCompatDialogFragment
+import com.trello.rxlifecycle2.components.support.RxFragment
 
 abstract class DaggerFragment : RxFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
