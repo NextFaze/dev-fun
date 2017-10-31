@@ -1,5 +1,6 @@
 package com.nextfaze.devfun.menu.controllers
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.Dialog
 import android.content.Context
@@ -45,7 +46,16 @@ class CogOverlay constructor(context: Context,
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
 
-    private val canDrawOverlays get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(application)
+    private val canDrawOverlays: Boolean
+        get() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(application)) {
+                return true
+            }
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                return forceCheckPermissionsEnabled()
+            }
+            return false
+        }
     private var overlayAdded = false
 
     private val dragObject = Any()
@@ -178,10 +188,9 @@ class CogOverlay constructor(context: Context,
         }
     }
 
-    // we use a system type window (TYPE_PHONE) so we don't need a window token and thus avoid the need to manage
     private fun newLayoutParams() =
             WindowManager.LayoutParams().apply {
-                type = WindowManager.LayoutParams.TYPE_PHONE
+                type = windowOverlayType
                 format = PixelFormat.TRANSLUCENT
                 flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                 width = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -203,6 +212,35 @@ class CogOverlay constructor(context: Context,
             windowManager.updateViewLayout(windowView, newLayoutParams())
         }
     }
+
+    /**
+     * Forcefully check if we have permissions on SDK 26
+     *
+     * See
+     * - https://stackoverflow.com/questions/46187625/settings-candrawoverlayscontext-returns-false-on-android-oreo
+     * - https://stackoverflow.com/questions/46173460/why-in-android-o-method-settings-candrawoverlays-returns-false-when-user-has
+     * - https://issuetracker.google.com/issues/66072795
+     */
+    private fun forceCheckPermissionsEnabled() =
+            try {
+                val params = newLayoutParams()
+                val view = View(application).apply { layoutParams = params }
+                windowManager.addView(view, params)
+                windowManager.removeView(view)
+                log.d { "permissionCheckHack success!" }
+                true
+            } catch (ignore: Throwable) {
+                log.d(ignore) { "permissionCheckHack failed!" }
+                false
+            }
+
+    @Suppress("DEPRECATION")
+    private val windowOverlayType
+        @SuppressLint("InlinedApi")
+        get() = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            else -> WindowManager.LayoutParams.TYPE_PHONE
+        }
 }
 
 private var permissionsDenied = false
