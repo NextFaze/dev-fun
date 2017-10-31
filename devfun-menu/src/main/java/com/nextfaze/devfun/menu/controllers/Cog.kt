@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.app.AlertDialog
+import android.util.Log
 import android.view.*
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -176,7 +177,19 @@ class CogOverlay constructor(context: Context,
     }
 
     @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
-    private fun manageOverlayPermission() = fragmentActivity?.show<OverlayPermissionsDialogFragment>()
+    private fun manageOverlayPermission() =
+            if (!isInstrumentationTest) fragmentActivity?.show<OverlayPermissionsDialogFragment>() else null
+
+    private val isInstrumentationTest by lazy {
+        when {
+            Thread.currentThread().contextClassLoader?.toString().orEmpty().contains("android.test.runner.jar") -> true
+            else -> Log.getStackTraceString(Throwable()).contains("android.support.test.runner.MonitoringInstrumentation")
+        }.also {
+            if (it) {
+                log.d { "Instance detected as instrumentation test - debug cog overlay disabled." }
+            }
+        }
+    }
 
     private fun removeCurrentWindow() = windowView?.let { view ->
         view.parent?.let {

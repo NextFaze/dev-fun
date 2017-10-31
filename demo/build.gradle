@@ -111,6 +111,10 @@ dependencies {
     implementation 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.0'
     implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.0'
     implementation 'com.trello.rxlifecycle2:rxlifecycle-kotlin:2.2.0'
+
+    // Instrumentation tests
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
 
 //task jarForDokka(type: Jar) {
