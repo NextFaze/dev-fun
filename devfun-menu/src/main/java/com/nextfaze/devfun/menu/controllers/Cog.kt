@@ -76,7 +76,7 @@ class CogOverlay constructor(context: Context,
                     if (it is FragmentActivity) {
                         when {
                             canDrawOverlays -> addOverlay()
-                            !permissionsDenied -> manageOverlayPermission()
+                            !permissionsDenied && !isInstrumentationTest -> manageOverlayPermission()
                         }
                         setVisible(it.isRunningInForeground)
                     } else {
@@ -177,8 +177,7 @@ class CogOverlay constructor(context: Context,
     }
 
     @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
-    private fun manageOverlayPermission() =
-            if (!isInstrumentationTest) fragmentActivity?.show<OverlayPermissionsDialogFragment>() else null
+    private fun manageOverlayPermission() = fragmentActivity?.show<OverlayPermissionsDialogFragment>()
 
     private val isInstrumentationTest by lazy {
         when {
