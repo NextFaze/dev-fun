@@ -27,12 +27,11 @@ number of means - such as an automatically generated "Developer Menu".
   - [Documentation](#documentation)
   - [Logging](#logging)
   - [Kotlin `stdlib` Conflict](#kotlin-stdlib-conflict)
-  - [Missing Items](#missing-items)
-  - [Resources task throwing `NullPointerException`](#resources-task-throwing-nullpointerexception)
   - [Compiler Options](#compiler-options)
   - [Proguard](#proguard)
     - [Transformers](#transformers)
   - [Getting `ClassInstanceNotFoundException`](#getting-classinstancenotfoundexception)
+  - [Missing Items](#missing-items)
 - [Build](#build)
 - [License](#license)
 
@@ -59,12 +58,12 @@ See the documentation for advanced usage, including custom names, custom argumen
 
 ## Quick Start
 #### Project Setup
-- Recommended to use Kotlin 1.1.2-3, though tested down to 1.1.1
+- **REQUIRED** Android Gradle 3.0.0 _(earlier versions may work intermittently, but will have missing items due to annotation processing issues)_
+  - See [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589)
+- Recommended to use Kotlin 1.1.51, though should work down to 1.1.1 _(largely untested)_
 - Recommended to use KAPT3 (`apply plugin: 'kotlin-kapt'`), though KAPT1 also works
-- `minSdkVersion` >= 15
-- Built against Android Support libraries 25.3.1
-
-**Note: Kotlin 1.1.2-4 has KAPT3 issues**
+- Compiled with `minSdkVersion` >= 15
+- Built against Android Support libraries 26.1.0
 
 #### Dependencies
 Can be categorized into 4 types:
@@ -191,12 +190,10 @@ This can also be toggled at any time via [devFunVerbose](https://nextfaze.github
 
 
 ## Kotlin `stdlib` Conflict 
-DevFun was compiled using Kotlin 1.1.2-3. It will work with 1.1.2-2, 1.1.2, and should work with 1.1.1.  
-*Earlier versions of Kotlin are completely untested and unsupported (this is unlikely to change).*  
+DevFun was compiled using Kotlin 1.1.51.  
+*Earlier versions of Kotlin are largely untested and unsupported (this is unlikely to change unless explicitly requested).*  
 
-**Note: Kotlin 1.1.2-4 has KAPT3 issues**
-
-However, if you receive a dependency conflict error such as:  
+Thus if you receive a dependency conflict error such as:  
 `Error: Conflict with dependency 'org.jetbrains.kotlin:kotlin-stdlib' in project ':app'. Resolved versions for app (1.1.2-3) and test app (1.1.1) differ. See http://g.co/androidstudio/app-test-app-conflict for details.`
 The simplest resolution is updating your Kotlin version to match.
 
@@ -211,26 +208,6 @@ configurations.all {
     )
 }
 ```
-
-
-## Missing Items
-Due to issues with Android Gradle ([#37140464](https://issuetracker.google.com/37140464)), APT generated resources on Application projects
- are not packaged into the APK.
-
-Various work-arounds are in place, but are inconsistent/unreliable depending on the project setup. This is especially
- true when using KAPT1 - if possible use KAPT3 (`apply plugin: 'kotlin-kapt'`) as the work-arounds tend to be more
- reliable. However if this is not possible, you can tell DevFun to manually load your definitions in-app
- (`DevFun > Manually load app generated definitions`). _(might look into detecting and automating this)_ 
-
-For a more permanent solution, the compiler can be told to generate a services file directly in your `src` tree (or you
- can create one). See [FLAG_CREATE_SRC_SERVICES](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.compiler/-f-l-a-g_-c-r-e-a-t-e_-s-r-c_-s-e-r-v-i-c-e-s.html)
- for more details.
-
-**Note: Kotlin 1.1.2-4 has KAPT3 issues**
-
-## Resources task throwing `NullPointerException`
-Not sure why this happens, but seems to be related to first-time builds when `org.gradle.parallel` is enable and the
-hacks/work-arounds used due to Android Gradle ([#37140464](https://issuetracker.google.com/37140464)). Rebuilding seems to indefinitely fix it (unless you delete the gradle task cache folder `.gradle` ).
 
 
 ## Compiler Options
@@ -269,12 +246,15 @@ If you wish to use DevFun with Proguard you will need to configure your app to k
 Rules that are supplied by DevFun libraries can be found in [proguard-rules-common.pro](https://github.com/NextFaze/dev-fun/blob/master/proguard-rules-common.pro) 
 (the Glide util module also adds a couple).
 
-If everything used by DevFun (the annotated classes and functions) is public or internal (see demo rules otherwise) then
+If everything used by DevFun (the annotated classes and functions) is _public or internal_ (see demo rules otherwise) then
  all you need to do is keep the generated file:
 ```proguard
 # Keep DevFun generated class
 -keep class your.package.goes.here.** extends com.nextfaze.devfun.generated.DevFunGenerated
 ```
+
+For non-public/internal you will need to adjust your proguard config appropriately, or more simply use `@Keep` on the classes/functions.  
+
 
 ### Transformers
 At the moment transformers needs to be in the main source tree (or wherever it's being used) as its class is referenced
@@ -306,6 +286,14 @@ val provider = captureInstance<BaseType> { someObject.someType } // triggers onl
 ```
 
 _Be aware of leaks! The lambda could implicitly hold a local `this` reference._
+
+
+## Missing Items
+If you are using Android Gradle versions prior to 3.0.0, then this is likely due to tooling issues where APT generated
+ resources on Application projects were not packaged into the APK (see [#37140464](https://issuetracker.google.com/issues/37140464)
+ and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589)). The extreme hacks/support for this were removed in DevFun 0.1.2.
+
+
 
 # Build
 Open project using Android Studio (usually latest preview). Opening in IntelliJ is untested, though it should work.
