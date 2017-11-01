@@ -194,12 +194,10 @@ abstract class AbstractKotlinKapt3Tester {
 }
 
 private fun kaptOptions(debugVerbose: Boolean? = true,
-                        libraryFlag: Boolean? = true,
                         packageRoot: String? = TEST_PACKAGE_ROOT,
                         packageSuffix: String? = null): Map<String, String> =
         mutableMapOf<String, String>().apply {
             debugVerbose?.let { this[FLAG_DEBUG_VERBOSE] = it.toString() }
-            libraryFlag?.let { this[FLAG_LIBRARY] = it.toString() }
             packageRoot?.let { this[PACKAGE_ROOT] = it }
             packageSuffix?.let { this[PACKAGE_SUFFIX] = it }
         }

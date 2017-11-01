@@ -103,7 +103,7 @@ class DevFun {
     private val log = logger()
     private val activityTracker = ActivityTracker()
     private val moduleLoader = ModuleLoader(this)
-    private val definitionsLoader = DefinitionsLoader(this)
+    private val definitionsLoader = DefinitionsLoader()
     private val initializationCallbacks = mutableListOf<OnInitialized>()
 
     /**

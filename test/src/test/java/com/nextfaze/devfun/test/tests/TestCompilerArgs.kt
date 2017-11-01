@@ -87,7 +87,6 @@ class TestCompilerArgs : AbstractKotlinKapt3Tester() {
             testFiles = listOf(SimpleFunctionsInClasses::class),
             kaptOptions = mapOf(
                     FLAG_DEBUG_VERBOSE to "true",
-                    FLAG_LIBRARY to "true",
                     PACKAGE_OVERRIDE to "com.example.application.generated"))
             .use {
                 val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()

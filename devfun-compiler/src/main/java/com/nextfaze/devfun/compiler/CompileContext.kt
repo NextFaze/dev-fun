@@ -18,9 +18,6 @@ private val APPLICATION_ID_REGEX = Regex("String APPLICATION_ID = \"(.*)\";")
 private val BUILD_TYPE_REGEX = Regex("String BUILD_TYPE = \"(.*)\";")
 private val FLAVOR_REGEX = Regex("String FLAVOR = \"(.*)\";")
 
-// Pattern for build.gradle
-private val ANDROID_PLUGIN_REGEX = Regex("apply plugin: '(com.android.library|android-library|com.android.application|android)'")
-
 private data class BuildConfig(val manifestPackage: String,
                                val applicationId: String,
                                val buildType: String,
@@ -35,10 +32,6 @@ private data class BuildConfig(val manifestPackage: String,
 }
 
 internal class CompileContext(private val processingEnv: ProcessingEnvironment) {
-    val javaResourcesDir by lazy { File("$buildDir/intermediates/sourceFolderJavaResources/${buildConfig.variantDir}") }
-    val generatedJavaResourcesDir by lazy { File("$buildDir/generated/javaResources/${buildConfig.variantDir}") }
-    val srcResourcesDir by lazy { File("$buildDir/../src/${buildConfig.variantDir}/resources") }
-
     val pkg by lazy {
         // Use apt arg PACKAGE_OVERRIDE
         packageOverride?.let { return@lazy it }.also { note { "pkg=$it" } }
@@ -66,48 +59,6 @@ internal class CompileContext(private val processingEnv: ProcessingEnvironment) 
             appendPart(packageSuffix)
         }.toString().also {
             note { "pkg=$it" }
-        }
-    }
-
-    val isLibrary by lazy {
-        // Check apt arg
-        processingEnv.options[FLAG_LIBRARY]?.toBoolean()?.let { return@lazy it }
-
-        // Otherwise check R.java for static values
-        // If it's a library the R values will not be final. i.e. Any "public static final int " means application.
-        val rPath = listOf("generated/source/r", buildConfig.flavor, buildConfig.buildType, buildConfig.manifestPackage.replace('.', '/'), "R.java").filter(String::isNotBlank).joinToString("/")
-        val rFile = File(buildDir, rPath)
-        if (!rFile.exists()) {
-            // Android Gradle Plugin 2.3.x wont generate an R.java file if no resources are declared.
-            // Hence we try to find the application or library plugin declaration in the project's build.gradle
-            val buildFile = File(buildDir, "../build.gradle")
-            if (buildFile.exists()) {
-                buildFile.reader().useLines {
-                    val matched = it.firstOrNull { ANDROID_PLUGIN_REGEX.matches(it) }
-                    if (matched != null) {
-                        return@lazy matched.contains("library")
-                    }
-                }
-            }
-
-            error("""Unable to automatically determine if project is a library from buildConfig=$buildConfig or buildGradle=$buildFile.
-Attempted to process generated R.java but was missing at: ${rFile.canonicalPath}
-Custom build locations can break automatic detection - to skip automatic detection pass argument manually:
-
-    defaultConfig {
-        javaCompileOptions {
-            annotationProcessorOptions {
-                argument '$FLAG_LIBRARY', 'true' // or 'false' if the project is an application
-            }
-        }
-    }
-""")
-            throw BuildContextException("Failed to locate R.java")
-        }
-
-        // there are static final int[] (arrays) in libraries (hence the trailing white space)
-        !rFile.reader().useLines { it.any { it.contains("public static final int ") } }.also {
-            note { "isLibrary=$it" }
         }
     }
 

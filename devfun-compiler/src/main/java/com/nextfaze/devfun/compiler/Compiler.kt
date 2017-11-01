@@ -8,12 +8,14 @@ import com.nextfaze.devfun.generated.DevFunGenerated
 import java.io.File
 import java.io.IOException
 import java.lang.reflect.Method
-import javax.annotation.processing.*
+import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.Processor
+import javax.annotation.processing.RoundEnvironment
+import javax.annotation.processing.SupportedOptions
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
 import javax.lang.model.type.DeclaredType
 import javax.tools.Diagnostic
-import javax.tools.StandardLocation
 import javax.tools.StandardLocation.CLASS_OUTPUT
 import javax.tools.StandardLocation.SOURCE_OUTPUT
 import kotlin.reflect.KCallable
@@ -82,58 +84,6 @@ private const val FLAG_DEBUG_COMMENTS = "devfun.debug.comments"
  * ```
  */
 const val FLAG_DEBUG_VERBOSE = "devfun.debug.verbose"
-
-/**
- * Flag to indicate if project is a library project. _(default: `false`)_
- *
- * This is necessary due to generated services file not being picked up in application modules.
- * Attempts will be made to auto-detect if project is a library, but if necessary this flag can be set instead.
- *
- * Set using APT options:
- * ```gradle
- * android {
- *      defaultConfig {
- *          javaCompileOptions {
- *              annotationProcessorOptions {
- *                  argument 'devfun.library', 'true'
- *              }
- *          }
- *      }
- * }
- * ```
- */
-const val FLAG_LIBRARY = "devfun.library"
-
-/**
- * Flag to enable [Filer] for services file generation on Application projects instead of manually. _(default: `false`)_
- *
- * Generating service using standard Java annotation processor calls involves using [Filer.createResource] at [StandardLocation.CLASS_OUTPUT].
- * Library projects will always use `Filer`, however Application projects fail to pick up `CLASS_OUTPUT` generated files
- * ([#262811](https://issuetracker.google.com/262811)) and thus will be manually created unless this is `true`.
- *
- * If `false`, service files will be manually created at:
- * - `<buildDir>/intermediates/sourceFolderJavaResources/<variant>/...` _allows detection on first build_
- * - `<buildDir>/generated/javaResources/<variant>/...` _allows detection on subsequent and non-source (incremental) builds_
- *
- * This process works for both library and application modules, but is non-standard and undocumented, and services files
- * may only be picked up on *subsequent* build rounds under some circumstances.
- *
- * Set using APT options:
- * ```gradle
- * android {
- *      defaultConfig {
- *          javaCompileOptions {
- *              annotationProcessorOptions {
- *                  argument 'devfun.services.filer', 'true'
- *              }
- *          }
- *      }
- * }
- * ```
- *
- * __This will default to `true` once [#262811](https://issuetracker.google.com/262811) is fixed.__
- */
-const val FLAG_SERVICES_USE_FILER = "devfun.services.filer"
 
 /**
  * Sets the package suffix for the generated code. _(default: `devfun_generated`)_
@@ -211,41 +161,6 @@ const val PACKAGE_OVERRIDE = "devfun.package.override"
  */
 const val PACKAGE_SUFFIX_DEFAULT = "devfun_generated"
 
-/**
- * Flag to tell the compiler to create a services file in your sources directory instead of using generated sources. _(default: `<none>`)_ **(experimental)**
- *
- * This flag is primarily used to get around Android Gradle bug [#262811](https://issuetracker.google.com/262811), and will be removed once fixed.
- *
- * In general this should only be used in extreme cases as it involves significant assumptions about your project
- *  structure and tool chains.
- *
- * It will attempt to create one at `<buildDir>/../src/<variantDir>/resources/META-INF/services/com.nextfaze.devfun.generated.DevFunGenerated`
- *
- * *Note: Due to resource and compile task ordering, you may need to build once,
- *  then build again for the services file to be packaged (depends on project setup).*
- *
- * Set using APT options:
- * ```gradle
- * android {
- *      defaultConfig {
- *          javaCompileOptions {
- *              annotationProcessorOptions {
- *                  argument 'devfun.services.src', 'true'
- *              }
- *          }
- *      }
- * }
- * ```
- *
- * Alternatively, create one yourself in your sources tree:
- * - `src/<buildType>/resources/META-INF/services/com.nextfaze.devfun.generated.DevFunGenerated`
- *
- * With a line containing the generated class' fully qualified name.
- * - If using defaults it will be `<BuildConfig.APPLICATION_ID>.<BuildConfig.BUILD_TYPE>(.<BuildConfig.FLAVOR>).devfun_generated.DevFunDefinitions`
- * - If you have changed things, easiest way is to grab to package line from the build sources (`DevFunDefinitions.kt`)
- */
-const val FLAG_CREATE_SRC_SERVICES = "devfun.services.src"
-
 internal const val META_INF_SERVICES = "META-INF/services"
 private const val DEFINITIONS_FILE_NAME = "DevFunDefinitions.kt"
 private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
@@ -257,8 +172,6 @@ private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
         FLAG_USE_KOTLIN_REFLECTION,
         FLAG_DEBUG_COMMENTS,
         FLAG_DEBUG_VERBOSE,
-        FLAG_LIBRARY,
-        FLAG_SERVICES_USE_FILER,
         PACKAGE_ROOT,
         PACKAGE_SUFFIX,
         PACKAGE_OVERRIDE
@@ -275,8 +188,6 @@ class DevFunProcessor : AbstractProcessor() {
     private val useKotlinReflection by lazy { processingEnv.options[FLAG_USE_KOTLIN_REFLECTION]?.toBoolean() ?: false }
     private val isDebugCommentsEnabled by lazy { isDebugVerbose || processingEnv.options[FLAG_DEBUG_COMMENTS]?.toBoolean() ?: false }
     private val isDebugVerbose by lazy { processingEnv.options[FLAG_DEBUG_VERBOSE]?.toBoolean() ?: false }
-    private val useFilerForServices by lazy { processingEnv.options[FLAG_SERVICES_USE_FILER]?.toBoolean() ?: false }
-    private val createSourceLevelServices by lazy { processingEnv.options[FLAG_CREATE_SRC_SERVICES]?.toBoolean() ?: false }
     private val ctx by lazy { CompileContext(processingEnv) }
 
     private val filer by lazy { processingEnv.filer }
@@ -606,39 +517,9 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         val servicesPath = "$META_INF_SERVICES/${DevFunGenerated::class.qualifiedName}"
         val servicesText = "${ctx.pkg}.$DEFINITIONS_CLASS_NAME\n"
 
-        if (createSourceLevelServices) {
-            File(ctx.srcResourcesDir, servicesPath).apply {
-                if (!exists() || readText() != servicesText) {
-                    note { "Write services file to ${this.canonicalPath} (srcResourcesDir=${ctx.srcResourcesDir})" }
-                    parentFile.mkdirs()
-                    writeText(servicesText)
-                }
-            }
-        } else if (useFilerForServices || ctx.isLibrary) {
-            // Filer.CLASS_OUTPUT only works on android.app.library
-            // See: https://issuetracker.google.com/262811
-            filer.createResource(CLASS_OUTPUT, "", servicesPath).apply {
-                note { "Write services file to ${File(toUri()).canonicalPath}" }
-                openWriter().use { it.write(servicesText) }
-            }
-        } else {
-            // This will allow it to be picked up on first-run (and keep it up to date - but only if sources change)
-            File(ctx.javaResourcesDir, servicesPath).apply {
-                if (!exists() || readText() != servicesText) {
-                    note { "Write services file to ${this.canonicalPath} (javaResourcesDir=${ctx.javaResourcesDir})" }
-                    parentFile.mkdirs()
-                    writeText(servicesText)
-                }
-            }
-
-            // This will allow it to be picked up on subsequent builds (when no sources are changed)
-            File(ctx.generatedJavaResourcesDir, servicesPath).apply {
-                if (!exists() || readText() != servicesText) {
-                    note { "Write services file to $canonicalPath (generatedJavaResourcesDir=${ctx.generatedJavaResourcesDir})" }
-                    parentFile.mkdirs()
-                    writeText(servicesText)
-                }
-            }
+        filer.createResource(CLASS_OUTPUT, "", servicesPath).apply {
+            note { "Write services file to ${File(toUri()).canonicalPath}" }
+            openWriter().use { it.write(servicesText) }
         }
     }
 
