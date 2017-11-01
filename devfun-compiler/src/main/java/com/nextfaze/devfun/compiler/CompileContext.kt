@@ -10,13 +10,13 @@ import javax.tools.StandardLocation
 // Kapt3 uses <buildDir>/tmp/kapt3/classes/<buildType>/...
 // /home/user/<path>/<to>/<project>/<app-name>/build/intermediates/classes/<build-type>/META-INF/services/com.nextfaze.devfun.generated.MenuDefinitions
 // Path may also be changed using gradle project.buildDir = '...' (default build dir ends with /build/, so we don't include that in regex)
-private val SERVICES_PATH_REGEX = Regex("(.*)(/intermediates/classes/|/tmp/kotlin-classes/|/tmp/kapt3/classes/)(.*)/META-INF/services/.*")
+private val servicesPathRegex = Regex("(.*)(/intermediates/classes/|/tmp/kotlin-classes/|/tmp/kapt3/classes/)(.*)/META-INF/services/.*")
 
 // Patterns for BuildConfig.java
-private val MANIFEST_PACKAGE_REGEX = Regex("\n?package (.*);")
-private val APPLICATION_ID_REGEX = Regex("String APPLICATION_ID = \"(.*)\";")
-private val BUILD_TYPE_REGEX = Regex("String BUILD_TYPE = \"(.*)\";")
-private val FLAVOR_REGEX = Regex("String FLAVOR = \"(.*)\";")
+private val manifestPackageRegex = Regex("\n?package (.*);")
+private val applicationIdRegex = Regex("String APPLICATION_ID = \"(.*)\";")
+private val buildTypeRegex = Regex("String BUILD_TYPE = \"(.*)\";")
+private val flavorRegex = Regex("String FLAVOR = \"(.*)\";")
 
 private data class BuildConfig(val manifestPackage: String,
                                val applicationId: String,
@@ -72,7 +72,7 @@ internal class CompileContext(private val processingEnv: ProcessingEnvironment) 
     }
 
     private val resourcePathMatch by lazy {
-        SERVICES_PATH_REGEX.matchEntire(servicesPath) ?: run {
+        servicesPathRegex.matchEntire(servicesPath) ?: run {
             error("Failed to match resources path from $servicesPath")
             throw BuildContextException("Failed to locate active BuildConfig.java")
         }
@@ -104,10 +104,10 @@ internal class CompileContext(private val processingEnv: ProcessingEnvironment) 
         val buildConfigs = buildConfigFiles.map {
             val text = it.readText()
             BuildConfig(
-                    manifestPackage = MANIFEST_PACKAGE_REGEX.find(text)?.groupValues?.getOrNull(1) ?: "",
-                    applicationId = APPLICATION_ID_REGEX.find(text)?.groupValues?.getOrNull(1) ?: "",
-                    buildType = BUILD_TYPE_REGEX.find(text)?.groupValues?.getOrNull(1) ?: "",
-                    flavor = FLAVOR_REGEX.find(text)?.groupValues?.getOrNull(1) ?: "")
+                    manifestPackage = manifestPackageRegex.find(text)?.groupValues?.getOrNull(1) ?: "",
+                    applicationId = applicationIdRegex.find(text)?.groupValues?.getOrNull(1) ?: "",
+                    buildType = buildTypeRegex.find(text)?.groupValues?.getOrNull(1) ?: "",
+                    flavor = flavorRegex.find(text)?.groupValues?.getOrNull(1) ?: "")
         }
 
         buildConfigs.singleOrNull {

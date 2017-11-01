@@ -267,7 +267,7 @@ class DevFunProcessor : AbstractProcessor() {
                 return
             }
 
-            val devCat = element.annotationMirrors.filter { it.annotationType.toString() == DeveloperCategory::class.qualifiedName }.single()
+            val devCat = element.annotationMirrors.single { it.annotationType.toString() == DeveloperCategory::class.qualifiedName }
             addCategoryDefinition(element, devCat)
 
             if (element.kind == ElementKind.ANNOTATION_TYPE) {
@@ -329,7 +329,7 @@ class DevFunProcessor : AbstractProcessor() {
             }
 
             // Annotation values
-            val devFunc = element.annotationMirrors.filter { it.annotationType.toString() == DeveloperFunction::class.qualifiedName }.single()
+            val devFunc = element.annotationMirrors.single { it.annotationType.toString() == DeveloperFunction::class.qualifiedName }
 
             // Name
             val name = devFunc[DeveloperFunction::value]?.let {
@@ -354,8 +354,7 @@ class DevFunProcessor : AbstractProcessor() {
             // Can we call the function directly
             val funIsPublic = element.isPublic
             val classIsPublic = funIsPublic && clazz.isClassPublic
-            val typeParamsPublic = classIsPublic && element.typeParameters.all { it.bounds.all { it.isClassPublic } }
-            val callFunDirectly = typeParamsPublic
+            val callFunDirectly = classIsPublic && element.typeParameters.all { it.bounds.all { it.isClassPublic } }
 
             // Arguments
             val receiver = clazz.toInstance(element.isStatic)
