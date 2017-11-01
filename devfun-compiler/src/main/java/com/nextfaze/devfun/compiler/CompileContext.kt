@@ -10,7 +10,10 @@ import javax.tools.StandardLocation
 // Kapt3 uses <buildDir>/tmp/kapt3/classes/<buildType>/...
 // /home/user/<path>/<to>/<project>/<app-name>/build/intermediates/classes/<build-type>/META-INF/services/com.nextfaze.devfun.generated.MenuDefinitions
 // Path may also be changed using gradle project.buildDir = '...' (default build dir ends with /build/, so we don't include that in regex)
-private val servicesPathRegex = Regex("(.*)(/intermediates/classes/|/tmp/kotlin-classes/|/tmp/kapt3/classes/)(.*)/META-INF/services/.*")
+private val servicesPathRegex =
+        File.separator.let { s ->
+            Regex("(.*)(${s}intermediates${s}classes$s|${s}tmp${s}kotlin-classes$s|${s}tmp${s}kapt3${s}classes$s)(.*)${s}META-INF${s}services$s.*")
+        }
 
 // Patterns for BuildConfig.java
 private val manifestPackageRegex = Regex("\n?package (.*);")
