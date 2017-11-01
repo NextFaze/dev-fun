@@ -147,4 +147,8 @@ ext.doConfigureAndroidLibrary = { project, withPublishing ->
     }
 }
 
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
 apply from: 'plant_uml.gradle'
