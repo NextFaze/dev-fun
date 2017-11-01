@@ -49,12 +49,13 @@ thus it is necessary to do this *prior* to that (specifically, Dokka looks for t
    ./gradlew dokka
     ```
 
-3. Commit/push changes:
+3. Commit/push changes: (substitute version)
    ```bash
    cd gh-pages
    git add .
-   git commit -m "<message>"
-   git push
+   git commit -m "Update for 0.1.3"
+   git tag 0.1.3
+   git push --all
    ```
 
 
