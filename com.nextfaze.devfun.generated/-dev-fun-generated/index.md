@@ -4,7 +4,7 @@
 
 `interface DevFunGenerated` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/generated/Generated.kt#L13)
 
-Generated classes will implement this, which will be loaded using Java's [ServiceLoader](http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html).
+Generated classes will implement this, which will be loaded using Java's [ServiceLoader](https://developer.android.com/reference/java/util/ServiceLoader.html).
 
 **See Also**
 

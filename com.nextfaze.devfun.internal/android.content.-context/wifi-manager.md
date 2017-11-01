@@ -2,4 +2,4 @@
 
 # wifiManager
 
-`val Context.wifiManager: WifiManager` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/ContextExt.kt#L16)
+`val `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.wifiManager: `[`WifiManager`](https://developer.android.com/reference/android/net/wifi/WifiManager.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/ContextExt.kt#L16)

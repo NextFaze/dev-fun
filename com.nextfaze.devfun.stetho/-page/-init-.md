@@ -2,4 +2,4 @@
 
 # &lt;init&gt;
 
-`Page(context: Context, devStetho: `[`DevStetho`](../-dev-stetho/index.md)`)`
+`Page(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, devStetho: `[`DevStetho`](../-dev-stetho/index.md)`)`

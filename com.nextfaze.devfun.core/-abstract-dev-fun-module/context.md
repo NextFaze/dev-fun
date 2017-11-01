@@ -2,7 +2,7 @@
 
 # context
 
-`val context: Context` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/Module.kt#L52)
+`val context: `[`Context`](https://developer.android.com/reference/android/content/Context.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/Module.kt#L52)
 
 Convenience delegate to [DevFun.context](../-dev-fun/context.md).
 

@@ -4,4 +4,4 @@
 
 | Name | Summary |
 |---|---|
-| [unregister](unregister.md) | `fun ActivityLifecycleCallbacks.unregister(context: Context): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
+| [unregister](unregister.md) | `fun `[`ActivityLifecycleCallbacks`](https://developer.android.com/reference/android/app/Application/ActivityLifecycleCallbacks.html)`.unregister(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |

@@ -2,7 +2,7 @@
 
 # Constructable
 
-`@Target([AnnotationTarget.CLASS]) annotation class Constructable` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L116)
+`@Target([AnnotationTarget.CLASS]) annotation class Constructable` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L120)
 
 Tag to allow classes to be instantiated when no other [InstanceProvider](../-instance-provider/index.md) was able to provide the class.
 

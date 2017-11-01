@@ -2,7 +2,7 @@
 
 # clearMemoryCache
 
-`fun clearMemoryCache(context: Context): `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-util-glide/src/main/java/com/nextfaze/devfun/utils/glide/GlideUtils.kt#L56)
+`fun clearMemoryCache(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`): `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-util-glide/src/main/java/com/nextfaze/devfun/utils/glide/GlideUtils.kt#L56)
 
 Clear Glide's memory cache.
 

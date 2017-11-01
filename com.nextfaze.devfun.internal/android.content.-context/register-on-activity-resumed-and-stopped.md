@@ -2,4 +2,4 @@
 
 # registerOnActivityResumedAndStopped
 
-`inline fun Context.registerOnActivityResumedAndStopped(crossinline onResumed: OnActivityResumed, crossinline onStopped: OnActivityStopped): ActivityLifecycleCallbacks` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/ActivityTracking.kt#L40)
+`inline fun `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.registerOnActivityResumedAndStopped(crossinline onResumed: OnActivityResumed, crossinline onStopped: OnActivityStopped): `[`ActivityLifecycleCallbacks`](https://developer.android.com/reference/android/app/Application/ActivityLifecycleCallbacks.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/ActivityTracking.kt#L40)

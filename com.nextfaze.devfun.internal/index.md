@@ -6,14 +6,14 @@
 
 | Name | Summary |
 |---|---|
-| [AbstractActivityLifecycleCallbacks](-abstract-activity-lifecycle-callbacks/index.md) | `abstract class AbstractActivityLifecycleCallbacks : ActivityLifecycleCallbacks` |
+| [AbstractActivityLifecycleCallbacks](-abstract-activity-lifecycle-callbacks/index.md) | `abstract class AbstractActivityLifecycleCallbacks : `[`ActivityLifecycleCallbacks`](https://developer.android.com/reference/android/app/Application/ActivityLifecycleCallbacks.html) |
 | [ActivityTracker](-activity-tracker/index.md) | `class ActivityTracker : `[`ActivityProvider`](-activity-provider.md) |
 
 ### Type Aliases
 
 | Name | Summary |
 |---|---|
-| [ActivityProvider](-activity-provider.md) | `typealias ActivityProvider = () -> Activity?` |
+| [ActivityProvider](-activity-provider.md) | `typealias ActivityProvider = () -> `[`Activity`](https://developer.android.com/reference/android/app/Activity.html)`?` |
 
 ### Extensions for External Classes
 

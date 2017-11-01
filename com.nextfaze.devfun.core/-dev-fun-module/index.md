@@ -6,7 +6,7 @@
 
 Modules that extend/use the functionality of [DevFun](../-dev-fun/index.md).
 
-Instances will be loaded using Java's [ServiceLoader](http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html).
+Instances will be loaded using Java's [ServiceLoader](https://developer.android.com/reference/java/util/ServiceLoader.html).
 
 ### Properties
 

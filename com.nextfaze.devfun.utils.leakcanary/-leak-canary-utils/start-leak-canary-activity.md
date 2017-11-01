@@ -2,7 +2,7 @@
 
 # startLeakCanaryActivity
 
-`fun startLeakCanaryActivity(application: Application): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-util-leakcanary/src/main/java/com/nextfaze/devfun/utils/leakcanary/LeakCanaryUtils.kt#L20)
+`fun startLeakCanaryActivity(application: `[`Application`](https://developer.android.com/reference/android/app/Application.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-util-leakcanary/src/main/java/com/nextfaze/devfun/utils/leakcanary/LeakCanaryUtils.kt#L20)
 
 Starts the Leak Canary display leaks activity.
 

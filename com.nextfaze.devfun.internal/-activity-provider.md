@@ -2,7 +2,7 @@
 
 # ActivityProvider
 
-`typealias ActivityProvider = () -> Activity?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/ActivityTracking.kt#L12)
+`typealias ActivityProvider = () -> `[`Activity`](https://developer.android.com/reference/android/app/Activity.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/ActivityTracking.kt#L12)
 
 ### Inheritors
 

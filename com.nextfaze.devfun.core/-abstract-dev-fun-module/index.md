@@ -16,7 +16,7 @@ Implementation of [DevFunModule](../-dev-fun-module/index.md) providing various 
 
 | Name | Summary |
 |---|---|
-| [context](context.md) | `val context: Context`<br>Convenience delegate to [DevFun.context](../-dev-fun/context.md). |
+| [context](context.md) | `val context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)<br>Convenience delegate to [DevFun.context](../-dev-fun/context.md). |
 | [devFun](dev-fun.md) | `val devFun: `[`DevFun`](../-dev-fun/index.md)<br>Reference to owning [DevFun](../-dev-fun/index.md) instance. |
 
 ### Inherited Properties
@@ -31,7 +31,7 @@ Implementation of [DevFunModule](../-dev-fun-module/index.md) providing various 
 | Name | Summary |
 |---|---|
 | [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(): T` |
-| [init](init.md) | `abstract fun init(context: Context): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called upon [initialize](initialize.md). |
+| [init](init.md) | `abstract fun init(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called upon [initialize](initialize.md). |
 | [initialize](initialize.md) | `open fun initialize(devFun: `[`DevFun`](../-dev-fun/index.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Module initialization. |
 | [instanceOf](instance-of.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> instanceOf(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out T>): T` |
 

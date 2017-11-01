@@ -18,7 +18,7 @@ that [Provides](#) the requested type *(or subclasses the type)*.
 
 ### Complex Object Graphs
 
-A simple object graph is one that is linear; [Singleton](#) -&gt; [Activity](#) -&gt; [Fragment](#) -&gt; etc., or one that only ever
+A simple object graph is one that is linear; [Singleton](#) -&gt; [Activity](https://developer.android.com/reference/android/app/Activity.html) -&gt; [Fragment](https://developer.android.com/reference/android/app/Fragment.html) -&gt; etc., or one that only ever
 has a single type of some scope active at once. i.e. for the example below `MyChildScope1` and `MyChildScope2` - if
 only one of the `ChildScope` is active at a time. It should also work for branched scopes *as long as the requested type iseffectively unique across scopes*.
 
@@ -75,7 +75,7 @@ Add/remove providers using [DevFun.instanceProviders](../../com.nextfaze.devfun.
 
 | Name | Summary |
 |---|---|
-| [context](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/context.md) | `val context: Context`<br>Convenience delegate to [DevFun.context](../../com.nextfaze.devfun.core/-dev-fun/context.md). |
+| [context](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/context.md) | `val context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)<br>Convenience delegate to [DevFun.context](../../com.nextfaze.devfun.core/-dev-fun/context.md). |
 | [devFun](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/dev-fun.md) | `val devFun: `[`DevFun`](../../com.nextfaze.devfun.core/-dev-fun/index.md)<br>Reference to owning [DevFun](../../com.nextfaze.devfun.core/-dev-fun/index.md) instance. |
 
 ### Functions
@@ -83,7 +83,7 @@ Add/remove providers using [DevFun.instanceProviders](../../com.nextfaze.devfun.
 | Name | Summary |
 |---|---|
 | [dispose](dispose.md) | `fun dispose(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Module cleanup. |
-| [init](init.md) | `fun init(context: Context): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called upon [initialize](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/initialize.md). |
+| [init](init.md) | `fun init(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called upon [initialize](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/initialize.md). |
 
 ### Inherited Functions
 

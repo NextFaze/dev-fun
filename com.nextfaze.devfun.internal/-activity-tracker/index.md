@@ -14,13 +14,13 @@
 
 | Name | Summary |
 |---|---|
-| [activity](activity.md) | `var activity: Activity?` |
+| [activity](activity.md) | `var activity: `[`Activity`](https://developer.android.com/reference/android/app/Activity.html)`?` |
 | [resumed](resumed.md) | `var resumed: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
 
 ### Functions
 
 | Name | Summary |
 |---|---|
-| [dispose](dispose.md) | `fun dispose(context: Context): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)`?` |
-| [init](init.md) | `fun init(application: Application): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
-| [invoke](invoke.md) | `fun invoke(): Activity?` |
+| [dispose](dispose.md) | `fun dispose(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)`?` |
+| [init](init.md) | `fun init(application: `[`Application`](https://developer.android.com/reference/android/app/Application.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
+| [invoke](invoke.md) | `fun invoke(): `[`Activity`](https://developer.android.com/reference/android/app/Activity.html)`?` |

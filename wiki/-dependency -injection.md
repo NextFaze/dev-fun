@@ -23,7 +23,7 @@ loops through requesting an instance, starting from the *most recently added* (t
 be checked first). If the type cannot be provided, a [ClassInstanceNotFoundException](../com.nextfaze.devfun.inject/-class-instance-not-found-exception/index.md) is thrown (will not crash the
 app - but it will be logged, and depending on the [DevFunModule](../com.nextfaze.devfun.core/-dev-fun-module/index.md) implementation will show an error).
 
-Unless otherwise stated, each instance provider does a top-down search, using [Class.isAssignableFrom](http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#isAssignableFrom(java.lang.Class<?>)). Most of the
+Unless otherwise stated, each instance provider does a top-down search, using [Class.isAssignableFrom](https://developer.android.com/reference/java/lang/Class.html#isAssignableFrom(java.lang.Class<?>)). Most of the
 time this is sufficient - this could fail when complex inheritance hierarchies are used.
 
 ## Inject Modules
@@ -74,15 +74,15 @@ android related types (`AndroidInstanceProvider`), and support for Kotlin `objec
 
 ### Android
 
-Standard Android types are provided by `AndroidInstanceProvider`, which includes [Application](#), [Activity](#),
-[Context](#), [Fragment](#), and [View](#).
+Standard Android types are provided by `AndroidInstanceProvider`, which includes [Application](https://developer.android.com/reference/android/app/Application.html), [Activity](https://developer.android.com/reference/android/app/Activity.html),
+[Context](https://developer.android.com/reference/android/content/Context.html), [Fragment](#), and [View](https://developer.android.com/reference/android/view/View.html).
 
 **At present only *support* fragments are supported.**
 
-* When [Context](#) is requested the current activity is returned (if not `null`/destroyed), else the application.
+* When [Context](https://developer.android.com/reference/android/content/Context.html) is requested the current activity is returned (if not `null`/destroyed), else the application.
 
 * When a view type is requested the view hierarchy is traversed, starting with the current activity (children of
-[android.R.id.content](#)), and then each fragment [Fragment.getView](#) *(if the activity is a **support** [FragmentActivity](#))*.
+[android.R.id.content](https://developer.android.com/reference/android/R/id.html#content)), and then each fragment [Fragment.getView](#) *(if the activity is a **support** [FragmentActivity](#))*.
 
 ### Kotlin `object`
 

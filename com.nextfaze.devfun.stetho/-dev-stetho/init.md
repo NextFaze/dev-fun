@@ -2,7 +2,7 @@
 
 # init
 
-`fun init(context: Context): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-stetho/src/main/java/com/nextfaze/devfun/stetho/Stetho.kt#L21)
+`fun init(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-stetho/src/main/java/com/nextfaze/devfun/stetho/Stetho.kt#L21)
 
 Overrides [AbstractDevFunModule.init](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/init.md)
 

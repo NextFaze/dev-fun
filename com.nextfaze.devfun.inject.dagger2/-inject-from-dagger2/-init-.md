@@ -18,7 +18,7 @@ that [Provides](#) the requested type *(or subclasses the type)*.
 
 ### Complex Object Graphs
 
-A simple object graph is one that is linear; [Singleton](#) -&gt; [Activity](#) -&gt; [Fragment](#) -&gt; etc., or one that only ever
+A simple object graph is one that is linear; [Singleton](#) -&gt; [Activity](https://developer.android.com/reference/android/app/Activity.html) -&gt; [Fragment](https://developer.android.com/reference/android/app/Fragment.html) -&gt; etc., or one that only ever
 has a single type of some scope active at once. i.e. for the example below `MyChildScope1` and `MyChildScope2` - if
 only one of the `ChildScope` is active at a time. It should also work for branched scopes *as long as the requested type iseffectively unique across scopes*.
 

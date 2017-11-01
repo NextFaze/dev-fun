@@ -10,4 +10,4 @@ Utility functions for [Leak Canary](https://github.com/square/leakcanary).
 
 | Name | Summary |
 |---|---|
-| [startLeakCanaryActivity](start-leak-canary-activity.md) | `fun startLeakCanaryActivity(application: Application): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Starts the Leak Canary display leaks activity. |
+| [startLeakCanaryActivity](start-leak-canary-activity.md) | `fun startLeakCanaryActivity(application: `[`Application`](https://developer.android.com/reference/android/app/Application.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Starts the Leak Canary display leaks activity. |

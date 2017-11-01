@@ -2,4 +2,4 @@
 
 # insert
 
-`fun insert(uri: Uri, values: ContentValues): Uri` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L54)
+`fun insert(uri: `[`Uri`](https://developer.android.com/reference/android/net/Uri.html)`, values: `[`ContentValues`](https://developer.android.com/reference/android/content/ContentValues.html)`): `[`Uri`](https://developer.android.com/reference/android/net/Uri.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L54)

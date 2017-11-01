@@ -2,11 +2,11 @@
 
 # context
 
-`val context: Application` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L131)
+`val context: `[`Application`](https://developer.android.com/reference/android/app/Application.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L131)
 
 Context used to initialize DevFun.
 
-As of writing, will always be [Context.getApplicationContext](#).
+As of writing, will always be [Context.getApplicationContext](https://developer.android.com/reference/android/content/Context.html#getApplicationContext()).
 
 **See Also**
 
