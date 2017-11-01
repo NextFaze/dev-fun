@@ -20,6 +20,11 @@ import android.util.Log
 import android.view.*
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.core.CategoryDefinition
+import com.nextfaze.devfun.core.FunctionDefinition
+import com.nextfaze.devfun.core.FunctionTransformer
+import com.nextfaze.devfun.core.SimpleFunctionItem
+import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.*
 import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
@@ -68,6 +73,8 @@ class CogOverlay constructor(context: Context,
     private var listener: Application.ActivityLifecycleCallbacks? = null
     private var developerMenu: DeveloperMenu? = null
 
+    private var cogVisible = true
+
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
 
@@ -100,7 +107,7 @@ class CogOverlay constructor(context: Context,
     override fun onDismissed() = setVisible(true)
 
     private fun setVisible(visible: Boolean) {
-        windowView?.visible = visible && fragmentActivity != null
+        windowView?.visible = visible && cogVisible && fragmentActivity != null
     }
 
     private fun addOverlay() {
@@ -222,6 +229,29 @@ class CogOverlay constructor(context: Context,
         if (overlayAdded) {
             moved = false
             windowManager.updateViewLayout(windowView, newLayoutParams())
+        }
+    }
+
+    @Constructable
+    private class SetCogVisibilityTransformer(private val cogOverlay: CogOverlay) : FunctionTransformer {
+        override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition) =
+                listOf(object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
+                    override val name = if (cogOverlay.cogVisible) "Hide cog overlay" else "Show cog overlay"
+                    override val group = "Cog Overlay"
+                    override val args = listOf(!cogOverlay.cogVisible)
+                })
+    }
+
+    @DeveloperFunction(transformer = SetCogVisibilityTransformer::class)
+    private fun setCogVisibility(visible: Boolean) {
+        cogVisible = visible
+        activity?.let {
+            if (!visible) {
+                AlertDialog.Builder(it)
+                        .setTitle("Cog Overlay Hidden")
+                        .setMessage("Show menu again using volume button sequence:\n\"down,down,up,down\"")
+                        .show()
+            }
         }
     }
 

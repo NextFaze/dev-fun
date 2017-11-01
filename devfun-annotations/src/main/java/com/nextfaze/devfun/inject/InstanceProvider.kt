@@ -63,7 +63,11 @@ interface RequiringInstanceProvider : InstanceProvider {
  * Exception thrown when attempting to provide a type that was not found from any [InstanceProvider].
  */
 class ClassInstanceNotFoundException : Exception {
-    constructor(clazz: KClass<*>) : super("Failed to get instance of $clazz")
+    constructor(clazz: KClass<*>) : super("""Failed to get instance of $clazz.
+Are you using proguard? Add @Keep or adjust rules.
+Is it injected? Might need a custom instance provider.
+Don't care if a new instance is made when needed? Add @Constructable to the class.""")
+
     constructor(msg: String) : super(msg)
 }
 
