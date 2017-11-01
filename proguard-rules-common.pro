@@ -31,3 +31,10 @@
 
 # Keep metadata information for annotation introspection (i.e. for @Constructable)
 -keep class kotlin.Metadata { *; }
+
+
+# Kotlin class `kotlin.Function0`.toString() fails as it uses BuiltInsLoaderImpl (loaded by ServiceLoader)
+#
+# Keep Kotlin reflect builtins names and classes loaded by ServiceLoader
+-keepnames class kotlin.reflect.jvm.internal.impl.builtins.**
+-keep class kotlin.reflect.jvm.internal.impl.builtins.** extends kotlin.reflect.jvm.internal.impl.builtins.BuiltInsLoader

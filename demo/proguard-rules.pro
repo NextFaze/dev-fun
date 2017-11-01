@@ -31,7 +31,7 @@
 
 
 #
-# If you have @DeveloperFunction methods that are unreferenced you will need to tell proguard to keep them.
+# If you have @DeveloperFunction methods that are unreferenced (e.g. non-public) you will need to tell proguard to keep them.
 #
 # Keep @DeveloperFunction methods
 -keep class your.package.goes.here.** {
@@ -40,7 +40,7 @@
 
 
 #
-# Similarly for @DeveloperCategory annotated classes.
+# Similarly for non-public @DeveloperCategory annotated classes.
 #
 # Keep @DeveloperCategory classes
 -keep @com.nextfaze.devfun.annotations.DeveloperCategory class your.package.goes.here.**
