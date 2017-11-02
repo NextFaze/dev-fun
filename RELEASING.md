@@ -53,8 +53,8 @@ thus it is necessary to do this *prior* to that (specifically, Dokka looks for t
    ```bash
    cd gh-pages
    git add .
-   git commit -m "Update for 0.1.3"
-   git tag 0.1.3
+   git commit -m "Update for 0.1.4"
+   git tag 0.1.4
    git push --all
    ```
 
