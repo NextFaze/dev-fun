@@ -86,24 +86,26 @@ publishing {
                 asNode().children().first() + pomConfig
                 asNode().appendNode('description', project.description)
 
-                if (isAndroid) {
-                    def dependenciesNode = asNode().appendNode('dependencies')
-                    // Iterate over the dependencies (we don't want hidden/test ones), adding a <dependency> node for each
-                    configurations.all { config ->
-                        if (config.name.startsWith("_") ||
-                                config.name.startsWith("default") ||
-                                config.name.startsWith("kapt") ||
-                                config.name.startsWith("test"))
-                            return
+                // remove original if it exists (non-Android projects)
+                def origDepNode = asNode().get('dependencies')
+                if (origDepNode != null && origDepNode.size() > 0) {
+                    asNode().remove(origDepNode)
+                }
 
-                        allDependencies.each { dep ->
-                            if (dep.group != null && (dep.name != null || "unspecified" == dep.name) && dep.version != null) {
-                                def dependencyNode = dependenciesNode.appendNode('dependency')
-                                dependencyNode.appendNode('groupId', dep.group)
-                                dependencyNode.appendNode('artifactId', dep.name)
-                                dependencyNode.appendNode('version', dep.version)
-                                dependencyNode.appendNode('scope', config.name)
-                            }
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.all { config ->
+                    // only consider apiElements and runtimeElements configurations
+                    if (!config.name.endsWith("Elements")) {
+                        return
+                    }
+
+                    allDependencies.each { dep ->
+                        if (dep.group != null && (dep.name != null || "unspecified" == dep.name) && dep.version != null) {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dep.group)
+                            dependencyNode.appendNode('artifactId', dep.name)
+                            dependencyNode.appendNode('version', dep.version)
+                            dependencyNode.appendNode('scope', config.name)
                         }
                     }
                 }
