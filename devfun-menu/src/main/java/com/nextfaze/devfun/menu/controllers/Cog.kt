@@ -1,11 +1,14 @@
 package com.nextfaze.devfun.menu.controllers
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.graphics.PointF
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,8 +19,10 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.app.AlertDialog
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
+import android.view.animation.OvershootInterpolator
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.CategoryDefinition
@@ -27,7 +32,6 @@ import com.nextfaze.devfun.core.SimpleFunctionItem
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.*
-import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
 
 /**
  * Controls the floating cog overlay.
@@ -42,15 +46,24 @@ import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
  * ```
  *
  */
+
 @DeveloperCategory("DevFun", "Developer Menu")
-class CogOverlay constructor(context: Context,
-                             private val activityProvider: ActivityProvider) : MenuController {
+class CogOverlay constructor(
+        context: Context,
+        private val activityProvider: ActivityProvider
+) : MenuController {
+
     private val log = logger()
     private val application = context.applicationContext as Application
     private val windowManager = application.windowManager
 
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
+
+    private val overlayBounds = Rect(0, 0, 0, 0)
+
+    private val metrics = DisplayMetrics().apply { windowManager.defaultDisplay.getMetrics(this) }
+    private var windowParams = newLayoutParams()
 
     private val canDrawOverlays: Boolean
         get() {
@@ -64,11 +77,7 @@ class CogOverlay constructor(context: Context,
         }
     private var overlayAdded = false
 
-    private val dragObject = Any()
     private var windowView: View? = null
-    private var moved = false
-    private var lastXPos = 0
-    private var lastYPos = 0
 
     private var listener: Application.ActivityLifecycleCallbacks? = null
     private var developerMenu: DeveloperMenu? = null
@@ -117,70 +126,149 @@ class CogOverlay constructor(context: Context,
 
         removeCurrentWindow()
         val windowView = View.inflate(application, R.layout.df_menu_cog_overlay, null).also { windowView = it } ?: throw RuntimeException("Failed to inflate cog overlay")
-        val cog = windowView.cogButton.apply {
+        val cog = windowView.apply {
             DrawableCompat.setTintList(background, ContextCompat.getColorStateList(application, R.color.df_menu_cog_background))
         }
 
-        windowView.setOnDragListener(object : View.OnDragListener {
-            private var lastX = 0f
-            private var lastY = 0f
-            private var alpha = 0f
+        cog.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+            override fun onLayoutChange(
+                    v: View,
+                    left: Int,
+                    top: Int,
+                    right: Int,
+                    bottom: Int,
+                    oldLeft: Int,
+                    oldTop: Int,
+                    oldRight: Int,
+                    oldBottom: Int
+            ) {
+                if (v.width <= 0) return
 
-            override fun onDrag(v: View, event: DragEvent): Boolean {
-                if (event.localState !== dragObject) return false
+                val iconSize = v.width
+                val iconInset = iconSize / 10
 
-                when (event.action) {
-                    DragEvent.ACTION_DRAG_STARTED -> {
-                        moved = true
+                overlayBounds.set(
+                        -iconInset,
+                        0,
+                        metrics.widthPixels - iconSize + iconInset,
+                        metrics.heightPixels - iconSize
+                )
 
-                        alpha = cog.alpha
-                        cog.alpha = 0f // setVisibility(INVISIBLE); doesn't work properly when using window manager?
+                cog.removeOnLayoutChangeListener(this)
 
-                        val lpStart = newLayoutParams().apply {
-                            width = ViewGroup.LayoutParams.MATCH_PARENT
-                            height = ViewGroup.LayoutParams.MATCH_PARENT
-                            gravity = Gravity.NO_GRAVITY
-                            x = lastXPos
-                            y = lastYPos
+                windowParams.x = overlayBounds.left
+                windowParams.y = overlayBounds.top
+                windowManager.updateViewLayout(windowView, windowParams)
+            }
+        })
+
+        cog.setOnTouchListener(object : View.OnTouchListener {
+
+            private var currentPosition = PointF(0f, 0f)
+            private var initialPosition = PointF(0f, 0f)
+            private var initialWindowPosition = PointF(0f, 0f)
+
+            private var actionDownTime = 0L
+            private var moved = false
+
+            override fun onTouch(v: View, event: MotionEvent?): Boolean {
+                return when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        actionDownTime = System.currentTimeMillis()
+
+                        initialPosition.apply {
+                            x = event.rawX
+                            y = event.rawY
                         }
-                        windowManager.updateViewLayout(windowView, lpStart)
-                        return true
+
+                        currentPosition.set(initialPosition)
+
+                        initialWindowPosition.apply {
+                            x = windowParams.x.toFloat()
+                            y = windowParams.y.toFloat()
+                        }
+
+                        moved = false
+
+                        true
                     }
+                    MotionEvent.ACTION_MOVE -> {
+                        val dx = Math.abs(event.rawX - currentPosition.x)
+                        val dy = Math.abs(event.rawY - currentPosition.y)
+                        val slop = ViewConfiguration.get(application).scaledTouchSlop
 
-                    DragEvent.ACTION_DRAG_ENDED -> {
-                        lastXPos = (lastX - 0.5f * cog.width).toInt()
-                        lastYPos = (lastY - 0.5f * cog.height).toInt()
-                        windowManager.updateViewLayout(windowView, newLayoutParams())
+                        if (moved || (dx >= slop || dy >= slop) && System.currentTimeMillis() - actionDownTime > ViewConfiguration.getTapTimeout()) {
+                            moved = true
+                            windowParams.x = Math.min(Math.max((event.rawX - initialPosition.x + initialWindowPosition.x).toInt(), overlayBounds.left), overlayBounds.right)
+                            windowParams.y = (event.rawY - initialPosition.y + initialWindowPosition.y).toInt()
 
-                        cog.alpha = alpha // setVisibility(VISIBLE); doesn't work properly when using window manager?
-                        return true
+                            currentPosition.apply {
+                                x = event.rawX
+                                y = event.rawY
+                            }
+
+                            windowManager.updateViewLayout(v, windowParams)
+                        }
+
+                        true
                     }
+                    MotionEvent.ACTION_UP -> {
+                        if (!moved) {
+                            v.performClick()
+                        } else {
+                            animateRelease()
+                        }
 
-                    DragEvent.ACTION_DRAG_LOCATION -> {
-                        lastX = event.x
-                        lastY = event.y
-                        return true
+                        moved = false
+                        actionDownTime = 0
+                        true
                     }
-
-                    else -> return false
+                    else -> false
                 }
             }
         })
 
         cog.setOnClickListener { fragmentActivity?.let(developerMenu::show) }
 
-        cog.setOnLongClickListener { v ->
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                @Suppress("DEPRECATION")
-                v.startDrag(null, View.DragShadowBuilder(cog), dragObject, 0)
-            } else {
-                v.startDragAndDrop(null, View.DragShadowBuilder(cog), dragObject, 0)
-            }
-            true
+        windowManager.addView(windowView, windowParams)
+        overlayAdded = true
+    }
+
+    private fun animateRelease() {
+        val startX = windowParams.x
+        val startY = windowParams.y
+
+        val toLeft = startX + windowView!!.width / 2 <= metrics.widthPixels / 2
+
+        val distanceX = when {
+            toLeft -> startX - overlayBounds.left
+            else -> startX - overlayBounds.right
         }
 
-        windowManager.addView(windowView, newLayoutParams())
-        overlayAdded = true
+        val distanceY = when {
+            startY < overlayBounds.top -> startY - overlayBounds.top
+            startY > overlayBounds.bottom -> startY - overlayBounds.bottom
+            else -> 0
+        }
+
+        val proportionX = distanceX.toFloat() / (metrics.widthPixels.toFloat() / 2f)
+        val duration = Math.max((750f * proportionX).toLong(), 250)
+
+        val animator = ValueAnimator.ofFloat(0f, 1.0f)
+        animator.addUpdateListener { valueAnimator ->
+            val percent = valueAnimator.animatedValue as Float
+
+            windowParams.apply {
+                x = startX - (percent * distanceX).toInt()
+                y = startY - (percent * distanceY).toInt()
+            }
+
+            windowManager.updateViewLayout(windowView, windowParams)
+        }
+
+        animator.duration = duration
+        animator.interpolator = OvershootInterpolator(0.9f)
+        animator.start()
     }
 
     @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
@@ -211,24 +299,17 @@ class CogOverlay constructor(context: Context,
             WindowManager.LayoutParams().apply {
                 type = windowOverlayType
                 format = PixelFormat.TRANSLUCENT
-                flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                flags = WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                 width = ViewGroup.LayoutParams.WRAP_CONTENT
                 height = ViewGroup.LayoutParams.WRAP_CONTENT
                 gravity = Gravity.TOP or Gravity.START
-
-                if (moved) {
-                    x = lastXPos
-                    y = lastYPos
-                } else {
-                    x = 200
-                }
             }
 
     @DeveloperFunction
     private fun resetOverlayPosition() {
         if (overlayAdded) {
-            moved = false
-            windowManager.updateViewLayout(windowView, newLayoutParams())
+            windowParams = newLayoutParams()
+            windowManager.updateViewLayout(windowView, windowParams)
         }
     }
 
