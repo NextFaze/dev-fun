@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.math.MathUtils.clamp
+import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.util.DisplayMetrics
 import android.util.Log
@@ -34,6 +35,7 @@ import com.nextfaze.devfun.core.SimpleFunctionItem
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.*
+import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
 
 /**
  * Controls the floating cog overlay.
@@ -142,11 +144,12 @@ class CogOverlay constructor(
         removeCurrentWindow()
 
         val windowView = View.inflate(application, R.layout.df_menu_cog_overlay, null).also { windowView = it } ?: throw RuntimeException("Failed to inflate cog overlay")
-        val cog = windowView.apply {
+        windowView.cogButton.apply {
+            ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.df_menu_cog_elevation).toFloat())
             DrawableCompat.setTintList(background, ContextCompat.getColorStateList(application, R.color.df_menu_cog_background))
         }
 
-        cog.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+        windowView.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
             override fun onLayoutChange(
                     v: View,
                     left: Int,
@@ -161,16 +164,16 @@ class CogOverlay constructor(
                 if (v.width <= 0) return
 
                 val iconSize = v.width
-                val iconInset = iconSize / 10
+                val iconInset = iconSize / 5
 
                 overlayBounds.set(
                         -iconInset,
-                        0,
+                        -iconInset,
                         screenSize.x - iconSize + iconInset,
                         screenSize.y - iconSize
                 )
 
-                cog.removeOnLayoutChangeListener(this)
+                windowView.removeOnLayoutChangeListener(this)
 
                 windowParams.x = if (preferences.getBoolean(PREF_TO_LEFT, true)) overlayBounds.left else overlayBounds.right
 
@@ -181,7 +184,7 @@ class CogOverlay constructor(
             }
         })
 
-        cog.setOnTouchListener(object : View.OnTouchListener {
+        windowView.setOnTouchListener(object : View.OnTouchListener {
 
             private var currentPosition = PointF(0f, 0f)
             private var initialPosition = PointF(0f, 0f)
@@ -247,7 +250,7 @@ class CogOverlay constructor(
             }
         })
 
-        cog.setOnClickListener { fragmentActivity?.let(developerMenu::show) }
+        windowView.setOnClickListener { fragmentActivity?.let(developerMenu::show) }
 
         windowManager.addView(windowView, windowParams)
         overlayAdded = true

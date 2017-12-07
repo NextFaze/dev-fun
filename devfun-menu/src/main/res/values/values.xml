@@ -21,6 +21,12 @@
     <color name="df_menu_header_bottom_border">@color/df_menu_grey200_normal</color>
     <color name="df_menu_cog_background">@color/df_menu_purple_200_normal</color>
 
+    <!-- Dimensions -->
+
+    <dimen name="df_menu_cog_size">64dp</dimen>
+    <dimen name="df_menu_cog_padding">4dp</dimen>
+    <dimen name="df_menu_cog_elevation">4dp</dimen>
+
     <!-- Styles -->
 
     <style name="DfMenu"/>
