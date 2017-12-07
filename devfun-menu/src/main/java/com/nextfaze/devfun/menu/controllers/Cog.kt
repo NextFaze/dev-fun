@@ -22,7 +22,6 @@ import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.math.MathUtils.clamp
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.view.animation.OvershootInterpolator
@@ -135,8 +134,10 @@ class CogOverlay constructor(
         log.d { "addOverlay" }
         val developerMenu = developerMenu ?: return
 
-        val metrics = DisplayMetrics().apply { windowManager.defaultDisplay.getMetrics(this) }
-        val newScreenSize = Point(metrics.widthPixels, metrics.heightPixels)
+        val newScreenSize = Point().apply {
+            windowManager.defaultDisplay.getSize(this)
+            y -= statusBarHeight
+        }
 
         if ((overlayAdded && newScreenSize == screenSize) || !canDrawOverlays) return
 
@@ -170,7 +171,7 @@ class CogOverlay constructor(
                         -iconInset,
                         -iconInset,
                         screenSize.x - iconSize + iconInset,
-                        screenSize.y - iconSize
+                        screenSize.y - iconSize + iconInset
                 )
 
                 windowView.removeOnLayoutChangeListener(this)
@@ -393,6 +394,13 @@ class CogOverlay constructor(
         get() = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             else -> WindowManager.LayoutParams.TYPE_PHONE
+        }
+
+    private val statusBarHeight: Int
+        get() = application.resources.let { res ->
+            val resourceId = res.getIdentifier("status_bar_height", "dimen", "android")
+            // If manufacturer has broken this for some reason, it's not the end of the world to assume 0
+            return if (resourceId > 0) res.getDimensionPixelSize(resourceId) else 0
         }
 }
 
