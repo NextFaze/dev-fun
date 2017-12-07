@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
 import android.net.Uri
@@ -18,6 +19,7 @@ import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
+import android.support.v4.math.MathUtils.clamp
 import android.support.v7.app.AlertDialog
 import android.util.DisplayMetrics
 import android.util.Log
@@ -47,6 +49,9 @@ import com.nextfaze.devfun.menu.*
  *
  */
 
+private const val PREF_TO_LEFT = "toLeft"
+private const val PREF_VERTICAL_FACTOR = "verticalFactor"
+
 @DeveloperCategory("DevFun", "Developer Menu")
 class CogOverlay constructor(
         context: Context,
@@ -61,8 +66,11 @@ class CogOverlay constructor(
     private val fragmentActivity get() = activity as? FragmentActivity
 
     private val overlayBounds = Rect(0, 0, 0, 0)
+    private val screenSize = Point(0, 0)
 
-    private val metrics = DisplayMetrics().apply { windowManager.defaultDisplay.getMetrics(this) }
+    private val ySpan: Int
+        get() = overlayBounds.bottom - overlayBounds.top
+
     private var windowParams = newLayoutParams()
 
     private val canDrawOverlays: Boolean
@@ -83,6 +91,8 @@ class CogOverlay constructor(
     private var developerMenu: DeveloperMenu? = null
 
     private var cogVisible = true
+
+    private var preferences = context.getSharedPreferences(CogOverlay::class.java.name, Context.MODE_PRIVATE)
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
@@ -122,9 +132,15 @@ class CogOverlay constructor(
     private fun addOverlay() {
         log.d { "addOverlay" }
         val developerMenu = developerMenu ?: return
-        if (overlayAdded || !canDrawOverlays) return
 
+        val metrics = DisplayMetrics().apply { windowManager.defaultDisplay.getMetrics(this) }
+        val newScreenSize = Point(metrics.widthPixels, metrics.heightPixels)
+
+        if ((overlayAdded && newScreenSize == screenSize) || !canDrawOverlays) return
+
+        screenSize.set(newScreenSize.x, newScreenSize.y)
         removeCurrentWindow()
+
         val windowView = View.inflate(application, R.layout.df_menu_cog_overlay, null).also { windowView = it } ?: throw RuntimeException("Failed to inflate cog overlay")
         val cog = windowView.apply {
             DrawableCompat.setTintList(background, ContextCompat.getColorStateList(application, R.color.df_menu_cog_background))
@@ -150,14 +166,17 @@ class CogOverlay constructor(
                 overlayBounds.set(
                         -iconInset,
                         0,
-                        metrics.widthPixels - iconSize + iconInset,
-                        metrics.heightPixels - iconSize
+                        screenSize.x - iconSize + iconInset,
+                        screenSize.y - iconSize
                 )
 
                 cog.removeOnLayoutChangeListener(this)
 
-                windowParams.x = overlayBounds.left
-                windowParams.y = overlayBounds.top
+                windowParams.x = if (preferences.getBoolean(PREF_TO_LEFT, true)) overlayBounds.left else overlayBounds.right
+
+                val desiredYOffset = (preferences.getFloat(PREF_VERTICAL_FACTOR, 0f) * ySpan).toInt()
+                windowParams.y = clamp(overlayBounds.top + desiredYOffset, overlayBounds.top, overlayBounds.bottom)
+
                 windowManager.updateViewLayout(windowView, windowParams)
             }
         })
@@ -238,7 +257,7 @@ class CogOverlay constructor(
         val startX = windowParams.x
         val startY = windowParams.y
 
-        val toLeft = startX + windowView!!.width / 2 <= metrics.widthPixels / 2
+        val toLeft = startX + windowView!!.width / 2 <= screenSize.x / 2
 
         val distanceX = when {
             toLeft -> startX - overlayBounds.left
@@ -251,7 +270,7 @@ class CogOverlay constructor(
             else -> 0
         }
 
-        val proportionX = distanceX.toFloat() / (metrics.widthPixels.toFloat() / 2f)
+        val proportionX = distanceX.toFloat() / (screenSize.x / 2f)
         val duration = Math.max((750f * proportionX).toLong(), 250)
 
         val animator = ValueAnimator.ofFloat(0f, 1.0f)
@@ -261,6 +280,14 @@ class CogOverlay constructor(
             windowParams.apply {
                 x = startX - (percent * distanceX).toInt()
                 y = startY - (percent * distanceY).toInt()
+            }
+
+            if (percent == 1.0f) {
+                // Release animation has finished, save current position
+                preferences.edit().apply {
+                    putBoolean(PREF_TO_LEFT, toLeft)
+                    putFloat(PREF_VERTICAL_FACTOR, (windowParams.y - overlayBounds.top) / ySpan.toFloat())
+                }.apply()
             }
 
             windowManager.updateViewLayout(windowView, windowParams)
