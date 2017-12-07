@@ -147,7 +147,7 @@ class CogOverlay constructor(
         val windowView = View.inflate(application, R.layout.df_menu_cog_overlay, null).also { windowView = it } ?: throw RuntimeException("Failed to inflate cog overlay")
         windowView.cogButton.apply {
             ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.df_menu_cog_elevation).toFloat())
-            DrawableCompat.setTintList(background, ContextCompat.getColorStateList(application, R.color.df_menu_cog_background))
+            DrawableCompat.setTintList(DrawableCompat.wrap(background), ContextCompat.getColorStateList(application, R.color.df_menu_cog_background))
         }
 
         windowView.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
