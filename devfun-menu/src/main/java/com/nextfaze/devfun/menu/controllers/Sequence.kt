@@ -15,12 +15,16 @@ import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.DeveloperMenu
 import com.nextfaze.devfun.menu.MenuController
 
-private val DEFAULT_KEY_SEQUENCE = intArrayOf(
-        KeyEvent.KEYCODE_VOLUME_DOWN,
-        KeyEvent.KEYCODE_VOLUME_DOWN,
-        KeyEvent.KEYCODE_VOLUME_UP,
-        KeyEvent.KEYCODE_VOLUME_DOWN
-)
+private val DEFAULT_KEY_SEQUENCE = if (isEmulator) {
+    intArrayOf(KeyEvent.KEYCODE_GRAVE)
+} else {
+    intArrayOf(
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_UP,
+            KeyEvent.KEYCODE_VOLUME_DOWN
+    )
+}
 
 class KeySequence(
         context: Context,

@@ -2,7 +2,6 @@ package com.nextfaze.devfun.httpd
 
 import android.app.Activity
 import android.content.Context
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.support.v7.app.AlertDialog
@@ -248,14 +247,6 @@ ${addresses.joinToString("\n") { "http://$it:$port/" }}""".also {
                 it.hostAddress == AVD_IP
             }
         }
-    }
-
-    private val isEmulator by lazy(NONE) {
-        Build.PRODUCT == "sdk" ||
-                Build.PRODUCT == "sdk_x86" ||
-                Build.PRODUCT == "sdk_google_phone_x86" ||
-                Build.PRODUCT.contains("genymotion", ignoreCase = true) ||
-                Build.DISPLAY.contains("vbox86p", ignoreCase = true)
     }
 
     private val wifiManager get() = context.wifiManager
