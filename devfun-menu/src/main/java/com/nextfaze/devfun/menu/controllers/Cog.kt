@@ -249,7 +249,7 @@ class CogOverlay constructor(context: Context,
             if (!visible) {
                 AlertDialog.Builder(it)
                         .setTitle("Cog Overlay Hidden")
-                        .setMessage("Show menu again using volume button sequence:\n\"down,down,up,down\"")
+                        .setMessage(application.getString(R.string.df_menu_cog_hide_message, application.keySequenceString))
                         .show()
             }
         }
@@ -297,7 +297,7 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(activity)
                 .setTitle(R.string.df_menu_overlay_request)
-                .setMessage(activity.getString(R.string.df_menu_overlay_reason, BuildConfig.VERSION_NAME))
+                .setMessage(activity.getString(R.string.df_menu_overlay_reason, BuildConfig.VERSION_NAME, context.keySequenceString))
                 .setPositiveButton(android.R.string.yes, { dialog, _ ->
                     val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${activity.packageName}".toUri())
                     activity.startActivityForResult(intent, 1234)
@@ -336,3 +336,6 @@ private val Context.isRunningInForeground: Boolean
         val topActivityName = tasks[0].topActivity.packageName
         return topActivityName.equals(packageName, ignoreCase = true)
     }
+
+private val Context.keySequenceString: String
+    get() = getString(if (isEmulator) R.string.df_menu_key_sequence_emulator else R.string.df_menu_key_sequence_device)
