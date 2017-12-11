@@ -63,6 +63,7 @@ import java.util.Enumeration
 import javax.annotation.processing.Processor
 import kotlin.collections.set
 import kotlin.reflect.KClass
+import kotlin.reflect.full.NoSuchPropertyException
 import kotlin.reflect.full.isSubclassOf
 import kotlin.test.Asserter
 import kotlin.test.assertTrue
@@ -72,7 +73,6 @@ private const val KEEP_TEST_OUTPUTS = false
 private const val COPY_FAILED_TESTS = true
 private const val COPY_SUCCESSFUL_TESTS = false
 
-private const val KAPT_VERBOSE = false
 private const val COMPILER_VERBOSE = false
 
 private const val TEST_MODULE_NAME = "kapt3-test-module"
@@ -91,12 +91,13 @@ abstract class AbstractKotlinKapt3Tester {
     protected val processors: List<Processor>
         get() = listOf<Processor>(DevFunProcessor())
 
-    private val kotlinStdLib = PathUtil.pathUtilJar
+    private val kotlinStdLib = PathUtil.getResourcePathForClass(AnnotationRetention::class.java)
+    private val kotlinReflectLib = PathUtil.getResourcePathForClass(NoSuchPropertyException::class.java)
     private val kotlinTestLib = PathUtil.getResourcePathForClass(Asserter::class.java)
     private val annotationsJar = PathUtil.getResourcePathForClass(DeveloperCategory::class.java)
     private val androidJar = PathUtil.getResourcePathForClass(Build::class.java)
 
-    protected val compileClasspath = listOf(kotlinStdLib, kotlinTestLib, annotationsJar, androidJar)
+    protected val compileClasspath = listOf(kotlinStdLib, kotlinReflectLib, kotlinTestLib, annotationsJar, androidJar)
 
     @BeforeMethod(alwaysRun = true)
     fun beforeMethod(args: Array<Any>) {
@@ -213,6 +214,8 @@ data class TestContext(val testMethodName: String,
                        val autoKaptAndCompile: Boolean = true,
                        val sdkInt: Int? = null,
                        val kaptOptions: Map<String, String> = kaptOptions(packageSuffix = testDir.name)) {
+    private val log = logger()
+
     override fun toString() = "$testMethodName.$testDirSuffix"
 
     val variantDir = when {
@@ -247,6 +250,8 @@ data class TestContext(val testMethodName: String,
     lateinit var classLoader: ClassLoader
 
     fun runKapt(compileClasspath: List<File>, processors: List<Processor>) {
+        log.d { "Run KAPT with classpath of:\n\t${compileClasspath.joinToString("\n\t")}" }
+
         val config = CompilerConfiguration().apply {
             put(CommonConfigurationKeys.MODULE_NAME, moduleName)
             addJvmClasspathRoots(PathUtil.getJdkClassesRootsFromCurrentJre())
@@ -277,6 +282,8 @@ data class TestContext(val testMethodName: String,
     }
 
     fun runCompile(compileClasspath: List<File>) {
+        log.d { "Run compile with classpath of:\n\t${compileClasspath.joinToString("\n\t")}" }
+
         sourcesOutputDir.mkdirs()
 
         val compilerArgs = K2JVMCompilerArguments().apply {

@@ -60,7 +60,7 @@ See the documentation for advanced usage, including custom names, custom argumen
 #### Project Setup
 - **REQUIRED** Android Gradle 3.0.0 _(earlier versions may work intermittently, but will have missing items due to annotation processing issues)_
   - See [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589)
-- Recommended to use Kotlin 1.1.51, though should work down to 1.1.1 _(largely untested)_
+- Recommended to use Kotlin 1.2.10, though should work down to 1.1.1 _(largely untested)_
 - Recommended to use KAPT3 (`apply plugin: 'kotlin-kapt'`), though KAPT1 also works
 - Compiled with `minSdkVersion` >= 15
 - Built against Android Support libraries 26.1.0
@@ -190,7 +190,7 @@ This can also be toggled at any time via [devFunVerbose](https://nextfaze.github
 
 
 ## Kotlin `stdlib` Conflict 
-DevFun was compiled using Kotlin 1.1.51.  
+DevFun was compiled using Kotlin 1.2.10.  
 *Earlier versions of Kotlin are largely untested and unsupported (this is unlikely to change unless explicitly requested).*  
 
 Thus if you receive a dependency conflict error such as:  

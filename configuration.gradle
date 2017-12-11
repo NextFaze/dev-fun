@@ -37,12 +37,12 @@ ext {
     versionCode = 1
     versionName = deployVersion
 
-    kotlinVersion = '1.1.51'
+    kotlinVersion = '1.2.10'
     kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
     kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
-    kotlinCoroutinesVersion = '0.18'
+    kotlinCoroutinesVersion = '0.19'
     kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 

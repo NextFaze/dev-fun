@@ -46,7 +46,7 @@ dependencies {
     testImplementation 'ch.qos.logback:logback-classic:1.2.2'
 
     // Kotlin
-    testImplementation "org.jetbrains.kotlin:kotlin-annotation-processing:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:$kotlinVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
