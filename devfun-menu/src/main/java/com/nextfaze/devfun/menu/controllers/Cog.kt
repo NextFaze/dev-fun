@@ -36,6 +36,10 @@ import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.*
 import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
 
+private const val PREF_TO_LEFT = "toLeft"
+private const val PREF_VERTICAL_FACTOR = "verticalFactor"
+private const val PREF_VISIBLE = "visible"
+
 /**
  * Controls the floating cog overlay.
  *
@@ -50,15 +54,11 @@ import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
  *
  */
 
-private const val PREF_TO_LEFT = "toLeft"
-private const val PREF_VERTICAL_FACTOR = "verticalFactor"
-
 @DeveloperCategory("DevFun", "Developer Menu")
 class CogOverlay constructor(
         context: Context,
         private val activityProvider: ActivityProvider
 ) : MenuController {
-
     private val log = logger()
     private val application = context.applicationContext as Application
     private val windowManager = application.windowManager
@@ -91,9 +91,8 @@ class CogOverlay constructor(
     private var listener: Application.ActivityLifecycleCallbacks? = null
     private var developerMenu: DeveloperMenu? = null
 
-    private var cogVisible = true
-
     private var preferences = context.getSharedPreferences(CogOverlay::class.java.name, Context.MODE_PRIVATE)
+    private var cogVisible = preferences.getBoolean(PREF_VISIBLE, true)
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
@@ -357,6 +356,8 @@ class CogOverlay constructor(
     @DeveloperFunction(transformer = SetCogVisibilityTransformer::class)
     private fun setCogVisibility(visible: Boolean) {
         cogVisible = visible
+        preferences.edit().putBoolean(PREF_VISIBLE, visible).apply()
+
         activity?.let {
             if (!visible) {
                 AlertDialog.Builder(it)
