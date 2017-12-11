@@ -32,34 +32,39 @@ abstract class AbstractActivityLifecycleCallbacks : Application.ActivityLifecycl
     override fun onActivityDestroyed(activity: Activity) = Unit
 }
 
-inline fun Context.registerOnActivityCreated(crossinline onCreated: OnActivityCreated) =
-        registerActivityLifecycleCallbacks(object : AbstractActivityLifecycleCallbacks() {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = onCreated.invoke(activity, savedInstanceState)
-        })
+inline fun Context.registerOnActivityCreatedAndResumed(
+        crossinline onCreated: OnActivityCreated,
+        crossinline onResumed: OnActivityResumed
+) = registerActivityLifecycleCallbacks(object : AbstractActivityLifecycleCallbacks() {
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = onCreated.invoke(activity, savedInstanceState)
+    override fun onActivityResumed(activity: Activity) = onResumed.invoke(activity)
+})
 
-inline fun Context.registerOnActivityResumedAndStopped(crossinline onResumed: OnActivityResumed,
-                                                       crossinline onStopped: OnActivityStopped) =
-        registerActivityLifecycleCallbacks(object : AbstractActivityLifecycleCallbacks() {
-            override fun onActivityResumed(activity: Activity) = onResumed.invoke(activity)
-            override fun onActivityStopped(activity: Activity) = onStopped.invoke(activity)
-        })
+inline fun Context.registerOnActivityResumedAndStopped(
+        crossinline onResumed: OnActivityResumed,
+        crossinline onStopped: OnActivityStopped
+) = registerActivityLifecycleCallbacks(object : AbstractActivityLifecycleCallbacks() {
+    override fun onActivityResumed(activity: Activity) = onResumed.invoke(activity)
+    override fun onActivityStopped(activity: Activity) = onStopped.invoke(activity)
+})
 
-internal inline fun Context.registerActivityCallbacks(crossinline onCreated: OnActivityCreated,
-                                                      crossinline onStarted: OnActivityStarted,
-                                                      crossinline onResumed: OnActivityResumed,
-                                                      crossinline onPaused: OnActivityPaused,
-                                                      crossinline onStopped: OnActivityStopped,
-                                                      crossinline onSave: OnActivitySave,
-                                                      crossinline onDestroyed: OnActivityDestroyed) =
-        registerActivityLifecycleCallbacks(object : AbstractActivityLifecycleCallbacks() {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = onCreated.invoke(activity, savedInstanceState)
-            override fun onActivityStarted(activity: Activity) = onStarted.invoke(activity)
-            override fun onActivityResumed(activity: Activity) = onResumed.invoke(activity)
-            override fun onActivityPaused(activity: Activity) = onPaused.invoke(activity)
-            override fun onActivityStopped(activity: Activity) = onStopped.invoke(activity)
-            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = onSave.invoke(activity, outState)
-            override fun onActivityDestroyed(activity: Activity) = onDestroyed.invoke(activity)
-        })
+internal inline fun Context.registerActivityCallbacks(
+        crossinline onCreated: OnActivityCreated,
+        crossinline onStarted: OnActivityStarted,
+        crossinline onResumed: OnActivityResumed,
+        crossinline onPaused: OnActivityPaused,
+        crossinline onStopped: OnActivityStopped,
+        crossinline onSave: OnActivitySave,
+        crossinline onDestroyed: OnActivityDestroyed
+) = registerActivityLifecycleCallbacks(object : AbstractActivityLifecycleCallbacks() {
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = onCreated.invoke(activity, savedInstanceState)
+    override fun onActivityStarted(activity: Activity) = onStarted.invoke(activity)
+    override fun onActivityResumed(activity: Activity) = onResumed.invoke(activity)
+    override fun onActivityPaused(activity: Activity) = onPaused.invoke(activity)
+    override fun onActivityStopped(activity: Activity) = onStopped.invoke(activity)
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = onSave.invoke(activity, outState)
+    override fun onActivityDestroyed(activity: Activity) = onDestroyed.invoke(activity)
+})
 
 internal fun Context.unregisterActivityCallbacks(callbacks: Application.ActivityLifecycleCallbacks?) {
     callbacks?.let {
