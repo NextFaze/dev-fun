@@ -42,7 +42,7 @@ class KeySequence(
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
-        listener = application.registerOnActivityCreated(this::onActivityCreated)
+        listener = application.registerOnActivityCreatedAndResumed(this::onActivityCreated, this::onActivityResumed)
     }
 
     override fun detach() {
@@ -52,8 +52,6 @@ class KeySequence(
     }
 
     private fun onActivityCreated(activity: Activity, @Suppress("UNUSED_PARAMETER") savedInstanceState: Bundle?) {
-        activity.window?.wrapCallbackIfNecessary()
-
         if (activity is FragmentActivity) {
             activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentLifecycleCallbacks() {
                 override fun onFragmentStarted(fm: FragmentManager?, f: Fragment?) {
@@ -64,6 +62,10 @@ class KeySequence(
                 }
             }, false)
         }
+    }
+
+    private fun onActivityResumed(activity: Activity) {
+        activity.window?.wrapCallbackIfNecessary()
     }
 
     private fun onKeyEvent(action: Int, code: Int) {
