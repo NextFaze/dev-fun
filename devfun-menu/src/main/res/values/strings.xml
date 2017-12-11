@@ -4,10 +4,10 @@
 
     <string name="df_menu_developer_menu">Developer Menu</string>
     <string name="df_menu_crash_app">Crash App</string>
-    <string name="df_menu_version">NextFaze Developer Menu <xliff:g id="version" example="0.1.4" notranslate="true">%1$s</xliff:g></string>
+    <string name="df_menu_version">NextFaze Developer Menu <xliff:g id="version" example="0.1.5" notranslate="true">%1$s</xliff:g></string>
 
     <string name="df_menu_overlay_request">Overlay Request</string>
-    <string name="df_menu_overlay_reason">"NextFaze Developer Menu <xliff:g id="version" example="0.1.4" notranslate="true">%1$s</xliff:g>
+    <string name="df_menu_overlay_reason">"NextFaze Developer Menu <xliff:g id="version" example="0.1.5" notranslate="true">%1$s</xliff:g>
 
 Requesting permission to show Developer Menu floating cog overlay.
 
