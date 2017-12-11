@@ -9,8 +9,9 @@ import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.controllers.CogOverlay
-import com.nextfaze.devfun.menu.controllers.GraveKeySequence
-import com.nextfaze.devfun.menu.controllers.VolumeKeySequence
+import com.nextfaze.devfun.menu.controllers.GRAVE_KEY_SEQUENCE
+import com.nextfaze.devfun.menu.controllers.KeySequence
+import com.nextfaze.devfun.menu.controllers.VOLUME_KEY_SEQUENCE
 import kotlin.reflect.KClass
 
 interface DeveloperMenu : MenuController {
@@ -37,8 +38,10 @@ interface MenuController {
 class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
     override fun init(context: Context) {
         val activityProvider = get<ActivityProvider>()
-        this += GraveKeySequence(context, activityProvider)
-        this += VolumeKeySequence(context, activityProvider)
+        this += KeySequence(context, activityProvider).also {
+            it += GRAVE_KEY_SEQUENCE
+            it += VOLUME_KEY_SEQUENCE
+        }
         this += CogOverlay(context, activityProvider)
         devFun.instanceProviders += this
     }
