@@ -26,4 +26,6 @@ data class User(val givenName: CharSequence,
                 val password: CharSequence,
                 val email: CharSequence,
                 val dataOfBirth: DateTime,
-                val gender: Gender)
+                val gender: Gender) {
+    val id = "$userName".hashCode()
+}

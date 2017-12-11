@@ -1,12 +1,16 @@
 package com.nextfaze.devfun.menu
 
+import android.app.Activity
 import android.content.Context
 import android.support.v4.app.FragmentActivity
+import android.view.View
+import android.view.ViewGroup
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.core.AbstractDevFunModule
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.controllers.CogOverlay
 import com.nextfaze.devfun.menu.controllers.GRAVE_KEY_SEQUENCE
@@ -34,6 +38,16 @@ interface MenuController {
     fun onDismissed()
 }
 
+/**
+ * Provide an implementation of this to define your own header view.
+ *
+ * See `DemoMenuHeader` for example.
+ */
+interface MenuHeader<T : View> {
+    fun onCreateView(parent: ViewGroup): T
+    fun onBindView(view: T, parent: ViewGroup, activity: Activity)
+}
+
 @AutoService(DevFunModule::class)
 class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
     override fun init(context: Context) {
@@ -43,6 +57,8 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
             it += VOLUME_KEY_SEQUENCE
         }
         this += CogOverlay(context, activityProvider)
+
+        devFun.instanceProviders += captureInstance { DefaultMenuHeader() }
         devFun.instanceProviders += this
     }
 

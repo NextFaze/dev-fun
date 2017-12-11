@@ -1,5 +1,6 @@
 package com.nextfaze.devfun.menu
 
+import android.app.Activity
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -19,7 +20,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.internal.*
-import kotlinx.android.synthetic.main.df_menu_dialog_fragment.*
+import kotlinx.android.synthetic.main.df_menu_dialog_fragment.categoriesRecyclerView
+import kotlinx.android.synthetic.main.df_menu_dialog_fragment.categoryItemsRecyclerView
+import kotlinx.android.synthetic.main.df_menu_dialog_fragment.headerLayout
+import kotlinx.android.synthetic.main.df_menu_dialog_fragment.versionTextView
 
 internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     companion object {
@@ -59,11 +63,12 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
             inflater.inflate(R.layout.df_menu_dialog_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // title
-        titleTextView.text = activity::class.splitSimpleName
-
-        // header items
-        crashButton.setOnClickListener { throw DebugException() }
+        // header
+        devFun.get<MenuHeader<View>>().let {
+            val headerView = it.onCreateView(headerLayout)
+            headerLayout.addView(headerView)
+            it.onBindView(headerView, headerLayout, activity)
+        }
 
         // categories
         categoriesRecyclerView.apply {
@@ -159,7 +164,7 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
             // create item group headers
             val groups = category.items.groupBy { it.group }
                     .mapKeys { MenuHeaderItem(it.key ?: "Misc") }
-                    .toSortedMap(compareBy<MenuHeaderItem> { it.title })
+                    .toSortedMap(compareBy { it.title })
 
             ArrayList<Any>().apply {
                 groups.forEach {
@@ -216,5 +221,16 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
 private inline fun lollipop(body: () -> Any) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         body.invoke()
+    }
+}
+
+internal class DefaultMenuHeader : MenuHeader<ViewGroup> {
+    override fun onCreateView(parent: ViewGroup) = View.inflate(parent.context, R.layout.df_menu_dialog_header_layout, null) as ViewGroup
+    override fun onBindView(view: ViewGroup, parent: ViewGroup, activity: Activity) {
+        // title
+        view.findViewById<TextView>(R.id.activityTitleTextView).text = activity::class.splitSimpleName
+
+        // crash button
+        view.findViewById<View>(R.id.crashButton).setOnClickListener { throw DebugException() }
     }
 }
