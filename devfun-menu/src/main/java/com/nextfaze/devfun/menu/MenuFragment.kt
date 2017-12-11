@@ -1,6 +1,5 @@
 package com.nextfaze.devfun.menu
 
-import android.content.DialogInterface
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -182,9 +181,9 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
         super.onStart()
     }
 
-    override fun onDismiss(dialog: DialogInterface) {
+    override fun onDetach() {
         devMenu.onDismissed()
-        super.onDismiss(dialog)
+        super.onDetach()
     }
 
     override fun onResume() {
