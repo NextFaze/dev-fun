@@ -17,4 +17,4 @@ Function invocations will be wrapped by this.
 
 | Name | Summary |
 |---|---|
-| [log](../log.md) | `fun InvokeResult.log(logger: Logger = log): InvokeResult`<br>Convenience function to quickly log the result of a [FunctionItem.invoke](../-function-item/invoke.md). |
+| [log](../log.md) | `fun InvokeResult.log(logger: Logger = log, title: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)` = "Invocation returned"): InvokeResult`<br>Convenience function to quickly log the result of a [FunctionItem.invoke](../-function-item/invoke.md). |

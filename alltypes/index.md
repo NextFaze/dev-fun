@@ -36,6 +36,7 @@ Documentation is generated using Dokka.
 | [com.nextfaze.devfun.annotations.DeveloperCategory](../com.nextfaze.devfun.annotations/-developer-category/index.md) | This annotation is optional, and is used to change the category's name/order or the group of the functions defined in this class. |
 | [com.nextfaze.devfun.annotations.DeveloperFunction](../com.nextfaze.devfun.annotations/-developer-function/index.md) | Functions/methods annotated with this will be shown on the Developer Menu (and other modules). |
 | [com.nextfaze.devfun.menu.DeveloperMenu](../com.nextfaze.devfun.menu/-developer-menu/index.md) |  |
+| [com.nextfaze.devfun.DeviceUtils](../com.nextfaze.devfun/-device-utils/index.md) |  |
 | [com.nextfaze.devfun.core.FunctionArgs](../com.nextfaze.devfun.core/-function-args.md) |  |
 | [com.nextfaze.devfun.core.FunctionDefinition](../com.nextfaze.devfun.core/-function-definition/index.md) | Functions/methods annotated with [DeveloperFunction](../com.nextfaze.devfun.annotations/-developer-function/index.md) will be defined using this interface at compile time. |
 | [com.nextfaze.devfun.core.FunctionInvoke](../com.nextfaze.devfun.core/-function-invoke.md) |  |
@@ -49,11 +50,12 @@ Documentation is generated using Dokka.
 | [com.nextfaze.devfun.core.InvokeResult](../com.nextfaze.devfun.core/-invoke-result/index.md) | Function invocations will be wrapped by this. |
 | [kotlin.reflect.KClass](../com.nextfaze.devfun.internal/kotlin.reflect.-k-class/index.md) (extensions in package com.nextfaze.devfun.internal) |  |
 | [com.nextfaze.devfun.inject.KObjectInstanceProvider](../com.nextfaze.devfun.inject/-k-object-instance-provider/index.md) | Handles Kotlin `object` types. |
-| [com.nextfaze.devfun.menu.controllers.KeySequence](../com.nextfaze.devfun.menu.controllers/-key-sequence/index.md) |  |
+| [com.nextfaze.devfun.menu.controllers.KeySequence](../com.nextfaze.devfun.menu.controllers/-key-sequence/index.md) | Allows toggling the Developer Menu using button/key sequences. |
 | [com.nextfaze.devfun.utils.leakcanary.LeakCanaryUtils](../com.nextfaze.devfun.utils.leakcanary/-leak-canary-utils/index.md) | Utility functions for [Leak Canary](https://github.com/square/leakcanary). |
 | [wiki.Lifecycle](../wiki/-lifecycle.md) | An overview of the lifecycle of the KAPT generation to runtime transformation and function invocation process. |
 | [org.slf4j.Logger](../com.nextfaze.devfun.internal/org.slf4j.-logger/index.md) (extensions in package com.nextfaze.devfun.internal) |  |
 | [com.nextfaze.devfun.menu.MenuController](../com.nextfaze.devfun.menu/-menu-controller/index.md) |  |
+| [com.nextfaze.devfun.menu.MenuHeader](../com.nextfaze.devfun.menu/-menu-header/index.md) | Provide an implementation of this to define your own header view. |
 | [com.nextfaze.devfun.core.OnInitialized](../com.nextfaze.devfun.core/-on-initialized.md) | Callback signature if/when [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md) has been initialized. |
 | [com.nextfaze.devfun.stetho.Page](../com.nextfaze.devfun.stetho/-page/index.md) |  |
 | [com.nextfaze.devfun.inject.RequiringInstanceProvider](../com.nextfaze.devfun.inject/-requiring-instance-provider/index.md) | Same as [InstanceProvider](../com.nextfaze.devfun.inject/-instance-provider/index.md), but throws [ClassInstanceNotFoundException](../com.nextfaze.devfun.inject/-class-instance-not-found-exception/index.md) instead of returning `null`. |

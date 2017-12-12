@@ -2,7 +2,7 @@
 
 # ActivityTracker
 
-`class ActivityTracker : `[`ActivityProvider`](../-activity-provider.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/ActivityTracking.kt#L72)
+`class ActivityTracker : `[`ActivityProvider`](../-activity-provider.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/ActivityTracking.kt#L77)
 
 ### Constructors
 

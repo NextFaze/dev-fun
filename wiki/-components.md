@@ -35,7 +35,7 @@ This library contains primarily interface definitions and inline functions, and 
 negligible impact on your method count and dex sizes. Apply to your main `compile` configuration:
 
 ``` gradle
-compile 'com.nextfaze.devfun:devfun-annotations:0.1.4'
+compile 'com.nextfaze.devfun:devfun-annotations:0.1.5'
 ```
 
 ### Compiler
@@ -45,7 +45,7 @@ Annotation processor [DevFunProcessor](../com.nextfaze.devfun.compiler/-dev-fun-
 This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.
 
 ``` gradle
-kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.4'
+kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.5'
 ```
 
 Configuration options can be applied using Android DSL:
@@ -77,7 +77,7 @@ Core of [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md). Loads modules a
 Apply to your non-main configuration:
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun:0.1.4'
+debugCompile 'com.nextfaze.devfun:devfun:0.1.5'
 ```
 
 Modules are loaded by [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md) using Java's [ServiceLoader](https://developer.android.com/reference/java/util/ServiceLoader.html).
@@ -97,7 +97,7 @@ See the demo app [DemoInstanceProvider](https://github.com/NextFaze/dev-fun/tree
 Adds a developer menu [DevMenu](../com.nextfaze.devfun.menu/-dev-menu/index.md), accessible by a floating cog [CogOverlay](../com.nextfaze.devfun.menu.controllers/-cog-overlay/index.md) (long-press to drag) or device button sequence [KeySequence](../com.nextfaze.devfun.menu.controllers/-key-sequence/index.md).
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:menu:0.1.4'
+debugCompile 'com.nextfaze.devfun:menu:0.1.5'
 ```
 
 Button sequence: *(this is not configurable at the moment but is intended to be eventually)*
@@ -124,7 +124,7 @@ Adds module [InjectFromDagger2](../com.nextfaze.devfun.inject.dagger2/-inject-fr
 Provides default heavy-reflection based Dagger 2 injector and convenience functions for reflectively locating object instances from Dagger 2.x `@Component` objects.
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.4'
+debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.5'
 ```
 
 It only really supports simple graphs by finding provides methods/fields that match (or are a super type) of the requested type (scoping is not considered etc.).
@@ -153,7 +153,7 @@ Adding them to modules and leveraging dependency injection allows for non-static
 Module [GlideUtils](../com.nextfaze.devfun.utils.glide/-glide-utils/index.md) provides some utility functions when using Glide.
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.4'
+debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.5'
 ```
 
 Features:
@@ -167,7 +167,7 @@ Features:
 Module [LeakCanaryUtils](../com.nextfaze.devfun.utils.leakcanary/-leak-canary-utils/index.md) provides some utility functions when using Leak Canary.
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.4'
+debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.5'
 ```
 
 Features:
@@ -194,7 +194,7 @@ Module [DevHttpD](../com.nextfaze.devfun.httpd/-dev-http-d/index.md) adds a loca
 Provides a single `POST` method `invoke` with one parameter `hashCode` (expecting [FunctionItem.hashCode](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/hash-code.html))
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:httpd:0.1.4'
+debugCompile 'com.nextfaze.devfun:httpd:0.1.5'
 ```
 
 Use with HttpD Front-end.
@@ -232,7 +232,7 @@ Module [HttpFrontEnd](../com.nextfaze.devfun.httpd.frontend/-http-front-end/inde
 **Depends on [DevHttpD](../com.nextfaze.devfun.httpd/-dev-http-d/index.md).**
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:httpd-frontend:0.1.4'
+debugCompile 'com.nextfaze.devfun:httpd-frontend:0.1.5'
 ```
 
 Page is extremely simple/static at the moment:
@@ -246,7 +246,7 @@ Page is extremely simple/static at the moment:
 Module [DevStetho](../com.nextfaze.devfun.stetho/-dev-stetho/index.md) allows generated methods to be invoked from Chrome's Dev Tools JavaScript console.
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.4'
+debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.5'
 ```
 
 Opening console will show available functions.

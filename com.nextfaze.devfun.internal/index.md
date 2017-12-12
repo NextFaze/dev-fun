@@ -30,6 +30,7 @@
 | Name | Summary |
 |---|---|
 | [devFunVerbose](dev-fun-verbose.md) | `var devFunVerbose: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)<br>Controls trace-level logging. Disabled (`false`) by default. |
+| [isEmulator](is-emulator.md) | `val isEmulator: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
 
 ### Functions
 

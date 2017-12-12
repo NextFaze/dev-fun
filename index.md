@@ -11,6 +11,7 @@ For an overview of all the components and libraries see [wiki/components](wiki/-
 
 | Name | Summary |
 |---|---|
+| [com.nextfaze.devfun](com.nextfaze.devfun/index.md) |  |
 | [com.nextfaze.devfun.annotations](com.nextfaze.devfun.annotations/index.md) | Contains the annotations and interface definitions. |
 | [com.nextfaze.devfun.compiler](com.nextfaze.devfun.compiler/index.md) | Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-function/)  and [DeveloperCategory](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-category/) annotations. |
 | [com.nextfaze.devfun.core](com.nextfaze.devfun.core/index.md) | Core [DevFun](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.core/-dev-fun/) package - handles loading and processing of modules and definitions. |

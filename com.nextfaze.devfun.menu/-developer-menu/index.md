@@ -2,13 +2,20 @@
 
 # DeveloperMenu
 
-`interface DeveloperMenu : `[`MenuController`](../-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L15)
+`interface DeveloperMenu : `[`MenuController`](../-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L25)
 
 ### Properties
 
 | Name | Summary |
 |---|---|
-| [isVisible](is-visible.md) | `abstract val isVisible: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
+| [isVisible](is-visible.md) | `abstract val isVisible: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)<br>Flag indicating if the menu is currently visible. |
+
+### Inherited Properties
+
+| Name | Summary |
+|---|---|
+| [actionDescription](../-menu-controller/action-description.md) | `abstract val actionDescription: `[`CharSequence`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char-sequence/index.html)`?`<br>A human-readable description of how this controller is used. |
+| [title](../-menu-controller/title.md) | `abstract val title: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>A human-readable description of the name of this controller. |
 
 ### Functions
 
@@ -25,10 +32,10 @@
 
 | Name | Summary |
 |---|---|
-| [attach](../-menu-controller/attach.md) | `abstract fun attach(developerMenu: DeveloperMenu): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
-| [detach](../-menu-controller/detach.md) | `abstract fun detach(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
-| [onDismissed](../-menu-controller/on-dismissed.md) | `abstract fun onDismissed(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
-| [onShown](../-menu-controller/on-shown.md) | `abstract fun onShown(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
+| [attach](../-menu-controller/attach.md) | `abstract fun attach(developerMenu: DeveloperMenu): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when this controller is being attached/initialized to a DeveloperMenu. |
+| [detach](../-menu-controller/detach.md) | `abstract fun detach(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when this controller is being detached/removed from a DeveloperMenu. |
+| [onDismissed](../-menu-controller/on-dismissed.md) | `abstract fun onDismissed(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when DeveloperMenu is dismissed. |
+| [onShown](../-menu-controller/on-shown.md) | `abstract fun onShown(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when DeveloperMenu is shown. |
 
 ### Inheritors
 

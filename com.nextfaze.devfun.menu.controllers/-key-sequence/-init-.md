@@ -2,4 +2,11 @@
 
 # &lt;init&gt;
 
-`KeySequence(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.internal/-activity-provider.md)`, keySequence: `[`IntArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int-array/index.html)` = DEFAULT_KEY_SEQUENCE)`
+`KeySequence(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.internal/-activity-provider.md)`)`
+
+Allows toggling the Developer Menu using button/key sequences.
+
+Two sequences are added by default:
+
+* The grave/tilde key: `~`
+* Volume button sequence: `down,down,up,down`
