@@ -6,16 +6,23 @@
     <string name="df_menu_crash_app">Crash App</string>
     <string name="df_menu_version">NextFaze Developer Menu <xliff:g id="version" example="0.1.5" notranslate="true">%1$s</xliff:g></string>
 
+    <!-- Controllers -->
+    <string name="df_menu_available_controllers"><u>Available Menu Controllers</u></string>
+    <string name="df_menu_no_controllers">None enabled!</string>
+
+    <!-- Cog Overlay Controller -->
+    <string name="df_menu_cog_overlay">Cog Overlay</string>
+    <string name="df_menu_cog_overlay_hidden">Cog Overlay Hidden</string>
+    <string name="df_menu_cog_hide_message">Available menu controllers:\n<xliff:g id="menu_controllers" notranslate="true">%1$s</xliff:g></string>
+    <string name="df_menu_cog_tap_to_show">" • Tapping cog overlay"</string>
     <string name="df_menu_overlay_request">Overlay Request</string>
     <string name="df_menu_overlay_reason">"NextFaze Developer Menu <xliff:g id="version" example="0.1.5" notranslate="true">%1$s</xliff:g>
 
-Requesting permission to show Developer Menu floating cog overlay.
+Requesting permission to show Developer Menu floating cog overlay."</string>
 
-Menu can also be opened with <xliff:g id="key_sequence" notranslate="true">%2$s</xliff:g>"</string>
-
-    <string name="df_menu_cog_hide_message">"Show menu again using <xliff:g id="key_sequence" notranslate="true">%1$s</xliff:g>"</string>
-
-    <string name="df_menu_key_sequence_device">"volume button sequence: \"down,down,up,down\""</string>
-    <string name="df_menu_key_sequence_emulator">"the \'`\' (backtick) key"</string>
+    <!-- Key Sequence Controller -->
+    <string name="df_menu_key_sequence">Key Sequence</string>
+    <string name="df_menu_grave_sequence">The&#160;<font bgcolor="#CCCCCC" face="serif-monospace">`</font> key (backtick/tilde&#160;<font bgcolor="#CCCCCC" face="serif-monospace">~</font>)</string>
+    <string name="df_menu_volume_sequence">Volume button sequence:\n<font bgcolor="#CCCCCC" face="serif-monospace">down</font>&#160;<font bgcolor="#CCCCCC" face="serif-monospace">down</font>&#160;<font bgcolor="#CCCCCC" face="serif-monospace">up</font>&#160;<font bgcolor="#CCCCCC" face="serif-monospace">down</font></string>
 
 </resources>

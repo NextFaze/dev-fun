@@ -16,9 +16,9 @@ fun FunctionItem.call(instanceProvider: InstanceProvider = devFun.instanceProvid
  *
  * @return `this` for chaining.
  */
-fun InvokeResult.log(logger: Logger = log): InvokeResult {
+fun InvokeResult.log(logger: Logger = log, title: String = "Invocation returned"): InvokeResult {
     when (exception) {
-        null -> logger.i { "Invocation returned $value" }
+        null -> logger.i { "$title\n$value" }
         else -> logger.w(exception) { "Exception thrown during invocation." }
     }
     return this
@@ -30,6 +30,6 @@ fun InvokeResult.log(logger: Logger = log): InvokeResult {
  * This is equivalent to [FunctionItem.call] and [InvokeResult.log].
  */
 fun FunctionItem.callAndLog(instanceProvider: InstanceProvider = devFun.instanceProviders, logger: Logger = log)
-        = this.call(instanceProvider).log(logger)
+        = this.call(instanceProvider).log(logger, this.name)
 
 private val log = logger("com.nextfaze.devfun.core.InvokeResult")

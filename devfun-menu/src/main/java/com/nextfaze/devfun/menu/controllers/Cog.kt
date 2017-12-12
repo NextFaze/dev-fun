@@ -22,18 +22,18 @@ import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.math.MathUtils.clamp
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
+import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.*
 import android.view.animation.OvershootInterpolator
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.CategoryDefinition
-import com.nextfaze.devfun.core.FunctionDefinition
-import com.nextfaze.devfun.core.FunctionTransformer
-import com.nextfaze.devfun.core.SimpleFunctionItem
+import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.*
+import com.nextfaze.devfun.menu.BuildConfig
+import com.nextfaze.devfun.menu.R
 import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
 
 private const val PREF_TO_LEFT = "toLeft"
@@ -122,11 +122,14 @@ class CogOverlay constructor(
         developerMenu = null
     }
 
+    override val title: String get() = application.getString(R.string.df_menu_cog_overlay)
+    override val actionDescription get() = if (cogVisible && canDrawOverlays) application.getString(R.string.df_menu_cog_tap_to_show) else null
+
     override fun onShown() = setVisible(false)
     override fun onDismissed() = setVisible(true)
 
     private fun setVisible(visible: Boolean) {
-        windowView?.visible = visible && cogVisible && fragmentActivity != null
+        windowView?.visibility = if (visible && cogVisible && fragmentActivity != null) View.VISIBLE else View.GONE
     }
 
     private fun addOverlay() {
@@ -360,9 +363,14 @@ class CogOverlay constructor(
 
         activity?.let {
             if (!visible) {
+                val msg = SpannableStringBuilder().also {
+                    it += application.getText(R.string.df_menu_available_controllers)
+                    it += "\n\n"
+                    it += devFun.devMenu.actionDescription ?: application.getString(R.string.df_menu_no_controllers)
+                }
                 AlertDialog.Builder(it)
-                        .setTitle("Cog Overlay Hidden")
-                        .setMessage(application.getString(R.string.df_menu_cog_hide_message, application.keySequenceString))
+                        .setTitle(R.string.df_menu_cog_overlay_hidden)
+                        .setMessage(msg)
                         .show()
             }
         }
@@ -415,9 +423,16 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val msg = SpannableStringBuilder().also {
+            it += activity.getString(R.string.df_menu_overlay_reason, BuildConfig.VERSION_NAME)
+            it += "\n\n"
+            it += activity.getText(R.string.df_menu_available_controllers)
+            it += "\n\n"
+            it += devFun.devMenu.actionDescription ?: activity.getString(R.string.df_menu_no_controllers)
+        }
         return AlertDialog.Builder(activity)
                 .setTitle(R.string.df_menu_overlay_request)
-                .setMessage(activity.getString(R.string.df_menu_overlay_reason, BuildConfig.VERSION_NAME, context.keySequenceString))
+                .setMessage(msg)
                 .setPositiveButton(android.R.string.yes, { dialog, _ ->
                     val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${activity.packageName}".toUri())
                     activity.startActivityForResult(intent, 1234)
@@ -437,13 +452,6 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
     }
 }
 
-private var View.visible: Boolean
-    get() = this.visibility == View.VISIBLE
-    set(value) = when {
-        value -> this.visibility = View.VISIBLE
-        else -> this.visibility = View.GONE
-    }
-
 private fun String.toUri(): Uri = Uri.parse(this)
 
 private val Context.isRunningInForeground: Boolean
@@ -457,5 +465,6 @@ private val Context.isRunningInForeground: Boolean
         return topActivityName.equals(packageName, ignoreCase = true)
     }
 
-private val Context.keySequenceString: String
-    get() = getString(if (isEmulator) R.string.df_menu_key_sequence_emulator else R.string.df_menu_key_sequence_device)
+internal operator fun Appendable.plusAssign(charSequence: CharSequence) {
+    this.append(charSequence)
+}

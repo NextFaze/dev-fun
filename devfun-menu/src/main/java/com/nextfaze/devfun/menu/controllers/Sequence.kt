@@ -7,25 +7,28 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.support.annotation.StringRes
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks
+import android.text.SpannableStringBuilder
 import android.view.KeyEvent
 import android.view.Window
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.DeveloperMenu
 import com.nextfaze.devfun.menu.MenuController
+import com.nextfaze.devfun.menu.R
 import java.util.Arrays
 
-internal val GRAVE_KEY_SEQUENCE = intArrayOf(KeyEvent.KEYCODE_GRAVE)
-internal val VOLUME_KEY_SEQUENCE = intArrayOf(
+internal val GRAVE_KEY_SEQUENCE = KeySequence.Definition(intArrayOf(KeyEvent.KEYCODE_GRAVE), R.string.df_menu_grave_sequence)
+internal val VOLUME_KEY_SEQUENCE = KeySequence.Definition(intArrayOf(
         KeyEvent.KEYCODE_VOLUME_DOWN,
         KeyEvent.KEYCODE_VOLUME_DOWN,
         KeyEvent.KEYCODE_VOLUME_UP,
         KeyEvent.KEYCODE_VOLUME_DOWN
-)
+), R.string.df_menu_volume_sequence)
 
 /**
  * Allows toggling the Developer Menu using button/key sequences.
@@ -37,17 +40,17 @@ internal val VOLUME_KEY_SEQUENCE = intArrayOf(
 class KeySequence(context: Context, private val activityProvider: ActivityProvider) : MenuController {
     private val application = context.applicationContext as Application
     private val handler = Handler(Looper.getMainLooper())
-    private val sequenceStates = mutableSetOf<Sequence>()
+    private val sequenceStates = mutableSetOf<Definition>()
 
     private var listener: Application.ActivityLifecycleCallbacks? = null
     private var developerMenu: DeveloperMenu? = null
 
-    operator fun plusAssign(keySequence: IntArray) {
-        sequenceStates += Sequence(keySequence)
+    operator fun plusAssign(sequenceDefinition: Definition) {
+        sequenceStates += sequenceDefinition
     }
 
-    operator fun minusAssign(keySequence: IntArray) {
-        sequenceStates -= Sequence(keySequence)
+    operator fun minusAssign(sequenceDefinition: Definition) {
+        sequenceStates -= sequenceDefinition
     }
 
     override fun attach(developerMenu: DeveloperMenu) {
@@ -60,6 +63,17 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
         listener = null
         developerMenu = null
     }
+
+    override val title: String get() = application.getString(R.string.df_menu_key_sequence)
+    override val actionDescription
+        get() = sequenceStates
+                .takeIf { it.isNotEmpty() }
+                ?.joinTo(SpannableStringBuilder(), "\n") { def ->
+                    SpannableStringBuilder().also {
+                        it += " • "
+                        it += application.getText(def.description)
+                    }
+                }
 
     private fun onActivityCreated(activity: Activity, @Suppress("UNUSED_PARAMETER") savedInstanceState: Bundle?) {
         if (activity is FragmentActivity) {
@@ -97,17 +111,10 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
         }
     }
 
-    override fun onShown() {
-        resetAllSequences()
-    }
+    override fun onShown() = resetAllSequences()
+    override fun onDismissed() = resetAllSequences()
 
-    override fun onDismissed() {
-        resetAllSequences()
-    }
-
-    private fun resetAllSequences() {
-        sequenceStates.forEach { it.reset() }
-    }
+    private fun resetAllSequences() = sequenceStates.forEach { it.reset() }
 
     private fun Window.wrapCallbackIfNecessary() {
         if (callback !is WindowCallbackWrapper) callback = WindowCallbackWrapper(callback)
@@ -121,7 +128,9 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
         }
     }
 
-    private data class Sequence(val keyCodes: IntArray, var currIndex: Int = 0) {
+    data class Definition(private val keyCodes: IntArray, @StringRes val description: Int) {
+        private var currIndex: Int = 0
+
         fun sequenceComplete(code: Int): Boolean {
             if (code == keyCodes[currIndex]) {
                 currIndex++
@@ -141,7 +150,7 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
 
         override fun equals(other: Any?) = when {
             this === other -> true
-            other !is Sequence -> false
+            other !is Definition -> false
             !Arrays.equals(keyCodes, other.keyCodes) -> false
             else -> true
         }
