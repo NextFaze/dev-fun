@@ -123,7 +123,20 @@ class CogOverlay constructor(
     }
 
     override val title: String get() = application.getString(R.string.df_menu_cog_overlay)
-    override val actionDescription get() = if (cogVisible && canDrawOverlays) application.getString(R.string.df_menu_cog_tap_to_show) else null
+    override val actionDescription: CharSequence?
+        get() {
+            val res = when {
+                cogVisible -> when {
+                    canDrawOverlays -> R.string.df_menu_cog_tap_to_show
+                    else -> R.string.df_menu_cog_overlay_no_permissions
+                }
+                else -> R.string.df_menu_cog_overlay_hidden_by_user
+            }
+            return SpannableStringBuilder().also {
+                it += " • "
+                it += application.getText(res)
+            }
+        }
 
     override fun onShown() = setVisible(false)
     override fun onDismissed() = setVisible(true)
