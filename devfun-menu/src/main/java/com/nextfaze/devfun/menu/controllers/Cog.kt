@@ -39,6 +39,7 @@ import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
 private const val PREF_TO_LEFT = "toLeft"
 private const val PREF_VERTICAL_FACTOR = "verticalFactor"
 private const val PREF_VISIBLE = "visible"
+private const val DEFAULT_VISIBILITY = true
 
 /**
  * Controls the floating cog overlay.
@@ -90,7 +91,7 @@ class CogOverlay constructor(
     private var developerMenu: DeveloperMenu? = null
 
     private var preferences = context.getSharedPreferences(CogOverlay::class.java.name, Context.MODE_PRIVATE)
-    private var cogVisible = preferences.getBoolean(PREF_VISIBLE, true)
+    private var cogVisible = preferences.getBoolean(PREF_VISIBLE, DEFAULT_VISIBILITY)
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
@@ -100,7 +101,7 @@ class CogOverlay constructor(
                     if (it is FragmentActivity) {
                         when {
                             canDrawOverlays -> addOverlay()
-                            !permissionsDenied && !isInstrumentationTest -> manageOverlayPermission()
+                            !permissionsDenied && !isInstrumentationTest -> managePermissions()
                         }
                         setVisible(it.isRunningInForeground)
                     } else {
@@ -148,16 +149,14 @@ class CogOverlay constructor(
         windowView?.visibility = if (visible && cogVisible && fragmentActivity != null) View.VISIBLE else View.GONE
     }
 
-    private fun addOverlay() {
-        log.d { "addOverlay" }
+    private fun addOverlay(force: Boolean = false) {
         val developerMenu = developerMenu ?: return
-
         val newScreenSize = Point().apply {
             windowManager.defaultDisplay.getSize(this)
             y -= statusBarHeight
         }
 
-        if ((overlayAdded && newScreenSize == screenSize) || !canDrawOverlays) return
+        if (!force && ((overlayAdded && newScreenSize == screenSize) || !canDrawOverlays)) return
 
         screenSize.set(newScreenSize.x, newScreenSize.y)
         removeCurrentWindow()
@@ -320,7 +319,7 @@ class CogOverlay constructor(
     }
 
     @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
-    private fun manageOverlayPermission() = fragmentActivity?.show<OverlayPermissionsDialogFragment>()
+    private fun managePermissions() = fragmentActivity?.show<OverlayPermissionsDialogFragment>()
 
     private val isInstrumentationTest by lazy {
         when {
@@ -354,11 +353,10 @@ class CogOverlay constructor(
             }
 
     @DeveloperFunction
-    private fun resetOverlayPosition() {
-        if (overlayAdded) {
-            windowParams = newLayoutParams()
-            windowManager.updateViewLayout(windowView, windowParams)
-        }
+    private fun resetPositionAndState() {
+        preferences.edit().clear().apply()
+        cogVisible = DEFAULT_VISIBILITY
+        addOverlay(true)
     }
 
     @Constructable
