@@ -51,10 +51,8 @@ private const val PREF_VISIBLE = "visible"
  * ```xml
  *     <color name="df_menu_cog_background_color">#FF0000</color> <!-- red -->
  * ```
- *
  */
-
-@DeveloperCategory("DevFun", "Developer Menu")
+@DeveloperCategory("DevFun", "Cog Overlay")
 class CogOverlay constructor(
         context: Context,
         private val activityProvider: ActivityProvider
@@ -369,8 +367,7 @@ class CogOverlay constructor(
             return when {
                 cogOverlay.canDrawOverlays -> {
                     listOf(object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-                        override val name = if (cogOverlay.cogVisible) "Hide cog overlay" else "Show cog overlay"
-                        override val group = "Cog Overlay"
+                        override val name = if (cogOverlay.cogVisible) "Hide" else "Show"
                         override val args = listOf(!cogOverlay.cogVisible)
                     })
                 }
