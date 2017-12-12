@@ -124,19 +124,24 @@ class CogOverlay constructor(
 
     override val title: String get() = application.getString(R.string.df_menu_cog_overlay)
     override val actionDescription: CharSequence?
-        get() {
-            val res = when {
-                cogVisible -> when {
-                    canDrawOverlays -> R.string.df_menu_cog_tap_to_show
-                    else -> R.string.df_menu_cog_overlay_no_permissions
+        get() = mutableListOf<Int>()
+                .apply {
+                    if (!cogVisible) {
+                        this += R.string.df_menu_cog_overlay_hidden_by_user
+                    }
+                    if (!canDrawOverlays) {
+                        this += R.string.df_menu_cog_overlay_no_permissions
+                    }
+                    if (isEmpty()) {
+                        this += R.string.df_menu_cog_tap_to_show
+                    }
                 }
-                else -> R.string.df_menu_cog_overlay_hidden_by_user
-            }
-            return SpannableStringBuilder().also {
-                it += " • "
-                it += application.getText(res)
-            }
-        }
+                .joinTo(SpannableStringBuilder(), "\n") { resId ->
+                    SpannableStringBuilder().also {
+                        it += " • "
+                        it += application.getText(resId)
+                    }
+                }
 
     override fun onShown() = setVisible(false)
     override fun onDismissed() = setVisible(true)
@@ -201,7 +206,6 @@ class CogOverlay constructor(
         })
 
         windowView.setOnTouchListener(object : View.OnTouchListener {
-
             private var currentPosition = PointF(0f, 0f)
             private var initialPosition = PointF(0f, 0f)
             private var initialWindowPosition = PointF(0f, 0f)
@@ -361,12 +365,18 @@ class CogOverlay constructor(
 
     @Constructable
     private class SetCogVisibilityTransformer(private val cogOverlay: CogOverlay) : FunctionTransformer {
-        override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition) =
-                listOf(object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-                    override val name = if (cogOverlay.cogVisible) "Hide cog overlay" else "Show cog overlay"
-                    override val group = "Cog Overlay"
-                    override val args = listOf(!cogOverlay.cogVisible)
-                })
+        override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): List<SimpleFunctionItem> {
+            return when {
+                cogOverlay.canDrawOverlays -> {
+                    listOf(object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
+                        override val name = if (cogOverlay.cogVisible) "Hide cog overlay" else "Show cog overlay"
+                        override val group = "Cog Overlay"
+                        override val args = listOf(!cogOverlay.cogVisible)
+                    })
+                }
+                else -> emptyList()
+            }
+        }
     }
 
     @DeveloperFunction(transformer = SetCogVisibilityTransformer::class)
