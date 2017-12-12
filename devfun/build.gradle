@@ -9,6 +9,12 @@ description = "Core DevFun library that initializes and manages DevFun modules.\
 
 project.configureAndroidLibrary(this)
 
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
 dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')
@@ -17,6 +23,7 @@ dependencies {
     // Kotlin
     api project.kotlinStdLib
     implementation project.kotlinReflect
+    implementation project.kotlinCoroutines
 
     // Support libs
     implementation project.supportAppCompat
