@@ -26,6 +26,8 @@ import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.*
 import android.view.animation.OvershootInterpolator
+import android.widget.CheckBox
+import android.widget.TextView
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
@@ -39,6 +41,7 @@ import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
 private const val PREF_TO_LEFT = "toLeft"
 private const val PREF_VERTICAL_FACTOR = "verticalFactor"
 private const val PREF_VISIBLE = "visible"
+private const val PREF_PERMISSIONS = "permissions"
 private const val DEFAULT_VISIBILITY = true
 
 /**
@@ -90,8 +93,13 @@ class CogOverlay constructor(
     private var listener: Application.ActivityLifecycleCallbacks? = null
     private var developerMenu: DeveloperMenu? = null
 
-    private var preferences = context.getSharedPreferences(CogOverlay::class.java.name, Context.MODE_PRIVATE)
-    private var cogVisible = preferences.getBoolean(PREF_VISIBLE, DEFAULT_VISIBILITY)
+    private val preferences = context.getSharedPreferences(CogOverlay::class.java.name, Context.MODE_PRIVATE)
+    private var cogVisible: Boolean
+        get() = preferences.getBoolean(PREF_VISIBLE, DEFAULT_VISIBILITY)
+        set(value) = preferences.edit().putBoolean(PREF_VISIBLE, value).apply()
+    private var permissions
+        get() = OverlayPermissions.fromName(preferences.getString(PREF_PERMISSIONS, null)) ?: OverlayPermissions.NEVER_REQUESTED
+        set(value) = preferences.edit().putString(PREF_PERMISSIONS, value.name).apply()
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
@@ -101,7 +109,7 @@ class CogOverlay constructor(
                     if (it is FragmentActivity) {
                         when {
                             canDrawOverlays -> addOverlay()
-                            !permissionsDenied && !isInstrumentationTest -> managePermissions()
+                            permissions != OverlayPermissions.NEVER_ASK_AGAIN && !isInstrumentationTest -> managePermissions()
                         }
                         setVisible(it.isRunningInForeground)
                     } else {
@@ -319,7 +327,13 @@ class CogOverlay constructor(
     }
 
     @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
-    private fun managePermissions() = fragmentActivity?.show<OverlayPermissionsDialogFragment>()
+    private fun managePermissions() = fragmentActivity?.let {
+        OverlayPermissionsDialogFragment.show(it, permissions).apply {
+            deniedCallback = { neverAskAgain ->
+                permissions = if (neverAskAgain) OverlayPermissions.NEVER_ASK_AGAIN else OverlayPermissions.DENIED
+            }
+        }
+    }
 
     private val isInstrumentationTest by lazy {
         when {
@@ -377,8 +391,6 @@ class CogOverlay constructor(
     @DeveloperFunction(transformer = SetCogVisibilityTransformer::class)
     private fun setCogVisibility(visible: Boolean) {
         cogVisible = visible
-        preferences.edit().putBoolean(PREF_VISIBLE, visible).apply()
-
         activity?.let {
             if (!visible) {
                 val msg = SpannableStringBuilder().also {
@@ -431,9 +443,38 @@ class CogOverlay constructor(
         }
 }
 
-private var permissionsDenied = false
+internal enum class OverlayPermissions {
+    NEVER_REQUESTED,
+    DENIED,
+    NEVER_ASK_AGAIN;
+
+    companion object {
+        fun fromName(name: String?) = try {
+            name?.let { OverlayPermissions.valueOf(name) }
+        } catch (t: Throwable) {
+            null
+        }
+    }
+}
 
 internal class OverlayPermissionsDialogFragment : DialogFragment() {
+    companion object {
+        fun show(activity: FragmentActivity, permissions: OverlayPermissions) =
+                activity.obtain {
+                    OverlayPermissionsDialogFragment().apply {
+                        arguments = Bundle().apply {
+                            putString(PREF_PERMISSIONS, permissions.name)
+                        }
+                    }
+                }.apply {
+                    takeIf { !it.isAdded }?.show(activity.supportFragmentManager)
+                }
+    }
+
+    var deniedCallback: ((neverAskAgain: Boolean) -> Unit)? = null
+
+    private val permissions by lazy { OverlayPermissions.valueOf(arguments.getString(PREF_PERMISSIONS)) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
@@ -448,16 +489,24 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
             it += "\n\n"
             it += devFun.devMenu.actionDescription ?: activity.getString(R.string.df_menu_no_controllers)
         }
+
+        val (neverAskAgainCheckBox, dialogView) = LayoutInflater.from(context).inflate(R.layout.df_menu_permissions_checkbox, view as ViewGroup?).run {
+            findViewById<TextView>(R.id.messageTextView).text = msg
+            findViewById<CheckBox>(R.id.neverAskAgainCheckBox).apply {
+                isChecked = permissions != OverlayPermissions.NEVER_REQUESTED
+            } to this
+        }
+
         return AlertDialog.Builder(activity)
                 .setTitle(R.string.df_menu_overlay_request)
-                .setMessage(msg)
-                .setPositiveButton(android.R.string.yes, { dialog, _ ->
+                .setView(dialogView)
+                .setPositiveButton(R.string.df_menu_allow, { dialog, _ ->
                     val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${activity.packageName}".toUri())
                     activity.startActivityForResult(intent, 1234)
                     dialog.dismiss()
                 })
-                .setNegativeButton(android.R.string.no, { dialog, _ ->
-                    permissionsDenied = true
+                .setNegativeButton(R.string.df_menu_deny, { dialog, _ ->
+                    deniedCallback?.invoke(neverAskAgainCheckBox.isChecked)
                     dialog.dismiss()
                 })
                 .show()
