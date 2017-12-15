@@ -4,9 +4,8 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.os.Process
-import android.support.multidex.MultiDex
-import android.util.Log
 import dagger.Component
+import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.ElementsIntoSet
@@ -16,18 +15,30 @@ import kotlin.annotation.AnnotationRetention.BINARY
 import kotlin.annotation.AnnotationTarget.*
 
 @Singleton
-@Component(modules = arrayOf(ApplicationModule::class))
+@Component(modules = [ApplicationModule::class])
 interface ApplicationComponent : MainInjector {
+    fun initializer(): Initializer
     fun retainedComponent(retainedModule: RetainedModule): RetainedComponent
 }
 
 typealias Initializer = (application: Application) -> Unit
 
-@Module(includes = arrayOf(AndroidModule::class, MainModule::class, BuildTypeModule::class))
+@Module(includes = [AndroidModule::class, MainModule::class, BuildTypeModule::class])
 class ApplicationModule {
     @Provides @ElementsIntoSet internal fun defaultInitializers() = emptySet<Initializer>()
     @Provides @ElementsIntoSet @Early internal fun defaultEarlyInitializers() = emptySet<Initializer>()
     @Provides @ElementsIntoSet internal fun defaultActivityLifecycleCallbacks() = emptySet<Application.ActivityLifecycleCallbacks>()
+
+    @Provides
+    internal fun initializer(
+            initializers: Lazy<Set<Initializer>>,
+            @Early earlyInitializers: Lazy<Set<Initializer>>,
+            activityLifecycleCallbacks: Lazy<Set<Application.ActivityLifecycleCallbacks>>
+    ): Initializer = { application ->
+        earlyInitializers.get().forEach { it(application) }
+        initializers.get().forEach { it(application) }
+        activityLifecycleCallbacks.get().forEach { application.registerActivityLifecycleCallbacks(it) }
+    }
 }
 
 /**
@@ -40,35 +51,30 @@ class ApplicationModule {
 annotation class Early
 
 abstract class DaggerApplication : Application() {
-    var applicationComponent: ApplicationComponent? = null
-        private set
+    /** The main application component. May throw if called from other than the [main process][isMainProcess]. */
+    open val applicationComponent: ApplicationComponent by lazy {
+        // Lazily initialized, so that ContentProviders can access the component earlier than onCreate().
+        check(isMainProcess) { "Cannot instantiate application component on anything other than the main process" }
+        createComponent().apply { initializer()(this@DaggerApplication) }
+    }
 
-    protected open val isDaggerEnabled = true
-
-    protected val currentProcessInfo: ActivityManager.RunningAppProcessInfo? by lazy {
+    /** The [RunningAppProcessInfo] of the current process. */
+    protected val currentProcessInfo: ActivityManager.RunningAppProcessInfo by lazy {
         val pid = Process.myPid()
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        activityManager.runningAppProcesses?.firstOrNull { it.pid == pid }
+        activityManager.runningAppProcesses.orEmpty().first { it.pid == pid }
     }
 
-    protected abstract fun inject(injector: ApplicationInjector)
+    /** Indicates if this process is the main process. */
+    protected val isMainProcess by lazy { !currentProcessInfo.processName.contains(":") }
 
-    override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(base)
-        MultiDex.install(this)
-
-        // Then init main dagger component - need to do this before onCreate() for ContentProviders
-        if (isDaggerEnabled) {
-            applicationComponent = DaggerApplicationComponent.builder().androidModule(AndroidModule(this)).build()
-        } else {
-            Log.d("DaggerApplication", "Skipped build of Dagger application component - Dagger not enabled")
-        }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        applicationComponent?.let { inject(it) }
-    }
+    /**
+     * Create the application component. Subclasses, as needed for tests for example, can override this to supply an
+     * [ApplicationComponent] subclass.
+     * @return An application component.
+     */
+    protected open fun createComponent(): ApplicationComponent =
+            DaggerApplicationComponent.builder().androidModule(AndroidModule(this)).build()
 }
 
 val Context.applicationComponent: ApplicationComponent?

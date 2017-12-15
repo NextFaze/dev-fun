@@ -167,27 +167,11 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
  */
 @AutoService(DevFunModule::class)
 class InjectFromDagger2 : AbstractDevFunModule() {
-    private val log = logger()
-
-    private lateinit var application: Application
     private var instanceProvider: InstanceProvider? = null
 
     override fun init(context: Context) {
-        if (!useAutomaticDagger2Injector) return
-
-        application = context.applicationContext as Application
-
-        try {
-            val appComponents = tryGetComponents(application, required = true)
-            devFun.instanceProviders += Dagger2InstanceProvider(appComponents, get<ActivityProvider>()).also { instanceProvider = it }
-        } catch (t: Throwable) {
-            log.e(t) {
-                "Automatic Dagger 2.x instance provider failed to locate application component.\n" +
-                        "For manual implementation see:\n" +
-                        "https://github.com/NextFaze/dev-fun/tree/master/demo/src/debug/java/com/nextfaze/devfun/demo/devfun/DevFun.kt#L29"
-            }
-            throw t
-        }
+        val application = context.applicationContext as Application
+        devFun.instanceProviders += Dagger2InstanceProvider(application, get()).also { instanceProvider = it }
     }
 
     override fun dispose() {
@@ -198,16 +182,16 @@ class InjectFromDagger2 : AbstractDevFunModule() {
     }
 }
 
-private class Dagger2InstanceProvider(private val applicationComponents: List<Any>,
+private class Dagger2InstanceProvider(private val app: Application,
                                       private val activityProvider: ActivityProvider) : InstanceProvider {
     private val log = logger()
-
-    init {
-        log.d { "Using Dagger2InstanceProvider with $applicationComponents" }
-    }
+    private var applicationComponents: List<Any>? = null
 
     override fun <T : Any> get(clazz: KClass<out T>): T? {
-        applicationComponents.forEach {
+        if (!useAutomaticDagger2Injector) return null
+        resolveApplicationComponents()
+
+        applicationComponents?.forEach {
             tryGetInstanceFromComponent(it, clazz)?.let { return it }
         }
 
@@ -219,10 +203,41 @@ private class Dagger2InstanceProvider(private val applicationComponents: List<An
 
         return null
     }
+
+    private fun resolveApplicationComponents() {
+        if (applicationComponents != null) return
+
+        applicationComponents = try {
+            tryGetComponents(app, required = true)
+        } catch (t: PossiblyUninitializedException) {
+            log.i(t) {
+                """
+                |Automatic Dagger 2.x instance provider failed to locate any application components.
+                |However lazy uninitialized fields were encountered and additional checks will be made.
+                |
+                |If you see this message after Dagger 2.x has been initialized then automatic detection failed!
+                |
+                |For manual implementation see:
+                |https://github.com/NextFaze/dev-fun/tree/master/demo/src/debug/java/com/nextfaze/devfun/demo/devfun/DevFun.kt#L29""".trimMargin()
+            }
+            null
+        } catch (t: Throwable) {
+            log.e(t) {
+                """
+                |Automatic Dagger 2.x instance provider failed to locate any application components.
+                |
+                |For manual implementation see:
+                |https://github.com/NextFaze/dev-fun/tree/master/demo/src/debug/java/com/nextfaze/devfun/demo/devfun/DevFun.kt#L29""".trimMargin()
+            }
+            emptyList()
+        }
+        log.d { "Using Dagger2InstanceProvider with $applicationComponents" }
+    }
 }
 
 private val ANY_CLASS = Any::class.java
 private fun tryGetComponents(instance: Any, required: Boolean): List<Any> {
+    var foundLazy = false
     val components = mutableListOf<Any>()
     var objClass: Class<*> = instance::class.java
     while (objClass != ANY_CLASS) {
@@ -248,6 +263,8 @@ private fun tryGetComponents(instance: Any, required: Boolean): List<Any> {
                                 return@map value
                             }
                         }
+                    } else {
+                        foundLazy = true
                     }
                     return@map null
                 }.filterNotNull()
@@ -260,9 +277,12 @@ private fun tryGetComponents(instance: Any, required: Boolean): List<Any> {
         objClass = objClass.superclass
     }
     when {
-        required -> throw RuntimeException("Failed to find field with type annotated with @Component")
+        required && !foundLazy -> throw RuntimeException("Failed to find field with type annotated with @Component")
+        required && foundLazy -> throw PossiblyUninitializedException()
         else -> return components
     }
 }
 
 private inline fun <reified T : Annotation> AnnotatedElement.hasAnnotation() = isAnnotationPresent(T::class.java)
+
+private class PossiblyUninitializedException : Throwable("Failed to find components but encountered lazy uninitialized fields.")
