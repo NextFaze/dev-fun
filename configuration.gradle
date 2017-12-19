@@ -66,7 +66,7 @@ ext {
     stetho = "com.facebook.stetho:stetho:$stethoVersion"
     stethoJsRhino = "com.facebook.stetho:stetho-js-rhino:$stethoVersion"
 
-    glide = 'com.github.bumptech.glide:glide:3.7.0'
+    glide = 'com.github.bumptech.glide:glide:4.4.0'
 
     leakCanary = 'com.squareup.leakcanary:leakcanary-android:1.5.3'
 

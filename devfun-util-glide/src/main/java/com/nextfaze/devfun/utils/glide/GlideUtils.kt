@@ -23,28 +23,31 @@ object GlideUtils {
      * Log Glide's bitmap pool and memory cache size stats to logcat.
      */
     @DeveloperFunction
-    fun logMemoryInfo(context: Context): String {
-        val b = StringBuilder("==== Glide Memory Info ====")
-        try {
-            val bitmapPool = Glide.get(context).bitmapPool
-            val memoryCache = Glide.get(context).memoryCache
+    fun showMemoryInfo(context: Context): String {
+        fun Long.fileSize() = Formatter.formatFileSize(context, this)
+        infix fun Long.pctOf(max: Long) = if (this <= 0) 0f else this * 100f / max
 
-            val poolMax = bitmapPool.maxSize
-            val poolCurr = bitmapPool.currentSize
-            val cacheMax = memoryCache.maxSize
-            val cacheCurr = memoryCache.currentSize
+        return try {
+            val glide = GlideCompat(context)
 
-            b.append("\nGlide.bitmapPool.maxSize=").append(poolMax.fileSize(context))
-            b.append("\nGlide.bitmapPool.currentSize=").append(poolCurr.fileSize(context)).append(" (").append(poolCurr pctOf poolMax).append("%)")
-            b.append("\nGlide.memoryCache.maxSize=").append(cacheMax.fileSize(context))
-            b.append("\nGlide.memoryCache.currentSize=").append(cacheCurr.fileSize(context)).append(" (").append(cacheCurr pctOf cacheMax).append("%)")
+            val poolMax = glide.bitmapPoolMaxSize
+            val poolCurr = glide.bitmapPoolCurrentSize
+            val cacheMax = glide.memoryCacheMaxSize
+            val cacheCurr = glide.memoryCacheCurrentSize
+
+            """
+            |==== Glide Memory Info ====
+            |bitmapPool.maxSize=${poolMax.fileSize()}
+            |bitmapPool.currentSize=${poolCurr.fileSize()} (${poolCurr pctOf poolMax}%)
+            |memoryCache.maxSize=${cacheMax.fileSize()}
+            |memoryCache.currentSize=${cacheCurr.fileSize()} (${cacheCurr pctOf cacheMax}%)
+            |""".trimMargin()
         } catch (t: Throwable) {
             log.d(t) { "Exception" }
-            b.append("Exception: ").append(t.message)
+            "Exception: ${t.message}"
+        }.also {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
-        b.append("\n\n")
-
-        return b.toString().also { log.i { it } }
     }
 
     /**
@@ -75,7 +78,26 @@ object GlideUtils {
     }
 }
 
-private val Glide.memoryCache get() = this::class.java.getDeclaredField("memoryCache").apply { isAccessible = true }.get(this) as MemoryCache
-private val BitmapPool.currentSize get() = this::class.java.getDeclaredField("currentSize").apply { isAccessible = true }.get(this) as Int
-private infix fun Int.pctOf(max: Int) = if (this <= 0) 0f else this * 100f / max
-private fun Int.fileSize(context: Context) = Formatter.formatFileSize(context, this.toLong())
+/** Provides support for Glide 3.x and 4.x for [BitmapPool] and [MemoryCache] changed size types ([Int] to [Long]) */
+private class GlideCompat(context: Context) {
+    companion object {
+        private val memoryCacheField by lazy { Glide::class.java.getDeclaredField("memoryCache").apply { isAccessible = true } }
+    }
+
+    private val glide = Glide.get(context)
+
+    private val BitmapPool.currentSizeCompat get() = this::class.java.getDeclaredField("currentSize").apply { isAccessible = true }.get(this) as Number
+    private val BitmapPool.maxSizeCompat get() = this::class.java.getDeclaredField("maxSize").apply { isAccessible = true }.get(this) as Number
+
+    private val MemoryCache.currentSizeCompat get() = MemoryCache::class.java.getDeclaredMethod("getCurrentSize").apply { isAccessible = true }.invoke(this) as Number
+    private val MemoryCache.maxSizeCompat get() = MemoryCache::class.java.getDeclaredMethod("getMaxSize").apply { isAccessible = true }.invoke(this) as Number
+
+    private val bitmapPool: BitmapPool by lazy { glide.bitmapPool }
+    private val memoryCache by lazy { memoryCacheField.get(glide) as MemoryCache }
+
+    val bitmapPoolCurrentSize get() = bitmapPool.currentSizeCompat.toLong()
+    val bitmapPoolMaxSize get() = bitmapPool.maxSizeCompat.toLong()
+
+    val memoryCacheCurrentSize get() = memoryCache.currentSizeCompat.toLong()
+    val memoryCacheMaxSize get() = memoryCache.maxSizeCompat.toLong()
+}

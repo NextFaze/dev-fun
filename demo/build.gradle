@@ -90,7 +90,7 @@ dependencies {
 
     // Glide - https://github.com/bumptech/glide
     implementation project.glide
-    implementation 'com.github.bumptech.glide:okhttp3-integration:1.5.0@aar'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.4.0@aar'
     debugImplementation project(':devfun-util-glide')
 
     // Leak Canary - https://github.com/square/leakcanary
