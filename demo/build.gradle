@@ -78,7 +78,7 @@ dependencies {
     compileOnly project.daggerAnnotations
 
     // OkHttp - https://github.com/square/okhttp
-    implementation 'com.squareup.okhttp3:okhttp:3.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.1'
 
     // Joda Time - https://github.com/dlew/joda-time-android
     implementation 'net.danlew:android.joda:2.9.9'
@@ -98,19 +98,19 @@ dependencies {
     debugImplementation project(':devfun-util-leakcanary')
 
     // RxJava: Reactive Extensions for the JVM - https://github.com/ReactiveX/RxJava
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.5'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.7'
 
     // RxJava bindings for Android - https://github.com/ReactiveX/RxAndroid
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
     // RxKotlin
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.1.0'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
 
     // RxLifecycle - https://github.com/trello/RxLifecycle
-    implementation 'com.trello.rxlifecycle2:rxlifecycle:2.2.0'
-    implementation 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.0'
-    implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.0'
-    implementation 'com.trello.rxlifecycle2:rxlifecycle-kotlin:2.2.0'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle:2.2.1'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.1'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.1'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-kotlin:2.2.1'
 
     // Instrumentation tests
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

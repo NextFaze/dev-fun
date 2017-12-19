@@ -42,7 +42,7 @@ ext {
     kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
     kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
-    kotlinCoroutinesVersion = '0.19'
+    kotlinCoroutinesVersion = '0.20'
     kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
@@ -53,14 +53,14 @@ ext {
     supportAnnotations = "com.android.support:support-annotations:$supportVersion"
     supportConstraintLayout = 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    daggerVersion = '2.11'
+    daggerVersion = '2.13'
     daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
     dagger = "com.google.dagger:dagger:$daggerVersion"
     daggerAnnotations = 'org.glassfish:javax.annotation:10.0-b28'
 
     slf4jApi = 'org.slf4j:slf4j-api:1.7.25'
 
-    autoService = 'com.google.auto.service:auto-service:1.0-rc3'
+    autoService = 'com.google.auto.service:auto-service:1.0-rc4'
 
     stethoVersion = '1.5.0'
     stetho = "com.facebook.stetho:stetho:$stethoVersion"
@@ -68,7 +68,7 @@ ext {
 
     glide = 'com.github.bumptech.glide:glide:4.4.0'
 
-    leakCanary = 'com.squareup.leakcanary:leakcanary-android:1.5.3'
+    leakCanary = 'com.squareup.leakcanary:leakcanary-android:1.5.4'
 
     publishing = project.file('publishing.gradle')
 
