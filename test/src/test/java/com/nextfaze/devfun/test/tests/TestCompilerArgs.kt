@@ -5,6 +5,7 @@ import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.test.AbstractKotlinKapt3Tester
 import com.nextfaze.devfun.test.TestContext
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
+import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 import tested.kapt_and_compile.simple_functions_in_classes.SimpleFunctionsInClasses
 import java.io.File
@@ -15,8 +16,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.expect
 
-@Test(groups = arrayOf("kapt", "compile", "supported", "compiler", "SupportedOptions"))
+@Test(groups = ["kapt", "compile", "supported", "compiler", "SupportedOptions"], dataProvider = "dummyProvider")
 class TestCompilerArgs : AbstractKotlinKapt3Tester() {
+    /** Because... Reasons... x.x */
+    @DataProvider(name = "dummyProvider")
+    fun dummyProvider() = arrayOf(arrayOf(TestCompilerArgs::class.java.getMethod("dummyProvider")))
+
     fun testDefaultOptionsNoBuildConfig(method: Method) {
         assertFailsWith<IllegalStateException>("This should not have succeeded as there is not BuildConfig.java") {
             TestContext(

@@ -39,11 +39,11 @@ dependencies {
     testImplementation project(':devfun')
 
     // TestNG - http://testng.org
-    testImplementation 'org.testng:testng:6.11'
+    testImplementation 'org.testng:testng:6.13.1'
 
     // Logging - https://logback.qos.ch
-    testImplementation 'ch.qos.logback:logback-core:1.2.2'
-    testImplementation 'ch.qos.logback:logback-classic:1.2.2'
+    testImplementation 'ch.qos.logback:logback-core:1.2.3'
+    testImplementation 'ch.qos.logback:logback-classic:1.2.3'
 
     // Kotlin
     testImplementation "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:$kotlinVersion"
@@ -52,7 +52,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
     // Mockito - http://mockito.org/
-    testImplementation 'org.mockito:mockito-inline:2.11.0'
+    testImplementation 'org.mockito:mockito-inline:2.13.0'
     testImplementation 'com.nhaarman:mockito-kotlin:1.5.0'
 
     // Javac Tools
