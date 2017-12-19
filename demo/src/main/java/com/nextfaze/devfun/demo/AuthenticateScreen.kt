@@ -135,7 +135,7 @@ class AuthenticateFragment : BaseFragment() {
                 if (isValid) {
                     session.user = User("givenName", "familyName", "userName", password, email, DateTime.now(), Gender.OTHER)
                     activity?.finish()
-                    MainActivity.start(activity)
+                    activity?.let { MainActivity.start(it) }
                 } else {
                     passwordEditText.error = getString(R.string.error_incorrect_password)
                     passwordEditText.requestFocus()

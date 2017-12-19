@@ -58,12 +58,12 @@ See the documentation for advanced usage, including custom names, custom argumen
 
 ## Quick Start
 #### Project Setup
-- **REQUIRED** Android Gradle 3.0.0 _(earlier versions may work intermittently, but will have missing items due to annotation processing issues)_
+- **REQUIRED** Android Gradle 3.0.0+ _(earlier versions may work intermittently, but will have missing items due to annotation processing issues)_
   - See [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589)
 - Recommended to use Kotlin 1.2.10, though should work down to 1.1.1 _(largely untested)_
 - Recommended to use KAPT3 (`apply plugin: 'kotlin-kapt'`), though KAPT1 also works
 - Compiled with `minSdkVersion` >= 15
-- Built against Android Support libraries 26.1.0
+- Built against Android Support libraries 27.0.2
 
 #### Dependencies
 Can be categorized into 4 types:
@@ -82,26 +82,26 @@ repositories {
 Add dependencies to build.gradle:
 ```gradle
     // Annotations, Compiler, and Developer Menu
-    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.5'
-    compile 'com.nextfaze.devfun:devfun-annotations:0.1.5'
-    // debugCompile 'com.nextfaze.devfun:devfun:0.1.5' // shared lib - transitive from menu et al.
-    debugCompile 'com.nextfaze.devfun:devfun-menu:0.1.5'
+    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.6'
+    compile 'com.nextfaze.devfun:devfun-annotations:0.1.6'
+    // debugCompile 'com.nextfaze.devfun:devfun:0.1.6' // shared lib - transitive from menu et al.
+    debugCompile 'com.nextfaze.devfun:devfun-menu:0.1.6'
     
     // Dagger 2.x component inspector - only if using Dagger!
-    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.5'
+    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.6'
     
     // Chrome Dev Tools JavaScript console integration
-    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.5'
+    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.6'
         
     // HTTP server and simple index page
-    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.1.5'
-    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.1.5'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.1.6'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.1.6'
     
     // Glide util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.5'
+    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.6'
     
     // Leak Canary util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.5'
+    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.6'
 ```
 
 That's it!

@@ -10,7 +10,8 @@ import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.enabled
 import com.nextfaze.devfun.demo.kotlin.findOrCreate
 import com.nextfaze.devfun.demo.kotlin.startActivity
-import kotlinx.android.synthetic.main.welcome_layout.*
+import kotlinx.android.synthetic.main.welcome_layout.createAccountButton
+import kotlinx.android.synthetic.main.welcome_layout.signInButton
 import javax.inject.Inject
 
 class WelcomeActivity : BaseActivity() {
@@ -42,11 +43,11 @@ class WelcomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         signInButton.apply {
             enabled = session.isSignInEnabled
-            setOnClickListener { AuthenticateActivity.start(activity) }
+            setOnClickListener { AuthenticateActivity.start(activity!!) }
         }
         createAccountButton.apply {
             enabled = session.isRegistrationEnabled
-            setOnClickListener { RegisterActivity.start(activity) }
+            setOnClickListener { RegisterActivity.start(activity!!) }
         }
     }
 

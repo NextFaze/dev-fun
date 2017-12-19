@@ -473,7 +473,7 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
 
     var deniedCallback: ((neverAskAgain: Boolean) -> Unit)? = null
 
-    private val permissions by lazy { OverlayPermissions.valueOf(arguments.getString(PREF_PERMISSIONS)) }
+    private val permissions by lazy { OverlayPermissions.valueOf(arguments!!.getString(PREF_PERMISSIONS)) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -482,6 +482,7 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val activity = activity!!
         val msg = SpannableStringBuilder().also {
             it += activity.getString(R.string.df_menu_overlay_reason, BuildConfig.VERSION_NAME)
             it += "\n\n"

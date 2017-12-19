@@ -26,14 +26,14 @@ ext {
 
     bintrayPlugin = 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 
-    androidPlugin = 'com.android.tools.build:gradle:3.0.0'
+    androidPlugin = 'com.android.tools.build:gradle:3.0.1'
     androidMavenGradlePlugin = 'com.github.dcendents:android-maven-gradle-plugin:1.5'
 
-    compileSdkVersion = 26
-    buildToolsVersion = '26.0.2'
+    compileSdkVersion = 27
+    buildToolsVersion = '27.0.2'
 
     minSdkVersion = 15
-    targetSdkVersion = 26
+    targetSdkVersion = 27
     versionCode = 1
     versionName = deployVersion
 
@@ -46,7 +46,7 @@ ext {
     kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
-    supportVersion = '26.1.0'
+    supportVersion = '27.0.2'
     supportRecyclerView = "com.android.support:recyclerview-v7:$supportVersion"
     supportAppCompat = "com.android.support:appcompat-v7:$supportVersion"
     supportDesign = "com.android.support:design:$supportVersion"

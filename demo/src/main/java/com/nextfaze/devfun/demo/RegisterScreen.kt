@@ -159,8 +159,8 @@ class RegisterFragment : BaseFragment() {
 
             run(UI) {
                 session.user = createdUser
-                activity.finish()
-                MainActivity.start(activity)
+                activity?.finish()
+                activity?.let { MainActivity.start(it) }
             }
         } finally {
             run(NonCancellable) {
@@ -208,7 +208,7 @@ class RegisterFragment : BaseFragment() {
         // Given Name
         val maleNames = listOf("Jackson", "Aiden", "Liam", "Lucas", "Noah", "Mason", "Ethan", "Caden", "Logan", "Jacob", "Santiago", "Mateo", "Matías", "Sebastián", "Martín", "Alejandro", "Samuel", "Benjamín", "Nicolás", "Diego", "DevFun")
         val femaleNames = listOf("Sophia", "Emma", "Olivia", "Ava", "Mia", "Isabella", "Zoe", "Lily", "Emily", "Madison", "Sofía", "Isabella", "Lucía", "Valentina", "Emma", "Martina", "Luciana", "Camila", "Victoria", "Valeria", "DevFun")
-        val genders = context.resources.getStringArray(R.array.genders)
+        val genders = context!!.resources.getStringArray(R.array.genders)
         val names = when (gender) {
             genders.getOrNull(0) -> maleNames + femaleNames
             genders.getOrNull(1) -> femaleNames

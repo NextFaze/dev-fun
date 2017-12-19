@@ -67,7 +67,7 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
         devFun.get<MenuHeader<View>>().let {
             val headerView = it.onCreateView(headerLayout)
             headerLayout.addView(headerView)
-            it.onBindView(headerView, headerLayout, activity)
+            it.onBindView(headerView, headerLayout, activity!!)
         }
 
         // categories
