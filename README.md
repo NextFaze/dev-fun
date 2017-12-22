@@ -82,26 +82,26 @@ repositories {
 Add dependencies to build.gradle:
 ```gradle
     // Annotations, Compiler, and Developer Menu
-    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.6'
-    compile 'com.nextfaze.devfun:devfun-annotations:0.1.6'
-    // debugCompile 'com.nextfaze.devfun:devfun:0.1.6' // shared lib - transitive from menu et al.
-    debugCompile 'com.nextfaze.devfun:devfun-menu:0.1.6'
+    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.7'
+    compile 'com.nextfaze.devfun:devfun-annotations:0.1.7'
+    // debugCompile 'com.nextfaze.devfun:devfun:0.1.7' // shared lib - transitive from menu et al.
+    debugCompile 'com.nextfaze.devfun:devfun-menu:0.1.7'
     
     // Dagger 2.x component inspector - only if using Dagger!
-    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.6'
+    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.7'
     
     // Chrome Dev Tools JavaScript console integration
-    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.6'
+    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.7'
         
     // HTTP server and simple index page
-    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.1.6'
-    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.1.6'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.1.7'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.1.7'
     
     // Glide util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.6'
+    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.7'
     
     // Leak Canary util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.6'
+    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.7'
 ```
 
 That's it!
