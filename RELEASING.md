@@ -71,5 +71,5 @@ This should be done *after* GitHub Pages (Dokka) due to external documentation l
 - Remember to check BinTray task options `dryRun`, `publish`, and `override`, and also `mavenCentralSync.sync`. 
 
 ```bash
-./gradlew bintrayUpload
+./gradlew clean bintrayUpload
 ```
