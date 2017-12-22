@@ -253,9 +253,9 @@ class DevFunProcessor : AbstractProcessor() {
             }
 
             // Generate definition
-            categoryDefinitions.put(element.asType().toString(),
+            categoryDefinitions[element.asType().toString()] =
                     """$debugAnnotationInfo
-                    #|${generateCatDef(element.toClass(), devCat)}""")
+                     #|${generateCatDef(element.toClass(), devCat)}"""
         }
 
         env.getElementsAnnotatedWith(DeveloperCategory::class.java).forEach { element ->
@@ -348,7 +348,7 @@ class DevFunProcessor : AbstractProcessor() {
 
             // Transformer
             val transformer = devFunc[DeveloperFunction::transformer]?.let {
-                "\n#|    override val ${FunctionDefinition::transformer.name} = ${it.asElement().toClass(castIfNotPublic = KClass::class, types = FunctionTransformer::class)}"
+                "\n#|    override val ${FunctionDefinition::transformer.name} = ${it.asElement().toClass(castIfNotPublic = KClass::class, types = *arrayOf(FunctionTransformer::class))}"
             } ?: ""
 
             // Can we call the function directly
@@ -422,16 +422,16 @@ class DevFunProcessor : AbstractProcessor() {
             }
 
             // Generate definition
-            functionDefinitions.put(functionDefinition,
+            functionDefinitions[functionDefinition] =
                     """$debugAnnotationInfo
-                    #|object : AbstractFunctionDefinition() {
-                    #|    override val ${FunctionDefinition::method.name} = $methodRef$name$category$requiresApi$transformer
-                    #|    override val ${FunctionDefinition::invoke.name}: $functionInvokeName = { $invocationArgs ->$debugElementInfo
-                    #|        invokeFunction {
-                    #|            $invocation
-                    #|        }
-                    #|    }
-                    #|}""")
+                     #|object : AbstractFunctionDefinition() {
+                     #|    override val ${FunctionDefinition::method.name} = $methodRef$name$category$requiresApi$transformer
+                     #|    override val ${FunctionDefinition::invoke.name}: $functionInvokeName = { $invocationArgs ->$debugElementInfo
+                     #|        invokeFunction {
+                     #|            $invocation
+                     #|        }
+                     #|    }
+                     #|}"""
         }
 
         env.getElementsAnnotatedWith(DeveloperFunction::class.java).forEach {

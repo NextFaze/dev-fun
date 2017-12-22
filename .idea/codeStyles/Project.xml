@@ -40,6 +40,7 @@
           <package name="com.nextfaze.devfun.internal" withSubpackages="true" static="false" />
         </value>
       </option>
+      <option name="WRAP_ELVIS_EXPRESSIONS" value="0" />
     </JetCodeStyleSettings>
     <Objective-C-extensions>
       <file>
