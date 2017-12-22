@@ -16,7 +16,7 @@ fun FunctionItem.call(instanceProvider: InstanceProvider = devFun.instanceProvid
  *
  * @return `this` for chaining.
  */
-fun InvokeResult.log(logger: Logger = log, title: String = "Invocation returned"): InvokeResult {
+fun InvokeResult.log(logger: Logger = log, title: CharSequence = "Invocation returned"): InvokeResult {
     when (exception) {
         null -> logger.i { "$title\n$value" }
         else -> logger.w(exception) { "Exception thrown during invocation." }

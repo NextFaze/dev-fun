@@ -79,12 +79,3 @@ object SingleFunctionTransformer : FunctionTransformer {
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition) =
             setOf(SimpleFunctionItem(functionDefinition, categoryDefinition))
 }
-
-/*
- * internal val TRANSFORMERS = listOf(
- *         RequiresApiTransformer::class,
- *         ContextTransformer::class,
- *         CustomProviderTransformer::class,
- *         SingleFunctionTransformer::class
- * )
- */

@@ -51,7 +51,7 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
         return@lazy resourceId
     }
 
-    data class MenuHeaderItem(val title: String)
+    data class MenuHeaderItem(val title: CharSequence)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,18 +158,18 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
         categoryItems = run generateCategoryItems@ {
             // if no groups, then just sort and return
             if (category.items.all { it.group.isNullOrBlank() }) {
-                return@generateCategoryItems category.items.sortedBy { it.name }
+                return@generateCategoryItems category.items.sortedBy { it.name.toString() }
             }
 
             // create item group headers
             val groups = category.items.groupBy { it.group }
                     .mapKeys { MenuHeaderItem(it.key ?: "Misc") }
-                    .toSortedMap(compareBy { it.title })
+                    .toSortedMap(compareBy { it.title.toString() })
 
             ArrayList<Any>().apply {
                 groups.forEach {
                     add(it.key)
-                    addAll(it.value.sortedBy { it.name })
+                    addAll(it.value.sortedBy { it.name.toString() })
                 }
             }
         }

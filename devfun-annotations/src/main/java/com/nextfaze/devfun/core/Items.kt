@@ -33,7 +33,7 @@ interface FunctionItem {
      *
      * @see FunctionDefinition.name
      */
-    val name get() = function.name
+    val name: CharSequence get() = function.name
 
     /**
      * A "grouping" for this item.
@@ -42,7 +42,7 @@ interface FunctionItem {
      *
      * @see CategoryDefinition.group
      */
-    val group: String? get() = when {
+    val group: CharSequence? get() = when {
         category.group == "" -> null
         else -> category.group
     }
@@ -61,7 +61,7 @@ interface FunctionItem {
      *
      * This is usually just [FunctionDefinition.invoke].
      */
-    val invoke get() = function.invoke
+    val invoke: FunctionInvoke get() = function.invoke
 }
 
 /**
@@ -109,14 +109,14 @@ interface CategoryItem {
      *
      * @see CategoryDefinition.name
      */
-    val name: String
+    val name: CharSequence
 
     /**
      * Categories are ordered by [order] (top->bottom is lowest->highest), then alphabetically by [name].
      *
      * @see CategoryDefinition.order
      */
-    val order get() = 0
+    val order: Int get() = 0
 
     /**
      * List of items for this category.

@@ -132,14 +132,14 @@ internal class IndexHandler : AbstractUriHandler() {
         log.t { categories.flatMap { it.items }.joinToString("\n") { "item[${it.hashCode()}]=$it" } }
         log.d { "urlParams=${urlParams.values.joinToString()}" }
 
-        var bodyTitle: String? = null
+        var bodyTitle: CharSequence? = null
         val body = session.parameters["c"]?.firstOrNull()?.toIntOrNull().let { c ->
             categories.firstOrNull { it.name.hashCode() == c }?.let {
                 bodyTitle = it.name
                 val groups = it.items.groupBy { it.group }
                 val hasGroups = groups.size != 1 || groups.keys.single() != null
 
-                groups.entries.sortedBy { it.key }.joinToString("\n") { (group, items) ->
+                groups.entries.sortedBy { it.key.toString() }.joinToString("\n") { (group, items) ->
                     """
 ${if (hasGroups) """
                                 <div class="panel panel-default">

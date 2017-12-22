@@ -26,28 +26,28 @@ interface FunctionDefinition {
     /**
      * The class where this item was defined.
      */
-    val clazz get() = method.declaringClass.kotlin
+    val clazz: KClass<out Any> get() = method.declaringClass.kotlin
 
     /**
      * The name of this item as taken from [DeveloperFunction.value].
      *
      * If unset the method name split-camel-case will be used.
      */
-    val name get() = method.name.splitCamelCase()
+    val name: CharSequence get() = method.name.splitCamelCase()
 
     /**
      * The category for this definition as taken from [DeveloperFunction.category].
      *
      * This value is ignored when it is empty.
      */
-    val category get(): CategoryDefinition? = null
+    val category: CategoryDefinition? get(): CategoryDefinition? = null
 
     /**
      * Required API to allow this item to be shown as taken from [DeveloperFunction.requiresApi].
      *
      * This value is ignored when it is `<= 0`.
      */
-    val requiresApi get() = 0
+    val requiresApi: Int get() = 0
 
     /**
      * Function transformer for this instance as taken from [DeveloperFunction.transformer].
@@ -78,7 +78,7 @@ interface CategoryDefinition {
      *
      * If unset the name will be resolved from [clazz] (simple name split-camel-case), or "Misc".
      */
-    val name: String? get() = null
+    val name: CharSequence? get() = null
 
     /**
      * Items that match this category will be placed in this group, as taken from [DeveloperCategory.group].
@@ -87,7 +87,7 @@ interface CategoryDefinition {
      *
      * This value is ignored when null.
      */
-    val group: String? get() = null
+    val group: CharSequence? get() = null
 
     /**
      * The category ordering as taken from [DeveloperCategory.order].

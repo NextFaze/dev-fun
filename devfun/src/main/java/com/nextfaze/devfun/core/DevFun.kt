@@ -324,7 +324,7 @@ class DevFun {
                         SimpleCategory(categoryName, functionItems, order)
                     }
                     .keys
-                    .sortedWith(compareBy<SimpleCategory> { it.order }.thenBy { it.name })
+                    .sortedWith(compareBy<SimpleCategory> { it.order }.thenBy { it.name.toString() })
         } catch (t: Throwable) {
             log.w(t) { "Exception generating categories." }
             return listOf(ExceptionCategoryItem(t.stackTraceAsString))
@@ -341,7 +341,8 @@ class DevFun {
      * @internal Visible for testing - use at your own risk.
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val definitions get() = definitionsLoader.definitions
+    val definitions: List<DevFunGenerated>
+        get() = definitionsLoader.definitions
 
     @DeveloperFunction
     private fun about(activity: Activity) {
@@ -352,17 +353,17 @@ class DevFun {
     }
 }
 
-private data class SimpleCategory(override val name: String,
+private data class SimpleCategory(override val name: CharSequence,
                                   override val items: List<FunctionItem>,
                                   override val order: Int = 0) : CategoryItem
 
 private data class SimpleCategoryDefinition(override val clazz: KClass<*>) : CategoryDefinition {
-    override val name: String get() = clazz.splitSimpleName
+    override val name get() = clazz.splitSimpleName
 }
 
 private data class InheritingCategoryDefinition(val parent: CategoryDefinition, val child: CategoryDefinition) : CategoryDefinition {
-    override val clazz: KClass<*>? get() = child.clazz ?: parent.clazz
-    override val name: String? get() = child.name ?: parent.name
-    override val group: String? get() = child.group ?: parent.group
-    override val order: Int? get() = child.order ?: parent.order
+    override val clazz get() = child.clazz ?: parent.clazz
+    override val name get() = child.name ?: parent.name
+    override val group get() = child.group ?: parent.group
+    override val order get() = child.order ?: parent.order
 }
