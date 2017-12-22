@@ -30,9 +30,9 @@ Convenience class for [FunctionItem](../-function-item/index.md) to extend from,
 | Name | Summary |
 |---|---|
 | [args](../-function-item/args.md) | `open val args: `[`FunctionArgs`](../-function-args.md)<br>Custom arguments for the [invoke](../-function-item/invoke.md) invocation. Otherwise arguments will be requested from an [InstanceProvider](../../com.nextfaze.devfun.inject/-instance-provider/index.md). |
-| [group](../-function-item/group.md) | `open val group: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`?`<br>A "grouping" for this item. |
+| [group](../-function-item/group.md) | `open val group: `[`CharSequence`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char-sequence/index.html)`?`<br>A "grouping" for this item. |
 | [invoke](../-function-item/invoke.md) | `open val invoke: `[`FunctionInvoke`](../-function-invoke.md)<br>Function to be invoked on click. |
-| [name](../-function-item/name.md) | `open val name: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>The formatted display name. |
+| [name](../-function-item/name.md) | `open val name: `[`CharSequence`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char-sequence/index.html)<br>The formatted display name. |
 
 ### Functions
 
