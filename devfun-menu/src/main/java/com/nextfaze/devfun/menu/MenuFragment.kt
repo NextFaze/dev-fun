@@ -194,6 +194,11 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     override fun onResume() {
         super.onResume()
         updateWindowLayoutParams()
+
+        // When there is only a single item it is almost certainly because something went wrong
+        // so we hide the categories for a bit more screen space.
+        val singleItem = categories.size == 1 && categories.firstOrNull()?.items?.size == 1
+        categoriesRecyclerView.visibility = if (singleItem) View.GONE else View.VISIBLE
     }
 
     override fun onDestroyView() {

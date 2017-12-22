@@ -1,8 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="df_devfun">DevFun</string>
-    <string name="df_devfun_about">NextFaze Developer Tools.\nVersion <xliff:g id="version" example="0.1.6" notranslate="true">%1$s</xliff:g>\n\n    https://github.com/NextFaze/dev-fun</string>
+    <string name="df_devfun_about">
+"NextFaze Developer Tools.
+Version %1$s
+
+    https://github.com/NextFaze/dev-fun"
+    </string>
+
+    <string name="df_devfun_no_generated_definitions_found"><font color="#ff5252">No Generated Definitions Found!</font></string>
+    <string name="df_devfun_no_generated_definitions_found_reasons" tools:ignore="TypographyDashes">
+"ServiceLoader returned an empty list while looking for META-INF/services file:
+    <font color="#ffcccccc" face="serif-monospace"><b>com.nextfaze.devfun.generated.DevFunGenerated</b></font>
+
+
+
+• This may be an issue with Proguard?
+     See GitHub for configuration help:
+     <font color="#ffc5cae9">https://github.com/NextFaze/dev-fun#proguard</font>
+
+
+
+• This is also possibly due to an incremental build failing to propagate the service file definitions (a known Android Gradle build tools bug).
+     The most assured way of fixing this is stopping gradle, deleting the gradle cache, and rebuilding the project:
+    <font color="#ffcccccc" face="serif-monospace"><b>
+    ./gradlew --stop
+    rm -rf .gradle
+    ./gradlew clean assembleDebug</b></font>"
+    </string>
 
 </resources>
