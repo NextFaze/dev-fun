@@ -426,5 +426,8 @@
         </rules>
       </arrangement>
     </codeStyleSettings>
+    <codeStyleSettings language="kotlin">
+      <option name="METHOD_ANNOTATION_WRAP" value="1" />
+    </codeStyleSettings>
   </code_scheme>
 </component>
