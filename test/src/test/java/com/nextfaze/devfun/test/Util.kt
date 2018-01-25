@@ -40,8 +40,8 @@ private fun logKotlinPaths(kotlinPaths: KotlinPaths?, name: String) {
             |jsKotlinTestJarPath=$jsKotlinTestJarPath, exists=${jsKotlinTestJarPath.exists()}
             |allOpenPluginJarPath=$allOpenPluginJarPath, exists=${allOpenPluginJarPath.exists()}
             |noArgPluginJarPath=$noArgPluginJarPath, exists=${noArgPluginJarPath.exists()}
-            |compilerPath=$compilerPath, exists=${compilerPath.exists()}
-            |buildNumberFile=$buildNumberFile, exists=${buildNumberFile.exists()}""".trimMargin()
+            |samWithReceiverJarPath=$samWithReceiverJarPath, exists=${samWithReceiverJarPath.exists()}
+            |compilerPath=$compilerPath, exists=${compilerPath.exists()}""".trimMargin()
         }
     }
 }

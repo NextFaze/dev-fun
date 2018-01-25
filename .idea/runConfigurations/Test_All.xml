@@ -25,6 +25,9 @@
     <envs />
     <properties />
     <listeners />
-    <method />
+    <method>
+      <option name="Make" enabled="false" />
+      <option name="Android.Gradle.BeforeRunTask" enabled="true" goal="" />
+    </method>
   </configuration>
 </component>

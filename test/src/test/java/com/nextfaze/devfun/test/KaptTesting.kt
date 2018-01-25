@@ -38,26 +38,31 @@ internal fun <T : AnalysisHandlerExtension> AnalysisHandlerExtension.Companion.u
 /** @see org.jetbrains.kotlin.codegen */
 internal object GenerationUtils {
     fun compileFiles(
-            files: List<KtFile>,
-            environment: KotlinCoreEnvironment,
-            classBuilderFactory: ClassBuilderFactory = ClassBuilderFactories.TEST
+        files: List<KtFile>,
+        environment: KotlinCoreEnvironment,
+        classBuilderFactory: ClassBuilderFactory = ClassBuilderFactories.TEST
     ): GenerationState =
-            compileFiles(files, environment.configuration, classBuilderFactory, environment::createPackagePartProvider)
+        compileFiles(files, environment.configuration, classBuilderFactory, environment::createPackagePartProvider)
 
     private fun compileFiles(
-            files: List<KtFile>,
-            configuration: CompilerConfiguration,
-            classBuilderFactory: ClassBuilderFactory,
-            packagePartProvider: (GlobalSearchScope) -> PackagePartProvider
+        files: List<KtFile>,
+        configuration: CompilerConfiguration,
+        classBuilderFactory: ClassBuilderFactory,
+        packagePartProvider: (GlobalSearchScope) -> PackagePartProvider
     ): GenerationState {
         val analysisResult = JvmResolveUtil.analyzeAndCheckForErrors(files.first().project, files, configuration, packagePartProvider)
-        analysisResult.throwIfError()
+        val state = GenerationState
+            .Builder(
+                project = files.first().project,
+                builderFactory = classBuilderFactory,
+                module = analysisResult.moduleDescriptor,
+                bindingContext = analysisResult.bindingContext,
+                files = files,
+                configuration = configuration
+            )
+            .codegenFactory(if (configuration.getBoolean(JVMConfigurationKeys.IR)) JvmIrCodegenFactory else DefaultCodegenFactory)
+            .build()
 
-        val state = GenerationState(
-                files.first().project, classBuilderFactory, analysisResult.moduleDescriptor, analysisResult.bindingContext,
-                files, configuration,
-                codegenFactory = if (configuration.getBoolean(JVMConfigurationKeys.IR)) JvmIrCodegenFactory else DefaultCodegenFactory
-        )
         if (analysisResult.shouldGenerateCode) {
             KotlinCodegenFacade.compileCorrectFiles(state, CompilationErrorHandler.THROW_EXCEPTION)
         }
@@ -71,10 +76,10 @@ internal object GenerationUtils {
 /** @see org.jetbrains.kotlin.resolve.lazy */
 private object JvmResolveUtil {
     fun analyzeAndCheckForErrors(
-            project: Project,
-            files: Collection<KtFile>,
-            configuration: CompilerConfiguration,
-            packagePartProvider: (GlobalSearchScope) -> PackagePartProvider
+        project: Project,
+        files: Collection<KtFile>,
+        configuration: CompilerConfiguration,
+        packagePartProvider: (GlobalSearchScope) -> PackagePartProvider
     ): AnalysisResult {
         files.forEach { file -> AnalyzingUtils.checkForSyntacticErrors(file) }
         return analyze(project, files, configuration, packagePartProvider).apply {
@@ -83,13 +88,12 @@ private object JvmResolveUtil {
     }
 
     private fun analyze(
-            project: Project,
-            files: Collection<KtFile>,
-            configuration: CompilerConfiguration,
-            packagePartProviderFactory: (GlobalSearchScope) -> PackagePartProvider
-    ): AnalysisResult {
-        return TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
-                project, files, CliLightClassGenerationSupport.CliBindingTrace(), configuration, packagePartProviderFactory
+        project: Project,
+        files: Collection<KtFile>,
+        configuration: CompilerConfiguration,
+        packagePartProviderFactory: (GlobalSearchScope) -> PackagePartProvider
+    ): AnalysisResult =
+        TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
+            project, files, CliLightClassGenerationSupport.CliBindingTrace(), configuration, packagePartProviderFactory
         )
-    }
 }

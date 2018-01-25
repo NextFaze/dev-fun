@@ -11,7 +11,10 @@ import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.ActivityTracker
+import com.nextfaze.devfun.internal.d
+import com.nextfaze.devfun.internal.logger
+import com.nextfaze.devfun.internal.t
 import com.nhaarman.mockito_kotlin.KStubbing
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
@@ -58,8 +61,7 @@ import java.lang.reflect.Modifier
 import java.net.URL
 import java.net.URLClassLoader
 import java.nio.file.Files
-import java.util.Collections
-import java.util.Enumeration
+import java.util.*
 import javax.annotation.processing.Processor
 import kotlin.collections.set
 import kotlin.reflect.KClass
@@ -294,12 +296,8 @@ data class TestContext(val testMethodName: String,
             noStdlib = true
             moduleName = this@TestContext.moduleName
 
-            // test sources
-            files.forEach {
-                freeArgs.add(it.canonicalPath)
-            }
-            // kapt generated sources
-            freeArgs.add(sourcesOutputDir.canonicalPath)
+            // test sources + kapt generated sources
+            freeArgs = files.map { it.canonicalPath } + sourcesOutputDir.canonicalPath
         }
 
         val collector = ThrowingPrintingMessageCollector(compilerArgs.verbose)
@@ -427,12 +425,12 @@ internal class Kapt3ExtensionForTests(
 
     override fun loadProcessors() = processors
 
-    override fun saveStubs(stubs: JCList<JCTree.JCCompilationUnit>) {
+    override fun saveStubs(kaptContext: KaptContext<*>, stubs: com.sun.tools.javac.util.List<JCTree.JCCompilationUnit>) {
         if (savedStubs != null) {
             error("Stubs are already saved")
         }
         savedStubs = stubs.map { it.toString() }
-        super.saveStubs(stubs)
+        super.saveStubs(kaptContext, stubs)
     }
 
     override fun saveIncrementalData(kaptContext: KaptContext<GenerationState>,

@@ -20,6 +20,8 @@ captures/
 .idea/workspace.xml
 .idea/gradle_extensions.xml
 .idea/caches/build_file_checksums.ser
+.idea/assetWizardSettings.xml
+.idea/GrepConsole.xml
 
 # Custom working folder
 _working/
