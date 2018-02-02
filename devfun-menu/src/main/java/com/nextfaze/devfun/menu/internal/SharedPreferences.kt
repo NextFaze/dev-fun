@@ -1,0 +1,101 @@
+@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+
+package com.nextfaze.devfun.menu.internal
+
+import android.content.Context
+import android.content.SharedPreferences
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
+import java.lang.Enum as JavaLangEnum
+
+internal interface KPreference<TValue : Any?> {
+    var value: TValue
+
+    val isSet: Boolean
+
+    fun delete()
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): TValue
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: TValue)
+}
+
+internal class KSharedPreferences(private val preferences: SharedPreferences) {
+    companion object {
+        fun named(context: Context, name: String) =
+            KSharedPreferences(context.getSharedPreferences(name, Context.MODE_PRIVATE))
+    }
+
+    fun clear() {
+        preferences.edit().clear().apply()
+    }
+
+    operator fun get(key: String, default: String): KPreference<String> = KStringPref(preferences, key, default)
+    operator fun get(key: String, default: Int): KPreference<Int> = KIntPref(preferences, key, default)
+    operator fun get(key: String, default: Float): KPreference<Float> = KFloatPref(preferences, key, default)
+    operator fun get(key: String, default: Boolean): KPreference<Boolean> = KBooleanPref(preferences, key, default)
+    operator fun <E : Enum<E>> get(key: String, default: E): KPreference<E> = KEnumPref(preferences, key, default)
+}
+
+private abstract class KPreferenceBase<TValue : Any?>(
+    protected val preferences: SharedPreferences,
+    protected val key: String,
+    protected val default: TValue
+) : KPreference<TValue> {
+    override val isSet: Boolean get() = preferences.contains(key)
+    override fun delete() = preferences.edit().remove(key).apply()
+
+    override operator fun getValue(thisRef: Any?, property: KProperty<*>): TValue = value
+    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: TValue) {
+        this.value = value
+    }
+
+    override fun toString() = "$key=$value ($default)"
+}
+
+private class KStringPref(preferences: SharedPreferences, key: String, default: String) :
+    KPreferenceBase<String>(preferences, key, default) {
+    override var value: String
+        get() = preferences.getString(key, default)
+        set(value) = preferences.edit().putString(key, value).apply()
+}
+
+private class KIntPref(preferences: SharedPreferences, key: String, default: Int) :
+    KPreferenceBase<Int>(preferences, key, default) {
+    override var value: Int
+        get() = preferences.getInt(key, default)
+        set(value) = preferences.edit().putInt(key, value).apply()
+}
+
+private class KFloatPref(preferences: SharedPreferences, key: String, default: Float) :
+    KPreferenceBase<Float>(preferences, key, default) {
+    override var value: Float
+        get() = preferences.getFloat(key, default)
+        set(value) = preferences.edit().putFloat(key, value).apply()
+}
+
+private class KBooleanPref(preferences: SharedPreferences, key: String, default: Boolean) :
+    KPreferenceBase<Boolean>(preferences, key, default) {
+    override var value: Boolean
+        get() = preferences.getBoolean(key, default)
+        set(value) = preferences.edit().putBoolean(key, value).apply()
+}
+
+private class KEnumPref<E : Enum<E>>(preferences: SharedPreferences, key: String, default: E) :
+    KPreferenceBase<E>(preferences, key, default) {
+
+    @Suppress("UNCHECKED_CAST")
+    private val enumClass = default::class as KClass<E>
+
+    override var value: E
+        get() {
+            return enumClass.enumValueOf(preferences.getString(key, default.name)) ?: default
+        }
+        set(value) = preferences.edit().putString(key, value.name).apply()
+}
+
+private fun <E : Enum<E>> KClass<E>.enumValueOf(name: String): E? =
+    try {
+        JavaLangEnum.valueOf(java, name)
+    } catch (ignore: Throwable) {
+        null
+    }

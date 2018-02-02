@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/df_menu_cog_padding"
-        android:clipToPadding="false">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:clipToPadding="false"
+             android:padding="@dimen/df_menu_cog_padding">
 
     <ImageView
             android:id="@+id/cogButton"
             android:layout_width="@dimen/df_menu_cog_size"
             android:layout_height="@dimen/df_menu_cog_size"
-            android:padding="@dimen/df_menu_cog_padding"
             android:background="@drawable/df_menu_cog_background"
             android:contentDescription="@string/df_menu_developer_menu"
+            android:elevation="@dimen/df_menu_cog_elevation"
+            android:padding="@dimen/df_menu_cog_elevation"
             android:scaleType="fitCenter"
             android:src="@drawable/df_menu_ic_settings_black_64dp"
-            android:tint="@color/df_menu_white_normal"/>
+            android:tint="@color/df_menu_white_normal"
+            tools:targetApi="lollipop"/>
 
 </FrameLayout>

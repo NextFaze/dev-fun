@@ -1,14 +1,10 @@
 package com.nextfaze.devfun.menu.controllers
 
-import android.animation.ValueAnimator
-import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.PixelFormat
-import android.graphics.Point
-import android.graphics.PointF
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
@@ -19,13 +15,14 @@ import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
-import android.support.v4.math.MathUtils.clamp
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
 import android.util.Log
-import android.view.*
-import android.view.animation.OvershootInterpolator
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.CheckBox
 import android.widget.TextView
 import com.nextfaze.devfun.annotations.DeveloperCategory
@@ -36,13 +33,11 @@ import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.*
 import com.nextfaze.devfun.menu.BuildConfig
 import com.nextfaze.devfun.menu.R
-import kotlinx.android.synthetic.main.df_menu_cog_overlay.view.cogButton
+import com.nextfaze.devfun.menu.internal.Dock
+import com.nextfaze.devfun.menu.internal.KSharedPreferences
+import com.nextfaze.devfun.menu.internal.OverlayWindow
 
-private const val PREF_TO_LEFT = "toLeft"
-private const val PREF_VERTICAL_FACTOR = "verticalFactor"
-private const val PREF_VISIBLE = "visible"
 private const val PREF_PERMISSIONS = "permissions"
-private const val DEFAULT_VISIBILITY = true
 
 /**
  * Controls the floating cog overlay.
@@ -58,8 +53,8 @@ private const val DEFAULT_VISIBILITY = true
  */
 @DeveloperCategory("DevFun", "Cog Overlay")
 class CogOverlay constructor(
-        context: Context,
-        private val activityProvider: ActivityProvider
+    context: Context,
+    private val activityProvider: ActivityProvider
 ) : MenuController {
     private val log = logger()
     private val application = context.applicationContext as Application
@@ -67,14 +62,6 @@ class CogOverlay constructor(
 
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
-
-    private val overlayBounds = Rect(0, 0, 0, 0)
-    private val screenSize = Point(0, 0)
-
-    private val ySpan: Int
-        get() = overlayBounds.bottom - overlayBounds.top
-
-    private var windowParams = newLayoutParams()
 
     private val canDrawOverlays: Boolean
         get() {
@@ -86,41 +73,57 @@ class CogOverlay constructor(
             }
             return false
         }
-    private var overlayAdded = false
 
-    private var windowView: View? = null
+    private val overlay = OverlayWindow(application, R.layout.df_menu_cog_overlay, "DevFunCog", Dock.RIGHT, 0.7f)
+        .apply {
+            val padding = application.resources.getDimension(R.dimen.df_menu_cog_padding).toInt()
+            val halfSize = ((padding * 2 + application.resources.getDimension(R.dimen.df_menu_cog_size)) / 2).toInt()
+            viewInset = Rect(halfSize, halfSize, halfSize, padding)
+            onClick = { fragmentActivity?.let { developerMenu?.show(it) } }
+        }
 
     private var listener: Application.ActivityLifecycleCallbacks? = null
     private var developerMenu: DeveloperMenu? = null
 
-    private val preferences = context.getSharedPreferences(CogOverlay::class.java.name, Context.MODE_PRIVATE)
-    private var cogVisible: Boolean
-        get() = preferences.getBoolean(PREF_VISIBLE, DEFAULT_VISIBILITY)
-        set(value) = preferences.edit().putBoolean(PREF_VISIBLE, value).apply()
-    private var permissions
-        get() = OverlayPermissions.fromName(preferences.getString(PREF_PERMISSIONS, null)) ?: OverlayPermissions.NEVER_REQUESTED
-        set(value) = preferences.edit().putString(PREF_PERMISSIONS, value.name).apply()
+    private val preferences = KSharedPreferences.named(context, "DevFunCog")
+    private var cogVisible by preferences["cogVisible", true]
+    private var permissions by preferences["permissionsState", OverlayPermissions.NEVER_REQUESTED]
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
 
-        listener = application.registerOnActivityResumedAndStopped(
-                onResumed = {
-                    if (it is FragmentActivity) {
-                        when {
-                            canDrawOverlays -> addOverlay()
-                            permissions != OverlayPermissions.NEVER_ASK_AGAIN && !isInstrumentationTest -> managePermissions()
-                        }
-                        setVisible(it.isRunningInForeground)
-                    } else {
-                        setVisible(false)
+        /**
+         * Using the activity like this ensures that rotation, status bar, and other system views are taken into account.
+         * Thus for multi-window use it should be properly bounded to the relevant app window area.
+         * i.e. This is the space available for the *app* now the *device*
+         */
+        fun updateDisplayBounds(activity: Activity) {
+            val displayBounds = Rect(0, 0, 0, 0)
+            (activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay?.getRectSize(displayBounds)
+            overlay.updateOverlayBounds(displayBounds)
+        }
+
+        listener = application.registerOnActivityCreatedResumedAndStopped(
+            onCreated = { activity, _ ->
+                updateDisplayBounds(activity)
+            },
+            onResumed = {
+                updateDisplayBounds(it)
+                if (it is FragmentActivity) {
+                    when {
+                        canDrawOverlays -> addOverlay()
+                        permissions != OverlayPermissions.NEVER_ASK_AGAIN && !isInstrumentationTest -> managePermissions()
                     }
-                },
-                onStopped = {
-                    if (it === activity) {
-                        setVisible(false)
-                    }
+                    setVisible(it.isRunningInForeground)
+                } else {
+                    setVisible(false)
                 }
+            },
+            onStopped = {
+                if (it === activity) {
+                    setVisible(false)
+                }
+            }
         )
     }
 
@@ -132,198 +135,49 @@ class CogOverlay constructor(
     override val title: String get() = application.getString(R.string.df_menu_cog_overlay)
     override val actionDescription: CharSequence?
         get() = mutableListOf<Int>()
-                .apply {
-                    if (!cogVisible) {
-                        this += R.string.df_menu_cog_overlay_hidden_by_user
-                    }
-                    if (!canDrawOverlays) {
-                        this += R.string.df_menu_cog_overlay_no_permissions
-                    }
-                    if (isEmpty()) {
-                        this += R.string.df_menu_cog_tap_to_show
-                    }
+            .apply {
+                if (!cogVisible) {
+                    this += R.string.df_menu_cog_overlay_hidden_by_user
                 }
-                .joinTo(SpannableStringBuilder(), "\n") { resId ->
-                    SpannableStringBuilder().also {
-                        it += " • "
-                        it += application.getText(resId)
-                    }
+                if (!canDrawOverlays) {
+                    this += R.string.df_menu_cog_overlay_no_permissions
                 }
+                if (isEmpty()) {
+                    this += R.string.df_menu_cog_tap_to_show
+                }
+            }
+            .joinTo(SpannableStringBuilder(), "\n") { resId ->
+                SpannableStringBuilder().also {
+                    it += " • "
+                    it += application.getText(resId)
+                }
+            }
 
     override fun onShown() = setVisible(false)
     override fun onDismissed() = setVisible(true)
 
     private fun setVisible(visible: Boolean) {
-        windowView?.visibility = if (visible && cogVisible && fragmentActivity != null) View.VISIBLE else View.GONE
+        overlay.view.visibility = if (visible && cogVisible && fragmentActivity != null) View.VISIBLE else View.GONE
     }
 
     private fun addOverlay(force: Boolean = false) {
         val developerMenu = developerMenu ?: return
-        val newScreenSize = Point().apply {
-            windowManager.defaultDisplay.getSize(this)
-            y -= statusBarHeight
-        }
+        if (!force && (overlay.isAdded || !canDrawOverlays)) return
 
-        if (!force && ((overlayAdded && newScreenSize == screenSize) || !canDrawOverlays)) return
-
-        screenSize.set(newScreenSize.x, newScreenSize.y)
-        removeCurrentWindow()
-
-        val windowView = View.inflate(application, R.layout.df_menu_cog_overlay, null).also { windowView = it } ?: throw RuntimeException("Failed to inflate cog overlay")
-        windowView.cogButton.apply {
-            ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.df_menu_cog_elevation).toFloat())
-            DrawableCompat.setTintList(DrawableCompat.wrap(background), ContextCompat.getColorStateList(application, R.color.df_menu_cog_background))
-        }
-
-        windowView.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-            override fun onLayoutChange(
-                    v: View,
-                    left: Int,
-                    top: Int,
-                    right: Int,
-                    bottom: Int,
-                    oldLeft: Int,
-                    oldTop: Int,
-                    oldRight: Int,
-                    oldBottom: Int
-            ) {
-                if (v.width <= 0) return
-
-                val iconSize = v.width
-                val iconInset = iconSize / 5
-
-                overlayBounds.set(
-                        -iconInset,
-                        -iconInset,
-                        screenSize.x - iconSize + iconInset,
-                        screenSize.y - iconSize + iconInset
-                )
-
-                windowView.removeOnLayoutChangeListener(this)
-
-                windowParams.x = if (preferences.getBoolean(PREF_TO_LEFT, true)) overlayBounds.left else overlayBounds.right
-
-                val desiredYOffset = (preferences.getFloat(PREF_VERTICAL_FACTOR, 0f) * ySpan).toInt()
-                windowParams.y = clamp(overlayBounds.top + desiredYOffset, overlayBounds.top, overlayBounds.bottom)
-
-                windowManager.updateViewLayout(windowView, windowParams)
-            }
-        })
-
-        windowView.setOnTouchListener(object : View.OnTouchListener {
-            private var currentPosition = PointF(0f, 0f)
-            private var initialPosition = PointF(0f, 0f)
-            private var initialWindowPosition = PointF(0f, 0f)
-
-            private var actionDownTime = 0L
-            private var moved = false
-
-            override fun onTouch(v: View, event: MotionEvent?): Boolean {
-                return when (event?.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        actionDownTime = System.currentTimeMillis()
-
-                        initialPosition.apply {
-                            x = event.rawX
-                            y = event.rawY
-                        }
-
-                        currentPosition.set(initialPosition)
-
-                        initialWindowPosition.apply {
-                            x = windowParams.x.toFloat()
-                            y = windowParams.y.toFloat()
-                        }
-
-                        moved = false
-
-                        true
-                    }
-                    MotionEvent.ACTION_MOVE -> {
-                        val dx = Math.abs(event.rawX - currentPosition.x)
-                        val dy = Math.abs(event.rawY - currentPosition.y)
-                        val slop = ViewConfiguration.get(application).scaledTouchSlop
-
-                        if (moved || (dx >= slop || dy >= slop) && System.currentTimeMillis() - actionDownTime > ViewConfiguration.getTapTimeout()) {
-                            moved = true
-                            windowParams.x = Math.min(Math.max((event.rawX - initialPosition.x + initialWindowPosition.x).toInt(), overlayBounds.left), overlayBounds.right)
-                            windowParams.y = (event.rawY - initialPosition.y + initialWindowPosition.y).toInt()
-
-                            currentPosition.apply {
-                                x = event.rawX
-                                y = event.rawY
-                            }
-
-                            windowManager.updateViewLayout(v, windowParams)
-                        }
-
-                        true
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        if (!moved) {
-                            v.performClick()
-                        } else {
-                            animateRelease()
-                        }
-
-                        moved = false
-                        actionDownTime = 0
-                        true
-                    }
-                    else -> false
+        overlay.apply {
+            removeFromWindow()
+            onClick = { fragmentActivity?.let(developerMenu::show) }
+            view.apply {
+                findViewById<View>(R.id.cogButton).apply {
+                    ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.df_menu_cog_elevation).toFloat())
+                    DrawableCompat.setTintList(
+                        DrawableCompat.wrap(background),
+                        ContextCompat.getColorStateList(application, R.color.df_menu_cog_background)
+                    )
                 }
             }
-        })
-
-        windowView.setOnClickListener { fragmentActivity?.let(developerMenu::show) }
-
-        windowManager.addView(windowView, windowParams)
-        overlayAdded = true
-    }
-
-    private fun animateRelease() {
-        val startX = windowParams.x
-        val startY = windowParams.y
-
-        val toLeft = startX + windowView!!.width / 2 <= screenSize.x / 2
-
-        val distanceX = when {
-            toLeft -> startX - overlayBounds.left
-            else -> startX - overlayBounds.right
+            addToWindow()
         }
-
-        val distanceY = when {
-            startY < overlayBounds.top -> startY - overlayBounds.top
-            startY > overlayBounds.bottom -> startY - overlayBounds.bottom
-            else -> 0
-        }
-
-        val proportionX = distanceX.toFloat() / (screenSize.x / 2f)
-        val duration = Math.max((750f * proportionX).toLong(), 250)
-
-        val animator = ValueAnimator.ofFloat(0f, 1.0f)
-        animator.addUpdateListener { valueAnimator ->
-            val percent = valueAnimator.animatedValue as Float
-
-            windowParams.apply {
-                x = startX - (percent * distanceX).toInt()
-                y = startY - (percent * distanceY).toInt()
-            }
-
-            if (percent == 1.0f) {
-                // Release animation has finished, save current position
-                preferences.edit().apply {
-                    putBoolean(PREF_TO_LEFT, toLeft)
-                    putFloat(PREF_VERTICAL_FACTOR, (windowParams.y - overlayBounds.top) / ySpan.toFloat())
-                }.apply()
-            }
-
-            windowManager.updateViewLayout(windowView, windowParams)
-        }
-
-        animator.duration = duration
-        animator.interpolator = OvershootInterpolator(0.9f)
-        animator.start()
     }
 
     @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
@@ -346,30 +200,10 @@ class CogOverlay constructor(
         }
     }
 
-    private fun removeCurrentWindow() = windowView?.let { view ->
-        view.parent?.let {
-            try {
-                windowManager.removeView(view)
-            } catch (t: Throwable) {
-                log.w(t) { "Exception while removing window view :: view=$view" }
-            }
-        }
-    }
-
-    private fun newLayoutParams() =
-            WindowManager.LayoutParams().apply {
-                type = windowOverlayType
-                format = PixelFormat.TRANSLUCENT
-                flags = WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                width = ViewGroup.LayoutParams.WRAP_CONTENT
-                height = ViewGroup.LayoutParams.WRAP_CONTENT
-                gravity = Gravity.TOP or Gravity.START
-            }
-
     @DeveloperFunction
     private fun resetPositionAndState() {
-        preferences.edit().clear().apply()
-        cogVisible = DEFAULT_VISIBILITY
+        preferences.clear()
+        overlay.resetPositionAndState()
         addOverlay(true)
     }
 
@@ -399,9 +233,9 @@ class CogOverlay constructor(
                     it += devFun.devMenu.actionDescription ?: application.getString(R.string.df_menu_no_controllers)
                 }
                 AlertDialog.Builder(it)
-                        .setTitle(R.string.df_menu_cog_overlay_hidden)
-                        .setMessage(msg)
-                        .show()
+                    .setTitle(R.string.df_menu_cog_overlay_hidden)
+                    .setMessage(msg)
+                    .show()
             }
         }
     }
@@ -415,60 +249,34 @@ class CogOverlay constructor(
      * - https://issuetracker.google.com/issues/66072795
      */
     private fun forceCheckPermissionsEnabled() =
-            try {
-                val params = newLayoutParams()
-                val view = View(application).apply { layoutParams = params }
-                windowManager.addView(view, params)
-                windowManager.removeView(view)
-                log.d { "permissionCheckHack success!" }
-                true
-            } catch (ignore: Throwable) {
-                log.d(ignore) { "permissionCheckHack failed!" }
-                false
-            }
-
-    @Suppress("DEPRECATION")
-    private val windowOverlayType
-        @SuppressLint("InlinedApi")
-        get() = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-            else -> WindowManager.LayoutParams.TYPE_PHONE
-        }
-
-    private val statusBarHeight: Int
-        get() = application.resources.let { res ->
-            val resourceId = res.getIdentifier("status_bar_height", "dimen", "android")
-            // If manufacturer has broken this for some reason, it's not the end of the world to assume 0
-            return if (resourceId > 0) res.getDimensionPixelSize(resourceId) else 0
+        try {
+            val params = OverlayWindow.newParams()
+            val view = View(application).apply { layoutParams = params }
+            windowManager.addView(view, params)
+            windowManager.removeView(view)
+            log.d { "permissionCheckHack success!" }
+            true
+        } catch (ignore: Throwable) {
+            log.d(ignore) { "permissionCheckHack failed!" }
+            false
         }
 }
 
-internal enum class OverlayPermissions {
-    NEVER_REQUESTED,
-    DENIED,
-    NEVER_ASK_AGAIN;
-
-    companion object {
-        fun fromName(name: String?) = try {
-            name?.let { OverlayPermissions.valueOf(name) }
-        } catch (t: Throwable) {
-            null
-        }
-    }
-}
+internal enum class OverlayPermissions { NEVER_REQUESTED, DENIED, NEVER_ASK_AGAIN }
 
 internal class OverlayPermissionsDialogFragment : DialogFragment() {
     companion object {
-        fun show(activity: FragmentActivity, permissions: OverlayPermissions) =
-                activity.obtain {
-                    OverlayPermissionsDialogFragment().apply {
-                        arguments = Bundle().apply {
-                            putString(PREF_PERMISSIONS, permissions.name)
-                        }
+        fun show(activity: FragmentActivity, permissions: OverlayPermissions) = activity
+            .obtain {
+                OverlayPermissionsDialogFragment().apply {
+                    arguments = Bundle().apply {
+                        putString(PREF_PERMISSIONS, permissions.name)
                     }
-                }.apply {
-                    takeIf { !it.isAdded }?.show(activity.supportFragmentManager)
                 }
+            }
+            .apply {
+                takeIf { !it.isAdded }?.show(activity.supportFragmentManager)
+            }
     }
 
     var deniedCallback: ((neverAskAgain: Boolean) -> Unit)? = null
@@ -491,26 +299,28 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
             it += devFun.devMenu.actionDescription ?: activity.getString(R.string.df_menu_no_controllers)
         }
 
-        val (neverAskAgainCheckBox, dialogView) = LayoutInflater.from(context).inflate(R.layout.df_menu_permissions_checkbox, view as ViewGroup?).run {
-            findViewById<TextView>(R.id.messageTextView).text = msg
-            findViewById<CheckBox>(R.id.neverAskAgainCheckBox).apply {
-                isChecked = permissions != OverlayPermissions.NEVER_REQUESTED
-            } to this
-        }
+        val (neverAskAgainCheckBox, dialogView) = LayoutInflater.from(context)
+            .inflate(R.layout.df_menu_permissions_checkbox, view as ViewGroup?)
+            .run {
+                findViewById<TextView>(R.id.messageTextView).text = msg
+                findViewById<CheckBox>(R.id.neverAskAgainCheckBox).apply {
+                    isChecked = permissions != OverlayPermissions.NEVER_REQUESTED
+                } to this
+            }
 
         return AlertDialog.Builder(activity)
-                .setTitle(R.string.df_menu_overlay_request)
-                .setView(dialogView)
-                .setPositiveButton(R.string.df_menu_allow, { dialog, _ ->
-                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${activity.packageName}".toUri())
-                    activity.startActivityForResult(intent, 1234)
-                    dialog.dismiss()
-                })
-                .setNegativeButton(R.string.df_menu_deny, { dialog, _ ->
-                    deniedCallback?.invoke(neverAskAgainCheckBox.isChecked)
-                    dialog.dismiss()
-                })
-                .show()
+            .setTitle(R.string.df_menu_overlay_request)
+            .setView(dialogView)
+            .setPositiveButton(R.string.df_menu_allow, { dialog, _ ->
+                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${activity.packageName}".toUri())
+                activity.startActivityForResult(intent, 1234)
+                dialog.dismiss()
+            })
+            .setNegativeButton(R.string.df_menu_deny, { dialog, _ ->
+                deniedCallback?.invoke(neverAskAgainCheckBox.isChecked)
+                dialog.dismiss()
+            })
+            .show()
     }
 
     override fun onDestroyView() {

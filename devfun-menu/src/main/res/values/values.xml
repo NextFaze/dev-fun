@@ -24,7 +24,7 @@
     <!-- Dimensions -->
 
     <dimen name="df_menu_cog_size">64dp</dimen>
-    <dimen name="df_menu_cog_padding">4dp</dimen>
+    <dimen name="df_menu_cog_padding">6dp</dimen>
     <dimen name="df_menu_cog_elevation">4dp</dimen>
 
     <!-- Styles -->
