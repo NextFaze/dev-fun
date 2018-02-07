@@ -37,7 +37,7 @@ private data class BuildConfig(val manifestPackage: String,
 internal class CompileContext(private val processingEnv: ProcessingEnvironment) {
     val pkg by lazy {
         // Use apt arg PACKAGE_OVERRIDE
-        packageOverride?.let { return@lazy it }.also { note { "pkg=$it" } }
+        packageOverride?.let { return@lazy it.also { note { "$PACKAGE_OVERRIDE='$it'" } } }
 
         // Get apt arg PACKAGE_ROOT
         val packageRoot = packageRoot
