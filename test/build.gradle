@@ -37,6 +37,7 @@ dependencies {
     // Dev Fun
     testImplementation project(':devfun-compiler')
     testImplementation project(':devfun')
+    testImplementation project(':devfun-internal')
 
     // TestNG - http://testng.org
     testImplementation 'org.testng:testng:6.13.1'

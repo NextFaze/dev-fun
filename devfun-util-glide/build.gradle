@@ -24,6 +24,7 @@ dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')
     api project(':devfun-annotations')
+    implementation project(':devfun-internal')
 
     // Kotlin
     api project.kotlinStdLib

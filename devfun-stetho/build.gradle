@@ -11,6 +11,7 @@ project.configureAndroidLibrary(this)
 dependencies {
     // Dev Fun
     api project(':devfun')
+    implementation project(':devfun-internal')
 
     // Kotlin
     api project.kotlinStdLib

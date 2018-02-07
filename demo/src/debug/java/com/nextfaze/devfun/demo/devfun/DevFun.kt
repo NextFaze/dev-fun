@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DebugException
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.demo.R
@@ -21,7 +22,6 @@ import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.inject.dagger2.tryGetInstanceFromComponent
 import com.nextfaze.devfun.inject.dagger2.useAutomaticDagger2Injector
-import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.MenuHeader
 import dagger.Module
 import dagger.Provides
@@ -45,8 +45,8 @@ class DevFunModule {
     }
 }
 
-private class DemoInstanceProvider(private val application: Application, private val activityProvider: ActivityProvider) : InstanceProvider {
-    private val applicationComponent by lazy { application.applicationComponent!! }
+private class DemoInstanceProvider(private val app: Application, private val activityProvider: ActivityProvider) : InstanceProvider {
+    private val applicationComponent by lazy { app.applicationComponent!! }
 
     override fun <T : Any> get(clazz: KClass<out T>): T? {
         tryGetInstanceFromComponent(applicationComponent, clazz)?.let { return it }
@@ -63,7 +63,9 @@ private class DemoInstanceProvider(private val application: Application, private
 }
 
 private class DemoMenuHeader(private val session: Session) : MenuHeader<DemoMenuHeaderView> {
-    override fun onCreateView(parent: ViewGroup): DemoMenuHeaderView = View.inflate(parent.context, R.layout.demo_menu_header, null) as DemoMenuHeaderView
+    override fun onCreateView(parent: ViewGroup): DemoMenuHeaderView =
+        View.inflate(parent.context, R.layout.demo_menu_header, null) as DemoMenuHeaderView
+
     override fun onBindView(view: DemoMenuHeaderView, parent: ViewGroup, activity: Activity) {
         with(view) {
             setTitle(activity::class.splitSimpleName)
@@ -72,7 +74,8 @@ private class DemoMenuHeader(private val session: Session) : MenuHeader<DemoMenu
     }
 }
 
-private class DemoMenuHeaderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
+private class DemoMenuHeaderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+    FrameLayout(context, attrs, defStyleAttr) {
     init {
         View.inflate(context, R.layout.demo_menu_header_view, this)
         findViewById<View>(R.id.crashButton).setOnClickListener { throw DebugException() }
@@ -102,3 +105,14 @@ private class DemoMenuHeaderView @JvmOverloads constructor(context: Context, att
         }
     }
 }
+
+private val SPLIT_REGEX = Regex("(?<=[a-z0-9])(?=[A-Z])|[\\s]")
+
+private fun String.splitCamelCase() = this
+    .replace('_', ' ')
+    .split(SPLIT_REGEX)
+    .map { it.trim().capitalize() }
+    .filter(String::isNotBlank)
+    .joinToString(" ")
+
+private inline val KClass<*>.splitSimpleName get() = this.java.simpleName.splitCamelCase()

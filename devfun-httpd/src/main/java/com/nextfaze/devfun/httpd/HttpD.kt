@@ -2,6 +2,7 @@ package com.nextfaze.devfun.httpd
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.support.v7.app.AlertDialog
@@ -312,4 +313,13 @@ internal class InvokeHandler : AbstractUriHandler() {
 
     private fun response(status: Response.IStatus, text: String, mimeType: String = "text/plain")
             = newFixedLengthResponse(status, mimeType, "${status.description}\n$text")
+}
+
+private val isEmulator by lazy(LazyThreadSafetyMode.NONE) {
+    Build.PRODUCT == "sdk" ||
+            Build.PRODUCT == "google_sdk_x86" ||
+            Build.PRODUCT == "sdk_x86" ||
+            Build.PRODUCT == "sdk_google_phone_x86" ||
+            Build.PRODUCT.contains("genymotion", ignoreCase = true) ||
+            Build.DISPLAY.contains("vbox86p", ignoreCase = true)
 }

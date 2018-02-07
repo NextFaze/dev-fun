@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 @Constructable
 @DeveloperCategory(order = 9_000)
-class DeviceUtils {
+internal class DeviceUtils {
     private val log = logger()
 
     @DeveloperFunction
@@ -61,6 +61,5 @@ class DeviceUtils {
         }
     }
 
-    private fun Context.showToast(text: String, length: Int = Toast.LENGTH_SHORT)
-            = Toast.makeText(this, text, length).show()
+    private fun Context.showToast(text: String, length: Int = Toast.LENGTH_SHORT) = Toast.makeText(this, text, length).show()
 }

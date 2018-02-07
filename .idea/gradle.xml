@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/devfun-httpd" />
             <option value="$PROJECT_DIR$/devfun-httpd-frontend" />
             <option value="$PROJECT_DIR$/devfun-inject-dagger2" />
+            <option value="$PROJECT_DIR$/devfun-internal" />
             <option value="$PROJECT_DIR$/devfun-menu" />
             <option value="$PROJECT_DIR$/devfun-stetho" />
             <option value="$PROJECT_DIR$/devfun-util-glide" />

@@ -2,6 +2,7 @@ package com.nextfaze.devfun.demo.devfun
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
 import android.os.Process
@@ -9,32 +10,23 @@ import android.support.annotation.RequiresApi
 import android.support.v7.app.AlertDialog
 import android.util.DisplayMetrics
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.DebugException
-import com.nextfaze.devfun.demo.logger
-import com.nextfaze.devfun.demo.t
-import com.nextfaze.devfun.internal.*
 
 object Debugging {
-    private val log = logger()
-
-    @DeveloperFunction fun crashApp() {
-        log.d { "throw DebugException()" }
-        throw DebugException()
-    }
-
     @DeveloperFunction("Force GC") fun forceGarbageCollection() = System.gc()
     @DeveloperFunction("Throw NPE") fun throwNullPointerException(): Unit = throw NullPointerException("Debug")
 
-    @DeveloperFunction fun logDisplayMetrics(activity: Activity) = "Display Metrics:\n${getDisplayMetrics(activity)}".also { log.t { it } }
-    @DeveloperFunction fun logActivityManagerInfo(activity: Activity) = "Activity Manager:\n${getActivityManagerInfo(activity)}".also { log.t { it } }
+    // DevFun automatically logs the return value of function invocations
+    @DeveloperFunction fun logDisplayMetrics(activity: Activity) = "Display Metrics:\n${getDisplayMetrics(activity)}"
+
+    @DeveloperFunction fun logActivityManagerInfo(activity: Activity) = "Activity Manager:\n${getActivityManagerInfo(activity)}"
 
     @DeveloperFunction
     fun showDisplayMetrics(activity: Activity) {
         AlertDialog.Builder(activity)
-                .setTitle("Display Metrics")
-                .setMessage(getDisplayMetrics(activity))
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
+            .setTitle("Display Metrics")
+            .setMessage(getDisplayMetrics(activity))
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     private fun getDisplayMetrics(activity: Activity) = with(DisplayMetrics()) displayMetrics@ {
@@ -42,19 +34,18 @@ object Debugging {
             getMetrics(this@displayMetrics)
         }
 
-        "%s, dpi=%s, dpWidth=%.2f, dpHeight=%.2f".format(
-                display, Density[densityDpi].name,
-                widthPixels / density,
-                heightPixels / density).replace(", ", "\n")
+        "%s, dpi=%s, dpWidth=%.2f, dpHeight=%.2f"
+            .format(display, Density[densityDpi].name, widthPixels / density, heightPixels / density)
+            .replace(", ", "\n")
     }
 
     @DeveloperFunction
     fun showActivityManagerInfo(activity: Activity) {
         AlertDialog.Builder(activity)
-                .setTitle("Activity Manager Info")
-                .setMessage(getActivityManagerInfo(activity))
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
+            .setTitle("Activity Manager Info")
+            .setMessage(getActivityManagerInfo(activity))
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     @SuppressLint("NewApi")
@@ -115,3 +106,5 @@ private enum class Density constructor(private val value: Int) {
         operator fun get(value: Int) = values[value] ?: UNKNOWN
     }
 }
+
+private val Context.activityManager: ActivityManager get() = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager

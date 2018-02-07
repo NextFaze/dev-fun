@@ -8,12 +8,6 @@ description = "Contains the annotations @DeveloperFunction and @DeveloperCategor
 dependencies {
     // Kotlin
     compile project.kotlinStdLib
-
-    // Android Support Annotations
-    compile project.supportAnnotations
-
-    // Logging
-    compile project.slf4jApi
 }
 
 configureDokka(this)

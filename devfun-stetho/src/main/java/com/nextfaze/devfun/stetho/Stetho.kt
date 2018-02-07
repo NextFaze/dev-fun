@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService
 import com.nextfaze.devfun.core.AbstractDevFunModule
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
-import com.nextfaze.devfun.internal.*
 import org.json.JSONObject
 import org.mozilla.javascript.ContextFactory
 import org.mozilla.javascript.tools.shell.ShellContextFactory
@@ -23,7 +22,7 @@ class DevStetho : AbstractDevFunModule() {
                 .enableDumpapp(Stetho.defaultDumperPluginsProvider(context))
                 .enableWebKitInspector({
                     Stetho.DefaultInspectorModulesBuilder(context)
-                            .runtimeRepl { buildJsRuntime(context, get<ActivityProvider>(), devFun).newInstance() }
+                            .runtimeRepl { buildJsRuntime(context, get(), devFun).newInstance() }
                             .finish()
                             .filter { it::class != StethoPage::class }
                             .plus(Page(context, this))

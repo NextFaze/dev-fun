@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.StringRes
@@ -16,19 +15,27 @@ import android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks
 import android.text.SpannableStringBuilder
 import android.view.KeyEvent
 import android.view.Window
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.core.ActivityProvider
+import com.nextfaze.devfun.internal.registerActivityCallbacks
+import com.nextfaze.devfun.internal.unregister
 import com.nextfaze.devfun.menu.DeveloperMenu
 import com.nextfaze.devfun.menu.MenuController
 import com.nextfaze.devfun.menu.R
-import java.util.Arrays
+import java.util.*
 
-internal val GRAVE_KEY_SEQUENCE = KeySequence.Definition(intArrayOf(KeyEvent.KEYCODE_GRAVE), R.string.df_menu_grave_sequence)
-internal val VOLUME_KEY_SEQUENCE = KeySequence.Definition(intArrayOf(
+internal val GRAVE_KEY_SEQUENCE = KeySequence.Definition(
+    keyCodes = intArrayOf(KeyEvent.KEYCODE_GRAVE),
+    description = R.string.df_menu_grave_sequence
+)
+internal val VOLUME_KEY_SEQUENCE = KeySequence.Definition(
+    keyCodes = intArrayOf(
         KeyEvent.KEYCODE_VOLUME_DOWN,
         KeyEvent.KEYCODE_VOLUME_DOWN,
         KeyEvent.KEYCODE_VOLUME_UP,
         KeyEvent.KEYCODE_VOLUME_DOWN
-), R.string.df_menu_volume_sequence)
+    ),
+    description = R.string.df_menu_volume_sequence
+)
 
 /**
  * Allows toggling the Developer Menu using button/key sequences.
@@ -55,11 +62,15 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
-        listener = application.registerOnActivityCreatedAndResumed(this::onActivityCreated, this::onActivityResumed)
+        listener = application.registerActivityCallbacks(
+            // note: cant use function references due to https://youtrack.jetbrains.com/issue/KT-22736
+            onCreated = { activity, _ -> onActivityCreated(activity) },
+            onResumed = { onActivityResumed(it) }
+        )
     }
 
     override fun detach() {
-        application.unregisterActivityLifecycleCallbacks(listener)
+        listener?.unregister(application)
         listener = null
         developerMenu = null
     }
@@ -67,15 +78,15 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
     override val title: String get() = application.getString(R.string.df_menu_key_sequence)
     override val actionDescription
         get() = sequenceStates
-                .takeIf { it.isNotEmpty() }
-                ?.joinTo(SpannableStringBuilder(), "\n") { def ->
-                    SpannableStringBuilder().also {
-                        it += " • "
-                        it += application.getText(def.description)
-                    }
+            .takeIf { it.isNotEmpty() }
+            ?.joinTo(SpannableStringBuilder(), "\n") { def ->
+                SpannableStringBuilder().also {
+                    it += " • "
+                    it += application.getText(def.description)
                 }
+            }
 
-    private fun onActivityCreated(activity: Activity, @Suppress("UNUSED_PARAMETER") savedInstanceState: Bundle?) {
+    private fun onActivityCreated(activity: Activity) {
         if (activity is FragmentActivity) {
             activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentLifecycleCallbacks() {
                 override fun onFragmentStarted(fm: FragmentManager?, f: Fragment?) {
@@ -120,6 +131,7 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
         if (callback !is WindowCallbackWrapper) callback = WindowCallbackWrapper(callback)
     }
 
+    @SuppressLint("RestrictedApi")
     private inner class WindowCallbackWrapper(callback: Window.Callback) : android.support.v7.view.WindowCallbackWrapper(callback) {
         @SuppressLint("RestrictedApi")
         override fun dispatchKeyEvent(event: KeyEvent): Boolean {

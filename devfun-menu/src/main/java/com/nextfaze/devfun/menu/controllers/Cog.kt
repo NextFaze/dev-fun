@@ -103,7 +103,7 @@ class CogOverlay constructor(
             overlay.updateOverlayBounds(displayBounds)
         }
 
-        listener = application.registerOnActivityCreatedResumedAndStopped(
+        listener = application.registerActivityCallbacks(
             onCreated = { activity, _ ->
                 updateDisplayBounds(activity)
             },

@@ -6,12 +6,13 @@ import android.content.Context
 import android.os.Build
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
-import com.nextfaze.devfun.internal.ActivityTracker
+import com.nextfaze.devfun.internal.AbstractActivityLifecycleCallbacks
 import com.nextfaze.devfun.internal.d
 import com.nextfaze.devfun.internal.logger
 import com.nextfaze.devfun.internal.t
@@ -97,9 +98,10 @@ abstract class AbstractKotlinKapt3Tester {
     private val kotlinReflectLib = PathUtil.getResourcePathForClass(NoSuchPropertyException::class.java)
     private val kotlinTestLib = PathUtil.getResourcePathForClass(Asserter::class.java)
     private val annotationsJar = PathUtil.getResourcePathForClass(DeveloperCategory::class.java)
+    private val internalJar = PathUtil.getResourcePathForClass(AbstractActivityLifecycleCallbacks::class.java)
     private val androidJar = PathUtil.getResourcePathForClass(Build::class.java)
 
-    protected val compileClasspath = listOf(kotlinStdLib, kotlinReflectLib, kotlinTestLib, annotationsJar, androidJar)
+    protected val compileClasspath = listOf(kotlinStdLib, kotlinReflectLib, kotlinTestLib, annotationsJar, internalJar, androidJar)
 
     @BeforeMethod(alwaysRun = true)
     fun beforeMethod(args: Array<Any>) {
@@ -316,15 +318,15 @@ data class TestContext(val testMethodName: String,
         val activity = mock<Activity> {
             on { applicationContext } doReturn application
         }
-        val activityTracker = mock<ActivityTracker> {
-            on { this.activity } doReturn activity
+        val activityTracker = mock<ActivityProvider> {
+            on { this.invoke() } doReturn activity
         }
 
         DevFun().apply {
             initialize(context)
             instanceProviders.apply {
                 this[ConstructingInstanceProvider::class].requireConstructable = false
-                this += captureInstance { activityTracker::activity.invoke() }
+                this += captureInstance { activityTracker.invoke() }
                 this += PrimitivesInstanceProvider()
                 this += SimpleTypesInstanceProvider()
                 classLoader.loadClasses<InstanceProvider>(testInstanceProviders).forEach {

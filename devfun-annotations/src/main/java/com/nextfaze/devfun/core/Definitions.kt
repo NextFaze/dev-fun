@@ -3,7 +3,6 @@ package com.nextfaze.devfun.core
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.internal.*
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 

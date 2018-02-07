@@ -9,12 +9,18 @@ import android.view.WindowManager
 import kotlin.reflect.KProperty
 
 fun Context.registerActivityLifecycleCallbacks(activityLifecycleCallbacks: Application.ActivityLifecycleCallbacks) =
-        activityLifecycleCallbacks.apply { (applicationContext as Application).registerActivityLifecycleCallbacks(activityLifecycleCallbacks) }
+    activityLifecycleCallbacks.apply { (applicationContext as Application).registerActivityLifecycleCallbacks(activityLifecycleCallbacks) }
+
+internal fun Context.unregisterActivityCallbacks(callbacks: Application.ActivityLifecycleCallbacks?) {
+    callbacks?.let {
+        (this.applicationContext as Application).unregisterActivityLifecycleCallbacks(callbacks)
+    }
+}
 
 val Context.activityManager: ActivityManager by lazier { applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager }
-val Context.connectivityManager: ConnectivityManager by lazier { applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
 val Context.wifiManager: WifiManager by lazier { applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager }
 val Context.windowManager: WindowManager by lazier { applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
+val Context.connectivityManager: ConnectivityManager by lazier { applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
 
 private fun <T : Any, R> lazier(initializer: T.() -> R) = UnsafeLazyImpl(initializer)
 

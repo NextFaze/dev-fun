@@ -14,11 +14,11 @@ import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.AbstractDevFunModule
+import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
-import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.controllers.*
 import kotlin.reflect.KClass
 
@@ -79,6 +79,8 @@ interface MenuHeader<T : View> {
     fun onBindView(view: T, parent: ViewGroup, activity: Activity)
 }
 
+val DevFun.devMenu get() = get<DevMenu>()
+
 @AutoService(DevFunModule::class)
 @DeveloperCategory("DevFun", "Developer Menu")
 class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
@@ -106,16 +108,16 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
     override val title: String get() = context.getString(R.string.df_menu_developer_menu)
     override val actionDescription: CharSequence?
         get() = controllers
-                .mapNotNull { c -> c.actionDescription?.let { c.title to it } }
-                .takeIf { it.isNotEmpty() }
-                ?.joinTo(SpannableStringBuilder(), "\n\n") {
-                    SpannableStringBuilder().apply {
-                        this += it.first
-                        setSpan(StyleSpan(Typeface.BOLD), 0, it.first.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-                        this += "\n"
-                        this += it.second
-                    }
+            .mapNotNull { c -> c.actionDescription?.let { c.title to it } }
+            .takeIf { it.isNotEmpty() }
+            ?.joinTo(SpannableStringBuilder(), "\n\n") {
+                SpannableStringBuilder().apply {
+                    this += it.first
+                    setSpan(StyleSpan(Typeface.BOLD), 0, it.first.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+                    this += "\n"
+                    this += it.second
                 }
+            }
 
     override fun addController(menuController: MenuController) {
         controllers += menuController.also {
@@ -151,11 +153,9 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
         val title = activity.getString(R.string.df_menu_available_controllers)
         val msg = actionDescription ?: activity.getString(R.string.df_menu_no_controllers)
         AlertDialog.Builder(activity)
-                .setTitle(title)
-                .setMessage(msg)
-                .show()
+            .setTitle(title)
+            .setMessage(msg)
+            .show()
         return "$title\n$msg"
     }
 }
-
-val DevFun.devMenu get() = get<DevMenu>()
