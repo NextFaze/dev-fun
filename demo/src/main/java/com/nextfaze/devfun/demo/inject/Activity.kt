@@ -3,7 +3,6 @@ package com.nextfaze.devfun.demo.inject
 import android.app.Activity
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
@@ -17,7 +16,7 @@ import kotlin.annotation.AnnotationTarget.*
 @Target(FIELD, VALUE_PARAMETER, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER, CLASS, FILE)
 annotation class ActivityScope
 
-@Subcomponent(modules = arrayOf(ActivityModule::class))
+@Subcomponent(modules = [ActivityModule::class])
 @ActivityScope
 interface ActivityComponent : Injector
 
@@ -27,7 +26,7 @@ class ActivityModule(private val activity: AppCompatActivity) {
 }
 
 
-abstract class DaggerActivity : RxAppCompatActivity() {
+abstract class DaggerActivity : AppCompatActivity() {
     lateinit var retainedComponent: RetainedComponent private set
     lateinit var activityComponent: ActivityComponent private set
 

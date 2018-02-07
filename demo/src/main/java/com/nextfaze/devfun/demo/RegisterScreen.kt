@@ -46,7 +46,7 @@ class RegisterFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.register_layout, container, false)
+        inflater.inflate(R.layout.register_layout, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         registerButton.apply {
@@ -144,45 +144,47 @@ class RegisterFragment : BaseFragment() {
         }
     }
 
-    private fun asyncPerformRegistration(givenName: CharSequence,
-                                         familyName: CharSequence,
-                                         userName: CharSequence,
-                                         password: CharSequence,
-                                         email: CharSequence,
-                                         dateOfBirth: DateTime,
-                                         gender: Gender) = launch(CommonPool) {
+    private fun asyncPerformRegistration(
+        givenName: CharSequence,
+        familyName: CharSequence,
+        userName: CharSequence,
+        password: CharSequence,
+        email: CharSequence,
+        dateOfBirth: DateTime,
+        gender: Gender
+    ) = launch(CommonPool) {
         try {
             asyncShowProgress(true)
 
             delay(2, TimeUnit.SECONDS) // simulate network delay
             val createdUser = User(givenName, familyName, userName, password, email, dateOfBirth, gender)
 
-            run(UI) {
+            withContext(UI) {
                 session.user = createdUser
                 activity?.finish()
                 activity?.let { MainActivity.start(it) }
             }
         } finally {
-            run(NonCancellable) {
+            withContext(NonCancellable) {
                 asyncShowProgress(false)
             }
         }
     }
 
-    private suspend fun asyncShowProgress(show: Boolean) = kotlinx.coroutines.experimental.run(UI) { updateProgressView(show) }
+    private suspend fun asyncShowProgress(show: Boolean) = withContext(UI) { updateProgressView(show) }
     private fun updateProgressView(show: Boolean) {
         val shortAnimTime = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
         registrationForm.apply {
             visible = !show
             animate().setDuration(shortAnimTime)
-                    .alpha(if (show) 0f else 1f)
-                    .onAnimationEnd { visible = !show }
+                .alpha(if (show) 0f else 1f)
+                .onAnimationEnd { visible = !show }
         }
         registrationProgressBar.apply {
             visible = show
             animate().setDuration(shortAnimTime)
-                    .alpha(if (show) 1f else 0f)
-                    .onAnimationEnd { visible = show }
+                .alpha(if (show) 1f else 0f)
+                .onAnimationEnd { visible = show }
         }
     }
 
@@ -195,19 +197,25 @@ class RegisterFragment : BaseFragment() {
         val ascii = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
         fun Random.string(length: Int) = StringBuilder().apply {
-            (0..length - 1).forEach { append(ascii[this@string.nextInt(ascii.length)]) }
+            (0 until length).forEach { append(ascii[this@string.nextInt(ascii.length)]) }
         }.toString()
 
         fun Random.nextInt(min: Int, max: Int) = this.nextInt((max - min) + 1) + min
 
         // Gender
         val gender = rand.nextInt(genderSpinner.adapter.count)
-                .also { genderSpinner.setSelection(it, true) }
-                .let { genderSpinner.selectedItem as String }
+            .also { genderSpinner.setSelection(it, true) }
+            .let { genderSpinner.selectedItem as String }
 
         // Given Name
-        val maleNames = listOf("Jackson", "Aiden", "Liam", "Lucas", "Noah", "Mason", "Ethan", "Caden", "Logan", "Jacob", "Santiago", "Mateo", "Matías", "Sebastián", "Martín", "Alejandro", "Samuel", "Benjamín", "Nicolás", "Diego", "DevFun")
-        val femaleNames = listOf("Sophia", "Emma", "Olivia", "Ava", "Mia", "Isabella", "Zoe", "Lily", "Emily", "Madison", "Sofía", "Isabella", "Lucía", "Valentina", "Emma", "Martina", "Luciana", "Camila", "Victoria", "Valeria", "DevFun")
+        val maleNames = listOf(
+            "Jackson", "Aiden", "Liam", "Lucas", "Noah", "Mason", "Ethan", "Caden", "Logan", "Jacob", "Santiago",
+            "Mateo", "Matías", "Sebastián", "Martín", "Alejandro", "Samuel", "Benjamín", "Nicolás", "Diego", "DevFun"
+        )
+        val femaleNames = listOf(
+            "Sophia", "Emma", "Olivia", "Ava", "Mia", "Isabella", "Zoe", "Lily", "Emily", "Madison", "Sofía",
+            "Isabella", "Lucía", "Valentina", "Emma", "Martina", "Luciana", "Camila", "Victoria", "Valeria", "DevFun"
+        )
         val genders = context!!.resources.getStringArray(R.array.genders)
         val names = when (gender) {
             genders.getOrNull(0) -> maleNames + femaleNames

@@ -371,6 +371,7 @@
       <option name="METHOD_CALL_CHAIN_WRAP" value="1" />
       <option name="ASSIGNMENT_WRAP" value="1" />
       <option name="METHOD_ANNOTATION_WRAP" value="5" />
+      <option name="FIELD_ANNOTATION_WRAP" value="5" />
     </codeStyleSettings>
   </code_scheme>
 </component>

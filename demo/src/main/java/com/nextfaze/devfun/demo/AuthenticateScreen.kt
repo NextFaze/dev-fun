@@ -63,7 +63,7 @@ class AuthenticateFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.authenticate_layout, container, false)
+        inflater.inflate(R.layout.authenticate_layout, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         passwordEditText.apply {
@@ -131,7 +131,7 @@ class AuthenticateFragment : BaseFragment() {
             delay(2, TimeUnit.SECONDS) // simulate network delay
             val isValid = CREDENTIALS.contains("$email:$password")
 
-            run(UI) {
+            withContext(UI) {
                 if (isValid) {
                     session.user = User("givenName", "familyName", "userName", password, email, DateTime.now(), Gender.OTHER)
                     activity?.finish()
@@ -142,26 +142,26 @@ class AuthenticateFragment : BaseFragment() {
                 }
             }
         } finally {
-            run(NonCancellable) {
+            withContext(NonCancellable) {
                 asyncShowProgress(false)
             }
         }
     }
 
-    private suspend fun asyncShowProgress(show: Boolean) = run(UI) { updateProgressView(show) }
+    private suspend fun asyncShowProgress(show: Boolean) = withContext(UI) { updateProgressView(show) }
     private fun updateProgressView(show: Boolean) {
         val shortAnimTime = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
         authenticationForm.apply {
             visible = !show
             animate().setDuration(shortAnimTime)
-                    .alpha(if (show) 0f else 1f)
-                    .onAnimationEnd { visible = !show }
+                .alpha(if (show) 0f else 1f)
+                .onAnimationEnd { visible = !show }
         }
         authenticationProgressBar.apply {
             visible = show
             animate().setDuration(shortAnimTime)
-                    .alpha(if (show) 1f else 0f)
-                    .onAnimationEnd { visible = show }
+                .alpha(if (show) 1f else 0f)
+                .onAnimationEnd { visible = show }
         }
     }
 
@@ -182,17 +182,19 @@ private class SignInFunctionTransformer : FunctionTransformer {
     }
 
     private val accounts = if (BuildConfig.DEBUG) { // BuildConfig.DEBUG for dead-code removal
-        listOf(TestAccount("foo@example.com", "hello"),
-                TestAccount("bar@example.com", "world"))
+        listOf(
+            TestAccount("foo@example.com", "hello"),
+            TestAccount("bar@example.com", "world")
+        )
     } else {
         emptyList()
     }
 
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): List<SimpleFunctionItem> =
-            accounts.map {
-                object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-                    override val name = it.title
-                    override val args = listOf(it.email, it.password) // arguments as expected from signInAs(...)
-                }
+        accounts.map {
+            object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
+                override val name = it.title
+                override val args = listOf(it.email, it.password) // arguments as expected from signInAs(...)
             }
+        }
 }

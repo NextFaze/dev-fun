@@ -10,8 +10,10 @@ import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.enabled
 import com.nextfaze.devfun.demo.kotlin.findOrCreate
 import com.nextfaze.devfun.demo.kotlin.startActivity
-import kotlinx.android.synthetic.main.welcome_layout.createAccountButton
-import kotlinx.android.synthetic.main.welcome_layout.signInButton
+import com.nextfaze.devfun.demo.util.value
+import com.uber.autodispose.android.lifecycle.scope
+import com.uber.autodispose.kotlin.autoDisposable
+import kotlinx.android.synthetic.main.welcome_layout.*
 import javax.inject.Inject
 
 class WelcomeActivity : BaseActivity() {
@@ -30,7 +32,7 @@ class WelcomeActivity : BaseActivity() {
 }
 
 class WelcomeFragment : BaseFragment() {
-    @Inject lateinit var session: Session
+    @Inject lateinit var config: Config
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,17 +40,25 @@ class WelcomeFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.welcome_layout, container, false)
+        inflater.inflate(R.layout.welcome_layout, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         signInButton.apply {
-            enabled = session.isSignInEnabled
+            enabled = config.signInEnabled
             setOnClickListener { AuthenticateActivity.start(activity!!) }
         }
         createAccountButton.apply {
-            enabled = session.isRegistrationEnabled
+            enabled = config.registrationEnabled
             setOnClickListener { RegisterActivity.start(activity!!) }
         }
+        motdText.text = config.welcomeString
+    }
+
+    override fun onStart() {
+        super.onStart()
+        config.signInEnabled().observable.autoDisposable(scope()).subscribe { signInButton.isEnabled = it }
+        config.registrationEnabled().observable.autoDisposable(scope()).subscribe { createAccountButton.isEnabled = it }
+        config.welcomeString().observable.autoDisposable(scope()).subscribe { motdText.text = it.value }
     }
 
     @DeveloperFunction

@@ -9,9 +9,6 @@ import javax.inject.Singleton
 class Session @Inject constructor() {
     private val log = logger()
 
-    val isSignInEnabled = false
-    val isRegistrationEnabled = false
-
     var user: User? = null
 
     @DeveloperFunction
@@ -20,12 +17,14 @@ class Session @Inject constructor() {
 
 enum class Gender { OTHER, FEMALE, MALE }
 
-data class User(val givenName: CharSequence,
-                val familyName: CharSequence,
-                val userName: CharSequence,
-                val password: CharSequence,
-                val email: CharSequence,
-                val dataOfBirth: DateTime,
-                val gender: Gender) {
+data class User(
+    val givenName: CharSequence,
+    val familyName: CharSequence,
+    val userName: CharSequence,
+    val password: CharSequence,
+    val email: CharSequence,
+    val dataOfBirth: DateTime,
+    val gender: Gender
+) {
     val id = "$userName".hashCode()
 }
