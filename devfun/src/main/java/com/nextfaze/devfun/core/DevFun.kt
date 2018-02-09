@@ -353,6 +353,17 @@ class DevFun {
     }
 }
 
+/**
+ * Controls trace-level logging. Disabled (`false`) by default.
+ *
+ * Enabled automatically when library is a `-SNAPSHOT` build.
+ */
+var devFunVerbose
+    get() = allowTraceLogs
+    set(value) {
+        allowTraceLogs = value
+    }
+
 private data class SimpleCategory(override val name: CharSequence,
                                   override val items: List<FunctionItem>,
                                   override val order: Int = 0) : CategoryItem

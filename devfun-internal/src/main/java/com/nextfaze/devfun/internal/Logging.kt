@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
  *
  * Enabled automatically when library is a `-SNAPSHOT` build.
  */
-var devFunVerbose = false
+var allowTraceLogs = false
 
 /**
  * Creates a new logger instance using the containing class' qualified name.
@@ -38,7 +38,7 @@ fun logger(name: String): Logger = LoggerFactory.getLogger(name)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 inline fun Logger.t(t: Throwable? = null, predicate: Boolean = true, body: () -> String) {
-    if (devFunVerbose && predicate && isTraceEnabled) {
+    if (allowTraceLogs && predicate && isTraceEnabled) {
         trace(body.invoke(), t)
     }
 }
