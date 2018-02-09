@@ -1,3 +1,5 @@
+import com.nextfaze.devfun.Library
+
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
@@ -39,7 +41,7 @@ def pomConfig = {
         connection "scm:git:git://github.com/NextFaze/dev-fun.git"
         developerConnection "scm:git:ssh://github.com:NextFaze/dev-fun.git"
         url "http://github.com/NextFaze/dev-fun/tree/master"
-        tag GIT_TAG_REF
+        tag Library.getTagRef
     }
 
     issueManagement {
@@ -59,7 +61,7 @@ def pomConfig = {
 }
 
 publishing {
-    def repoUrl = VERSION_SNAPSHOT.toBoolean() ? DEVFUN_PUBLISH_URL_SNAPSHOT : DEVFUN_PUBLISH_URL
+    def repoUrl = project.isSnapshot ? DEVFUN_PUBLISH_URL_SNAPSHOT : DEVFUN_PUBLISH_URL
     if (!repoUrl.isEmpty()) {
         repositories {
             maven {
@@ -139,10 +141,10 @@ bintray {
         githubReleaseNotesFile = "README.md"
 
         version {
-            name = project.deployVersion
+            name = Library.deployVersion(project)
             desc = project.description
             released = new Date()
-            vcsTag = GIT_TAG_REF
+            vcsTag = Library.getTagRef
 
             gpg {
                 sign = true

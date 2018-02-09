@@ -1,3 +1,6 @@
+import com.nextfaze.devfun.Android
+import com.nextfaze.devfun.Config
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
@@ -10,21 +13,21 @@ kotlin {
 }
 
 android {
-    compileSdkVersion project.compileSdkVersion
-    buildToolsVersion project.buildToolsVersion
+    compileSdkVersion Android.compileSdkVersion
+    buildToolsVersion Android.buildToolsVersion
 
     defaultConfig {
         applicationId 'com.nextfaze.devfun.demo'
 
-        minSdkVersion project.minSdkVersion
-        targetSdkVersion project.targetSdkVersion
-        versionCode project.versionCode
-        versionName project.versionName
+        minSdkVersion Android.minSdkVersion
+        targetSdkVersion Android.targetSdkVersion
+        versionCode Android.versionCode
+        versionName Android.versionName(project)
         multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        if (VERSION_SNAPSHOT) {
+        if (project.isSnapshot) {
             javaCompileOptions {
                 annotationProcessorOptions {
                     argument 'devfun.debug.verbose', 'true'
@@ -55,27 +58,27 @@ dependencies {
     debugImplementation project(':devfun-httpd-frontend')
 
     // Kotlin
-    implementation project.kotlinStdLib
-    implementation project.kotlinCoroutines
-    implementation project.kotlinCoroutinesAndroid
+    implementation Config.kotlinStdLib
+    implementation Config.kotlinCoroutines
+    implementation Config.kotlinCoroutinesAndroid
 
     // Support libs
-    implementation project.supportAppCompat
-    implementation project.supportDesign
-    implementation project.supportConstraintLayout
+    implementation Config.supportAppCompat
+    implementation Config.supportDesign
+    implementation Config.supportConstraintLayout
     implementation 'com.android.support:multidex:1.0.2'
 
     // Logging - https://github.com/tony19/logback-android
-    implementation project.slf4jApi
+    implementation Config.slf4jApi
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation('com.github.tony19:logback-android-classic:1.1.1-6') {
         exclude group: 'com.google.android', module: 'android'
     }
 
     // Dagger 2 - https://github.com/google/dagger
-    kapt project.daggerCompiler
-    implementation project.dagger
-    compileOnly project.daggerAnnotations
+    kapt Config.daggerCompiler
+    implementation Config.dagger
+    compileOnly Config.daggerAnnotations
 
     // OkHttp - https://github.com/square/okhttp
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
@@ -84,17 +87,17 @@ dependencies {
     implementation 'net.danlew:android.joda:2.9.9'
 
     // Stetho - https://github.com/facebook/stetho
-    debugImplementation project.stetho
-    debugImplementation project.stethoJsRhino
+    debugImplementation Config.stetho
+    debugImplementation Config.stethoJsRhino
     debugImplementation project(':devfun-stetho')
 
     // Glide - https://github.com/bumptech/glide
-    implementation project.glide
+    implementation Config.glide
     implementation 'com.github.bumptech.glide:okhttp3-integration:4.4.0@aar'
     debugImplementation project(':devfun-util-glide')
 
     // Leak Canary - https://github.com/square/leakcanary
-    debugImplementation project.leakCanary
+    debugImplementation Config.leakCanary
     debugImplementation project(':devfun-util-leakcanary')
 
     // RxJava: Reactive Extensions for the JVM - https://github.com/ReactiveX/RxJava

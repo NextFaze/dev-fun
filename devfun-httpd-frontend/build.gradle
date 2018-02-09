@@ -1,3 +1,5 @@
+import com.nextfaze.devfun.Config
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -15,9 +17,9 @@ dependencies {
     implementation project(':devfun-internal')
 
     // Kotlin
-    api project.kotlinStdLib
+    api Config.kotlinStdLib
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
-    kapt project.autoService
-    compileOnly project.autoService
+    kapt Config.autoService
+    compileOnly Config.autoService
 }

@@ -1,6 +1,8 @@
-buildscript {
-    apply from: 'configuration.gradle'
+import com.nextfaze.devfun.Android
+import com.nextfaze.devfun.Config
+import com.nextfaze.devfun.Library
 
+buildscript {
     repositories {
         mavenLocal()
         maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
@@ -11,19 +13,27 @@ buildscript {
 
     dependencies {
         // Annotations, Compiler, Core, HTTPD, HTTPD-FrontEnd, Inject-Dagger2, Menu, Stetho, Util-Glide, Util-LeakCanary
-        classpath project.kotlinPlugin
+        classpath Config.kotlinPlugin
 
         // Core, HTTPD, HTTPD-FrontEnd, Inject-Dagger2, Menu, Stetho, Util-Glide, Util-LeakCanary
-        classpath project.androidPlugin
+        classpath Config.androidPlugin
 
-        classpath project.dokkaPlugin
-        classpath project.dokkaAndroidPlugin
+        classpath Config.dokkaPlugin
+        classpath Config.dokkaAndroidPlugin
 
-        classpath project.bintrayPlugin
+        classpath Config.bintrayPlugin
     }
 }
 
-apply from: 'configuration.gradle'
+ext {
+    publishing = project.file('publishing.gradle')
+    isSnapshot = Library.isSnapshot(project)
+}
+
+allprojects {
+    version = Library.deployVersion(project)
+    group = GROUP
+}
 
 allprojects {
     repositories {
@@ -39,7 +49,7 @@ allprojects {
     println(">> artifact=${project.name}")
     println(">> version=${project.version}")
 
-    if (VERSION_SNAPSHOT) {
+    if (project.isSnapshot) {
         configurations.all {
             // check for updates every build
             resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
@@ -68,7 +78,7 @@ ext.configureDokka = { project ->
         externalDocumentationLink {
             url = new URL("https://nextfaze.github.io/dev-fun/")
         }
-        dokkaFatJar = project.dokkaFatJar
+        dokkaFatJar = Config.dokkaFatJar
     }
 
     task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
@@ -84,7 +94,7 @@ ext.configureDokka = { project ->
         externalDocumentationLink {
             url = new URL("https://nextfaze.github.io/dev-fun/")
         }
-        dokkaFatJar = project.dokkaFatJar
+        dokkaFatJar = Config.dokkaFatJar
         sourceDirs += isAndroid ?
                 project.android.sourceSets.main.java.srcDirs :
                 project.sourceSets.main.allSource
@@ -113,14 +123,14 @@ ext.doConfigureAndroidLibrary = { project, withPublishing ->
     ext.isAndroid = true
 
     android {
-        compileSdkVersion project.compileSdkVersion
-        buildToolsVersion project.buildToolsVersion
+        compileSdkVersion Android.compileSdkVersion
+        buildToolsVersion Android.buildToolsVersion
 
         defaultConfig {
-            minSdkVersion project.minSdkVersion
-            targetSdkVersion project.targetSdkVersion
-            versionCode project.versionCode
-            versionName project.versionName
+            minSdkVersion Android.minSdkVersion
+            targetSdkVersion Android.targetSdkVersion
+            versionCode Android.versionCode
+            versionName Android.versionName(project)
 
             consumerProguardFile '../proguard-rules-common.pro'
             testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
@@ -129,13 +139,13 @@ ext.doConfigureAndroidLibrary = { project, withPublishing ->
                 annotationProcessorOptions {
                     // We're using KAPT so ignore annotationProcessor configuration dependencies
                     includeCompileClasspath false
-                    if (VERSION_SNAPSHOT) {
+                    if (project.isSnapshot) {
                         argument 'devfun.debug.verbose', 'true'
                     }
                 }
             }
 
-            buildConfigField "boolean", "VERSION_SNAPSHOT", VERSION_SNAPSHOT
+            buildConfigField "boolean", "VERSION_SNAPSHOT", project.isSnapshot.toString()
         }
 
         resourcePrefix "df_${project.name.replace("devfun-", "")}_"

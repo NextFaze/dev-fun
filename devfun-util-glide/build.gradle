@@ -1,3 +1,5 @@
+import com.nextfaze.devfun.Config
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -27,9 +29,9 @@ dependencies {
     implementation project(':devfun-internal')
 
     // Kotlin
-    api project.kotlinStdLib
-    implementation project.kotlinCoroutines
+    api Config.kotlinStdLib
+    implementation Config.kotlinCoroutines
 
     // Glide - https://github.com/bumptech/glide
-    compileOnly project.glide
+    compileOnly Config.glide
 }

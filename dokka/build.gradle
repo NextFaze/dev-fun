@@ -1,3 +1,5 @@
+import com.nextfaze.devfun.Config
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
@@ -5,10 +7,10 @@ project.doConfigureAndroidLibrary(this, false)
 
 dependencies {
     // Kotlin
-    implementation project.kotlinStdLib
+    implementation Config.kotlinStdLib
 
     // Support libs
-    implementation project.supportAppCompat
+    implementation Config.supportAppCompat
 
     // DevFun
     implementation project(':devfun')
@@ -33,7 +35,7 @@ dokka {
     moduleName = 'gh-pages'
     outputFormat = 'gfm'
     outputDirectory = '.'
-    dokkaFatJar = project.dokkaFatJar
+    dokkaFatJar = Config.dokkaFatJar
 }
 
 project.afterEvaluate {

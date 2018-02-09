@@ -1,3 +1,5 @@
+import com.nextfaze.devfun.Config
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
@@ -16,14 +18,14 @@ dependencies {
     implementation project(':devfun-internal')
 
     // Kotlin
-    api project.kotlinStdLib
+    api Config.kotlinStdLib
 
     // Support libs
-    api project.supportAppCompat
-    implementation project.supportRecyclerView
-    implementation project.supportConstraintLayout
+    api Config.supportAppCompat
+    implementation Config.supportRecyclerView
+    implementation Config.supportConstraintLayout
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
-    kapt project.autoService
-    compileOnly project.autoService
+    kapt Config.autoService
+    compileOnly Config.autoService
 }

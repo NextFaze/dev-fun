@@ -1,3 +1,5 @@
+import com.nextfaze.devfun.Config
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -14,8 +16,8 @@ dependencies {
     api project(':devfun-annotations')
 
     // Kotlin
-    api project.kotlinStdLib
+    api Config.kotlinStdLib
 
     // Leak Canary - https://github.com/square/leakcanary
-    compileOnly project.leakCanary
+    compileOnly Config.leakCanary
 }

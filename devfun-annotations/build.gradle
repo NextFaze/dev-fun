@@ -1,3 +1,5 @@
+import com.nextfaze.devfun.Config
+
 apply plugin: 'kotlin'
 
 description = "Contains the annotations @DeveloperFunction and @DeveloperCategory, and various interface definitions.\n" +
@@ -7,7 +9,7 @@ description = "Contains the annotations @DeveloperFunction and @DeveloperCategor
 
 dependencies {
     // Kotlin
-    compile project.kotlinStdLib
+    compile Config.kotlinStdLib
 }
 
 configureDokka(this)
