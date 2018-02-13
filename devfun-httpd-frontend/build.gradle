@@ -3,6 +3,7 @@ import com.nextfaze.devfun.Config
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.nextfaze.devfun'
 
 description = "Module that generates an admin interface using SB Admin 2 (similar to DevMenu), allowing function invocation from a browser.\n" +
         "\n" +

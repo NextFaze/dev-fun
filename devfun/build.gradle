@@ -4,6 +4,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.nextfaze.devfun'
 
 description = "Core DevFun library that initializes and manages DevFun modules.\n" +
         "\n"

@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/devfun/devfun.iml" filepath="$PROJECT_DIR$/devfun/devfun.iml" />
       <module fileurl="file://$PROJECT_DIR$/devfun-annotations/devfun-annotations.iml" filepath="$PROJECT_DIR$/devfun-annotations/devfun-annotations.iml" />
       <module fileurl="file://$PROJECT_DIR$/devfun-compiler/devfun-compiler.iml" filepath="$PROJECT_DIR$/devfun-compiler/devfun-compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/devfun-gradle-plugin.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/devfun-gradle-plugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/devfun-httpd/devfun-httpd.iml" filepath="$PROJECT_DIR$/devfun-httpd/devfun-httpd.iml" />
       <module fileurl="file://$PROJECT_DIR$/devfun-httpd-frontend/devfun-httpd-frontend.iml" filepath="$PROJECT_DIR$/devfun-httpd-frontend/devfun-httpd-frontend.iml" />
       <module fileurl="file://$PROJECT_DIR$/devfun-inject-dagger2/devfun-inject-dagger2.iml" filepath="$PROJECT_DIR$/devfun-inject-dagger2/devfun-inject-dagger2.iml" />

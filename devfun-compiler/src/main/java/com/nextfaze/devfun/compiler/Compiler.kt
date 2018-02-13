@@ -92,6 +92,10 @@ const val FLAG_DEBUG_VERBOSE = "devfun.debug.verbose"
  * - If this is null (unset) [PACKAGE_SUFFIX_DEFAULT] will be used.
  * - If this is empty the suffix will be omitted.
  *
+ * Final output package will be: [PACKAGE_ROOT].`<variant?>`.`PACKAGE_SUFFIX`
+ *
+ * `<variant?>` will be omitted if both `packageRoot` and `packageSuffix` are provided.
+ *
  * Set using APT options:
  * ```gradle
  * android {
@@ -104,16 +108,18 @@ const val FLAG_DEBUG_VERBOSE = "devfun.debug.verbose"
  *      }
  * }
  * ```
- *
- * @see PACKAGE_ROOT
  */
 const val PACKAGE_SUFFIX = "devfun.package.suffix"
 
 /**
- * Sets the package root for the generated code. _(default: `<project package>`)_
+ * Sets the package root for the generated code. _(default: `<application package>`)_
  *
  * Attempts will be made to auto-detect the project package by using the class output directory and known/standard
  * relative paths to various build files, but if necessary this option can be set instead.
+ *
+ * Final output package will be: `PACKAGE_ROOT`.`<variant?>`.[PACKAGE_SUFFIX]
+ *
+ * `<variant?>` will be omitted if both `packageRoot` and `packageSuffix` are provided.
  *
  * Set using APT options:
  * ```gradle
@@ -127,10 +133,6 @@ const val PACKAGE_SUFFIX = "devfun.package.suffix"
  *      }
  * }
  * ```
- *
- * Final output package will be: [PACKAGE_ROOT].`<buildType?>`.[PACKAGE_SUFFIX]
- *
- * `<buildType?>` will be omitted if both `PACKAGE_ROOT` and `PACKAGE_SUFFIX` are supplied.
  */
 const val PACKAGE_ROOT = "devfun.package.root"
 
@@ -155,6 +157,47 @@ const val PACKAGE_ROOT = "devfun.package.root"
 const val PACKAGE_OVERRIDE = "devfun.package.override"
 
 /**
+ * Your application's package as sourced from your manifest file via the DevFun Gradle plugin.
+ *
+ * You should not set this directly.
+ */
+const val APPLICATION_PACKAGE = "devfun.application.package"
+
+/**
+ * The current build variant as sourced from the variant data/compile task via the DevFun Gradle plugin.
+ *
+ * You should not set this directly.
+ */
+const val APPLICATION_VARIANT = "devfun.application.variant"
+
+/**
+ * The same as [PACKAGE_SUFFIX], but is from the `devFun {}` configuration of the DevFun Grade plugin.
+ *
+ * This value is overridden by [PACKAGE_SUFFIX].
+ *
+ * You should not set this directly.
+ */
+const val EXT_PACKAGE_SUFFIX = "devfun.ext.package.suffix"
+
+/**
+ * The same as [PACKAGE_ROOT], but is from the `devFun {}` configuration of the DevFun Grade plugin.
+ *
+ * This value is overridden by [PACKAGE_ROOT].
+ *
+ * You should not set this directly.
+ */
+const val EXT_PACKAGE_ROOT = "devfun.ext.package.root"
+
+/**
+ * The same as [PACKAGE_OVERRIDE], but is from the `devFun {}` configuration of the DevFun Grade plugin.
+ *
+ * This value is overridden by [PACKAGE_OVERRIDE].
+ *
+ * You should not set this directly.
+ */
+const val EXT_PACKAGE_OVERRIDE = "devfun.ext.package.override"
+
+/**
  * Default package output suffix: `devfun_generated`
  *
  * @see PACKAGE_SUFFIX
@@ -169,18 +212,23 @@ private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
  * Annotation processor for [DeveloperFunction] and [DeveloperCategory].
  */
 @SupportedOptions(
-        FLAG_USE_KOTLIN_REFLECTION,
-        FLAG_DEBUG_COMMENTS,
-        FLAG_DEBUG_VERBOSE,
-        PACKAGE_ROOT,
-        PACKAGE_SUFFIX,
-        PACKAGE_OVERRIDE
+    FLAG_USE_KOTLIN_REFLECTION,
+    FLAG_DEBUG_COMMENTS,
+    FLAG_DEBUG_VERBOSE,
+    PACKAGE_ROOT,
+    PACKAGE_SUFFIX,
+    PACKAGE_OVERRIDE,
+    APPLICATION_PACKAGE,
+    APPLICATION_VARIANT,
+    EXT_PACKAGE_SUFFIX,
+    EXT_PACKAGE_ROOT,
+    EXT_PACKAGE_OVERRIDE
 )
 @AutoService(Processor::class)
 class DevFunProcessor : AbstractProcessor() {
     override fun getSupportedAnnotationTypes() = setOf(
-            DeveloperFunction::class,
-            DeveloperCategory::class
+        DeveloperFunction::class,
+        DeveloperCategory::class
     ).map { it.java.name }.toSet()
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
@@ -226,10 +274,12 @@ class DevFunProcessor : AbstractProcessor() {
     private val functionInvokeName = "${FunctionDefinition::class.simpleName!!.replace("Definition", "")}Invoke"
 
     private fun Element.toClass(kotlinClass: Boolean = true, castIfNotPublic: KClass<*>? = null, vararg types: KClass<*>) =
-            this.asType().toClass(kotlinClass = kotlinClass,
-                    elements = processingEnv.elementUtils,
-                    castIfNotPublic = castIfNotPublic,
-                    types = *types)
+        this.asType().toClass(
+            kotlinClass = kotlinClass,
+            elements = processingEnv.elementUtils,
+            castIfNotPublic = castIfNotPublic,
+            types = *types
+        )
 
     private fun processAnnotations(env: RoundEnvironment) {
 
@@ -319,8 +369,8 @@ class DevFunProcessor : AbstractProcessor() {
             if (clazz.isCompanionObject) {
                 val superClass = clazz.enclosingElement as TypeElement
                 if (superClass.enclosedElements.count {
-                    it.isStatic && it.modifiers.containsAll(element.modifiers) && it.simpleName == element.simpleName
-                } == 1) {
+                        it.isStatic && it.modifiers.containsAll(element.modifiers) && it.simpleName == element.simpleName
+                    } == 1) {
                     note { "Skipping companion @JvmStatic $element" }
                     // This is a @JvmStatic method that is copied to the parent class during APT so just ignore this
                     // one and use the copied one instead, which will (or already has been) processed.
@@ -348,7 +398,10 @@ class DevFunProcessor : AbstractProcessor() {
 
             // Transformer
             val transformer = devFunc[DeveloperFunction::transformer]?.let {
-                "\n#|    override val ${FunctionDefinition::transformer.name} = ${it.asElement().toClass(castIfNotPublic = KClass::class, types = *arrayOf(FunctionTransformer::class))}"
+                "\n#|    override val ${FunctionDefinition::transformer.name} = ${it.asElement().toClass(
+                    castIfNotPublic = KClass::class,
+                    types = *arrayOf(FunctionTransformer::class)
+                )}"
             } ?: ""
 
             // Can we call the function directly
@@ -372,7 +425,11 @@ class DevFunProcessor : AbstractProcessor() {
                 }
 
                 when {
-                    arguments.isNotEmpty() -> arguments.joiner(",\n#|                    ", prefix = "\n#|                    ", postfix = "\n#|            ")
+                    arguments.isNotEmpty() -> arguments.joiner(
+                        separator = ",\n#|                    ",
+                        prefix = "\n#|                    ",
+                        postfix = "\n#|            "
+                    )
                     !callFunDirectly && element.isStatic -> "null"
                     else -> ""
                 }
@@ -393,7 +450,11 @@ class DevFunProcessor : AbstractProcessor() {
             val invocation = run generateInvocation@ {
                 when {
                     callFunDirectly -> {
-                        val typeParams = if (element.typeParameters.isNotEmpty()) element.typeParameters.map { it.asType().toType() }.joiner(prefix = "<", postfix = ">") else ""
+                        val typeParams = if (element.typeParameters.isNotEmpty()) {
+                            element.typeParameters.map { it.asType().toType() }.joiner(prefix = "<", postfix = ">")
+                        } else {
+                            ""
+                        }
                         "$receiver.${element.simpleName.stripInternal()}$typeParams($args)"
                     }
                     else -> "${FunctionDefinition::method.name}.invoke($args)"
@@ -417,7 +478,9 @@ class DevFunProcessor : AbstractProcessor() {
                 #|        // element modifiers = ${element.modifiers.joinToString()}
                 #|        // enclosing element modifiers = ${element.enclosingElement.modifiers.joinToString()}
                 #|        // enclosing element as type element = ${(element.enclosingElement.asType() as? DeclaredType)?.asElement() as? TypeElement}
-                #|        // arg modifiers = ${element.parameters.joiner { "${it.simpleName}=${(it.asType() as? DeclaredType)?.asElement()?.modifiers?.joinToString(",")}" }}
+                #|        // arg modifiers = ${element.parameters.joiner {
+                    "${it.simpleName}=${(it.asType() as? DeclaredType)?.asElement()?.modifiers?.joinToString(",")}"
+                }}
                 #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, callFunDirectly=$callFunDirectly"""
             }
 
@@ -533,9 +596,13 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
     }
 
     private fun error(message: String, element: Element? = null, annotationMirror: AnnotationMirror? = null) =
-            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, message, element, annotationMirror)
+        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, message, element, annotationMirror)
 
-    private fun note(condition: Boolean = isDebugVerbose, body: () -> String) = runIf(condition) { processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, body()) }
+    private fun warn(message: String, element: Element? = null, annotationMirror: AnnotationMirror? = null) =
+        processingEnv.messager.printMessage(Diagnostic.Kind.MANDATORY_WARNING, message, element, annotationMirror)
+
+    private fun note(condition: Boolean = isDebugVerbose, body: () -> String) =
+        runIf(condition) { processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, body()) }
 }
 
 private const val INSTANCE_PROVIDER_NAME = "instanceProvider"

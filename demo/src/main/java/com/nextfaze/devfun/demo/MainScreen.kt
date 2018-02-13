@@ -12,13 +12,10 @@ import android.view.MenuItem
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.inject.ActivityInjector
 import com.nextfaze.devfun.demo.kotlin.startActivity
-import kotlinx.android.synthetic.main.app_bar_main.floatingActionButton
-import kotlinx.android.synthetic.main.app_bar_main.toolbarView
-import kotlinx.android.synthetic.main.content_main.helloWorldTextView
-import kotlinx.android.synthetic.main.main_activity.drawerLayout
-import kotlinx.android.synthetic.main.main_activity.navigationView
-import kotlinx.android.synthetic.main.nav_header_main.navHeaderEmail
-import kotlinx.android.synthetic.main.nav_header_main.navHeaderName
+import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.main_activity.*
+import kotlinx.android.synthetic.main.nav_header_main.*
 import javax.inject.Inject
 
 class MainActivity : BaseActivity() {
@@ -34,7 +31,7 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(toolbarView)
 
         floatingActionButton.setOnClickListener {
-            Snackbar.make(it, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show()
+            Snackbar.make(it, "Replace with your own action!", Snackbar.LENGTH_LONG).setAction("Action", null).show()
         }
 
         object : ActionBarDrawerToggle(this, drawerLayout, toolbarView, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {

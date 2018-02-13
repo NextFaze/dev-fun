@@ -1,4 +1,5 @@
 include ':devfun',
+        ':devfun-gradle-plugin',
         ':devfun-internal',
         ':devfun-annotations',
         ':devfun-compiler',

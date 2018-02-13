@@ -5,6 +5,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.nextfaze.devfun'
 
 kotlin {
     experimental {
@@ -93,7 +94,7 @@ dependencies {
 
     // Glide - https://github.com/bumptech/glide
     implementation Config.glide
-    implementation 'com.github.bumptech.glide:okhttp3-integration:4.4.0@aar'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.5.0@aar'
     debugImplementation project(':devfun-util-glide')
 
     // Leak Canary - https://github.com/square/leakcanary
@@ -101,7 +102,7 @@ dependencies {
     debugImplementation project(':devfun-util-leakcanary')
 
     // RxJava: Reactive Extensions for the JVM - https://github.com/ReactiveX/RxJava
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.7'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
 
     // RxJava bindings for Android - https://github.com/ReactiveX/RxAndroid
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'

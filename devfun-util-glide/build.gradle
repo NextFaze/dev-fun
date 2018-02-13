@@ -3,6 +3,7 @@ import com.nextfaze.devfun.Config
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.nextfaze.devfun'
 
 description = "Module that provides some utility functions when using Glide.\n" +
         "\n" +

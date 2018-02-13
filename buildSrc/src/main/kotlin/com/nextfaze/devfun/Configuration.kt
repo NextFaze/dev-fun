@@ -40,6 +40,7 @@ object Config {
 
     const val kotlinVersion = "1.2.21"
     const val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    const val kotlinPluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
@@ -71,9 +72,21 @@ object Config {
 
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.5.4"
 
-    const val dokkaPlugin = "org.jetbrains.dokka:dokka-gradle-plugin:0.9.15"
-    const val dokkaAndroidPlugin = "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.15"
-    const val dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:0.9.15"
+    const val dokkaVersion = "0.9.16"
+    const val dokkaPlugin = "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
+    const val dokkaAndroidPlugin = "org.jetbrains.dokka:dokka-android-gradle-plugin:$dokkaVersion"
+    const val dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:$dokkaVersion"
+}
+
+object Publishing {
+    object Vcs {
+        const val URL = "https://github.com/NextFaze/dev-fun.git"
+    }
+
+    object Organization {
+        const val NAME = "NextFaze"
+        const val URL = "https://www.nextfaze.com/"
+    }
 }
 
 fun Project.getBooleanProperty(name: String, default: Boolean) =
