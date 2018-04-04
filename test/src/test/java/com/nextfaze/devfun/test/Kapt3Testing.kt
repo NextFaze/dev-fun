@@ -19,7 +19,6 @@ import com.nextfaze.devfun.internal.t
 import com.nhaarman.mockito_kotlin.KStubbing
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
-import com.sun.tools.javac.tree.JCTree
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.common.messages.*
@@ -62,7 +61,8 @@ import java.lang.reflect.Modifier
 import java.net.URL
 import java.net.URLClassLoader
 import java.nio.file.Files
-import java.util.*
+import java.util.Collections
+import java.util.Enumeration
 import javax.annotation.processing.Processor
 import kotlin.collections.set
 import kotlin.reflect.KClass
@@ -86,7 +86,16 @@ private val TEST_SOURCES_DIR = File("src/test/java")
 private val TEST_DATA_DIR = File("src/testData/kotlin")
 
 fun singleFileTests(testMethod: Method, vararg classes: KClass<*>, useSdkInt: Int? = null, autoKaptAndCompile: Boolean = true) =
-        classes.map { arrayOf(TestContext(testMethod.name, listOf(it), sdkInt = useSdkInt, autoKaptAndCompile = autoKaptAndCompile)) }.toTypedArray()
+    classes.map {
+        arrayOf(
+            TestContext(
+                testMethod.name,
+                listOf(it),
+                sdkInt = useSdkInt,
+                autoKaptAndCompile = autoKaptAndCompile
+            )
+        )
+    }.toTypedArray()
 
 abstract class AbstractKotlinKapt3Tester {
     private val log = logger()
@@ -131,7 +140,8 @@ abstract class AbstractKotlinKapt3Tester {
         test.runCompile(compileClasspath)
 
         val classpath = listOf(test.classesOutputDir).map { it.toURI().toURL() }
-        test.classLoader = WrappingUrlClassLoader(classpath, Thread.currentThread().contextClassLoader, test.packageOverride ?: test.packageRoot)
+        test.classLoader =
+                WrappingUrlClassLoader(classpath, Thread.currentThread().contextClassLoader, test.packageOverride ?: test.packageRoot)
         origLoader = Thread.currentThread().contextClassLoader
         Thread.currentThread().contextClassLoader = test.classLoader
     }
@@ -198,26 +208,30 @@ abstract class AbstractKotlinKapt3Tester {
     fun TestContext.execute() = this.use { }
 }
 
-private fun kaptOptions(debugVerbose: Boolean? = true,
-                        packageRoot: String? = TEST_PACKAGE_ROOT,
-                        packageSuffix: String? = null): Map<String, String> =
-        mutableMapOf<String, String>().apply {
-            debugVerbose?.let { this[FLAG_DEBUG_VERBOSE] = it.toString() }
-            packageRoot?.let { this[PACKAGE_ROOT] = it }
-            packageSuffix?.let { this[PACKAGE_SUFFIX] = it }
-        }
+private fun kaptOptions(
+    debugVerbose: Boolean? = true,
+    packageRoot: String? = TEST_PACKAGE_ROOT,
+    packageSuffix: String? = null
+): Map<String, String> =
+    mutableMapOf<String, String>().apply {
+        debugVerbose?.let { this[FLAG_DEBUG_VERBOSE] = it.toString() }
+        packageRoot?.let { this[PACKAGE_ROOT] = it }
+        packageSuffix?.let { this[PACKAGE_SUFFIX] = it }
+    }
 
-data class TestContext(val testMethodName: String,
-                       val testFiles: List<KClass<*>>,
-                       val testDirSuffix: String = testFiles.joinToString("_") { it.simpleName!! },
-                       val testDir: File = Files.createTempDirectory("devfun_testing.$testMethodName.$testDirSuffix").toFile(),
-                       val applicationId: String = "tested.com.nextfaze.devfun",
-                       val buildType: String = TEST_BUILD_TYPE,
-                       val flavor: String = "",
-                       val testDataDir: File = TEST_DATA_DIR,
-                       val autoKaptAndCompile: Boolean = true,
-                       val sdkInt: Int? = null,
-                       val kaptOptions: Map<String, String> = kaptOptions(packageSuffix = testDir.name)) {
+data class TestContext(
+    val testMethodName: String,
+    val testFiles: List<KClass<*>>,
+    val testDirSuffix: String = testFiles.joinToString("_") { it.simpleName!! },
+    val testDir: File = Files.createTempDirectory("devfun_testing.$testMethodName.$testDirSuffix").toFile(),
+    val applicationId: String = "tested.com.nextfaze.devfun",
+    val buildType: String = TEST_BUILD_TYPE,
+    val flavor: String = "",
+    val testDataDir: File = TEST_DATA_DIR,
+    val autoKaptAndCompile: Boolean = true,
+    val sdkInt: Int? = null,
+    val kaptOptions: Map<String, String> = kaptOptions(packageSuffix = testDir.name)
+) {
     private val log = logger()
 
     override fun toString() = "$testMethodName.$testDirSuffix"
@@ -239,15 +253,17 @@ data class TestContext(val testMethodName: String,
     val compileDir = File(testDir, "compileDest")
     val classesOutputDir = File(compileDir, "/tmp/kapt3/classes/$variantDir/")
 
-    private val providedFiles = listOf(TestInstanceProviders::class, Assertions::class).map { File(TEST_SOURCES_DIR, "${it.qualifiedName!!.replace('.', File.separatorChar)}.kt") }
+    private val providedFiles = listOf(TestInstanceProviders::class, Assertions::class).map {
+        File(TEST_SOURCES_DIR, "${it.qualifiedName!!.replace('.', File.separatorChar)}.kt")
+    }
     private val testDataFiles = testFiles.map { File(TEST_DATA_DIR, "${it.qualifiedName!!.replace('.', File.separatorChar)}.kt") }
     val files = testDataFiles + providedFiles
 
     val testInstanceProviders = testFiles
-            .filter { it.isSubclassOf(TestInstanceProviders::class) }
-            .map { it.objectInstance as TestInstanceProviders }
-            .flatMap { it.testProviders.map { it.qualifiedName!! } }
-            .toSet()
+        .filter { it.isSubclassOf(TestInstanceProviders::class) }
+        .map { it.objectInstance as TestInstanceProviders }
+        .flatMap { it.testProviders.map { it.qualifiedName!! } }
+        .toSet()
 
     val moduleName = "$TEST_MODULE_NAME-${testDir.name}"
 
@@ -265,13 +281,14 @@ data class TestContext(val testMethodName: String,
         val ktFiles = files.map { createFile(it.name, it.readText(), env.project) }
 
         val kapt3Extension = Kapt3ExtensionForTests(
-                processors = processors,
-                compileClasspath = compileClasspath,
-                sourcesOutputDir = sourcesOutputDir,
-                classFilesOutputDir = classesOutputDir,
-                options = kaptOptions,
-                stubsOutputDir = stubsDir,
-                incrementalDataOutputDir = incrementalDir)
+            processors = processors,
+            compileClasspath = compileClasspath,
+            sourcesOutputDir = sourcesOutputDir,
+            classFilesOutputDir = classesOutputDir,
+            options = kaptOptions,
+            stubsOutputDir = stubsDir,
+            incrementalDataOutputDir = incrementalDir
+        )
 
         try {
             AnalysisHandlerExtension.registerExtension(env.project, kapt3Extension)
@@ -383,9 +400,8 @@ data class TestContext(val testMethodName: String,
 // Kapt3 test helpers - adapted from Kotlin's Kapt3 test sources
 //
 
-private class ThrowingPrintingMessageCollector(verbose: Boolean,
-                                               private val throwOnWarnings: Boolean = true) :
-        PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, verbose) {
+private class ThrowingPrintingMessageCollector(verbose: Boolean, private val throwOnWarnings: Boolean = true) :
+    PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, verbose) {
 
     override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
         super.report(severity, message, location)
@@ -397,37 +413,38 @@ private class ThrowingPrintingMessageCollector(verbose: Boolean,
 }
 
 internal class Kapt3ExtensionForTests(
-        private val processors: List<Processor>,
-        compileClasspath: List<File>,
-        javaSourceRoots: List<File> = listOf(),
-        sourcesOutputDir: File,
-        classFilesOutputDir: File,
-        options: Map<String, String>,
-        stubsOutputDir: File,
-        incrementalDataOutputDir: File
+    private val processors: List<Processor>,
+    compileClasspath: List<File>,
+    javaSourceRoots: List<File> = listOf(),
+    sourcesOutputDir: File,
+    classFilesOutputDir: File,
+    options: Map<String, String>,
+    stubsOutputDir: File,
+    incrementalDataOutputDir: File
 ) : AbstractKapt3Extension(
-        compileClasspath = PathUtil.getJdkClassesRootsFromCurrentJre() + PathUtil.kotlinPathsForIdeaPlugin.stdlibPath + compileClasspath,
-        annotationProcessingClasspath = emptyList(),
-        javaSourceRoots = javaSourceRoots,
-        sourcesOutputDir = sourcesOutputDir,
-        classFilesOutputDir = classFilesOutputDir,
-        stubsOutputDir = stubsOutputDir,
-        incrementalDataOutputDir = incrementalDataOutputDir,
-        options = options,
-        javacOptions = emptyMap(),
-        annotationProcessors = "",
-        aptMode = AptMode.STUBS_AND_APT,
-        pluginInitializedTime = System.currentTimeMillis(),
-        logger = KaptLogger(true),
-        correctErrorTypes = true,
-        compilerConfiguration = CompilerConfiguration.EMPTY
+    compileClasspath = PathUtil.getJdkClassesRootsFromCurrentJre() + PathUtil.kotlinPathsForIdeaPlugin.stdlibPath + compileClasspath,
+    annotationProcessingClasspath = emptyList(),
+    javaSourceRoots = javaSourceRoots,
+    sourcesOutputDir = sourcesOutputDir,
+    classFilesOutputDir = classFilesOutputDir,
+    stubsOutputDir = stubsOutputDir,
+    incrementalDataOutputDir = incrementalDataOutputDir,
+    options = options,
+    javacOptions = emptyMap(),
+    annotationProcessors = "",
+    aptMode = AptMode.STUBS_AND_APT,
+    pluginInitializedTime = System.currentTimeMillis(),
+    logger = KaptLogger(true),
+    correctErrorTypes = true,
+    mapDiagnosticLocations = true,
+    compilerConfiguration = CompilerConfiguration.EMPTY
 ) {
     var savedStubs: List<String>? = null
     var savedBindings: Map<String, KaptJavaFileObject>? = null
 
     override fun loadProcessors() = processors
 
-    override fun saveStubs(kaptContext: KaptContext<*>, stubs: com.sun.tools.javac.util.List<JCTree.JCCompilationUnit>) {
+    override fun saveStubs(kaptContext: KaptContext<*>, stubs: List<ClassFileToSourceStubConverter.KaptStub>) {
         if (savedStubs != null) {
             error("Stubs are already saved")
         }
@@ -435,9 +452,11 @@ internal class Kapt3ExtensionForTests(
         super.saveStubs(kaptContext, stubs)
     }
 
-    override fun saveIncrementalData(kaptContext: KaptContext<GenerationState>,
-                                     messageCollector: MessageCollector,
-                                     converter: ClassFileToSourceStubConverter) {
+    override fun saveIncrementalData(
+        kaptContext: KaptContext<GenerationState>,
+        messageCollector: MessageCollector,
+        converter: ClassFileToSourceStubConverter
+    ) {
         if (savedBindings != null) {
             error("Bindings are already saved")
         }
@@ -461,12 +480,12 @@ internal class Kapt3BuilderFactory : ClassBuilderFactory {
 
     private inner class Kapt3ClassBuilder(val classNode: ClassNode) : AbstractClassBuilder.Concrete(classNode) {
         override fun newField(
-                origin: JvmDeclarationOrigin,
-                access: Int,
-                name: String,
-                desc: String,
-                signature: String?,
-                value: Any?
+            origin: JvmDeclarationOrigin,
+            access: Int,
+            name: String,
+            desc: String,
+            signature: String?,
+            value: Any?
         ): FieldVisitor {
 //            val flags = Flags.asFlagSet(access.toLong())
 //            log.i { "newField: origin=$origin, access=$access (flags=$flags), name=$name, desc=$desc, signature=$signature, value=$value" }
@@ -476,12 +495,12 @@ internal class Kapt3BuilderFactory : ClassBuilderFactory {
         }
 
         override fun newMethod(
-                origin: JvmDeclarationOrigin,
-                access: Int,
-                name: String,
-                desc: String,
-                signature: String?,
-                exceptions: Array<out String>?
+            origin: JvmDeclarationOrigin,
+            access: Int,
+            name: String,
+            desc: String,
+            signature: String?,
+            exceptions: Array<out String>?
         ): MethodVisitor {
 //            val flags = Flags.asFlagSet(access.toLong())
 //            log.i { "newMethod: origin=$origin, access=$access (flags=$flags), name=$name, desc=$desc, signature=$signature, exceptions=$exceptions" }
@@ -492,9 +511,7 @@ internal class Kapt3BuilderFactory : ClassBuilderFactory {
     }
 
     override fun asBytes(builder: ClassBuilder): ByteArray =
-            ClassWriter(0).also {
-                (builder as Kapt3ClassBuilder).classNode.accept(it)
-            }.toByteArray()
+        ClassWriter(0).also { (builder as Kapt3ClassBuilder).classNode.accept(it) }.toByteArray()
 
     override fun asText(builder: ClassBuilder) = throw UnsupportedOperationException()
 
@@ -502,10 +519,10 @@ internal class Kapt3BuilderFactory : ClassBuilderFactory {
 }
 
 internal inline fun createDisposable(name: String, crossinline dispose: () -> Unit) =
-        object : Disposable {
-            override fun dispose() = dispose.invoke()
-            override fun toString() = name
-        }
+    object : Disposable {
+        override fun dispose() = dispose.invoke()
+        override fun toString() = name
+    }
 
 
 //
@@ -515,9 +532,11 @@ internal inline fun createDisposable(name: String, crossinline dispose: () -> Un
 @Suppress("UNCHECKED_CAST")
 internal fun <T : Any> ClassLoader.loadClasses(classes: Iterable<String>) = classes.map { loadClass(it).kotlin as KClass<out T> }
 
-private class WrappingUrlClassLoader(urls: List<URL>,
-                                     private val wrapped: ClassLoader,
-                                     testPackageRoot: String) : URLClassLoader(urls.toTypedArray(), null) {
+private class WrappingUrlClassLoader(
+    urls: List<URL>,
+    private val wrapped: ClassLoader,
+    testPackageRoot: String
+) : URLClassLoader(urls.toTypedArray(), null) {
     private val testedRoot = "$TEST_PACKAGE_ROOT."
     private val packageRoot = "$testPackageRoot."
     private val noDelegateResources = ".${DevFunGenerated::class.simpleName}"

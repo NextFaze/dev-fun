@@ -67,7 +67,7 @@ dependencies {
     implementation Config.supportAppCompat
     implementation Config.supportDesign
     implementation Config.supportConstraintLayout
-    implementation 'com.android.support:multidex:1.0.2'
+    implementation 'com.android.support:multidex:1.0.3'
 
     // Logging - https://github.com/tony19/logback-android
     implementation Config.slf4jApi
@@ -82,7 +82,7 @@ dependencies {
     compileOnly Config.daggerAnnotations
 
     // OkHttp - https://github.com/square/okhttp
-    implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 
     // Joda Time - https://github.com/dlew/joda-time-android
     implementation 'net.danlew:android.joda:2.9.9'
@@ -94,7 +94,7 @@ dependencies {
 
     // Glide - https://github.com/bumptech/glide
     implementation Config.glide
-    implementation 'com.github.bumptech.glide:okhttp3-integration:4.5.0@aar'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.6.1@aar'
     debugImplementation project(':devfun-util-glide')
 
     // Leak Canary - https://github.com/square/leakcanary
@@ -102,10 +102,10 @@ dependencies {
     debugImplementation project(':devfun-util-leakcanary')
 
     // RxJava: Reactive Extensions for the JVM - https://github.com/ReactiveX/RxJava
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.11'
 
     // RxJava bindings for Android - https://github.com/ReactiveX/RxAndroid
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
 
     // RxKotlin
     implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'

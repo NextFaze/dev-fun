@@ -4,8 +4,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.21"
-        classpath 'org.jetbrains.kotlin:kotlin-sam-with-receiver:1.2.21'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.31"
+        classpath 'org.jetbrains.kotlin:kotlin-sam-with-receiver:1.2.31'
     }
 }
 
@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     compileOnly gradleApi()
-    compile "org.jetbrains.kotlin:kotlin-stdlib:1.2.21"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:1.2.31"
     compile 'org.gradle:gradle-kotlin-dsl:0.15.6'
 }
 

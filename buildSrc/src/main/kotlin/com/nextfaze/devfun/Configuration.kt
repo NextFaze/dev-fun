@@ -34,17 +34,17 @@ object Android {
 }
 
 object Config {
-    const val bintrayPlugin = "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
-    const val androidPlugin = "com.android.tools.build:gradle:3.0.1"
-    const val androidMavenGradlePlugin = "com.github.dcendents:android-maven-gradle-plugin:1.5"
+    const val bintrayPlugin = "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
+    const val androidPlugin = "com.android.tools.build:gradle:3.1.0"
+    const val androidMavenGradlePlugin = "com.github.dcendents:android-maven-gradle-plugin:2.1"
 
-    const val kotlinVersion = "1.2.21"
+    const val kotlinVersion = "1.2.31"
     const val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     const val kotlinPluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
-    const val kotlinCoroutinesVersion = "0.21.2"
+    const val kotlinCoroutinesVersion = "0.22.5"
     const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     const val kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
@@ -55,7 +55,7 @@ object Config {
     const val supportAnnotations = "com.android.support:support-annotations:$supportVersion"
     const val supportConstraintLayout = "com.android.support.constraint:constraint-layout:1.0.2"
 
-    const val daggerVersion = "2.14.1"
+    const val daggerVersion = "2.15"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
     const val dagger = "com.google.dagger:dagger:$daggerVersion"
     const val daggerAnnotations = "org.glassfish:javax.annotation:10.0-b28"
@@ -68,7 +68,7 @@ object Config {
     const val stetho = "com.facebook.stetho:stetho:$stethoVersion"
     const val stethoJsRhino = "com.facebook.stetho:stetho-js-rhino:$stethoVersion"
 
-    const val glide = "com.github.bumptech.glide:glide:4.4.0"
+    const val glide = "com.github.bumptech.glide:glide:4.6.1"
 
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.5.4"
 
