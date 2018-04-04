@@ -2,12 +2,30 @@ package com.nextfaze.devfun.core
 
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.inject.InstanceProvider
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
+/**
+ * Definition for user-supplied arguments (usually supplied from a [FunctionTransformer]).
+ */
 typealias FunctionArgs = List<Any?>?
-typealias FunctionInvoke = (instanceProvider: InstanceProvider, providedArgs: FunctionArgs) -> InvokeResult
+
+/**
+ * Definition of generated function to call that invokes the function definition.
+ *
+ * - The __receiver__ is the object to be invoked against (pass in `null` for static/`object`) types.
+ *   Use convenience extension functions (e.g. [FunctionItem]`.receiverClassForInvocation`) to more easily locate/resolve receiver instance.
+ *
+ * - The __args__ is the arguments for the method, matching the methods argument count and ordering.
+ *   Similarly to receiver, convenience extension functions exist to assist with argument resolution.
+ *
+ * Note: At present nullable types are not inherently supported.
+ * KAPT does not provide enough information to determine if a type is nullable or not (and there are other
+ * issues to be considered). It is intended to be permitted in the future.
+ *
+ * @return Invocation of function.
+ */
+typealias FunctionInvoke = (receiver: Any?, args: List<Any?>) -> Any?
 
 /**
  * Functions/methods annotated with [DeveloperFunction] will be defined using this interface at compile time.
@@ -18,7 +36,7 @@ typealias FunctionInvoke = (instanceProvider: InstanceProvider, providedArgs: Fu
  */
 interface FunctionDefinition {
     /**
-     * The method where this function was defined.
+     * The method of this function was defined.
      */
     val method: Method
 
@@ -58,7 +76,8 @@ interface FunctionDefinition {
     /**
      * Called when this item is to be invoked.
      *
-     * Return `true` to dismiss menu on invoke.
+     * Be aware if invoking this directly; no error handling is provided.
+     * You should use `devFun.get<Invoker>()` for missing arguments, user input, and exception handling.
      */
     val invoke: FunctionInvoke
 }
@@ -120,7 +139,7 @@ interface InvokeResult {
 }
 
 /**
- * This will not be caught by the generated [FunctionInvoke] call.
+ * This will not be caught by the standard DevFun Invoker.
  *
  * i.e. Under most conditions, if this is thrown it will crash your app.
  */

@@ -19,6 +19,8 @@ import com.nextfaze.devfun.core.loader.ModuleLoader
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
 import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.invoke.DefaultInvoker
+import com.nextfaze.devfun.invoke.Invoker
 import kotlin.reflect.KClass
 
 /**
@@ -50,10 +52,20 @@ class DevFunInitializerProvider : ContentProvider() {
     }
 
     override fun getType(uri: Uri) = "none/none"
-    override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? = throw UnsupportedOperationException("Query not supported")
+    override fun query(
+        uri: Uri,
+        projection: Array<out String>?,
+        selection: String?,
+        selectionArgs: Array<out String>?,
+        sortOrder: String?
+    ): Cursor? = throw UnsupportedOperationException("Query not supported")
+
     override fun insert(uri: Uri, values: ContentValues): Uri = throw UnsupportedOperationException("Insert not supported")
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int = throw UnsupportedOperationException("Delete not supported")
-    override fun update(uri: Uri, values: ContentValues, selection: String?, selectionArgs: Array<out String>?): Int = throw UnsupportedOperationException("Update not supported")
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int =
+        throw UnsupportedOperationException("Delete not supported")
+
+    override fun update(uri: Uri, values: ContentValues, selection: String?, selectionArgs: Array<out String>?): Int =
+        throw UnsupportedOperationException("Update not supported")
 }
 
 /**
@@ -128,14 +140,14 @@ class DevFun {
      *
      * @see initialize
      */
-    val context get() = _application ?: throw IllegalStateException("DevFun not initialized!")
+    val context: Application get() = _application ?: throw IllegalStateException("DevFun not initialized!")
 
     /**
      * Flag indicating if this instance of DevFun has been initialized.
      *
      * @see initialize
      */
-    val isInitialized get() = _application != null
+    val isInitialized: Boolean get() = _application != null
 
     /**
      * Initialize the static [devFun] reference to `this`, [context] to [Context.getApplicationContext], build
@@ -164,6 +176,9 @@ class DevFun {
             this += captureInstance { { activityTracker.activity } }
             this += AndroidInstanceProvider(context.applicationContext, activityTracker::activity)
             this += moduleLoader
+
+            // Invocation
+            this += singletonInstance<Invoker> { get<DefaultInvoker>() }
         }
 
         moduleLoader.init(modules.toList(), useServiceLoader)
@@ -268,30 +283,31 @@ class DevFun {
      *
      * @see definitions
      */
-    val categories: List<CategoryItem> get() {
-        try {
-            val transformations = TRANSFORMERS.map { instanceOf(it) }
+    val categories: List<CategoryItem>
+        get() {
+            try {
+                val transformations = TRANSFORMERS.map { instanceOf(it) }
 
-            // generate missing categories
-            val classCategories = definitionsLoader.definitions
+                // generate missing categories
+                val classCategories = definitionsLoader.definitions
                     .flatMap { it.categoryDefinitions }
                     .toSet()
                     .associateBy { it.clazz }
                     .toMutableMap()
-            val functionCategories = mutableListOf<CategoryDefinition>()
+                val functionCategories = mutableListOf<CategoryDefinition>()
 
-            // transform function items to menu items
-            val funItems = HashSet<FunctionItem>()
-            definitionsLoader.definitions
+                // transform function items to menu items
+                val funItems = HashSet<FunctionItem>()
+                definitionsLoader.definitions
                     .flatMap { it.functionDefinitions }
                     .toSet()
-                    .forEach functionItems@ { func ->
+                    .forEach functionItems@{ func ->
                         log.t { "Processing ${func.clazz.simpleName}::${func.name}" }
                         transformations.forEach {
                             if (it.accept(func)) {
                                 val funcClass = if (func.clazz.isCompanion) func.clazz.java.enclosingClass.kotlin else func.clazz
                                 val classCat = classCategories.getOrPut(funcClass) { SimpleCategoryDefinition(funcClass) }
-                                val cat = func.category.let resolveCategory@ { funCat ->
+                                val cat = func.category.let resolveCategory@{ funCat ->
                                     when (funCat) {
                                         null -> classCat
                                         else -> InheritingCategoryDefinition(classCat, funCat).also {
@@ -312,8 +328,8 @@ class DevFun {
                         }
                     }
 
-            // generate and sort menu categories/items
-            return funItems
+                // generate and sort menu categories/items
+                return funItems
                     .groupBy {
                         // determine category name for item
                         it.category.name ?: it.category.clazz?.splitSimpleName ?: "Misc"
@@ -325,11 +341,11 @@ class DevFun {
                     }
                     .keys
                     .sortedWith(compareBy<SimpleCategory> { it.order }.thenBy { it.name.toString() })
-        } catch (t: Throwable) {
-            log.w(t) { "Exception generating categories." }
-            return listOf(ExceptionCategoryItem(t.stackTraceAsString))
+            } catch (t: Throwable) {
+                log.w(t) { "Exception generating categories." }
+                return listOf(ExceptionCategoryItem(t.stackTraceAsString))
+            }
         }
-    }
 
     /**
      * List of raw [DevFunGenerated] definitions.
@@ -345,12 +361,11 @@ class DevFun {
         get() = definitionsLoader.definitions
 
     @DeveloperFunction
-    private fun about(activity: Activity) {
+    private fun about(activity: Activity) =
         AlertDialog.Builder(activity)
-                .setTitle(R.string.df_devfun)
-                .setMessage(activity.getString(R.string.df_devfun_about, BuildConfig.VERSION_NAME))
-                .show()
-    }
+            .setTitle(R.string.df_devfun)
+            .setMessage(activity.getString(R.string.df_devfun_about, BuildConfig.VERSION_NAME))
+            .show()
 }
 
 /**
@@ -364,9 +379,11 @@ var devFunVerbose
         allowTraceLogs = value
     }
 
-private data class SimpleCategory(override val name: CharSequence,
-                                  override val items: List<FunctionItem>,
-                                  override val order: Int = 0) : CategoryItem
+private data class SimpleCategory(
+    override val name: CharSequence,
+    override val items: List<FunctionItem>,
+    override val order: Int = 0
+) : CategoryItem
 
 private data class SimpleCategoryDefinition(override val clazz: KClass<*>) : CategoryDefinition {
     override val name get() = clazz.splitSimpleName

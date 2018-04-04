@@ -296,7 +296,7 @@ internal class InvokeHandler : AbstractUriHandler() {
         try {
             var result: InvokeResult? = null
             devFun.devHttpD.handler.post {
-                result = item.callAndLog(logger = log)
+                result = item.call()
                 invokeWait.countDown()
             }
             invokeWait.await(5, TimeUnit.SECONDS)

@@ -43,6 +43,7 @@ internal class PrimitivesInstanceProvider : InstanceProvider {
             Char::class -> '0'
             Float::class -> 0f
             Double::class -> 0.toDouble()
+            String::class -> ""
             BooleanArray::class -> BooleanArray(0)
             ByteArray::class -> ByteArray(0)
             ShortArray::class -> ShortArray(0)

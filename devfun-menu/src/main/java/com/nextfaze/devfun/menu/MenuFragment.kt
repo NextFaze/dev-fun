@@ -19,23 +19,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.nextfaze.devfun.core.*
-import com.nextfaze.devfun.internal.*
-import kotlinx.android.synthetic.main.df_menu_dialog_fragment.categoriesRecyclerView
-import kotlinx.android.synthetic.main.df_menu_dialog_fragment.categoryItemsRecyclerView
-import kotlinx.android.synthetic.main.df_menu_dialog_fragment.headerLayout
-import kotlinx.android.synthetic.main.df_menu_dialog_fragment.versionTextView
+import com.nextfaze.devfun.internal.splitSimpleName
+import kotlinx.android.synthetic.main.df_menu_dialog_fragment.*
 
 internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     companion object {
         fun show(activity: FragmentActivity) =
-                DeveloperMenuDialogFragment().let { it.show(activity.supportFragmentManager, it.defaultTag) }
+            DeveloperMenuDialogFragment().let { it.show(activity.supportFragmentManager, it.defaultTag) }
 
         fun hide(activity: FragmentActivity) {
             (activity.supportFragmentManager.findFragmentByTag(DeveloperMenuDialogFragment::class.defaultTag) as? DialogFragment)?.dismiss()
         }
     }
 
-    private val log = logger()
     private val handler = Handler(getMainLooper())
 
     private val devMenu by lazy { devFun.devMenu }
@@ -60,7 +56,7 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.df_menu_dialog_fragment, container, false)
+        inflater.inflate(R.layout.df_menu_dialog_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // header
@@ -78,23 +74,23 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
             class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
             adapter = object : RecyclerView.Adapter<ViewHolder>() {
                 override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-                        with(holder.textView) {
-                            val category = categories[position]
-                            text = category.name
-                            setOnClickListener { onCategoryClick(category, position) }
-                            isSelected = selectedCategoryIdx == position
-                            typeface = if (isSelected) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                            lollipop {
-                                when {
-                                    isSelected -> setBackgroundResource(R.drawable.df_menu_item_background)
-                                    else -> setBackgroundResource(selectableItemBackground)
-                                }
+                    with(holder.textView) {
+                        val category = categories[position]
+                        text = category.name
+                        setOnClickListener { onCategoryClick(category, position) }
+                        isSelected = selectedCategoryIdx == position
+                        typeface = if (isSelected) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                        lollipop {
+                            when {
+                                isSelected -> setBackgroundResource(R.drawable.df_menu_item_background)
+                                else -> setBackgroundResource(selectableItemBackground)
                             }
-                            isClickable = !isSelected
                         }
+                        isClickable = !isSelected
+                    }
 
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                        (from(parent.context).inflate(R.layout.df_menu_item, parent, false) as TextView).let(::ViewHolder)
+                    (from(parent.context).inflate(R.layout.df_menu_item, parent, false) as TextView).let(::ViewHolder)
 
                 override fun getItemCount() = categories.size
             }
@@ -122,16 +118,16 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
                 }
 
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                        when (viewType) {
-                            1 -> (from(parent.context).inflate(R.layout.df_menu_item, parent, false) as TextView).let(::ViewHolder)
-                            else -> (from(parent.context).inflate(R.layout.df_menu_item_header, parent, false) as TextView).let(::ViewHolder)
-                        }
+                    when (viewType) {
+                        1 -> (from(parent.context).inflate(R.layout.df_menu_item, parent, false) as TextView).let(::ViewHolder)
+                        else -> (from(parent.context).inflate(R.layout.df_menu_item_header, parent, false) as TextView).let(::ViewHolder)
+                    }
 
                 override fun getItemViewType(position: Int) =
-                        when (categoryItems[position]) {
-                            is FunctionItem -> 1
-                            else -> 0
-                        }
+                    when (categoryItems[position]) {
+                        is FunctionItem -> 1
+                        else -> 0
+                    }
 
                 override fun getItemCount() = categoryItems.size
             }
@@ -155,7 +151,7 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
             categoriesRecyclerView.adapter.notifyItemChanged(prevSelected)
         }
 
-        categoryItems = run generateCategoryItems@ {
+        categoryItems = run generateCategoryItems@{
             // if no groups, then just sort and return
             if (category.items.all { it.group.isNullOrBlank() }) {
                 return@generateCategoryItems category.items.sortedBy { it.name.toString() }
@@ -163,8 +159,8 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
 
             // create item group headers
             val groups = category.items.groupBy { it.group }
-                    .mapKeys { MenuHeaderItem(it.key ?: "Misc") }
-                    .toSortedMap(compareBy { it.title.toString() })
+                .mapKeys { MenuHeaderItem(it.key ?: "Misc") }
+                .toSortedMap(compareBy { it.title.toString() })
 
             ArrayList<Any>().apply {
                 groups.forEach {
@@ -177,7 +173,7 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     }
 
     private fun onCategoryItemClick(functionItem: FunctionItem) {
-        functionItem.callAndLog(logger = log)
+        functionItem.call()
         dismiss()
     }
 

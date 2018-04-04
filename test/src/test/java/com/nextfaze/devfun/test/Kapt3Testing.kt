@@ -15,7 +15,8 @@ import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.internal.AbstractActivityLifecycleCallbacks
 import com.nextfaze.devfun.internal.d
 import com.nextfaze.devfun.internal.logger
-import com.nextfaze.devfun.internal.t
+import com.nextfaze.devfun.invoke.parameterInstances
+import com.nextfaze.devfun.invoke.receiverInstance
 import com.nhaarman.mockito_kotlin.KStubbing
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
@@ -72,9 +73,9 @@ import kotlin.test.Asserter
 import kotlin.test.assertTrue
 import com.sun.tools.javac.util.List as JCList
 
-private const val KEEP_TEST_OUTPUTS = false
-private const val COPY_FAILED_TESTS = true
-private const val COPY_SUCCESSFUL_TESTS = false
+private val KEEP_TEST_OUTPUTS = "false".toBoolean()
+private val COPY_FAILED_TESTS = "true".toBoolean()
+private val COPY_SUCCESSFUL_TESTS = "false".toBoolean()
 
 private const val COMPILER_VERBOSE = false
 
@@ -222,7 +223,7 @@ private fun kaptOptions(
 data class TestContext(
     val testMethodName: String,
     val testFiles: List<KClass<*>>,
-    val testDirSuffix: String = testFiles.joinToString("_") { it.simpleName!! },
+    private val testDirSuffix: String = testFiles.joinToString("_") { it.simpleName!! },
     val testDir: File = Files.createTempDirectory("devfun_testing.$testMethodName.$testDirSuffix").toFile(),
     val applicationId: String = "tested.com.nextfaze.devfun",
     val buildType: String = TEST_BUILD_TYPE,
@@ -360,8 +361,8 @@ data class TestContext(
 
     fun testInvocations(log: Logger) {
         funDefs.forEach { fd ->
-            log.t { "Invoke $fd" }
-            val v = fd.invoke(devFun.instanceProviders, null).value
+            log.d { "Invoke $fd" }
+            val v = fd.invoke(fd.receiverInstance(devFun.instanceProviders), fd.parameterInstances(devFun.instanceProviders, null))
             val value = if (v is Pair<*, *>) v.first else v
             val testable = when (value) {
                 is List<*> -> value
@@ -377,8 +378,8 @@ data class TestContext(
 
         allItems.forEach { fd, items ->
             items.forEach {
-                log.t { "Invoke $it" }
-                val v = it.invoke(devFun.instanceProviders, it.args).value
+                log.d { "Invoke $it" }
+                val v = it.invoke(fd.receiverInstance(devFun.instanceProviders), fd.parameterInstances(devFun.instanceProviders, it.args))
                 val value = if (v is Pair<*, *>) v.second else v
                 val testable = when (value) {
                     is List<*> -> value
@@ -474,7 +475,7 @@ internal class Kapt3BuilderFactory : ClassBuilderFactory {
     override fun newClassBuilder(origin: JvmDeclarationOrigin): AbstractClassBuilder.Concrete {
         val classNode = ClassNode()
         compiledClasses += classNode
-        origins.put(classNode, origin)
+        origins[classNode] = origin
         return Kapt3ClassBuilder(classNode)
     }
 
@@ -490,7 +491,7 @@ internal class Kapt3BuilderFactory : ClassBuilderFactory {
 //            val flags = Flags.asFlagSet(access.toLong())
 //            log.i { "newField: origin=$origin, access=$access (flags=$flags), name=$name, desc=$desc, signature=$signature, value=$value" }
             val fieldNode = super.newField(origin, access, name, desc, signature, value) as FieldNode
-            origins.put(fieldNode, origin)
+            origins[fieldNode] = origin
             return fieldNode
         }
 
@@ -505,7 +506,7 @@ internal class Kapt3BuilderFactory : ClassBuilderFactory {
 //            val flags = Flags.asFlagSet(access.toLong())
 //            log.i { "newMethod: origin=$origin, access=$access (flags=$flags), name=$name, desc=$desc, signature=$signature, exceptions=$exceptions" }
             val methodNode = super.newMethod(origin, access, name, desc, signature, exceptions) as MethodNode
-            origins.put(methodNode, origin)
+            origins[methodNode] = origin
             return methodNode
         }
     }
@@ -559,10 +560,9 @@ private class WrappingUrlClassLoader(
         }
 
         val resources = super.findResources(name).toList()
-        if (resources.isNotEmpty()) {
-            return Collections.enumeration(resources)
-        } else {
-            return wrapped.getResources(name)
+        return when {
+            resources.isNotEmpty() -> Collections.enumeration(resources)
+            else -> wrapped.getResources(name)
         }
     }
 }

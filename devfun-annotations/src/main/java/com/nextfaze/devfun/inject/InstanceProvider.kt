@@ -14,13 +14,14 @@ import kotlin.reflect.KClass
  * This process is facilitated by various instance providers - most of which is described at the wiki entry on
  * [Dependency Injection](https://nextfaze.github.io/dev-fun/wiki/-dependency%20-injection.html).
  *
- * To quickly and simply provide a single object type, use [captureInstance], which creates a
+ * To quickly and simply provide a single object type, use [captureInstance] or [singletonInstance], which creates a
  * [CapturingInstanceProvider] that can be added to the root (composite) instance provider at `DevFun.instanceProviders`.
  * e.g.
  * ```kotlin
  * class SomeType : BaseType
  *
  * val provider = captureInstance { someObject.someType } // triggers for SomeType or BaseType
+ * val singleInstance = singletonInstance { SomeType() } // triggers for SomeType or BaseType (result of invocation is saved)
  * ```
  *
  * If you want to reduce the type range then specify its base type manually:
@@ -63,10 +64,13 @@ interface RequiringInstanceProvider : InstanceProvider {
  * Exception thrown when attempting to provide a type that was not found from any [InstanceProvider].
  */
 class ClassInstanceNotFoundException : Exception {
-    constructor(clazz: KClass<*>) : super("""Failed to get instance of $clazz.
-Are you using proguard? Add @Keep or adjust rules.
-Is it injected? Might need a custom instance provider.
-Don't care if a new instance is made when needed? Add @Constructable to the class.""")
+    constructor(clazz: KClass<*>) : super(
+        """
+            Failed to get instance of $clazz
+                Are you using proguard? Add @Keep or adjust rules.
+                Is it injected? Might need a custom instance provider.
+                Or add @Constructable to the class to allow DevFun to attempt instantiation and injection of it.""".trimIndent()
+    )
 
     constructor(msg: String) : super(msg)
 }
@@ -101,9 +105,33 @@ class CapturingInstanceProvider<out T : Any>(private val instanceClass: KClass<T
  * val provider = captureInstance<BaseType> { someObject.someType } // triggers only for BaseType
  * ```
  *
+ * @see singletonInstance
  * @see CapturingInstanceProvider
  */
 inline fun <reified T : Any> captureInstance(noinline instance: () -> T?): InstanceProvider = CapturingInstanceProvider(T::class, instance)
+
+/**
+ * Utility function to provide a single instance of some type.
+ *
+ * e.g.
+ * ```kotlin
+ * class SomeType : BaseType
+ *
+ * val provider = singletonInstance { SomeType() } // triggers for SomeType or BaseType (result of invocation is saved)
+ * ```
+ *
+ * If you want to reduce the type range then specify its base type manually:
+ * ```kotlin
+ * val provider = singletonInstance<BaseType> { SomeType() } // triggers only for BaseType (result of invocation is saved)
+ * ```
+ *
+ * @see captureInstance
+ * @see CapturingInstanceProvider
+ */
+inline fun <reified T : Any> singletonInstance(noinline instance: () -> T?): InstanceProvider {
+    val singleton by lazy { instance.invoke() }
+    return CapturingInstanceProvider(T::class, { singleton })
+}
 
 /**
  * Tag to allow classes to be instantiated when no other [InstanceProvider] was able to provide the class.
@@ -112,6 +140,8 @@ inline fun <reified T : Any> captureInstance(noinline instance: () -> T?): Insta
  *
  * In general this should not be used (you should be using your own dependency injection framework).
  * However for quick-n-dirty uses this can make life a bit easier (e.g. function transformers which are debug only anyway).
+ *
+ * Note: `inner` classes will work as long as the outer class can be resolved/injected..
  *
  * @see FunctionTransformer
  */

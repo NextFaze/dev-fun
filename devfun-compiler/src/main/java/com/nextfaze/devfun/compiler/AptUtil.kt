@@ -18,37 +18,39 @@ internal inline val Element.isInterface get() = this.kind.isInterface
 internal inline val TypeMirror.isPrimitive get() = this.kind.isPrimitive
 internal inline val TypeMirror.isClassPublic get() = ((this as DeclaredType).asElement() as TypeElement).isClassPublic
 
-internal inline val TypeElement.isClassPublic: Boolean get() {
-    var element = this
-    while (true) {
-        if (!element.isPublic) return false
-        element = element.enclosingElement as? TypeElement ?: return true // hit package
+internal inline val TypeElement.isClassPublic: Boolean
+    get() {
+        var element = this
+        while (true) {
+            if (!element.isPublic) return false
+            element = element.enclosingElement as? TypeElement ?: return true // hit package
+        }
     }
-}
 
 private inline val Element.typeElement get() = (asType() as? DeclaredType)?.asElement() as? TypeElement
 
-internal inline val Element.isKObject: Boolean get() {
-    val element = typeElement ?: return false
-    val typeString by lazy(NONE) { asType().toString() }
-    return (element.enclosedElements.any {
-        it.simpleName.toString() == "INSTANCE" &&
-                it.isPublic && it.isFinal && it.isStatic &&
-                it.asType().toString() == typeString
-    })
-}
+internal inline val Element.isKObject: Boolean
+    get() {
+        val element = typeElement ?: return false
+        val typeString by lazy(NONE) { asType().toString() }
+        return (element.enclosedElements.any {
+            it.simpleName.toString() == "INSTANCE" &&
+                    it.isPublic && it.isFinal && it.isStatic &&
+                    it.asType().toString() == typeString
+        })
+    }
 
 internal inline operator fun <reified T : Any> AnnotationMirror.get(callable: KCallable<T>) =
-        elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as T?
+    elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as T?
 
 internal inline operator fun <reified T : Any> AnnotationMirror.get(name: String) =
-        elementValues.filter { it.key.simpleName.toString() == name }.values.singleOrNull()?.value as T?
+    elementValues.filter { it.key.simpleName.toString() == name }.values.singleOrNull()?.value as T?
 
 internal inline operator fun <reified T : Annotation> AnnotationMirror.get(callable: KCallable<T>) =
-        elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as AnnotationMirror?
+    elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as AnnotationMirror?
 
 internal operator fun <K : KClass<*>> AnnotationMirror.get(callable: KCallable<K>) =
-        elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as DeclaredType?
+    elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as DeclaredType?
 
 internal fun Name.stripInternal() = toString().substringBefore("\$")
 internal fun CharSequence.escapeDollar() = this.toString().replace("\$", "\\\$")
@@ -63,15 +65,16 @@ private fun DeclaredType.toKType(): CharSequence {
     return JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(name.toString()))?.asSingleFqName()?.toString() ?: name
 }
 
-private val TypeMirror.isPublic: Boolean get() = when (this) {
-    is PrimitiveType -> true
-    is ArrayType -> this.componentType.isPublic
-    is TypeVariable -> this.upperBound.isPublic
-    is DeclaredType -> this.asElement().isPublic && this.typeArguments.all { it.isPublic } && this.asElement().enclosingElement.asType().isPublic
-    is WildcardType -> this.extendsBound?.isPublic ?: true && this.superBound?.isPublic ?: true
-    is NoType -> true
-    else -> TODO("TypeMirror.isPublic not implemented for this=$this (${this::class})")
-}
+private val TypeMirror.isPublic: Boolean
+    get() = when (this) {
+        is PrimitiveType -> true
+        is ArrayType -> this.componentType.isPublic
+        is TypeVariable -> this.upperBound.isPublic
+        is DeclaredType -> this.asElement().isPublic && this.typeArguments.all { it.isPublic } && this.asElement().enclosingElement.asType().isPublic
+        is WildcardType -> this.extendsBound?.isPublic ?: true && this.superBound?.isPublic ?: true
+        is NoType -> true
+        else -> TODO("TypeMirror.isPublic not implemented for this=$this (${this::class})")
+    }
 
 internal fun TypeMirror.toType(): CharSequence = when (this) {
     is PrimitiveType -> this.toKType().typeName.asString()
@@ -88,11 +91,13 @@ internal fun TypeMirror.toType(): CharSequence = when (this) {
     else -> TODO("TypeMirror.toType not implemented for this=$this (${this::class})")
 }
 
-internal fun TypeMirror.toClass(kotlinClass: Boolean = true,
-                                elements: Elements,
-                                suffix: String = if (kotlinClass) "" else ".java",
-                                castIfNotPublic: KClass<*>? = null,
-                                vararg types: KClass<*>): String = when {
+internal fun TypeMirror.toClass(
+    kotlinClass: Boolean = true,
+    elements: Elements,
+    suffix: String = if (kotlinClass) "" else ".java",
+    castIfNotPublic: KClass<*>? = null,
+    vararg types: KClass<*>
+): String = when {
     isPublic -> when {
         this.kind.isPrimitive || this is ArrayType && this.componentType.isPrimitive -> "${this.toType()}::class$suffix"
         else -> "kClass<${this.toType()}>()$suffix"
@@ -103,4 +108,12 @@ internal fun TypeMirror.toClass(kotlinClass: Boolean = true,
         "Class.forName(\"$binaryName\")${if (kotlinClass) ".kotlin" else ""}" +
                 if (castIfNotPublic != null) " as ${castIfNotPublic.qualifiedName}${if (types.isNotEmpty()) "<${types.joinToString(", ") { it.qualifiedName!! }}>" else ""}" else ""
     }
+}
+
+internal fun TypeMirror.toCast(): String = when {
+    isPublic -> when {
+        this.kind.isPrimitive || this is ArrayType && this.componentType.isPrimitive -> " as ${this.toType()}"
+        else -> " as ${this.toType()}"
+    }
+    else -> ""
 }

@@ -3,7 +3,9 @@ package com.nextfaze.devfun.compiler
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.core.CategoryDefinition
+import com.nextfaze.devfun.core.FunctionDefinition
+import com.nextfaze.devfun.core.FunctionTransformer
 import com.nextfaze.devfun.generated.DevFunGenerated
 import java.io.File
 import java.io.IOException
@@ -332,14 +334,12 @@ class DevFunProcessor : AbstractProcessor() {
         //
 
         fun generateFunctionDefinition(element: ExecutableElement) {
-            var usingInstanceProvider = false
-
-            fun Element.toInstance(forStaticUse: Boolean = false): String = when {
+            fun Element.toInstance(from: String, forStaticUse: Boolean = false): String = when {
                 this is TypeElement && (forStaticUse || isKObject) -> when {
                     isClassPublic -> this.toString()
                     else -> "${this.toClass()}.privateObjectInstance"
                 }
-                else -> "$INSTANCE_PROVIDER_NAME[${this.toClass()}]!!".also { usingInstanceProvider = true }
+                else -> "($from${this.asType().toCast()})"
             }
 
             val clazz = element.enclosingElement as TypeElement
@@ -410,25 +410,23 @@ class DevFunProcessor : AbstractProcessor() {
             val callFunDirectly = classIsPublic && element.typeParameters.all { it.bounds.all { it.isClassPublic } }
 
             // Arguments
-            val receiver = clazz.toInstance(element.isStatic)
+            val receiver = clazz.toInstance(RECEIVER_VAR_NAME, element.isStatic)
             val needReceiverArg = !callFunDirectly && !element.isStatic
-            var usingProvidedArgs = false
-            val args = run generateInvocationArgs@ {
+            val args = run generateInvocationArgs@{
                 val arguments = ArrayList<String>()
                 if (needReceiverArg) {
                     arguments += receiver
                 }
 
                 element.parameters.forEachIndexed { index, arg ->
-                    usingProvidedArgs = true
-                    arguments += "$PROVIDED_ARGS_NAME.getNonNullOrElse($index) { ${arg.toInstance()} }"
+                    arguments += arg.toInstance("$ARGS_VAR_NAME[$index]")
                 }
 
                 when {
                     arguments.isNotEmpty() -> arguments.joiner(
-                        separator = ",\n#|                    ",
-                        prefix = "\n#|                    ",
-                        postfix = "\n#|            "
+                        separator = ",\n#|            ",
+                        prefix = "\n#|            ",
+                        postfix = "\n#|        "
                     )
                     !callFunDirectly && element.isStatic -> "null"
                     else -> ""
@@ -436,7 +434,7 @@ class DevFunProcessor : AbstractProcessor() {
             }
 
             // Method reference
-            val methodRef = run getMethodReference@ {
+            val methodRef = run getMethodReference@{
                 val funName = element.simpleName.escapeDollar()
                 val setAccessible = if (!classIsPublic || !element.isPublic) ".apply { isAccessible = true }" else ""
                 val methodArgTypes = element.parameters.joiner(prefix = ", ") { it.toClass(false) }
@@ -447,7 +445,7 @@ class DevFunProcessor : AbstractProcessor() {
             }
 
             // Call invocation
-            val invocation = run generateInvocation@ {
+            val invocation = run generateInvocation@{
                 when {
                     callFunDirectly -> {
                         val typeParams = if (element.typeParameters.isNotEmpty()) {
@@ -461,9 +459,9 @@ class DevFunProcessor : AbstractProcessor() {
                 }
             }
 
-            val instanceProviderArg = if (!usingInstanceProvider) "_" else INSTANCE_PROVIDER_NAME
-            val providedArg = if (!usingProvidedArgs) "_" else PROVIDED_ARGS_NAME
-            val invocationArgs = "$instanceProviderArg, $providedArg"
+            val receiverVar = if (!element.isStatic && !clazz.isKObject) RECEIVER_VAR_NAME else "_"
+            val argsVar = if (element.parameters.isNotEmpty()) ARGS_VAR_NAME else "_"
+            val invocationArgs = "$receiverVar, $argsVar"
 
             // Debug info
             val functionDefinition = "${element.enclosingElement}::$element"
@@ -478,8 +476,11 @@ class DevFunProcessor : AbstractProcessor() {
                 #|        // element modifiers = ${element.modifiers.joinToString()}
                 #|        // enclosing element modifiers = ${element.enclosingElement.modifiers.joinToString()}
                 #|        // enclosing element as type element = ${(element.enclosingElement.asType() as? DeclaredType)?.asElement() as? TypeElement}
-                #|        // arg modifiers = ${element.parameters.joiner {
+                #|        // param type modifiers: ${element.parameters.joiner {
                     "${it.simpleName}=${(it.asType() as? DeclaredType)?.asElement()?.modifiers?.joinToString(",")}"
+                }}
+                #|        // params: ${element.parameters.joiner {
+                    "${it.simpleName}=@[${it.annotationMirrors}] ${it.asType()}"
                 }}
                 #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, callFunDirectly=$callFunDirectly"""
             }
@@ -489,10 +490,8 @@ class DevFunProcessor : AbstractProcessor() {
                     """$debugAnnotationInfo
                      #|object : AbstractFunctionDefinition() {
                      #|    override val ${FunctionDefinition::method.name} = $methodRef$name$category$requiresApi$transformer
-                     #|    override val ${FunctionDefinition::invoke.name}: $functionInvokeName = { $invocationArgs ->$debugElementInfo
-                     #|        invokeFunction {
-                     #|            $invocation
-                     #|        }
+                     #|    override val ${FunctionDefinition::invoke.name}: $functionInvokeName = { $invocationArgs -> $debugElementInfo
+                     #|        $invocation
                      #|    }
                      #|}"""
         }
@@ -504,12 +503,10 @@ class DevFunProcessor : AbstractProcessor() {
 
     private fun generateKSource(): String {
         val imports = mutableSetOf<String?>().apply {
-            this += DebugException::class.qualifiedName
             this += CategoryDefinition::class.qualifiedName
             this += DevFunGenerated::class.qualifiedName
             this += FunctionDefinition::class.qualifiedName
             this += functionInvokeQualified
-            this += InvokeResult::class.qualifiedName
             this += Method::class.qualifiedName
             this += KClass::class.qualifiedName
 
@@ -533,31 +530,18 @@ package ${ctx.pkg}
 
 ${imports.joinToString("\n") { "import $it" }}
 
-private data class SimpleInvokeResult(override val value: Any?, override val exception: Throwable?) : InvokeResult
-
-private inline fun invokeFunction(function: () -> Any?): InvokeResult {
-    try {
-        return SimpleInvokeResult(function(), null)
-    } catch (de: DebugException) {
-        throw de
-    } catch (t: Throwable) {
-        return SimpleInvokeResult(null, t)
-    }
-}
-
-private data class SimpleCategoryDefinition(override val clazz: KClass<*>? = null,
-                                            override val name: String? = null,
-                                            override val group: String? = null,
-                                            override val order: Int? = null) : CategoryDefinition
+private data class SimpleCategoryDefinition(
+    override val clazz: KClass<*>? = null,
+    override val name: String? = null,
+    override val group: String? = null,
+    override val order: Int? = null
+) : CategoryDefinition
 
 private abstract class AbstractFunctionDefinition : FunctionDefinition {
     override fun equals(other: Any?) = this === other || other is FunctionDefinition && method == other.method
     override fun hashCode() = method.hashCode()
     override fun toString() = "FunctionDefinition(${'$'}method)"
 }
-
-private inline fun <reified T : Any> List<Any?>?.getNonNullOrElse(i: Int, defaultValue: (Int) -> T) =
-        this?.getOrElse(i, defaultValue).takeUnless { it is Unit } as? T ?: defaultValue(i)
 
 private inline fun <reified T : Any> kClass(): KClass<T> = T::class
 
@@ -566,10 +550,10 @@ private inline val <T : Any> KClass<T>.privateObjectInstance
 
 class $DEFINITIONS_CLASS_NAME : ${DevFunGenerated::class.simpleName} {
     override val ${DevFunGenerated::categoryDefinitions.name} = listOf<${CategoryDefinition::class.simpleName}>(
-${categoryDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("            ", "#|")}
+${categoryDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )
     override val ${DevFunGenerated::functionDefinitions.name} = listOf<${FunctionDefinition::class.simpleName}>(
-${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("            ", "#|")}
+${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )
 }
 """
@@ -598,6 +582,7 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
     private fun error(message: String, element: Element? = null, annotationMirror: AnnotationMirror? = null) =
         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, message, element, annotationMirror)
 
+    @Suppress("unused")
     private fun warn(message: String, element: Element? = null, annotationMirror: AnnotationMirror? = null) =
         processingEnv.messager.printMessage(Diagnostic.Kind.MANDATORY_WARNING, message, element, annotationMirror)
 
@@ -605,5 +590,5 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         runIf(condition) { processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, body()) }
 }
 
-private const val INSTANCE_PROVIDER_NAME = "instanceProvider"
-private const val PROVIDED_ARGS_NAME = "providedArgs"
+private const val RECEIVER_VAR_NAME = "receiver"
+private const val ARGS_VAR_NAME = "args"

@@ -2,7 +2,11 @@ package com.nextfaze.devfun.test.tests
 
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.d
+import com.nextfaze.devfun.internal.logger
+import com.nextfaze.devfun.internal.t
+import com.nextfaze.devfun.invoke.parameterInstances
+import com.nextfaze.devfun.invoke.receiverInstance
 import com.nextfaze.devfun.test.*
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
@@ -29,21 +33,23 @@ class TestKaptAndCompile : AbstractKotlinKapt3Tester() {
     private val log = logger()
 
     @DataProvider(name = "testKaptAndCompileData")
-    fun testKaptAndCompileData(testMethod: Method) = singleFileTests(testMethod,
-            SimpleFunctionsInClasses::class,
-            SimpleFunctionsInObjects::class,
-            SimpleJvmStaticFunctionsInClasses::class,
-            SimpleJvmStaticFunctionsInObjects::class,
-            SimpleFunctionsInNestedClasses::class,
-            SimpleFunctionsInNestedObjects::class,
-            SimpleJvmStaticFunctionsInNestedClasses::class,
-            SimpleJvmStaticFunctionsInNestedObjects::class,
-            FunctionsWithPrimitiveArgs::class,
-            FunctionsWithArgs::class,
-            SimpleTypedFunctions::class,
-            FunctionsWithComplexTypes::class)
+    fun testKaptAndCompileData(testMethod: Method) = singleFileTests(
+        testMethod,
+        SimpleFunctionsInClasses::class,
+        SimpleFunctionsInObjects::class,
+        SimpleJvmStaticFunctionsInClasses::class,
+        SimpleJvmStaticFunctionsInObjects::class,
+        SimpleFunctionsInNestedClasses::class,
+        SimpleFunctionsInNestedObjects::class,
+        SimpleJvmStaticFunctionsInNestedClasses::class,
+        SimpleJvmStaticFunctionsInNestedObjects::class,
+        FunctionsWithPrimitiveArgs::class,
+        FunctionsWithArgs::class,
+        SimpleTypedFunctions::class,
+        FunctionsWithComplexTypes::class
+    )
 
-    @Test(dataProvider = "testKaptAndCompileData", groups = arrayOf("kapt", "compile", "supported"))
+    @Test(dataProvider = "testKaptAndCompileData", groups = ["kapt", "compile", "supported"])
     fun testKaptAndCompile(test: TestContext) {
         val generated = ServiceLoader.load(DevFunGenerated::class.java).single()
 
@@ -76,17 +82,19 @@ class TestKaptAndCompile : AbstractKotlinKapt3Tester() {
         // Check that we can invoke all the functions
         generated.functionDefinitions.forEach {
             log.t { "Invoke $it" }
-            it.invoke(instanceProviders, null)
+            it.invoke(it.receiverInstance(instanceProviders), it.parameterInstances(instanceProviders, null))
         }
     }
 
     @DataProvider(name = "testKaptAndCompileUnsupportedData")
-    fun testKaptAndCompileUnsupportedData(testMethod: Method) = singleFileTests(testMethod,
-            SimpleInterfaces::class,
-            InterfacesWithDefaults::class,
-            autoKaptAndCompile = false)
+    fun testKaptAndCompileUnsupportedData(testMethod: Method) = singleFileTests(
+        testMethod,
+        SimpleInterfaces::class,
+        InterfacesWithDefaults::class,
+        autoKaptAndCompile = false
+    )
 
-    @Test(dataProvider = "testKaptAndCompileUnsupportedData", groups = arrayOf("kapt", "unsupported"))
+    @Test(dataProvider = "testKaptAndCompileUnsupportedData", groups = ["kapt", "unsupported"])
     fun testKaptAndCompileUnsupported(test: TestContext) {
         assertFails("Test should be failing for unsupported features for $test") {
             test.runKapt(compileClasspath, processors)
