@@ -21,11 +21,12 @@ import com.nextfaze.devfun.internal.unregister
 import com.nextfaze.devfun.menu.DeveloperMenu
 import com.nextfaze.devfun.menu.MenuController
 import com.nextfaze.devfun.menu.R
-import java.util.*
+import java.util.Arrays
 
 internal val GRAVE_KEY_SEQUENCE = KeySequence.Definition(
     keyCodes = intArrayOf(KeyEvent.KEYCODE_GRAVE),
-    description = R.string.df_menu_grave_sequence
+    description = R.string.df_menu_grave_sequence,
+    consumeEvent = true
 )
 internal val VOLUME_KEY_SEQUENCE = KeySequence.Definition(
     keyCodes = intArrayOf(
@@ -34,7 +35,8 @@ internal val VOLUME_KEY_SEQUENCE = KeySequence.Definition(
         KeyEvent.KEYCODE_VOLUME_UP,
         KeyEvent.KEYCODE_VOLUME_DOWN
     ),
-    description = R.string.df_menu_volume_sequence
+    description = R.string.df_menu_volume_sequence,
+    consumeEvent = false
 )
 
 /**
@@ -103,23 +105,24 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
         activity.window?.wrapCallbackIfNecessary()
     }
 
-    private fun onKeyEvent(action: Int, code: Int) {
-        if (action != KeyEvent.ACTION_UP) return
+    private fun onKeyEvent(action: Int, code: Int): Boolean {
+        if (action != KeyEvent.ACTION_DOWN) return false
 
-        if (sequenceStates.any { it.sequenceComplete(code) }) {
-            resetAllSequences()
+        val matched = sequenceStates.firstOrNull { it.sequenceComplete(code) } ?: return false
+        resetAllSequences()
 
-            // we post to next event loop to stop InputEventReceiver complaining about missing/destroyed object
-            handler.post {
-                (activityProvider() as? FragmentActivity)?.takeIf { !it.isFinishing }?.let {
-                    if (developerMenu?.isVisible == true) {
-                        developerMenu?.hide(it)
-                    } else {
-                        developerMenu?.show(it)
-                    }
+        // we post to next event loop to stop InputEventReceiver complaining about missing/destroyed object
+        handler.post {
+            (activityProvider() as? FragmentActivity)?.takeIf { !it.isFinishing }?.let {
+                if (developerMenu?.isVisible == true) {
+                    developerMenu?.hide(it)
+                } else {
+                    developerMenu?.show(it)
                 }
             }
         }
+
+        return matched.consumeEvent
     }
 
     override fun onShown() = resetAllSequences()
@@ -134,13 +137,14 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
     @SuppressLint("RestrictedApi")
     private inner class WindowCallbackWrapper(callback: Window.Callback) : android.support.v7.view.WindowCallbackWrapper(callback) {
         @SuppressLint("RestrictedApi")
-        override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-            onKeyEvent(event.action, event.keyCode)
-            return super.dispatchKeyEvent(event)
-        }
+        override fun dispatchKeyEvent(event: KeyEvent): Boolean =
+            when {
+                onKeyEvent(event.action, event.keyCode) -> true
+                else -> super.dispatchKeyEvent(event)
+            }
     }
 
-    data class Definition(private val keyCodes: IntArray, @StringRes val description: Int) {
+    data class Definition(private val keyCodes: IntArray, @StringRes val description: Int, val consumeEvent: Boolean) {
         private var currIndex: Int = 0
 
         fun sequenceComplete(code: Int): Boolean {
