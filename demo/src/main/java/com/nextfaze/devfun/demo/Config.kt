@@ -5,6 +5,7 @@ import android.content.Context.MODE_PRIVATE
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.util.KxSharedPreferences
 import com.nextfaze.devfun.demo.util.toOptional
+import com.nextfaze.devfun.invoke.view.types.Ranged
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,7 +47,7 @@ class Config @Inject constructor(context: Context) {
     }
 
     @DeveloperFunction
-    private fun setSplashScreenDuration(durationMillis: Long) {
-        splashDuration = durationMillis
+    private fun setSplashScreenDuration(@Ranged(to = 10.0) durationSeconds: Double) {
+        splashDuration = (durationSeconds * 1000).toLong()
     }
 }

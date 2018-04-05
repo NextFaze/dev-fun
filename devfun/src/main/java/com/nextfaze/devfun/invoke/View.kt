@@ -7,6 +7,7 @@ import com.nextfaze.devfun.internal.logger
 import com.nextfaze.devfun.internal.t
 import com.nextfaze.devfun.invoke.view.types.BooleanParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.EnumParameterViewFactoryProvider
+import com.nextfaze.devfun.invoke.view.types.RangedNumberParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.StringOrNumberParameterViewFactoryProvider
 import com.nextfaze.devfun.view.ViewFactory
 import kotlin.reflect.KAnnotatedElement
@@ -89,6 +90,7 @@ internal class DefaultCompositeParameterViewFactoryProvider : CompositeParameter
         this += EnumParameterViewFactoryProvider()
         this += BooleanParameterViewFactoryProvider()
         this += StringOrNumberParameterViewFactoryProvider()
+        this += RangedNumberParameterViewFactoryProvider()
     }
 
     override fun get(parameter: Parameter): ViewFactory<View>? {
