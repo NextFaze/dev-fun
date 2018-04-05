@@ -68,7 +68,7 @@ class TestKaptAndCompile : AbstractKotlinKapt3Tester() {
         assertTrue("Expected $catCount category definitions but got ${generated.categoryDefinitions.size}") { generated.categoryDefinitions.size == catCount }
         assertTrue("Expected $funCount function definitions but got ${generated.functionDefinitions.size}") { generated.functionDefinitions.size == funCount }
 
-        val instanceProviders = CompositeInstanceProvider().apply {
+        val instanceProviders = createDefaultCompositeInstanceProvider().apply {
             this += ConstructingInstanceProvider(this, false)
             this += KObjectInstanceProvider()
             this += captureInstance<InstanceProvider> { this }

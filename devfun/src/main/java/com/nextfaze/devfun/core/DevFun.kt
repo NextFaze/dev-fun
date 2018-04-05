@@ -120,13 +120,14 @@ class DevFun {
     private val moduleLoader = ModuleLoader(this)
     private val definitionsLoader = DefinitionsLoader()
     private val initializationCallbacks = mutableListOf<OnInitialized>()
+    private val rootInstanceProvider = DefaultCompositeInstanceProvider()
 
     private var _application: Application? = null
 
     /**
      * Composite list of all [InstanceProvider]s.
      *
-     * Add instance providers using [CompositeInstanceProvider.plusAssign] `devFun.instanceProviders += MyInstanceProvider()`
+     * Add instance providers using [Composite.plusAssign] `devFun.instanceProviders += MyInstanceProvider()`
      *
      * Providers are checked in reverse order.
      * i.e. Most recently added are checked first.
@@ -134,7 +135,7 @@ class DevFun {
      * @see get
      * @see instanceOf
      */
-    val instanceProviders = CompositeInstanceProvider()
+    val instanceProviders: CompositeInstanceProvider = rootInstanceProvider
 
     /**
      * Composite list of all [ViewFactoryProvider]s.
@@ -143,6 +144,9 @@ class DevFun {
      * and/or allowing user defined implementations).
      *
      * Add view factory providers using [Composite.plusAssign]; `devFun.viewFactories += MyViewFactoryProvider()`.
+     *
+     * Providers are checked in reverse order.
+     * i.e. Most recently added are checked first.
      *
      * @see ViewFactory
      */
@@ -159,6 +163,9 @@ class DevFun {
      * be put into a lib at some point)_
      *
      * Add parameter view factory providers using [Composite.plusAssign]; `devFun.parameterViewFactories += MyParameterViewFactoryProvider()`.
+     *
+     * Providers are checked in reverse order.
+     * i.e. Most recently added are checked first.
      *
      * @see ViewFactory
      */
@@ -195,8 +202,8 @@ class DevFun {
         _application = context.applicationContext as Application
 
         activityTracker.init(_application as Application)
-        instanceProviders.apply {
-            this += ConstructingInstanceProvider(instanceProviders)
+        rootInstanceProvider.apply {
+            this += ConstructingInstanceProvider(this)
             this += KObjectInstanceProvider()
             this += captureInstance { this@DevFun }
             this += captureInstance<InstanceProvider> { this }
@@ -255,7 +262,7 @@ class DevFun {
      */
     fun dispose() { // todo test me
         moduleLoader.dispose()
-        instanceProviders.clear()
+        rootInstanceProvider.clear()
         activityTracker.dispose(context)
         _devFun = null
         _application = null

@@ -11,6 +11,8 @@ import android.support.v4.app.FragmentManager
 import android.view.View
 import android.view.ViewGroup
 import com.nextfaze.devfun.core.ActivityProvider
+import com.nextfaze.devfun.core.Composite
+import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.internal.logger
 import com.nextfaze.devfun.internal.t
 import java.util.ArrayDeque
@@ -25,18 +27,25 @@ private fun <T : Any> KClass<*>.isSubclassOf(clazz: KClass<T>) = clazz.java.isAs
  *
  * Checks in reverse order of added.
  * i.e. most recently added is checked first.
+ */
+interface CompositeInstanceProvider : RequiringInstanceProvider, Composite<InstanceProvider>
+
+/**
+ * Creates an instance provider that delegates to other providers.
+ *
+ * Checks in reverse order of added.
+ * i.e. most recently added is checked first
  *
  * @internal Visible for testing - use at your own risk.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class CompositeInstanceProvider : RequiringInstanceProvider {
-    private val log = logger()
-    private val instanceProviders = ArrayDeque<InstanceProvider>()
+fun createDefaultCompositeInstanceProvider(): CompositeInstanceProvider = DefaultCompositeInstanceProvider()
 
-    internal fun clear() = instanceProviders.clear()
+internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Composited<InstanceProvider>() {
+    private val log = logger()
 
     override fun <T : Any> get(clazz: KClass<out T>): T {
-        instanceProviders.descendingIterator().forEach {
+        iterator().forEach {
             log.t { "Try-get instanceOf $clazz from $it" }
             it[clazz]?.let {
                 log.t { "> Got $it" }
@@ -44,20 +53,12 @@ class CompositeInstanceProvider : RequiringInstanceProvider {
             }
         }
         if (clazz.isSubclassOf<InstanceProvider>()) {
-            instanceProviders.firstOrNull { it::class.isSubclassOf(clazz) }?.let {
+            iterator().asSequence().firstOrNull { it::class.isSubclassOf(clazz) }?.let {
                 @Suppress("UNCHECKED_CAST")
                 return it as T
             }
         }
         throw ClassInstanceNotFoundException(clazz)
-    }
-
-    operator fun plusAssign(instanceProvider: InstanceProvider) {
-        instanceProviders += instanceProvider
-    }
-
-    operator fun minusAssign(instanceProvider: InstanceProvider) {
-        instanceProviders -= instanceProvider
     }
 }
 
@@ -93,8 +94,8 @@ class KObjectInstanceProvider : InstanceProvider {
  * @internal Visible for testing - use at your own risk.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = null,
-                                   var requireConstructable: Boolean = true) : InstanceProvider {
+class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = null, var requireConstructable: Boolean = true) :
+    InstanceProvider {
     private val log = logger()
     private val root = rootInstanceProvider ?: this
 
@@ -114,7 +115,9 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
             throw ClassInstanceNotFoundException("Could not get instance of @Constructable $clazz; No constructors found (is it an interface?)")
         }
         if (constructors.size != 1) {
-            throw ClassInstanceNotFoundException("Could not get instance of @Constructable $clazz: Multiple constructors found; \n${constructors.joinToString("\n")}")
+            throw ClassInstanceNotFoundException(
+                "Could not get instance of @Constructable $clazz: Multiple constructors found; \n${constructors.joinToString("\n")}"
+            )
         }
         log.t { "> Constructing new instance of $clazz" }
         val ctor = constructors.first().apply { isAccessible = true }
@@ -123,8 +126,7 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
     }
 }
 
-internal class AndroidInstanceProvider(context: Context,
-                                       private val activityProvider: ActivityProvider) : InstanceProvider {
+internal class AndroidInstanceProvider(context: Context, private val activityProvider: ActivityProvider) : InstanceProvider {
     private val applicationContext = context.applicationContext
 
     @Suppress("UNCHECKED_CAST")
@@ -176,7 +178,8 @@ internal class AndroidInstanceProvider(context: Context,
 // Fragment Traversal
 //
 
-private val peekChildFragmentManagerMethod = Fragment::class.java.getDeclaredMethod("peekChildFragmentManager").apply { isAccessible = true }
+private val peekChildFragmentManagerMethod =
+    Fragment::class.java.getDeclaredMethod("peekChildFragmentManager").apply { isAccessible = true }
 private val Fragment.hasChildFragmentManager get() = peekChildFragmentManagerMethod.invoke(this) != null
 
 private fun FragmentManager.iterateChildren(): Iterator<Fragment?> {
@@ -219,7 +222,7 @@ private class EmptyIterator<out E> : Iterator<E> {
 // View Traversal
 //
 
-private inline fun ViewGroup.forEachChild(operation: (View) -> Unit): Unit {
+private inline fun ViewGroup.forEachChild(operation: (View) -> Unit) {
     for (element in iterateChildren()) operation(element)
 }
 
