@@ -48,36 +48,46 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
     // Get from Provider
     log.t { "Trying to get $clazz from $component providers..." }
     component::class.java.declaredFields
-            .firstOrNull {
-                it.type == Provider::class.java && (
-                        (it.genericType as? ParameterizedType)?.let { it.actualTypeArguments[0] == clazz.java } ?: false ||
-                                it.name.toLowerCase() == "${clazz.java.simpleName}Provider".toLowerCase() // raw types
-                        )
-            }
-            ?.apply { isAccessible = true }
-            ?.get(component)
-            ?.let {
-                @Suppress("UNCHECKED_CAST")
-                return (it as Provider<T>).get()
-            }
+        .firstOrNull {
+            it.type == Provider::class.java && (
+                    (it.genericType as? ParameterizedType)?.let { it.actualTypeArguments[0] == clazz.java } ?: false ||
+                            it.name.toLowerCase() == "${clazz.java.simpleName}Provider".toLowerCase() // raw types
+                    )
+        }
+        ?.apply { isAccessible = true }
+        ?.get(component)
+        ?.also {
+            @Suppress("UNCHECKED_CAST")
+            return (it as Provider<T>).get()
+        }
+
+    // Get from Component getter (@Inject on constructor, but not @Singleton types)
+    log.t { "Trying to get $clazz from $component getters..." }
+    component::class.java.declaredMethods
+        .firstOrNull { it.name.startsWith("get") && it.returnType == clazz.java }
+        ?.apply { isAccessible = true }
+        ?.also {
+            @Suppress("UNCHECKED_CAST")
+            return it.invoke(component) as T
+        }
 
     // Get from Module @Provides
     log.t { "Trying to get $clazz from $component modules..." }
     component::class.java.declaredFields
-            .filter { it.type.hasAnnotation<Module>() }
-            .forEach { f ->
-                log.t { "Checking module ${f.type.name}..." }
-                f.type.declaredMethods
-                        .firstOrNull {
-                            log.t { "it.returnType=${it.returnType} == clazz> ${it.returnType == clazz.java}, annotated=${it.hasAnnotation<Provides>()}" }
-                            it.returnType == clazz.java && it.hasAnnotation<Provides>()
-                        }
-                        ?.let {
-                            f.isAccessible = true
-                            @Suppress("UNCHECKED_CAST")
-                            return it.invoke(f.get(component)) as T
-                        }
-            }
+        .filter { it.type.hasAnnotation<Module>() }
+        .forEach { f ->
+            log.t { "Checking module ${f.type.name}..." }
+            f.type.declaredMethods
+                .firstOrNull {
+                    log.t { "it.returnType=${it.returnType} == clazz> ${it.returnType == clazz.java}, annotated=${it.hasAnnotation<Provides>()}" }
+                    it.returnType == clazz.java && it.hasAnnotation<Provides>()
+                }
+                ?.let {
+                    f.isAccessible = true
+                    @Suppress("UNCHECKED_CAST")
+                    return it.invoke(f.get(component)) as T
+                }
+        }
 
     // Not found in this component
     return null
@@ -182,8 +192,7 @@ class InjectFromDagger2 : AbstractDevFunModule() {
     }
 }
 
-private class Dagger2InstanceProvider(private val app: Application,
-                                      private val activityProvider: ActivityProvider) : InstanceProvider {
+private class Dagger2InstanceProvider(private val app: Application, private val activityProvider: ActivityProvider) : InstanceProvider {
     private val log = logger()
     private var applicationComponents: List<Any>? = null
 
@@ -242,32 +251,31 @@ private fun tryGetComponents(instance: Any, required: Boolean): List<Any> {
     var objClass: Class<*> = instance::class.java
     while (objClass != ANY_CLASS) {
         components.addAll(
-                objClass.declaredFields.filter {
-                    it.type.hasAnnotation<Component>() || it.type.interfaces.any { it.hasAnnotation<Component>() }
-                }.map {
-                    it.isAccessible = true
-                    it.get(instance)
-                }.filterNotNull()
+            objClass.declaredFields.filter {
+                it.type.hasAnnotation<Component>() || it.type.interfaces.any { it.hasAnnotation<Component>() }
+            }.mapNotNull {
+                it.isAccessible = true
+                it.get(instance)
+            }
         )
 
         components.addAll(
-                objClass.declaredFields.filter {
-                    it.name.endsWith("\$delegate") && Lazy::class.java.isAssignableFrom(it.type)
-                }.map {
-                    it.isAccessible = true
-                    val delegatedField = it.get(instance) as Lazy<*>
-                    if (delegatedField.isInitialized()) {
-                        val value = delegatedField.value
-                        if (value != null) {
-                            if (value.javaClass.hasAnnotation<Component>() || value.javaClass.interfaces.any { it.hasAnnotation<Component>() }) {
-                                return@map value
-                            }
+            objClass.declaredFields.filter {
+                it.name.endsWith("\$delegate") && Lazy::class.java.isAssignableFrom(it.type)
+            }.map {
+                it.isAccessible = true
+                val delegatedField = it.get(instance) as Lazy<*>
+                if (delegatedField.isInitialized()) {
+                    delegatedField.value?.run {
+                        if (javaClass.hasAnnotation<Component>() || javaClass.interfaces.any { it.hasAnnotation<Component>() }) {
+                            return@map this
                         }
-                    } else {
-                        foundLazy = true
                     }
-                    return@map null
-                }.filterNotNull()
+                } else {
+                    foundLazy = true
+                }
+                return@map null
+            }.filterNotNull()
         )
 
         if (components.isNotEmpty()) {
