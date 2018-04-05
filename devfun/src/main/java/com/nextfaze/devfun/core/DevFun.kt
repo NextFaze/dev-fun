@@ -19,8 +19,11 @@ import com.nextfaze.devfun.core.loader.ModuleLoader
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
 import com.nextfaze.devfun.internal.*
-import com.nextfaze.devfun.invoke.DefaultInvoker
-import com.nextfaze.devfun.invoke.Invoker
+import com.nextfaze.devfun.invoke.*
+import com.nextfaze.devfun.view.CompositeViewFactoryProvider
+import com.nextfaze.devfun.view.DefaultCompositeViewFactory
+import com.nextfaze.devfun.view.ViewFactory
+import com.nextfaze.devfun.view.ViewFactoryProvider
 import kotlin.reflect.KClass
 
 /**
@@ -118,6 +121,8 @@ class DevFun {
     private val definitionsLoader = DefinitionsLoader()
     private val initializationCallbacks = mutableListOf<OnInitialized>()
 
+    private var _application: Application? = null
+
     /**
      * Composite list of all [InstanceProvider]s.
      *
@@ -131,7 +136,33 @@ class DevFun {
      */
     val instanceProviders = CompositeInstanceProvider()
 
-    private var _application: Application? = null
+    /**
+     * Composite list of all [ViewFactoryProvider]s.
+     *
+     * Various DevFun modules will use these factories for rendering custom views (by providing their own initially
+     * and/or allowing user defined implementations).
+     *
+     * Add view factory providers using [Composite.plusAssign]; `devFun.viewFactories += MyViewFactoryProvider()`.
+     *
+     * @see ViewFactory
+     */
+    val viewFactories: CompositeViewFactoryProvider by lazy { get<CompositeViewFactoryProvider>() }
+
+    /**
+     * Composite list of all [ParameterViewFactoryProvider]s.
+     *
+     * If DevFun is unable to inject all parameters of a function, it will attempt to generate a UI that allows the user
+     * to input the missing parameter values.
+     *
+     * By default only simple types can be rendered (int, string, bool, etc). For an example of a custom type, see
+     * the DevMenu `Cog.kt` file which renders a color picker for an annotated Int parameter. _(this factory will likely
+     * be put into a lib at some point)_
+     *
+     * Add parameter view factory providers using [Composite.plusAssign]; `devFun.parameterViewFactories += MyParameterViewFactoryProvider()`.
+     *
+     * @see ViewFactory
+     */
+    val parameterViewFactories: CompositeParameterViewFactoryProvider by lazy { get<CompositeParameterViewFactoryProvider>() }
 
     /**
      * Context used to initialize DevFun.
@@ -179,6 +210,14 @@ class DevFun {
 
             // Invocation
             this += singletonInstance<Invoker> { get<DefaultInvoker>() }
+
+            // View Factories
+            this += singletonInstance<CompositeViewFactoryProvider> { DefaultCompositeViewFactory() }
+            this += singletonInstance<ViewFactoryProvider> { get<CompositeViewFactoryProvider>() }
+
+            // Parameter View Factories
+            this += singletonInstance<CompositeParameterViewFactoryProvider> { DefaultCompositeParameterViewFactoryProvider() }
+            this += singletonInstance<ParameterViewFactoryProvider> { get<CompositeParameterViewFactoryProvider>() }
         }
 
         moduleLoader.init(modules.toList(), useServiceLoader)

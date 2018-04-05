@@ -31,6 +31,7 @@ interface RetainedInjector : FragmentInjector, DialogFragmentInjector
 //
 
 interface ActivityInjector {
+    fun inject(splashActivity: SplashActivity)
     fun inject(mainActivity: MainActivity)
 }
 

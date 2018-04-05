@@ -78,8 +78,10 @@ internal class DefaultInvoker(private val devFun: DevFun) : Invoker {
                 return SimpleInvokeResult(exception = t)
             }
         } else {
-            return SimpleInvokeResult(exception = RuntimeException("Could not inject all instances!"))
+            InvokingDialogFragment.show(devFun.get(), item)
         }
+
+        return null
     }
 }
 

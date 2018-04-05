@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="DfDevFunParameterViewHint">
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:layout_marginStart" tools:ignore="NewApi">4dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Design.Hint</item>
+        <item name="android:textColor">?attr/colorControlActivated</item>
+    </style>
+
+</resources>

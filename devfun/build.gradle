@@ -31,6 +31,8 @@ dependencies {
 
     // Support libs
     implementation Config.supportAppCompat
+    implementation Config.supportDesign
+    implementation Config.supportConstraintLayout
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt Config.autoService

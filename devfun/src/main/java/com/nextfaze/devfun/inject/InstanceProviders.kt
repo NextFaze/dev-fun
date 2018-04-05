@@ -11,7 +11,8 @@ import android.support.v4.app.FragmentManager
 import android.view.View
 import android.view.ViewGroup
 import com.nextfaze.devfun.core.ActivityProvider
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.logger
+import com.nextfaze.devfun.internal.t
 import java.util.ArrayDeque
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility
@@ -23,7 +24,7 @@ private fun <T : Any> KClass<*>.isSubclassOf(clazz: KClass<T>) = clazz.java.isAs
  * Instance provider that delegates to other providers.
  *
  * Checks in reverse order of added.
- * i.e. most recently added is checked first
+ * i.e. most recently added is checked first.
  *
  * @internal Visible for testing - use at your own risk.
  */

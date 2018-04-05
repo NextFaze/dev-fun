@@ -32,6 +32,7 @@ class KxSharedPreferences(val preferences: SharedPreferences) {
 
     operator fun get(key: String, default: String): KxPreference<String> = KxStringPref(preferences, key, default, keyChanges)
     operator fun get(key: String, default: Int): KxPreference<Int> = KxIntPref(preferences, key, default, keyChanges)
+    operator fun get(key: String, default: Long): KxPreference<Long> = KxLongPref(preferences, key, default, keyChanges)
     operator fun get(key: String, default: Boolean): KxPreference<Boolean> = KxBooleanPref(preferences, key, default, keyChanges)
 
     operator fun get(key: String, default: Optional<String>): KxNullablePreference<String> =
@@ -111,6 +112,12 @@ private class KxIntPref(preferences: SharedPreferences, key: String, default: In
         set(value) = preferences.edit().putInt(key, value).apply()
 }
 
+private class KxLongPref(preferences: SharedPreferences, key: String, default: Long, keyChanges: Observable<String>) :
+    KxPreferenceImpl<Long, Long>(preferences, key, default, keyChanges) {
+    override var value: Long
+        get() = preferences.getLong(key, default)
+        set(value) = preferences.edit().putLong(key, value).apply()
+}
 
 private class KxBooleanPref(preferences: SharedPreferences, key: String, default: Boolean, keyChanges: Observable<String>) :
     KxPreferenceImpl<Boolean, Boolean>(preferences, key, default, keyChanges) {
