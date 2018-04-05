@@ -50,7 +50,7 @@ interface FunctionDefinition {
      *
      * If unset the method name split-camel-case will be used.
      */
-    val name: CharSequence get() = method.name.splitCamelCase()
+    val name: CharSequence get() = method.name.splitCamelCase().substringBefore("\$") // remove internal $suffix part
 
     /**
      * The category for this definition as taken from [DeveloperFunction.category].
