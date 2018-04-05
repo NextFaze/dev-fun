@@ -5,6 +5,9 @@ import android.content.Context.MODE_PRIVATE
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.util.KxSharedPreferences
 import com.nextfaze.devfun.demo.util.toOptional
+import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.invoke.view.From
+import com.nextfaze.devfun.invoke.view.ValueSource
 import com.nextfaze.devfun.invoke.view.types.Ranged
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,26 +31,54 @@ class Config @Inject constructor(context: Context) {
     var welcomeString by welcomeString()
         private set
 
+    @Constructable
+    private inner class CurrentSignInEnabled : ValueSource<Boolean> {
+        override val value get() = signInEnabled
+    }
+
+    @Constructable
+    private inner class CurrentRegistrationEnabled : ValueSource<Boolean> {
+        override val value get() = registrationEnabled
+    }
+
     @DeveloperFunction
     private fun setConfigValues(
-        splashDuration: Long,
-        signInEnabled: Boolean,
-        registrationEnabled: Boolean,
-        welcomeString: String
+        @From(CurrentSplashDuration::class) splashDurationMillis: Long,
+        @From(CurrentSignInEnabled::class) signInEnabled: Boolean,
+        @From(CurrentRegistrationEnabled::class) registrationEnabled: Boolean,
+        @From(CurrentWelcomeMessage::class) welcomeString: String
     ) {
-        this.splashDuration = splashDuration
+        this.splashDuration = splashDurationMillis
         this.signInEnabled = signInEnabled
         this.registrationEnabled = registrationEnabled
         this.welcomeString = welcomeString
     }
 
-    @DeveloperFunction
-    private fun setWelcomeMessage(welcomeString: String) {
-        this.welcomeString = welcomeString
+    @Constructable
+    private inner class CurrentWelcomeMessage : ValueSource<String> {
+        override val value get() = welcomeString ?: ""
     }
 
     @DeveloperFunction
-    private fun setSplashScreenDuration(@Ranged(to = 10.0) durationSeconds: Double) {
+    private fun setWelcomeMessage(@From(CurrentWelcomeMessage::class) welcomeString: String) {
+        this.welcomeString = welcomeString
+    }
+
+    @Constructable
+    private inner class CurrentSplashScreenDurationSec : ValueSource<Double> {
+        override val value get() = splashDuration / 1000.0
+    }
+
+    @DeveloperFunction
+    private fun setSplashScreenDuration(@From(CurrentSplashScreenDurationSec::class) @Ranged(to = 10.0) durationSeconds: Double) {
         splashDuration = (durationSeconds * 1000).toLong()
     }
+}
+
+/**
+ * They can be inner classes or whatever - they are treated like any other injectable class.
+ */
+@Constructable
+private class CurrentSplashDuration(private val config: Config) : ValueSource<Long> {
+    override val value get() = config.splashDuration
 }

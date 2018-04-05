@@ -88,5 +88,5 @@ internal class RangedNumberParameterViewFactoryProvider : ParameterViewFactoryPr
     private val KClass<*>.isWholeNumber get() = this == Long::class || this == Int::class || this == Short::class || this == Byte::class
 }
 
-private inline fun <reified T : Annotation> Iterable<Annotation>.getTypeOrNull(body: ((T) -> Unit) = {}): T? =
+internal inline fun <reified T : Annotation> Iterable<Annotation>.getTypeOrNull(body: ((T) -> Unit) = {}): T? =
     (firstOrNull { it is T } as T?)?.also(body)

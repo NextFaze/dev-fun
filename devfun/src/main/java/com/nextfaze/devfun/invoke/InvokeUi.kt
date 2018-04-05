@@ -18,10 +18,13 @@ import com.nextfaze.devfun.internal.d
 import com.nextfaze.devfun.internal.logger
 import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.internal.w
+import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.InvokeParameterView
+import com.nextfaze.devfun.invoke.view.None
 import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.invoke.view.simple.ErrorParameterView
 import com.nextfaze.devfun.invoke.view.simple.InjectedParameterView
+import com.nextfaze.devfun.invoke.view.types.getTypeOrNull
 import kotlinx.android.synthetic.main.df_devfun_invoker_dialog_fragment.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -106,7 +109,16 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
                 } else {
                     val inputViewFactory = devFun.parameterViewFactories[it]
                     if (inputViewFactory != null) {
-                        paramView.view = inputViewFactory.inflate(layoutInflater, inputsList)
+                        paramView.view = inputViewFactory.inflate(layoutInflater, inputsList).apply {
+                            if (this is WithValue<*>) {
+                                it.annotations.getTypeOrNull<From> {
+                                    it.source.takeIf { it != None::class }?.let {
+                                        @Suppress("UNCHECKED_CAST")
+                                        (this as WithValue<Any>).value = devFun.instanceOf(it).value
+                                    }
+                                }
+                            }
+                        }
                     } else {
                         canExecute = false
                         devFun.viewFactories[ErrorParameterView::class]?.inflate(layoutInflater, inputsList)?.apply {
