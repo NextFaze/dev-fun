@@ -3,6 +3,6 @@
 
     <integer name="df_httpd_default_port">20123</integer>
 
-    <color name="df_menu_cog_background">#FF0000</color>
+    <color name="df_menu_cog_background">#aaff0000</color>
 
 </resources>
