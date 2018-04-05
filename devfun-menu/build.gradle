@@ -18,6 +18,9 @@ dependencies {
     api project(':devfun')
     implementation project(':devfun-internal')
 
+    // Color Picker
+    implementation 'com.rarepebble:colorpicker:2.3.0'
+
     // Kotlin
     api Config.kotlinStdLib
 

@@ -5,11 +5,13 @@ import android.app.Application
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.support.annotation.Keep
 import android.support.annotation.RequiresApi
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentActivity
@@ -18,6 +20,7 @@ import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
+import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -27,15 +30,24 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.core.ActivityProvider
+import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.invoke.Parameter
+import com.nextfaze.devfun.invoke.ParameterViewFactoryProvider
+import com.nextfaze.devfun.invoke.view.From
+import com.nextfaze.devfun.invoke.view.ValueSource
+import com.nextfaze.devfun.invoke.view.WithValue
+import com.nextfaze.devfun.invoke.view.types.Ranged
 import com.nextfaze.devfun.menu.*
 import com.nextfaze.devfun.menu.BuildConfig
 import com.nextfaze.devfun.menu.R
 import com.nextfaze.devfun.menu.internal.Dock
 import com.nextfaze.devfun.menu.internal.KSharedPreferences
 import com.nextfaze.devfun.menu.internal.OverlayWindow
+import com.nextfaze.devfun.view.ViewFactory
+import com.rarepebble.colorpicker.ColorPickerView
 
 private const val PREF_PERMISSIONS = "permissions"
 
@@ -87,10 +99,12 @@ class CogOverlay constructor(
 
     private val preferences = KSharedPreferences.named(context, "DevFunCog")
     private var cogVisible by preferences["cogVisible", true]
+    private var cogColor by preferences["cogColor", ContextCompat.getColor(context, R.color.df_menu_cog_background)]
     private var permissions by preferences["permissionsState", OverlayPermissions.NEVER_REQUESTED]
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
+        devFun.parameterViewFactories += ColorSwatchParameterViewProvider
 
         /**
          * Using the activity like this ensures that rotation, status bar, and other system views are taken into account.
@@ -130,6 +144,7 @@ class CogOverlay constructor(
     override fun detach() {
         listener?.unregister(application).also { listener = null }
         developerMenu = null
+        devFun.parameterViewFactories -= ColorSwatchParameterViewProvider
     }
 
     override val title: String get() = application.getString(R.string.df_menu_cog_overlay)
@@ -170,10 +185,7 @@ class CogOverlay constructor(
             view.apply {
                 findViewById<View>(R.id.cogButton).apply {
                     ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.df_menu_cog_elevation).toFloat())
-                    DrawableCompat.setTintList(
-                        DrawableCompat.wrap(background),
-                        ContextCompat.getColorStateList(application, R.color.df_menu_cog_background)
-                    )
+                    setColor(cogColor)
                 }
             }
             addToWindow()
@@ -208,23 +220,14 @@ class CogOverlay constructor(
     }
 
     @Constructable
-    private class SetCogVisibilityTransformer(private val cogOverlay: CogOverlay) : FunctionTransformer {
-        override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): List<SimpleFunctionItem> {
-            return when {
-                cogOverlay.canDrawOverlays -> {
-                    listOf(object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-                        override val name = if (cogOverlay.cogVisible) "Hide" else "Show"
-                        override val args = listOf(!cogOverlay.cogVisible)
-                    })
-                }
-                else -> emptyList()
-            }
-        }
+    private inner class CurrentVisibility : ValueSource<Boolean> {
+        override val value get() = cogVisible
     }
 
-    @DeveloperFunction(transformer = SetCogVisibilityTransformer::class)
-    private fun setCogVisibility(visible: Boolean) {
+    @DeveloperFunction
+    private fun setCogVisibility(@From(CurrentVisibility::class) visible: Boolean) {
         cogVisible = visible
+        setVisible(visible)
         activity?.let {
             if (!visible) {
                 val msg = SpannableStringBuilder().also {
@@ -238,6 +241,37 @@ class CogOverlay constructor(
                     .show()
             }
         }
+    }
+
+    @Constructable
+    private inner class CurrentColor : ValueSource<Int> {
+        override val value get() = cogColor
+    }
+
+    @DeveloperFunction
+    internal fun setColor(@CogColorInt @From(CurrentColor::class) color: Int) {
+        cogColor = color
+
+        // we need to separate it out otherwise the img gets a weird alpha shadow effect
+        val alpha = Color.alpha(color)
+        val noAlphaColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color))
+
+        overlay.view.findViewById<View>(R.id.cogButton).apply {
+            DrawableCompat.setTint(DrawableCompat.wrap(background), noAlphaColor)
+        }
+        setAlpha(alpha)
+    }
+
+    @Constructable
+    private inner class CurrentAlpha : ValueSource<Int> {
+        override val value get() = Color.alpha(cogColor)
+    }
+
+    @DeveloperFunction
+    internal fun setAlpha(@Ranged(to = 255.0) @From(CurrentAlpha::class) alpha: Int) {
+        val c = cogColor
+        cogColor = Color.argb(alpha, Color.red(c), Color.green(c), Color.blue(c))
+        overlay.view.alpha = alpha / 255f
     }
 
     /**
@@ -345,4 +379,24 @@ private val Context.isRunningInForeground: Boolean
 
 internal operator fun Appendable.plusAssign(charSequence: CharSequence) {
     this.append(charSequence)
+}
+
+@Keep
+@Retention(AnnotationRetention.RUNTIME)
+private annotation class CogColorInt
+
+private object ColorSwatchParameterViewProvider : ParameterViewFactoryProvider {
+    override fun get(parameter: Parameter): ViewFactory<View>? {
+        if (parameter.clazz != Int::class || !parameter.annotations.any { it is CogColorInt }) return null
+        return object : ViewFactory<View> {
+            override fun inflate(inflater: LayoutInflater, container: ViewGroup?) = MyColorPickerView(inflater.context)
+        }
+    }
+}
+
+private class MyColorPickerView(context: Context, attrs: AttributeSet? = null) :
+    ColorPickerView(context, attrs), WithValue<Int> {
+    override var value: Int
+        get() = this.color
+        set(value) = run { color = value }
 }
