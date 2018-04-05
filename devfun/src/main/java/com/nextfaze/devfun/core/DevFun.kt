@@ -20,7 +20,10 @@ import com.nextfaze.devfun.error.DefaultErrorHandler
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.allowTraceLogs
+import com.nextfaze.devfun.internal.logger
+import com.nextfaze.devfun.internal.splitSimpleName
+import com.nextfaze.devfun.internal.t
 import com.nextfaze.devfun.invoke.*
 import com.nextfaze.devfun.view.CompositeViewFactoryProvider
 import com.nextfaze.devfun.view.DefaultCompositeViewFactory
@@ -354,7 +357,14 @@ class DevFun {
                         log.t { "Processing ${func.clazz.simpleName}::${func.name}" }
                         transformations.forEach {
                             if (it.accept(func)) {
-                                val funcClass = if (func.clazz.isCompanion) func.clazz.java.enclosingClass.kotlin else func.clazz
+                                val funcClass = try {
+                                    when {
+                                        func.clazz.isCompanion -> func.clazz.java.enclosingClass.kotlin
+                                        else -> func.clazz
+                                    }
+                                } catch (ignore: UnsupportedOperationException) {
+                                    func.clazz // happens with top-level functions (reflection not supported for them yet)
+                                }
                                 val classCat = classCategories.getOrPut(funcClass) { SimpleCategoryDefinition(funcClass) }
                                 val cat = func.category.let resolveCategory@{ funCat ->
                                     when (funCat) {
@@ -391,7 +401,7 @@ class DevFun {
                     .keys
                     .sortedWith(compareBy<SimpleCategory> { it.order }.thenBy { it.name.toString() })
             } catch (t: Throwable) {
-                log.w(t) { "Exception generating categories." }
+                get<ErrorHandler>().onError(t, "Generate Categories", "Exception while attempting to generate categories.")
                 return listOf(ExceptionCategoryItem(t.stackTraceAsString))
             }
         }

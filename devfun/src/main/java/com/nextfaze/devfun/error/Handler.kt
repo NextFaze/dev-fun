@@ -46,6 +46,7 @@ internal class DefaultErrorHandler(private val activityProvider: ActivityProvide
     private val activity get() = activityProvider() as? FragmentActivity
 
     override fun onError(t: Throwable, title: String, body: String) {
+        log.e(t) { "DevFun exception:\n$title\n$body" }
         activity?.let { ErrorDialogFragment.show(it, t, title, body) }
     }
 

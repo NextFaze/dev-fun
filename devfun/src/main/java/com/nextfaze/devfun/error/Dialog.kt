@@ -32,7 +32,7 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
                         putString(STACK_TRACE, t.stackTraceAsString)
                         putCharSequence(TITLE, title)
                         putCharSequence(BODY, body)
-                        putCharSequence(METHOD, functionItem?.function?.method.toString())
+                        putCharSequence(METHOD, functionItem?.function?.method?.toString())
                     }
                 }
             }.show(activity.supportFragmentManager)

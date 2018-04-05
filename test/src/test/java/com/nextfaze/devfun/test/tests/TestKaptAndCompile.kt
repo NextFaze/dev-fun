@@ -24,6 +24,7 @@ import tested.kapt_and_compile.simple_jvm_static_functions_in_nested_classes.Sim
 import tested.kapt_and_compile.simple_jvm_static_functions_in_nested_objects.SimpleJvmStaticFunctionsInNestedObjects
 import tested.kapt_and_compile.simple_jvm_static_functions_in_objects.SimpleJvmStaticFunctionsInObjects
 import tested.kapt_and_compile.simple_typed_functions.SimpleTypedFunctions
+import tested.kapt_and_compile.top_level_functions.TopLevelFunctions
 import java.lang.reflect.Method
 import java.util.ServiceLoader
 import kotlin.test.assertFails
@@ -46,7 +47,8 @@ class TestKaptAndCompile : AbstractKotlinKapt3Tester() {
         FunctionsWithPrimitiveArgs::class,
         FunctionsWithArgs::class,
         SimpleTypedFunctions::class,
-        FunctionsWithComplexTypes::class
+        FunctionsWithComplexTypes::class,
+        TopLevelFunctions::class
     )
 
     @Test(dataProvider = "testKaptAndCompileData", groups = ["kapt", "compile", "supported"])

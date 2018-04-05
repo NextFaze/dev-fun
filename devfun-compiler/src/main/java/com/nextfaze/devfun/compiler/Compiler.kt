@@ -275,9 +275,15 @@ class DevFunProcessor : AbstractProcessor() {
     private val functionInvokeQualified = "${FunctionDefinition::class.qualifiedName!!.replace("Definition", "")}Invoke"
     private val functionInvokeName = "${FunctionDefinition::class.simpleName!!.replace("Definition", "")}Invoke"
 
-    private fun Element.toClass(kotlinClass: Boolean = true, castIfNotPublic: KClass<*>? = null, vararg types: KClass<*>) =
-        this.asType().toClass(
+    private fun Element.toClass(
+        kotlinClass: Boolean = true,
+        isKtFile: Boolean = false,
+        castIfNotPublic: KClass<*>? = null,
+        vararg types: KClass<*>
+    ) =
+        asType().toClass(
             kotlinClass = kotlinClass,
+            isKtFile = isKtFile,
             elements = processingEnv.elementUtils,
             castIfNotPublic = castIfNotPublic,
             types = *types
@@ -334,12 +340,17 @@ class DevFunProcessor : AbstractProcessor() {
         //
 
         fun generateFunctionDefinition(element: ExecutableElement) {
-            fun Element.toInstance(from: String, forStaticUse: Boolean = false): String = when {
+            fun Element.toInstance(from: String, forStaticUse: Boolean = false, isClassKtFile: Boolean = false): String = when {
                 this is TypeElement && (forStaticUse || isKObject) -> when {
-                    isClassPublic -> this.toString()
-                    else -> "${this.toClass()}.privateObjectInstance"
+                    isClassPublic -> {
+                        when {
+                            isClassKtFile -> enclosingElement.toString() // top-level function so just the package
+                            else -> toString()
+                        }
+                    }
+                    else -> "${toClass()}.privateObjectInstance"
                 }
-                else -> "($from${this.asType().toCast()})"
+                else -> "($from${asType().toCast()})"
             }
 
             val clazz = element.enclosingElement as TypeElement
@@ -409,28 +420,32 @@ class DevFunProcessor : AbstractProcessor() {
             val classIsPublic = funIsPublic && clazz.isClassPublic
             val callFunDirectly = classIsPublic && element.typeParameters.all { it.bounds.all { it.isClassPublic } }
 
+            // If true the the function is top-level (file-level) declared (and thus we cant directly reference its enclosing class)
+            val isClassKtFile = clazz.isClassKtFile
+
+            // For simplicity, for now we always invoke extension functions via reflection
+            val isExtensionFunction by lazy { element.parameters.firstOrNull()?.simpleName?.toString() == "\$receiver" }
+
             // Arguments
-            val receiver = clazz.toInstance(RECEIVER_VAR_NAME, element.isStatic)
+            val receiver = clazz.toInstance(RECEIVER_VAR_NAME, element.isStatic, isClassKtFile)
             val needReceiverArg = !callFunDirectly && !element.isStatic
             val args = run generateInvocationArgs@{
                 val arguments = ArrayList<String>()
                 if (needReceiverArg) {
                     arguments += receiver
+                } else if ((!callFunDirectly && element.isStatic) || isExtensionFunction) {
+                    arguments += "null"
                 }
 
                 element.parameters.forEachIndexed { index, arg ->
                     arguments += arg.toInstance("$ARGS_VAR_NAME[$index]")
                 }
 
-                when {
-                    arguments.isNotEmpty() -> arguments.joiner(
-                        separator = ",\n#|            ",
-                        prefix = "\n#|            ",
-                        postfix = "\n#|        "
-                    )
-                    !callFunDirectly && element.isStatic -> "null"
-                    else -> ""
-                }
+                arguments.joiner(
+                    separator = ",\n#|            ",
+                    prefix = "\n#|            ",
+                    postfix = "\n#|        "
+                )
             }
 
             // Method reference
@@ -439,15 +454,15 @@ class DevFunProcessor : AbstractProcessor() {
                 val setAccessible = if (!classIsPublic || !element.isPublic) ".apply { isAccessible = true }" else ""
                 val methodArgTypes = element.parameters.joiner(prefix = ", ") { it.toClass(false) }
                 when {
-                    useKotlinReflection -> """${element.enclosingElement.toClass()}.declaredFunctions.filter { it.name == "${element.simpleName.stripInternal()}" && it.parameters.size == ${element.parameters.size + 1} }.single().javaMethod!!$setAccessible"""
-                    else -> """${element.enclosingElement.toClass(false)}.getDeclaredMethod("$funName"$methodArgTypes)$setAccessible"""
+                    useKotlinReflection -> """${clazz.toClass()}.declaredFunctions.filter { it.name == "${element.simpleName.stripInternal()}" && it.parameters.size == ${element.parameters.size + 1} }.single().javaMethod!!$setAccessible"""
+                    else -> """${clazz.toClass(false, isClassKtFile)}.getDeclaredMethod("$funName"$methodArgTypes)$setAccessible"""
                 }
             }
 
             // Call invocation
             val invocation = run generateInvocation@{
                 when {
-                    callFunDirectly -> {
+                    callFunDirectly && !isExtensionFunction -> {
                         val typeParams = if (element.typeParameters.isNotEmpty()) {
                             element.typeParameters.map { it.asType().toType() }.joiner(prefix = "<", postfix = ">")
                         } else {
@@ -473,16 +488,17 @@ class DevFunProcessor : AbstractProcessor() {
             var debugElementInfo = ""
             if (isDebugCommentsEnabled) {
                 debugElementInfo = """
-                #|        // element modifiers = ${element.modifiers.joinToString()}
-                #|        // enclosing element modifiers = ${element.enclosingElement.modifiers.joinToString()}
-                #|        // enclosing element as type element = ${(element.enclosingElement.asType() as? DeclaredType)?.asElement() as? TypeElement}
+                #|        // element modifiers: ${element.modifiers.joinToString()}
+                #|        // enclosing element modifiers: ${element.enclosingElement.modifiers.joinToString()}
+                #|        // enclosing element metadata: isClassKtFile=$isClassKtFile
+                #|        // enclosing element as type element: ${(element.enclosingElement.asType() as? DeclaredType)?.asElement() as? TypeElement}
                 #|        // param type modifiers: ${element.parameters.joiner {
                     "${it.simpleName}=${(it.asType() as? DeclaredType)?.asElement()?.modifiers?.joinToString(",")}"
                 }}
                 #|        // params: ${element.parameters.joiner {
                     "${it.simpleName}=@[${it.annotationMirrors}] ${it.asType()}"
                 }}
-                #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, callFunDirectly=$callFunDirectly"""
+                #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction"""
             }
 
             // Generate definition

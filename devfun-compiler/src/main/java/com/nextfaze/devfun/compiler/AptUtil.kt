@@ -27,6 +27,10 @@ internal inline val TypeElement.isClassPublic: Boolean
         }
     }
 
+internal inline val TypeElement.isClassKtFile
+    get() = simpleName.endsWith("Kt") &&
+            annotationMirrors.firstOrNull { it.annotationType.toString() == "kotlin.Metadata" }?.get<Int>("k") == 2
+
 private inline val Element.typeElement get() = (asType() as? DeclaredType)?.asElement() as? TypeElement
 
 internal inline val Element.isKObject: Boolean
@@ -93,12 +97,13 @@ internal fun TypeMirror.toType(): CharSequence = when (this) {
 
 internal fun TypeMirror.toClass(
     kotlinClass: Boolean = true,
+    isKtFile: Boolean = false,
     elements: Elements,
     suffix: String = if (kotlinClass) "" else ".java",
     castIfNotPublic: KClass<*>? = null,
     vararg types: KClass<*>
 ): String = when {
-    isPublic -> when {
+    !isKtFile && isPublic -> when {
         this.kind.isPrimitive || this is ArrayType && this.componentType.isPrimitive -> "${this.toType()}::class$suffix"
         else -> "kClass<${this.toType()}>()$suffix"
     }
