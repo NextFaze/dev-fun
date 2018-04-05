@@ -38,6 +38,30 @@ object ActivityDebugging {
     fun setOrientation(activity: Activity, orientation: Int) {
         activity.requestedOrientation = orientation
     }
+
+    @DeveloperFunction(category = DeveloperCategory("Screen Orientation", group = "Enum List UI"))
+    fun chooseOrientation(activity: Activity, orientation: ScreenOrientations) {
+        activity.requestedOrientation = orientation.value
+    }
+}
+
+enum class ScreenOrientations(val value: Int) {
+    SCREEN_ORIENTATION_UNSPECIFIED(-1),
+    SCREEN_ORIENTATION_LANDSCAPE(0),
+    SCREEN_ORIENTATION_PORTRAIT(1),
+    SCREEN_ORIENTATION_USER(2),
+    SCREEN_ORIENTATION_BEHIND(3),
+    SCREEN_ORIENTATION_SENSOR(4),
+    SCREEN_ORIENTATION_NO_SENSOR(5),
+    SCREEN_ORIENTATION_SENSOR_LANDSCAPE(6),
+    SCREEN_ORIENTATION_SENSOR_PORTRAIT(7),
+    SCREEN_ORIENTATION_REVERSE_LANDSCAPE(8),
+    SCREEN_ORIENTATION_REVERSE_PORTRAIT(9),
+    SCREEN_ORIENTATION_FULL_SENSOR(10),
+    SCREEN_ORIENTATION_USER_LANDSCAPE(11),
+    SCREEN_ORIENTATION_USER_PORTRAIT(12),
+    SCREEN_ORIENTATION_FULL_USER(13),
+    SCREEN_ORIENTATION_LOCKED(14)
 }
 
 /**
@@ -52,25 +76,6 @@ object ActivityDebugging {
  */
 @Constructable
 class OrientationTransformer(activity: Activity) : FunctionTransformer {
-    private enum class ScreenOrientations(val value: Int) {
-        SCREEN_ORIENTATION_UNSPECIFIED(-1),
-        SCREEN_ORIENTATION_LANDSCAPE(0),
-        SCREEN_ORIENTATION_PORTRAIT(1),
-        SCREEN_ORIENTATION_USER(2),
-        SCREEN_ORIENTATION_BEHIND(3),
-        SCREEN_ORIENTATION_SENSOR(4),
-        SCREEN_ORIENTATION_NO_SENSOR(5),
-        SCREEN_ORIENTATION_SENSOR_LANDSCAPE(6),
-        SCREEN_ORIENTATION_SENSOR_PORTRAIT(7),
-        SCREEN_ORIENTATION_REVERSE_LANDSCAPE(8),
-        SCREEN_ORIENTATION_REVERSE_PORTRAIT(9),
-        SCREEN_ORIENTATION_FULL_SENSOR(10),
-        SCREEN_ORIENTATION_USER_LANDSCAPE(11),
-        SCREEN_ORIENTATION_USER_PORTRAIT(12),
-        SCREEN_ORIENTATION_FULL_USER(13),
-        SCREEN_ORIENTATION_LOCKED(14)
-    }
-
     private val currentOrientation = activity.requestedOrientation
 
     /**

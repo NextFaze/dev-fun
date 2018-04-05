@@ -6,6 +6,7 @@ import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.internal.logger
 import com.nextfaze.devfun.internal.t
 import com.nextfaze.devfun.invoke.view.types.BooleanParameterViewFactoryProvider
+import com.nextfaze.devfun.invoke.view.types.EnumParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.StringOrNumberParameterViewFactoryProvider
 import com.nextfaze.devfun.view.ViewFactory
 import kotlin.reflect.KAnnotatedElement
@@ -85,6 +86,7 @@ internal class DefaultCompositeParameterViewFactoryProvider : CompositeParameter
     private val log = logger()
 
     init {
+        this += EnumParameterViewFactoryProvider()
         this += BooleanParameterViewFactoryProvider()
         this += StringOrNumberParameterViewFactoryProvider()
     }
