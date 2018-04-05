@@ -26,7 +26,6 @@ internal class StringOrNumberTextView @JvmOverloads constructor(
 
     override var value: Any
         get() = editText!!.text.let { v ->
-            // TODO could throw number format exception
             return when (type) {
                 CharSequence::class -> v
                 String::class -> v.toString()

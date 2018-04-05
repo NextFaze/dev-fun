@@ -3,21 +3,19 @@ package com.nextfaze.devfun.invoke
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.TextInputLayout
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
-import android.support.v4.app.FragmentManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.nextfaze.devfun.BaseDialogFragment
 import com.nextfaze.devfun.core.DebugException
 import com.nextfaze.devfun.core.FunctionItem
 import com.nextfaze.devfun.core.R
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.d
 import com.nextfaze.devfun.internal.logger
 import com.nextfaze.devfun.internal.splitCamelCase
-import com.nextfaze.devfun.internal.w
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.InvokeParameterView
 import com.nextfaze.devfun.invoke.view.None
@@ -25,6 +23,8 @@ import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.invoke.view.simple.ErrorParameterView
 import com.nextfaze.devfun.invoke.view.simple.InjectedParameterView
 import com.nextfaze.devfun.invoke.view.types.getTypeOrNull
+import com.nextfaze.devfun.obtain
+import com.nextfaze.devfun.show
 import kotlinx.android.synthetic.main.df_devfun_invoker_dialog_fragment.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -45,6 +45,7 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
 
     private lateinit var functionItem: FunctionItem
     private val devFun = com.nextfaze.devfun.core.devFun
+    private val errorHandler get() = devFun.get<ErrorHandler>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +66,12 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
         try {
             performOnViewCreated()
         } catch (t: Throwable) {
-            log.w(t) { "Something when wrong when trying to create the invocation dialog view for $functionItem" }
+            errorHandler.onError(
+                functionItem,
+                t,
+                "View Creation Failure",
+                "Something when wrong when trying to create the invocation dialog view."
+            )
             Handler().post { dismissAllowingStateLoss() }
         }
     }
@@ -159,7 +165,7 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
             } catch (de: DebugException) {
                 throw de
             } catch (t: Throwable) {
-                log.w(t) { "Something went wrong when trying to execute requested method for $functionItem." }
+                errorHandler.onError(functionItem, t, "Invocation Failure", "Something went wrong when trying to execute requested method.")
             }
             dialog.dismiss()
         }
@@ -175,27 +181,5 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
 
     private val <T : Any> KClass<T>.isInjectable get() = devFun.tryGetInstanceOf(this) != null
 }
-
-internal abstract class BaseDialogFragment : DialogFragment() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true
-    }
-
-    override fun onDestroyView() {
-        dialog?.takeIf { retainInstance }?.setDismissMessage(null) // Fix http:///issuetracker.google.com/17423
-        super.onDestroyView()
-    }
-}
-
-private inline fun <reified T : Fragment> FragmentManager.find() = findFragmentByTag(T::class.defaultTag) as T?
-private inline fun <reified T : Fragment> FragmentManager.obtain(factory: () -> T) = find() ?: factory.invoke()
-private inline fun <reified T : Fragment> FragmentActivity.obtain(factory: () -> T) = supportFragmentManager.obtain(factory)
-
-private fun DialogFragment.show(fragmentManager: FragmentManager) = show(fragmentManager, defaultTag)
-
-private val Fragment.defaultTag: String get() = this::class.java.defaultTag
-private val KClass<out Fragment>.defaultTag: String get() = java.defaultTag
-private val Class<out Fragment>.defaultTag: String get() = name
 
 private class SimpleParameter(override val kParameter: KParameter) : Parameter

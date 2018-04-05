@@ -4,6 +4,7 @@ import com.nextfaze.devfun.core.DebugException
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.FunctionItem
 import com.nextfaze.devfun.core.InvokeResult
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.ClassInstanceNotFoundException
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.InstanceProvider
@@ -27,7 +28,7 @@ interface Invoker {
 }
 
 @Constructable
-internal class DefaultInvoker(private val devFun: DevFun) : Invoker {
+internal class DefaultInvoker(private val devFun: DevFun, private val errorHandler: ErrorHandler) : Invoker {
     private val log = logger()
 
     private data class SimpleInvokeResult(override val value: Any? = null, override val exception: Throwable? = null) : InvokeResult
@@ -48,6 +49,7 @@ internal class DefaultInvoker(private val devFun: DevFun) : Invoker {
         } catch (de: DebugException) {
             throw de
         } catch (t: Throwable) {
+            errorHandler.onError(item, t, "Pre-invocation Failure", "Something went wrong when trying to detect/find type instances.")
             SimpleInvokeResult(exception = t)
         }
     }
@@ -75,6 +77,7 @@ internal class DefaultInvoker(private val devFun: DevFun) : Invoker {
             } catch (de: DebugException) {
                 throw de
             } catch (t: Throwable) {
+                errorHandler.onError(item, t, "Invocation Failure", "Something went wrong when trying to invoke the method.")
                 return SimpleInvokeResult(exception = t)
             }
         } else {

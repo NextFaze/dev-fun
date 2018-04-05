@@ -16,6 +16,8 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.loader.DefinitionsLoader
 import com.nextfaze.devfun.core.loader.ModuleLoader
+import com.nextfaze.devfun.error.DefaultErrorHandler
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
 import com.nextfaze.devfun.internal.*
@@ -215,7 +217,8 @@ class DevFun {
             this += AndroidInstanceProvider(context.applicationContext, activityTracker::activity)
             this += moduleLoader
 
-            // Invocation
+            // Invocation and Errors
+            this += singletonInstance<ErrorHandler> { get<DefaultErrorHandler>() }
             this += singletonInstance<Invoker> { get<DefaultInvoker>() }
 
             // View Factories
