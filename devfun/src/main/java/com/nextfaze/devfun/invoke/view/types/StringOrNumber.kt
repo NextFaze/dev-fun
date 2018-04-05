@@ -30,12 +30,12 @@ internal class StringOrNumberTextView @JvmOverloads constructor(
             return when (type) {
                 CharSequence::class -> v
                 String::class -> v.toString()
-                Byte::class -> v.toString().toByte()
-                Short::class -> v.toString().toShort()
-                Int::class -> v.toString().toInt()
-                Long::class -> v.toString().toLong()
-                Float::class -> v.toString().toFloat()
-                Double::class -> v.toString().toDouble()
+                Byte::class -> v.toString().takeIf { it.isNotBlank() }?.toByte() ?: 0.toByte()
+                Short::class -> v.toString().takeIf { it.isNotBlank() }?.toShort() ?: 0.toShort()
+                Int::class -> v.toString().takeIf { it.isNotBlank() }?.toInt() ?: 0
+                Long::class -> v.toString().takeIf { it.isNotBlank() }?.toLong() ?: 0L
+                Float::class -> v.toString().takeIf { it.isNotBlank() }?.toFloat() ?: 0f
+                Double::class -> v.toString().takeIf { it.isNotBlank() }?.toDouble() ?: 0.0
                 else -> v
             }
         }
