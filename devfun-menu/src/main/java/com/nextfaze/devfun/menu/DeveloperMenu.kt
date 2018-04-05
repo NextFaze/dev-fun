@@ -8,8 +8,6 @@ import android.support.v7.app.AlertDialog
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
-import android.view.View
-import android.view.ViewGroup
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -18,8 +16,9 @@ import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.menu.controllers.*
+import com.nextfaze.devfun.view.ViewFactoryProvider
+import com.nextfaze.devfun.view.viewFactory
 import kotlin.reflect.KClass
 
 interface DeveloperMenu : MenuController {
@@ -70,20 +69,36 @@ interface MenuController {
 }
 
 /**
- * Provide an implementation of this to define your own header view.
+ * The view type/key used by DevMenu to find/inflate the menu header view.
  *
- * See `DemoMenuHeader` for example.
+ * Example usage from demo (~line 64 `demoMenuHeaderFactory` in `com.nextfaze.devfun.demo.devfun.DevFun.kt`):
+ * ```kotlin
+ * // MenuHeader is the "key" (used by DevMenu to inflate the menu header)
+ * // DemoMenuHeaderView is the custom view type
+ * devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+ *     setTitle(activityProvider()!!::class.splitSimpleName)
+ *     setCurrentUser(session.user)
+ * }
+ * ```
+ *
+ * @see viewFactory
  */
-interface MenuHeader<T : View> {
-    fun onCreateView(parent: ViewGroup): T
-    fun onBindView(view: T, parent: ViewGroup, activity: Activity)
-}
+interface MenuHeader
 
 val DevFun.devMenu get() = get<DevMenu>()
 
 @AutoService(DevFunModule::class)
 @DeveloperCategory("DevFun", "Developer Menu")
-class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
+class DevMenu : AbstractDevFunModule(), DeveloperMenu {
+    private val views = object : ViewFactoryProvider {
+        override fun get(clazz: KClass<*>) = clazz.takeIf { it == MenuHeader::class }?.let { DefaultMenuHeaderViewFactory() }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private val instances = object : InstanceProvider {
+        override fun <T : Any> get(clazz: KClass<out T>): T? = controllers.firstOrNull { it::class == clazz } as T?
+    }
+
     override fun init(context: Context) {
         val activityProvider = get<ActivityProvider>()
         this += KeySequence(context, activityProvider).also {
@@ -92,13 +107,14 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
         }
         this += CogOverlay(context, activityProvider)
 
-        devFun.instanceProviders += captureInstance { DefaultMenuHeader() }
-        devFun.instanceProviders += this
+        devFun.instanceProviders += instances
+        devFun.viewFactories += views
     }
 
     override fun dispose() {
         controllers.forEach(MenuController::detach)
-        devFun.instanceProviders -= this
+        devFun.instanceProviders -= instances
+        devFun.viewFactories -= views
     }
 
     private val controllers = hashSetOf<MenuController>()
@@ -144,9 +160,6 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu, InstanceProvider {
         visible = false
         controllers.forEach { it.onDismissed() }
     }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> get(clazz: KClass<out T>) = controllers.firstOrNull { it::class == clazz } as T?
 
     @DeveloperFunction
     fun showAvailableControllers(activity: Activity): String {

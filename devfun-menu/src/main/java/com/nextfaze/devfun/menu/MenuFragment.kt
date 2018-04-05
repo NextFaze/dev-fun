@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.internal.splitSimpleName
+import com.nextfaze.devfun.view.ViewFactory
 import kotlinx.android.synthetic.main.df_menu_dialog_fragment.*
 
 internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
@@ -60,10 +61,8 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // header
-        devFun.get<MenuHeader<View>>().let {
-            val headerView = it.onCreateView(headerLayout)
-            headerLayout.addView(headerView)
-            it.onBindView(headerView, headerLayout, activity!!)
+        devFun.viewFactories[MenuHeader::class]!!.inflate(layoutInflater, headerLayout).let {
+            headerLayout.addView(it)
         }
 
         // categories
@@ -225,13 +224,13 @@ private inline fun lollipop(body: () -> Any) {
     }
 }
 
-internal class DefaultMenuHeader : MenuHeader<ViewGroup> {
-    override fun onCreateView(parent: ViewGroup) = View.inflate(parent.context, R.layout.df_menu_dialog_header_layout, null) as ViewGroup
-    override fun onBindView(view: ViewGroup, parent: ViewGroup, activity: Activity) {
-        // title
-        view.findViewById<TextView>(R.id.activityTitleTextView).text = activity::class.splitSimpleName
+internal class DefaultMenuHeaderViewFactory : ViewFactory<View> {
+    override fun inflate(inflater: LayoutInflater, container: ViewGroup?): View =
+        inflater.inflate(R.layout.df_menu_dialog_header_layout, container, false).apply {
+            // title
+            findViewById<TextView>(R.id.activityTitleTextView).text = devFun.get<Activity>()::class.splitSimpleName
 
-        // crash button
-        view.findViewById<View>(R.id.crashButton).setOnClickListener { throw DebugException() }
-    }
+            // crash button
+            findViewById<View>(R.id.crashButton).setOnClickListener { throw DebugException() }
+        }
 }

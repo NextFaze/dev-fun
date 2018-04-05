@@ -1,12 +1,10 @@
 package com.nextfaze.devfun.demo.devfun
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.nextfaze.devfun.core.ActivityProvider
@@ -19,10 +17,10 @@ import com.nextfaze.devfun.demo.inject.DaggerActivity
 import com.nextfaze.devfun.demo.inject.Initializer
 import com.nextfaze.devfun.demo.inject.applicationComponent
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.inject.dagger2.tryGetInstanceFromComponent
 import com.nextfaze.devfun.inject.dagger2.useAutomaticDagger2Injector
 import com.nextfaze.devfun.menu.MenuHeader
+import com.nextfaze.devfun.view.viewFactory
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoSet
@@ -38,9 +36,9 @@ class DevFunModule {
     @Provides @IntoSet @Singleton
     fun initializeDevFun(application: Application, session: Session): Initializer = {
         //DevFun().initialize(application, DevMenu(), DevHttpD(), DevHttpIndex(), DevStetho(), useServiceLoader = false)
-        devFun += onInitialized@ {
-            instanceProviders += captureInstance { DemoMenuHeader(session) }
-            instanceProviders += DemoInstanceProvider(application, devFun.get())
+        devFun += onInitialized@{
+            viewFactories += demoMenuHeaderFactory(session, get())
+            instanceProviders += DemoInstanceProvider(application, get())
         }
     }
 }
@@ -62,17 +60,11 @@ private class DemoInstanceProvider(private val app: Application, private val act
     }
 }
 
-private class DemoMenuHeader(private val session: Session) : MenuHeader<DemoMenuHeaderView> {
-    override fun onCreateView(parent: ViewGroup): DemoMenuHeaderView =
-        View.inflate(parent.context, R.layout.demo_menu_header, null) as DemoMenuHeaderView
-
-    override fun onBindView(view: DemoMenuHeaderView, parent: ViewGroup, activity: Activity) {
-        with(view) {
-            setTitle(activity::class.splitSimpleName)
-            setCurrentUser(session.user)
-        }
+private fun demoMenuHeaderFactory(session: Session, activityProvider: ActivityProvider) =
+    viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+        setTitle(activityProvider()!!::class.splitSimpleName)
+        setCurrentUser(session.user)
     }
-}
 
 private class DemoMenuHeaderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
