@@ -1,6 +1,8 @@
 package com.nextfaze.devfun.demo
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,10 @@ import com.nextfaze.devfun.demo.kotlin.enabled
 import com.nextfaze.devfun.demo.kotlin.findOrCreate
 import com.nextfaze.devfun.demo.kotlin.startActivity
 import com.nextfaze.devfun.demo.util.value
+import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.invoke.view.ColorPicker
+import com.nextfaze.devfun.invoke.view.From
+import com.nextfaze.devfun.invoke.view.ValueSource
 import com.uber.autodispose.android.lifecycle.scope
 import com.uber.autodispose.kotlin.autoDisposable
 import kotlinx.android.synthetic.main.welcome_layout.*
@@ -69,6 +75,16 @@ class WelcomeFragment : BaseFragment() {
     @DeveloperFunction
     private fun enableCreateAccountButton() {
         createAccountButton.enabled = true
+    }
+
+    @Constructable
+    private inner class CurrentBackgroundColor : ValueSource<Int> {
+        override val value get() = (view?.background as? ColorDrawable)?.color ?: Color.rgb(250, 250, 250)
+    }
+
+    @DeveloperFunction
+    private fun setBackgroundColor(@ColorPicker @From(CurrentBackgroundColor::class) color: Int) {
+        view?.setBackgroundColor(color)
     }
 
     override fun inject(injector: FragmentInjector) = injector.inject(this)

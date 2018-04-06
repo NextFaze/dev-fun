@@ -34,6 +34,7 @@ fun Project.sourcesJar(sourceSet: String? = "main", body: Jar.() -> Unit = {}): 
     }
 
 fun Project.configureDokka(): Any? = (rootProject.extra["configureDokka"] as Closure<*>).call(project)
+fun Project.configurePublishing(): Any? = (rootProject.extra["configurePublishing"] as Closure<*>).call(project)
 
 fun ConfigurationContainer.getOrCreate(name: String): Configuration = findByName(name) ?: create(name)
 

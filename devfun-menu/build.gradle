@@ -17,9 +17,7 @@ dependencies {
     kapt project(':devfun-compiler')
     api project(':devfun')
     implementation project(':devfun-internal')
-
-    // Color Picker
-    implementation 'com.rarepebble:colorpicker:2.3.0'
+    implementation project(':devfun-invoke-view-colorpicker')
 
     // Kotlin
     api Config.kotlinStdLib

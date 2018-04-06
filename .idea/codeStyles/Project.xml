@@ -6,6 +6,7 @@
       <option name="PACKAGES_TO_USE_STAR_IMPORTS">
         <value>
           <package name="kotlinx.android.synthetic" withSubpackages="true" static="false" />
+          <package name="com.nextfaze.devfun.internal" withSubpackages="true" static="false" />
         </value>
       </option>
       <option name="CONTINUATION_INDENT_IN_PARAMETER_LISTS" value="false" />

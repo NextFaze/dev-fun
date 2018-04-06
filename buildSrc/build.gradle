@@ -20,7 +20,7 @@ repositories {
 dependencies {
     compileOnly gradleApi()
     compile "org.jetbrains.kotlin:kotlin-stdlib:1.2.31"
-    compile 'org.gradle:gradle-kotlin-dsl:0.15.6'
+    compile 'org.gradle:gradle-kotlin-dsl:0.16.3'
 }
 
 samWithReceiver {
