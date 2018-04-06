@@ -8,14 +8,18 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.invoke.view.From
+import com.nextfaze.devfun.invoke.view.ValueSource
 
 @DeveloperCategory("Debugging")
 object ActivityDebugging {
-    /**
-     * TODO Consider checking for [RequiresApi] instead of using [DeveloperFunction.requiresApi]?
-     */
+    /** TODO Consider checking for [RequiresApi] instead of using [DeveloperFunction.requiresApi]? */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    @DeveloperFunction("Start ACTION_CREATE_DOCUMENT intent", requiresApi = Build.VERSION_CODES.KITKAT, category = DeveloperCategory(group = "Intents"))
+    @DeveloperFunction(
+        "Start ACTION_CREATE_DOCUMENT intent",
+        requiresApi = Build.VERSION_CODES.KITKAT,
+        category = DeveloperCategory(group = "Intents")
+    )
     fun startCreateDocumentIntent(activity: Activity) {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -40,7 +44,7 @@ object ActivityDebugging {
     }
 
     @DeveloperFunction(category = DeveloperCategory("Screen Orientation", group = "Enum List UI"))
-    fun chooseOrientation(activity: Activity, orientation: ScreenOrientations) {
+    fun chooseOrientation2(activity: Activity, @From(CurrentOrientation::class) orientation: ScreenOrientations) {
         activity.requestedOrientation = orientation.value
     }
 }
@@ -61,7 +65,24 @@ enum class ScreenOrientations(val value: Int) {
     SCREEN_ORIENTATION_USER_LANDSCAPE(11),
     SCREEN_ORIENTATION_USER_PORTRAIT(12),
     SCREEN_ORIENTATION_FULL_USER(13),
-    SCREEN_ORIENTATION_LOCKED(14)
+    SCREEN_ORIENTATION_LOCKED(14);
+
+    companion object {
+        private val values = values().associateBy { it.value }
+        fun fromValue(value: Int): ScreenOrientations {
+            return values[value] ?: SCREEN_ORIENTATION_UNSPECIFIED
+        }
+    }
+}
+
+/**
+ * Provides the current orientation for use with @[From].
+ *
+ * @param activity This will be injected upon construction.
+ */
+@Constructable
+class CurrentOrientation(private val activity: Activity) : ValueSource<ScreenOrientations> {
+    override val value get() = ScreenOrientations.fromValue(activity.requestedOrientation)
 }
 
 /**
@@ -72,11 +93,11 @@ enum class ScreenOrientations(val value: Int) {
  *
  * Arguments will then also injected/constructed.
  *
- * @param activity This will be injected upon construction.
+ * @param currentOrientation This will be injected upon construction.
  */
 @Constructable
-class OrientationTransformer(activity: Activity) : FunctionTransformer {
-    private val currentOrientation = activity.requestedOrientation
+class OrientationTransformer(currentOrientation: CurrentOrientation) : FunctionTransformer {
+    private val currentOrientation = currentOrientation.value.value
 
     /**
      * Maps the the available screen orientations to function items that will invoke [ActivityDebugging.setOrientation].
@@ -91,13 +112,13 @@ class OrientationTransformer(activity: Activity) : FunctionTransformer {
      * NB: If the orientation was first then `listOf(orientation.value)` would suffice.
      */
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? =
-            ScreenOrientations.values().map { orientation ->
-                val shortName = orientation.toString().substringAfter("SCREEN_ORIENTATION_")
-                val selected = if (currentOrientation == orientation.value) "****" else ""
-                object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-                    override val name = "$selected $shortName (${orientation.value}) $selected".trim()
-                    override val args = listOf(Unit /* Unit means inject */, orientation.value)
-                    override val group = "Set Orientation"
-                }
+        ScreenOrientations.values().map { orientation ->
+            val shortName = orientation.toString().substringAfter("SCREEN_ORIENTATION_")
+            val selected = if (currentOrientation == orientation.value) "****" else ""
+            object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
+                override val name = "$selected $shortName (${orientation.value}) $selected".trim()
+                override val args = listOf(Unit /* Unit means inject */, orientation.value)
+                override val group = "Set Orientation"
             }
+        }
 }
