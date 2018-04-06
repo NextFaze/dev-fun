@@ -9,8 +9,8 @@ import com.nextfaze.devfun.demo.util.KxSharedPreferences
 import com.nextfaze.devfun.demo.util.toOptional
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.invoke.view.From
+import com.nextfaze.devfun.invoke.view.Ranged
 import com.nextfaze.devfun.invoke.view.ValueSource
-import com.nextfaze.devfun.invoke.view.types.Ranged
 import javax.inject.Inject
 import javax.inject.Singleton
 
