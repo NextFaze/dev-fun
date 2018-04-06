@@ -48,7 +48,7 @@ object Config {
     const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     const val kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
-    const val supportVersion = "27.0.2"
+    const val supportVersion = "27.1.1"
     const val supportRecyclerView = "com.android.support:recyclerview-v7:$supportVersion"
     const val supportAppCompat = "com.android.support:appcompat-v7:$supportVersion"
     const val supportDesign = "com.android.support:design:$supportVersion"
