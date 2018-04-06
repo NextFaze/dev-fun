@@ -52,7 +52,7 @@ internal class StringOrNumberParameterViewFactoryProvider : ParameterViewFactory
             }
 
         return when (parameter.clazz) {
-            String::class -> inflateEditText(TYPE_CLASS_TEXT)
+            String::class -> inflateEditText(TYPE_CLASS_TEXT or TYPE_TEXT_FLAG_MULTI_LINE)
             Byte::class, Short::class, Int::class, Long::class -> inflateEditText(TYPE_CLASS_NUMBER or TYPE_NUMBER_FLAG_SIGNED)
             Float::class, Double::class -> inflateEditText(TYPE_CLASS_NUMBER or TYPE_NUMBER_FLAG_DECIMAL or TYPE_NUMBER_FLAG_SIGNED)
             else -> null
