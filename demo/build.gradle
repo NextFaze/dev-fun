@@ -39,7 +39,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix '.debug'
-            minifyEnabled true // enable to demonstrate
+            minifyEnabled getBoolProperty("demo.debug.minify.enabled", true) // enable to demonstrate/test
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
@@ -125,3 +125,7 @@ dependencies {
 //    dependsOn 'assembleDebug'
 //    archiveName 'jarForDokka.jar'
 //}
+
+def getBoolProperty(String name, boolean defaultValue) {
+    return new Boolean(hasProperty(name) ? project.properties[name].toBoolean() : defaultValue)
+}
