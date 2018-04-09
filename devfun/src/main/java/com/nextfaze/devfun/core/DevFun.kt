@@ -56,7 +56,10 @@ class DevFunInitializerProvider : ContentProvider() {
         return true
     }
 
+    /** NOP */
     override fun getType(uri: Uri) = "none/none"
+
+    /** NOP */
     override fun query(
         uri: Uri,
         projection: Array<out String>?,
@@ -65,10 +68,14 @@ class DevFunInitializerProvider : ContentProvider() {
         sortOrder: String?
     ): Cursor? = throw UnsupportedOperationException("Query not supported")
 
+    /** NOP */
     override fun insert(uri: Uri, values: ContentValues): Uri = throw UnsupportedOperationException("Insert not supported")
+
+    /** NOP */
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int =
         throw UnsupportedOperationException("Delete not supported")
 
+    /** NOP */
     override fun update(uri: Uri, values: ContentValues, selection: String?, selectionArgs: Array<out String>?): Int =
         throw UnsupportedOperationException("Update not supported")
 }

@@ -26,6 +26,7 @@ interface WithValue<T : Any> {
  * For example, the Switch view has its own text value and thus is used instead of the one provided by DevFun.
  */
 interface WithLabel {
+    /** The label/title for this parameter. */
     var label: CharSequence
 }
 

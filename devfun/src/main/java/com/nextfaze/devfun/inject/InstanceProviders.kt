@@ -13,8 +13,7 @@ import android.view.ViewGroup
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
-import com.nextfaze.devfun.internal.logger
-import com.nextfaze.devfun.internal.t
+import com.nextfaze.devfun.internal.*
 import java.util.ArrayDeque
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility
@@ -65,10 +64,17 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
 /**
  * Handles Kotlin `object` types.
  *
+ * Automatically handles `internal` or `private` types.
+ *
  * @internal Visible for testing - use at your own risk.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class KObjectInstanceProvider : InstanceProvider {
+    /**
+     * Get the Kotlin `object` instance of some [clazz] type.
+     *
+     * Automatically handles `internal` or `private` types.
+     */
     override fun <T : Any> get(clazz: KClass<out T>): T? {
         if (clazz.visibility != KVisibility.PRIVATE) {
             return clazz.objectInstance?.let { return it }

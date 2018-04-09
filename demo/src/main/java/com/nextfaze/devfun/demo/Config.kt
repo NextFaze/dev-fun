@@ -55,15 +55,16 @@ class Config @Inject constructor(context: Context) {
 
     @DeveloperFunction
     private fun editValues(
+        config: Config, // injecting for UI demonstration purposes
         @From(CurrentSplashDuration::class) splashDurationMillis: Long,
         @From(CurrentSignInEnabled::class) signInEnabled: Boolean,
         @From(CurrentRegistrationEnabled::class) registrationEnabled: Boolean,
         @From(CurrentWelcomeMessage::class) welcomeString: String
     ) {
-        this.splashDuration = splashDurationMillis
-        this.signInEnabled = signInEnabled
-        this.registrationEnabled = registrationEnabled
-        this.welcomeString = welcomeString
+        config.splashDuration = splashDurationMillis
+        config.signInEnabled = signInEnabled
+        config.registrationEnabled = registrationEnabled
+        config.welcomeString = welcomeString
     }
 
     @DeveloperFunction

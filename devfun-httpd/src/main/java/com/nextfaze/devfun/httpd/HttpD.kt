@@ -103,6 +103,7 @@ class HttpDRouter(private val context: Context, private val port: Int) : RouterN
         addRoute("/invoke/:hashCode", InvokeHandler::class.java)
     }
 
+    /** Start the HTTPD server. */
     @DeveloperFunction
     override fun start() = super.start()
 
@@ -111,6 +112,7 @@ class HttpDRouter(private val context: Context, private val port: Int) : RouterN
         logServerInfo()
     }
 
+    /** Stop the HTTPD server. */
     @DeveloperFunction
     override fun stop() = super.stop()
 

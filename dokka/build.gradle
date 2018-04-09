@@ -12,6 +12,9 @@ dependencies {
     // Support libs
     implementation Config.supportAppCompat
 
+    // Dagger
+    compileOnly Config.dagger
+
     // DevFun
     implementation project(':devfun')
     implementation project(':devfun-annotations')
@@ -19,6 +22,8 @@ dependencies {
     implementation project(':devfun-httpd')
     implementation project(':devfun-httpd-frontend')
     implementation project(':devfun-inject-dagger2')
+    implementation project(':devfun-internal')
+    implementation project(':devfun-invoke-view-colorpicker')
     implementation project(':devfun-menu')
     implementation project(':devfun-stetho')
     implementation project(':devfun-util-glide')
