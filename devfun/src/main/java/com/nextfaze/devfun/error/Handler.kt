@@ -67,7 +67,7 @@ interface ErrorHandler {
      * @param body A short description of how/why this exception was thrown.
      * @param functionItem The relevant function item that lead to this error occurring (or `null`/absent) if not relevant.
      */
-    fun onError(t: Throwable, title: String, body: String, functionItem: FunctionItem? = null)
+    fun onError(t: Throwable, title: CharSequence, body: CharSequence, functionItem: FunctionItem? = null)
 
     /**
      * Call to log an error.
@@ -111,7 +111,7 @@ internal class DefaultErrorHandler(application: Application, private val activit
         )
     }
 
-    override fun onError(t: Throwable, title: String, body: String, functionItem: FunctionItem?) =
+    override fun onError(t: Throwable, title: CharSequence, body: CharSequence, functionItem: FunctionItem?) =
         onError(SimpleError(t, title, body, functionItem))
 
     override fun onError(error: ErrorDetails) {

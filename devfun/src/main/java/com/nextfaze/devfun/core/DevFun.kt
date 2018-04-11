@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.Looper
 import android.support.annotation.RestrictTo
 import android.support.v7.app.AlertDialog
+import android.text.SpannableStringBuilder
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.loader.DefinitionsLoader
@@ -360,36 +361,49 @@ class DevFun {
                     .flatMap { it.functionDefinitions }
                     .toSet()
                     .forEach functionItems@{ func ->
-                        log.t { "Processing ${func.clazz.simpleName}::${func.name}" }
-                        transformations.forEach {
-                            if (it.accept(func)) {
-                                val funcClass = try {
-                                    when {
-                                        func.clazz.isCompanion -> func.clazz.java.enclosingClass.kotlin
-                                        else -> func.clazz
+                        try {
+                            log.t { "Processing ${func.clazz.simpleName}::${func.name}" }
+                            transformations.forEach {
+                                if (it.accept(func)) {
+                                    val funcClass = try {
+                                        when {
+                                            func.clazz.isCompanion -> func.clazz.java.enclosingClass.kotlin
+                                            else -> func.clazz
+                                        }
+                                    } catch (ignore: UnsupportedOperationException) {
+                                        func.clazz // happens with top-level functions (reflection not supported for them yet)
                                     }
-                                } catch (ignore: UnsupportedOperationException) {
-                                    func.clazz // happens with top-level functions (reflection not supported for them yet)
-                                }
-                                val classCat = classCategories.getOrPut(funcClass) { SimpleCategoryDefinition(funcClass) }
-                                val cat = func.category.let resolveCategory@{ funCat ->
-                                    when (funCat) {
-                                        null -> classCat
-                                        else -> InheritingCategoryDefinition(classCat, funCat).also {
-                                            functionCategories += it
+                                    val classCat = classCategories.getOrPut(funcClass) { SimpleCategoryDefinition(funcClass) }
+                                    val cat = func.category.let resolveCategory@{ funCat ->
+                                        when (funCat) {
+                                            null -> classCat
+                                            else -> InheritingCategoryDefinition(classCat, funCat).also {
+                                                functionCategories += it
+                                            }
                                         }
                                     }
-                                }
 
-                                val items = it.apply(func, cat)
-                                log.t { "Transformer $it accepted item and returned ${items?.size} items: ${items?.joinToString { it.name }}" }
-                                if (items != null) {
-                                    funItems.addAll(items)
-                                    return@functionItems
+                                    val items = it.apply(func, cat)
+                                    log.t { "Transformer $it accepted item and returned ${items?.size} items: ${items?.joinToString { it.name }}" }
+                                    if (items != null) {
+                                        funItems.addAll(items)
+                                        return@functionItems
+                                    }
+                                } else {
+                                    log.t { "Transformer $it ignored item" }
                                 }
-                            } else {
-                                log.t { "Transformer $it ignored item" }
                             }
+                        } catch (t: Throwable) {
+                            get<ErrorHandler>().onError(
+                                t,
+                                "Function Transformation",
+                                SpannableStringBuilder().apply {
+                                    this += u("Failed to transform function definition:\n")
+                                    this += pre(func.toString())
+                                    this += u("\nOn method:\n")
+                                    this += pre(func.method.toString())
+                                }
+                            )
                         }
                     }
 
