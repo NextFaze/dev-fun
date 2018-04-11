@@ -46,6 +46,8 @@ dokka {
 project.afterEvaluate {
     def mainDokkaTask = project.getTasksByName('dokka', false).first()
     rootProject.getTasksByName('dokka', true).forEach { libDokkaTask ->
+        if (libDokkaTask.project == rootProject) return
+
         mainDokkaTask.sourceDirs += libDokkaTask.project.isAndroid ?
                 libDokkaTask.project.android.sourceSets.main.java.srcDirs :
                 libDokkaTask.project.sourceSets.main.allSource
