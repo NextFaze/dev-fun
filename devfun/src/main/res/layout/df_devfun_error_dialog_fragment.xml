@@ -34,16 +34,27 @@
         app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
 
     <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleDivider"
+        tools:text="@tools:sample/date/hhmmss" />
+
+    <TextView
         android:id="@+id/bodyTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleDivider"
+        app:layout_constraintTop_toBottomOf="@+id/timeTextView"
         tools:text="@tools:sample/lorem" />
 
     <TextView
@@ -81,6 +92,57 @@
             tools:text="@tools:sample/lorem/random" />
 
     </com.nextfaze.devfun.error.HVScrollView>
+
+    <!-- Navigation Buttons -->
+
+    <LinearLayout
+        android:id="@+id/navButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:visibility="visible">
+
+        <Button
+            android:id="@+id/prevButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⇦"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText,SpUsage" />
+
+        <TextView
+            android:id="@+id/errorPosTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/nextButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⇨"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText,SpUsage" />
+
+    </LinearLayout>
+
+    <!-- Clear Button -->
+
+    <Button
+        android:id="@+id/clearButton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/df_devfun_clear"
+        app:layout_constraintRight_toLeftOf="@+id/okButton"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- OK Button -->
 
     <Button
         android:id="@+id/okButton"

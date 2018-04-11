@@ -88,6 +88,7 @@ class DevFunInitializerProvider : ContentProvider() {
  * @throws IllegalStateException if [DevFun.initialize] has not been called.
  */
 val devFun: DevFun get() = _devFun ?: throw IllegalStateException("DevFun not initialized!")
+@Suppress("ObjectPropertyName")
 @SuppressLint("StaticFieldLeak")
 private var _devFun: DevFun? = null
 
@@ -226,6 +227,7 @@ class DevFun {
 
             // Invocation and Errors
             this += singletonInstance<ErrorHandler> { get<DefaultErrorHandler>() }
+            this += singletonInstance { DefaultErrorHandler(get(), get()) }
             this += singletonInstance<Invoker> { get<DefaultInvoker>() }
 
             // View Factories
@@ -240,7 +242,7 @@ class DevFun {
         moduleLoader.init(modules.toList(), useServiceLoader)
         tryInitModules()
 
-        initializationCallbacks.forEach { it() }
+        initializationCallbacks.forEach { it.invokeSafely() }
         initializationCallbacks.clear()
     }
 
@@ -314,7 +316,7 @@ class DevFun {
      */
     operator fun plusAssign(onInitialized: OnInitialized) {
         if (isInitialized) {
-            onInitialized()
+            onInitialized.invokeSafely()
         } else {
             initializationCallbacks += onInitialized
         }
@@ -429,6 +431,13 @@ class DevFun {
             .setTitle(R.string.df_devfun)
             .setMessage(activity.getString(R.string.df_devfun_about, BuildConfig.VERSION_NAME))
             .show()
+
+    private fun OnInitialized.invokeSafely() =
+        try {
+            this()
+        } catch (t: Throwable) {
+            get<ErrorHandler>().onError(t, "Initialization Callback", "Exception thrown in initialization callback $this")
+        }
 }
 
 /**

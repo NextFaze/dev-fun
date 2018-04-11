@@ -8,9 +8,7 @@ import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.ClassInstanceNotFoundException
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.internal.i
-import com.nextfaze.devfun.internal.logger
-import com.nextfaze.devfun.internal.w
+import com.nextfaze.devfun.internal.*
 import kotlin.reflect.KClass
 
 /** Used to invoke a [FunctionItem] and automatically handles parameter injection and errors. */
@@ -40,16 +38,22 @@ internal class DefaultInvoker(private val devFun: DevFun, private val errorHandl
                     log.i { "Invocation of $item is pending user interaction..." }
                 } else {
                     // todo show result dialog for non-null non-Unit return values?
+                    val exception = exception
                     when (exception) {
                         null -> log.i { "Invocation of $item returned\n$value" }
-                        else -> log.w(exception) { "Exception thrown during invocation of $item." }
+                        else -> errorHandler.onError(
+                            exception,
+                            "Invocation Failure",
+                            "Something went wrong when trying to invoke the method.",
+                            item
+                        )
                     }
                 }
             }
         } catch (de: DebugException) {
             throw de
         } catch (t: Throwable) {
-            errorHandler.onError(item, t, "Pre-invocation Failure", "Something went wrong when trying to detect/find type instances.")
+            errorHandler.onError(t, "Pre-invocation Failure", "Something went wrong when trying to detect/find type instances.", item)
             SimpleInvokeResult(exception = t)
         }
     }
@@ -72,13 +76,12 @@ internal class DefaultInvoker(private val devFun: DevFun, private val errorHandl
         val args = item.parameterInstances(instanceProvider)
 
         if (haveAllInstances) {
-            try {
-                return SimpleInvokeResult(value = item.function.invoke(receiver, args))
+            return try {
+                SimpleInvokeResult(value = item.function.invoke(receiver, args))
             } catch (de: DebugException) {
                 throw de
             } catch (t: Throwable) {
-                errorHandler.onError(item, t, "Invocation Failure", "Something went wrong when trying to invoke the method.")
-                return SimpleInvokeResult(exception = t)
+                SimpleInvokeResult(exception = t)
             }
         } else {
             InvokingDialogFragment.show(devFun.get(), item)

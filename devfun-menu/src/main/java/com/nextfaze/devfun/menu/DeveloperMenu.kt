@@ -2,12 +2,9 @@ package com.nextfaze.devfun.menu
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Typeface
 import android.support.v4.app.FragmentActivity
 import android.support.v7.app.AlertDialog
-import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.text.style.StyleSpan
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -16,7 +13,11 @@ import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.menu.controllers.*
+import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.menu.controllers.CogOverlay
+import com.nextfaze.devfun.menu.controllers.GRAVE_KEY_SEQUENCE
+import com.nextfaze.devfun.menu.controllers.KeySequence
+import com.nextfaze.devfun.menu.controllers.VOLUME_KEY_SEQUENCE
 import com.nextfaze.devfun.view.ViewFactoryProvider
 import com.nextfaze.devfun.view.viewFactory
 import kotlin.reflect.KClass
@@ -128,8 +129,7 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
             .takeIf { it.isNotEmpty() }
             ?.joinTo(SpannableStringBuilder(), "\n\n") {
                 SpannableStringBuilder().apply {
-                    this += it.first
-                    setSpan(StyleSpan(Typeface.BOLD), 0, it.first.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+                    this += bold(it.first)
                     this += "\n"
                     this += it.second
                 }

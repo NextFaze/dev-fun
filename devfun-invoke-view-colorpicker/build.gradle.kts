@@ -30,8 +30,6 @@ android {
                 }
             }
         }
-
-        buildConfigField("boolean", "VERSION_SNAPSHOT", project.isSnapshot.toString())
     }
 
     resourcePrefix("df_${project.name.replace("devfun-", "")}_".replace('-', '_'))

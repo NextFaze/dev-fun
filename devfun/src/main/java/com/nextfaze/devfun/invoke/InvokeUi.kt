@@ -64,10 +64,10 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
             performOnViewCreated()
         } catch (t: Throwable) {
             errorHandler.onError(
-                functionItem,
                 t,
                 "View Creation Failure",
-                "Something when wrong when trying to create the invocation dialog view."
+                "Something when wrong when trying to create the invocation dialog view.",
+                functionItem
             )
             Handler().post { dismissAllowingStateLoss() }
         }
@@ -160,7 +160,7 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
             } catch (de: DebugException) {
                 throw de
             } catch (t: Throwable) {
-                errorHandler.onError(functionItem, t, "Invocation Failure", "Something went wrong when trying to execute requested method.")
+                errorHandler.onError(t, "Invocation Failure", "Something went wrong when trying to execute requested method.", functionItem)
             }
             dialog.dismiss()
         }

@@ -18,6 +18,10 @@ kotlin {
     }
 }
 
+androidExtensions {
+    experimental = true
+}
+
 dependencies {
     // Dev Fun
     kapt project(':devfun-compiler')

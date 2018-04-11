@@ -16,8 +16,7 @@ import android.text.SpannableStringBuilder
 import android.view.KeyEvent
 import android.view.Window
 import com.nextfaze.devfun.core.ActivityProvider
-import com.nextfaze.devfun.internal.registerActivityCallbacks
-import com.nextfaze.devfun.internal.unregister
+import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.menu.DeveloperMenu
 import com.nextfaze.devfun.menu.MenuController
 import com.nextfaze.devfun.menu.R

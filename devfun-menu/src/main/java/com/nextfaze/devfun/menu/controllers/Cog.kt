@@ -368,7 +368,3 @@ private val Context.isRunningInForeground: Boolean
         val topActivityName = tasks[0].topActivity.packageName
         return topActivityName.equals(packageName, ignoreCase = true)
     }
-
-internal operator fun Appendable.plusAssign(charSequence: CharSequence) {
-    this.append(charSequence)
-}

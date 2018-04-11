@@ -1,19 +1,31 @@
 package com.nextfaze.devfun.core.loader
 
 import android.content.Context
+import android.text.SpannableStringBuilder
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
+import com.nextfaze.devfun.core.R
+import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.error.SimpleError
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.*
+import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
 internal class ModuleLoader(private val devFun: DevFun) : InstanceProvider {
     private val log = logger()
 
+    private val context by lazy { devFun.context }
+    private val errorHandler by lazy { devFun.get<ErrorHandler>() }
+
     private var _modules = mutableMapOf<KClass<*>, Module>()
 
-    private inner class Module(val module: DevFunModule, private var initialized: Boolean = false, private var initializing: Boolean = false) {
+    private inner class Module(
+        val module: DevFunModule,
+        private var initialized: Boolean = false,
+        private var initializing: Boolean = false
+    ) {
         val isInitialized get() = initialized
         val isInitializing get() = initializing
 
@@ -47,10 +59,45 @@ internal class ModuleLoader(private val devFun: DevFun) : InstanceProvider {
         }
     }
 
-    fun init(modules: Iterable<DevFunModule>, useServiceLoader: Boolean = true) {
+    fun init(modules: Iterable<DevFunModule>, useServiceLoader: Boolean) {
+        fun Throwable.toLoaderError(body: CharSequence? = null) =
+            SimpleError(
+                this,
+                context.getString(R.string.df_devfun_service_loader_exception),
+                body ?: context.getString(R.string.df_devfun_service_loader_error)
+            )
+
+        fun ServiceConfigurationError.toConfigurationError() =
+            serviceConfigurationErrorRegex.find(toString())?.groups?.get(1)?.value?.let { moduleName ->
+                val body = SpannableStringBuilder().apply {
+                    this += context.getText(R.string.df_devfun_service_loader_module_error)
+                    this += " "
+                    this += pre(moduleName)
+                }
+                toLoaderError(body)
+            } ?: toLoaderError()
+
         if (useServiceLoader) {
-            ServiceLoader.load(DevFunModule::class.java).forEach {
-                this += it
+            val it = ServiceLoader.load(DevFunModule::class.java).iterator()
+
+            class SafeIterator : Iterator<DevFunModule?> {
+                override fun hasNext() = it.hasNext()
+                override fun next() =
+                    try {
+                        it.next()
+                    } catch (t: ServiceConfigurationError) {
+                        errorHandler.onError(t.toConfigurationError())
+                        null
+                    } catch (t: Throwable) {
+                        errorHandler.onError(t.toLoaderError())
+                        null
+                    }
+            }
+
+            SafeIterator().forEach {
+                if (it != null) {
+                    this += it
+                }
             }
         }
 
@@ -60,7 +107,7 @@ internal class ModuleLoader(private val devFun: DevFun) : InstanceProvider {
     }
 
     operator fun plusAssign(module: DevFunModule) {
-        _modules.put(module::class, Module(module))
+        _modules[module::class] = Module(module)
     }
 
     override fun <T : Any> get(clazz: KClass<out T>): T? {
@@ -80,7 +127,7 @@ internal class ModuleLoader(private val devFun: DevFun) : InstanceProvider {
             try {
                 it.initialize(devFun.context)
             } catch (t: Throwable) {
-                log.w(t) { "Failed to initialize ${it.module.name}" }
+                errorHandler.onError(t, "Module Initialization", "Failed to initialize ${it.module.name}")
             }
         }
     }
@@ -93,9 +140,12 @@ internal class ModuleLoader(private val devFun: DevFun) : InstanceProvider {
             try {
                 it.dispose()
             } catch (t: Throwable) {
-                log.w(t) { "Failed to dispose ${it.module.name}" }
+                errorHandler.onError(t, "Module Disposal", "Failed to dispose ${it.module.name}")
             }
         }
         _modules.clear()
     }
 }
+
+private val serviceConfigurationErrorRegex =
+    Regex("""^java.util.ServiceConfigurationError: com.nextfaze.devfun.core.DevFunModule: Provider ([^\s]*)""")
