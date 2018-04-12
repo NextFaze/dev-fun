@@ -3,6 +3,8 @@ package com.nextfaze.devfun.demo.inject
 import android.app.Activity
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import com.nextfaze.devfun.annotations.Dagger2Component
+import com.nextfaze.devfun.annotations.Dagger2Scope.RETAINED_FRAGMENT
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
@@ -27,8 +29,13 @@ class ActivityModule(private val activity: AppCompatActivity) {
 
 
 abstract class DaggerActivity : AppCompatActivity() {
-    lateinit var retainedComponent: RetainedComponent private set
-    lateinit var activityComponent: ActivityComponent private set
+    @get:Dagger2Component(RETAINED_FRAGMENT)
+    lateinit var retainedComponent: RetainedComponent
+        private set
+
+    @get:Dagger2Component
+    lateinit var activityComponent: ActivityComponent
+        private set
 
     val activityInjector: ActivityInjector get() = activityComponent
     val fragmentInjector: FragmentInjector get() = retainedComponent

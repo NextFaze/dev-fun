@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.os.Process
+import com.nextfaze.devfun.annotations.Dagger2Component
 import dagger.Component
 import dagger.Lazy
 import dagger.Module
@@ -31,9 +32,9 @@ class ApplicationModule {
 
     @Provides
     internal fun initializer(
-            initializers: Lazy<Set<Initializer>>,
-            @Early earlyInitializers: Lazy<Set<Initializer>>,
-            activityLifecycleCallbacks: Lazy<Set<Application.ActivityLifecycleCallbacks>>
+        initializers: Lazy<Set<Initializer>>,
+        @Early earlyInitializers: Lazy<Set<Initializer>>,
+        activityLifecycleCallbacks: Lazy<Set<Application.ActivityLifecycleCallbacks>>
     ): Initializer = { application ->
         earlyInitializers.get().forEach { it(application) }
         initializers.get().forEach { it(application) }
@@ -74,8 +75,9 @@ abstract class DaggerApplication : Application() {
      * @return An application component.
      */
     protected open fun createComponent(): ApplicationComponent =
-            DaggerApplicationComponent.builder().androidModule(AndroidModule(this)).build()
+        DaggerApplicationComponent.builder().androidModule(AndroidModule(this)).build()
 }
 
+@get:Dagger2Component
 val Context.applicationComponent: ApplicationComponent?
     get() = (applicationContext as DaggerApplication).applicationComponent

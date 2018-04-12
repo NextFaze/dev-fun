@@ -13,6 +13,8 @@ import android.os.Looper
 import android.support.annotation.RestrictTo
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
+import com.nextfaze.devfun.annotations.Dagger2Component
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.loader.DefinitionsLoader
@@ -46,6 +48,8 @@ import kotlin.reflect.KClass
  *     </application>
  * </manifest>
  * ```
+ *
+ * @see DevFun.initialize
  */
 class DevFunInitializerProvider : ContentProvider() {
     override fun onCreate(): Boolean {
@@ -424,6 +428,37 @@ class DevFun {
                 get<ErrorHandler>().onError(t, "Generate Categories", "Exception while attempting to generate categories.")
                 return listOf(ExceptionCategoryItem(t.stackTraceAsString))
             }
+        }
+
+    /**
+     * Get references to annotations that are annotated by meta annotation [DeveloperAnnotation].
+     *
+     * __Experimental API__
+     *
+     * @param T The annotation type that was annotation with [DeveloperAnnotation].
+     * @return A list of references across all modules annotated with [T].
+     *
+     * @see Dagger2Component
+     * @see getDeveloperReferences
+     */
+    inline fun <reified T : Annotation> developerReferences() =
+        definitions.flatMap {
+            it.developerReferences.filter { it.annotation == T::class }
+        }
+
+    /**
+     * Get references to annotations that are annotated by meta annotation [DeveloperAnnotation].
+     *
+     * __Experimental API__
+     *
+     * @param clazz The annotation class that was annotation with [DeveloperAnnotation].
+     * @return A list of references across all modules annotated with [clazz].
+     *
+     * @see developerReferences
+     */
+    fun getDeveloperReferences(clazz: KClass<out Annotation>) =
+        definitions.flatMap {
+            it.developerReferences.filter { it.annotation == clazz }
         }
 
     /**

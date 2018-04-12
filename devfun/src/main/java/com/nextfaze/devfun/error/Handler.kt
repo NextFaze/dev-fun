@@ -127,7 +127,6 @@ internal class DefaultErrorHandler(application: Application, private val activit
 
     override fun markSeen(key: Any) {
         synchronized(errorLock) {
-            log.d { "Mark seen ${errors[key]}" }
             errors[key]?.seen = true
         }
     }

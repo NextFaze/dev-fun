@@ -12,9 +12,7 @@ import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
-import com.nextfaze.devfun.internal.AbstractActivityLifecycleCallbacks
-import com.nextfaze.devfun.internal.d
-import com.nextfaze.devfun.internal.logger
+import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
 import com.nhaarman.mockito_kotlin.KStubbing
@@ -356,6 +354,7 @@ data class TestContext(
 
     val funDefs by lazy { devFun.definitions.flatMap { it.functionDefinitions }.toSet() }
     val catDefs by lazy { devFun.definitions.flatMap { it.categoryDefinitions }.toSet() }
+    private val devRefs by lazy { devFun.definitions.flatMap { it.developerReferences }.toSet() }
 
     private val allItems by lazy { devFun.categories.flatMap { it.items }.toSet().groupBy { it.function } }
 
@@ -391,6 +390,13 @@ data class TestContext(
                     log.d { "> $result" }
                 }
                 log.d { "\n" }
+            }
+        }
+
+        devRefs.forEach { ref ->
+            log.d { "Invoke developer reference $ref ..." }
+            ref.method!!.let {
+                it.invoke(it.receiverInstance(devFun.instanceProviders))
             }
         }
     }

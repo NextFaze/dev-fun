@@ -1,9 +1,11 @@
 package com.nextfaze.devfun.compiler
 
 import com.google.auto.service.AutoService
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.CategoryDefinition
+import com.nextfaze.devfun.core.DeveloperReference
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.core.FunctionTransformer
 import com.nextfaze.devfun.generated.DevFunGenerated
@@ -228,11 +230,7 @@ private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
 )
 @AutoService(Processor::class)
 class DevFunProcessor : AbstractProcessor() {
-    override fun getSupportedAnnotationTypes() = setOf(
-        DeveloperFunction::class,
-        DeveloperCategory::class
-    ).map { it.java.name }.toSet()
-
+    override fun getSupportedAnnotationTypes() = setOf("*") // we need to accept all to be able to process meta annotated elements
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
     private val useKotlinReflection by lazy { processingEnv.options[FLAG_USE_KOTLIN_REFLECTION]?.toBoolean() ?: false }
@@ -244,26 +242,34 @@ class DevFunProcessor : AbstractProcessor() {
 
     private val categoryDefinitions = HashMap<String, String>()
     private val functionDefinitions = HashMap<String, String>()
+    private val developerMethods = HashMap<String, String>()
+
+    private val TypeElement.isDeveloperAnnotation get() = getAnnotation(DeveloperAnnotation::class.java) != null
 
     override fun process(elements: Set<TypeElement>, env: RoundEnvironment): Boolean {
         try {
             if (!env.errorRaised()) {
-                doProcess(env)
+                val devAnnotationElements = elements.filter { it.isDeveloperAnnotation }
+                note { "devAnnotationElements=$devAnnotationElements" }
+
+                doProcess(devAnnotationElements, env)
             }
         } catch (t: Throwable) {
             error("Unexpected error: ${t.stackTraceAsString}")
         }
-        return true
+
+        // since we accept "*" now we return false to allow other processors to use what we didn't want
+        return false
     }
 
-    private fun doProcess(env: RoundEnvironment) {
+    private fun doProcess(devAnnotationElements: List<TypeElement>, env: RoundEnvironment) {
         if (env.processingOver()) {
             if (categoryDefinitions.isNotEmpty() || functionDefinitions.isNotEmpty()) {
                 writeServiceFile()
                 writeSourceFile(generateKSource())
             }
         } else {
-            processAnnotations(env)
+            processAnnotations(devAnnotationElements, env)
         }
     }
 
@@ -289,7 +295,19 @@ class DevFunProcessor : AbstractProcessor() {
             types = *types
         )
 
-    private fun processAnnotations(env: RoundEnvironment) {
+    private fun processAnnotations(devAnnotationElements: List<TypeElement>, env: RoundEnvironment) {
+        fun Element.toInstance(from: String, forStaticUse: Boolean = false, isClassKtFile: Boolean = false): String = when {
+            this is TypeElement && (forStaticUse || isKObject) -> when {
+                isClassPublic -> {
+                    when {
+                        isClassKtFile -> enclosingElement.toString() // top-level function so just the package
+                        else -> toString()
+                    }
+                }
+                else -> "${toClass()}.privateObjectInstance"
+            }
+            else -> "($from${asType().toCast()})"
+        }
 
         //
         // DeveloperCategory
@@ -340,19 +358,6 @@ class DevFunProcessor : AbstractProcessor() {
         //
 
         fun generateFunctionDefinition(element: ExecutableElement) {
-            fun Element.toInstance(from: String, forStaticUse: Boolean = false, isClassKtFile: Boolean = false): String = when {
-                this is TypeElement && (forStaticUse || isKObject) -> when {
-                    isClassPublic -> {
-                        when {
-                            isClassKtFile -> enclosingElement.toString() // top-level function so just the package
-                            else -> toString()
-                        }
-                    }
-                    else -> "${toClass()}.privateObjectInstance"
-                }
-                else -> "($from${asType().toCast()})"
-            }
-
             val clazz = element.enclosingElement as TypeElement
             note { "Processing $clazz::$element..." }
 
@@ -515,12 +520,70 @@ class DevFunProcessor : AbstractProcessor() {
         env.getElementsAnnotatedWith(DeveloperFunction::class.java).forEach {
             generateFunctionDefinition(it as ExecutableElement)
         }
+
+        //
+        // DeveloperAnnotation
+        //
+
+        fun generateDeveloperReferences(annotation: TypeElement, element: Element) {
+            val clazz = element.enclosingElement as TypeElement
+            note { "Processing $clazz::$element for $annotation..." }
+
+            // The meta annotation class (e.g. Dagger2Component)
+            val annotationClass = annotation.toClass()
+
+            // Can we call the function directly
+            val funIsPublic = element.isPublic
+            val classIsPublic = funIsPublic && clazz.isClassPublic
+
+            // If true the the function is top-level (file-level) declared (and thus we cant directly reference its enclosing class)
+            val isClassKtFile = clazz.isClassKtFile
+
+            // If we are referencing a method
+            val method = (element as? ExecutableElement)?.let {
+                val funName = element.simpleName.escapeDollar()
+                val setAccessible = if (!classIsPublic || !element.isPublic) ".apply { isAccessible = true }" else ""
+                val methodArgTypes = element.parameters.joiner(prefix = ", ") { it.toClass(false) }
+                when {
+                    useKotlinReflection -> """${clazz.toClass()}.declaredFunctions.filter { it.name == "${element.simpleName.stripInternal()}" && it.parameters.size == ${element.parameters.size + 1} }.single().javaMethod!!$setAccessible"""
+                    else -> """${clazz.toClass(false, isClassKtFile)}.getDeclaredMethod("$funName"$methodArgTypes)$setAccessible"""
+                }
+            }
+
+            val developerAnnotation = "${element.enclosingElement}::$element"
+            var debugAnnotationInfo = ""
+            if (isDebugCommentsEnabled) {
+                debugAnnotationInfo = "\n#|// $developerAnnotation"
+            }
+
+            developerMethods[developerAnnotation] =
+                    """$debugAnnotationInfo
+                        #|object : ${DeveloperReference::class.simpleName} {
+                        #|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> by lazy { $annotationClass }
+                        #|    override val ${DeveloperReference::method.name}: Method? by lazy { $method }
+                        #|}"""
+        }
+
+        devAnnotationElements.forEach { devAnnotation ->
+            env.getElementsAnnotatedWith(devAnnotation).forEach {
+                if (it !is ExecutableElement) {
+                    error(
+                        """Only executable elements are supported at the moment.
+                            |Please make an issue if you want someone else (or feel free to make a PR)""".trimMargin(),
+                        element = it
+                    )
+                } else {
+                    generateDeveloperReferences(devAnnotation, it)
+                }
+            }
+        }
     }
 
     private fun generateKSource(): String {
         val imports = mutableSetOf<String?>().apply {
             this += CategoryDefinition::class.qualifiedName
             this += DevFunGenerated::class.qualifiedName
+            this += DeveloperReference::class.qualifiedName
             this += FunctionDefinition::class.qualifiedName
             this += functionInvokeQualified
             this += Method::class.qualifiedName
@@ -570,6 +633,9 @@ ${categoryDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
     )
     override val ${DevFunGenerated::functionDefinitions.name} = listOf<${FunctionDefinition::class.simpleName}>(
 ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
+    )
+    override val ${DevFunGenerated::developerReferences.name} = listOf<${DeveloperReference::class.simpleName}>(
+${developerMethods.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )
 }
 """

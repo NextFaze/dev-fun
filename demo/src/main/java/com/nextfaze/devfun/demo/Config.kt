@@ -108,6 +108,9 @@ class ConfigDebugClass(private val config: Config) {
  *
  * You don't need `@Constructable` for `object` types.
  * A limitation of this however is that all injection must occur at the function level.
+ *
+ * @see Config
+ * @see Constructable
  */
 @DeveloperCategory("Config")
 object ConfigDebugObject {

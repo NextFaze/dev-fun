@@ -1,5 +1,7 @@
 package com.nextfaze.devfun.invoke.view
 
+import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.inject.Constructable
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 
@@ -27,6 +29,11 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
  * _Usage Note: The DevFun library `devfun-invoke-view-colorpicker` must be present for the annotation to be handled (it will
  * simply be ignored otherwise).
  * **If you have `devfun-menu` then you will have the colorpicker transitively.**_
+ *
+ * @see From
+ * @See ValueSource
+ * @see Constructable
+ * @see DeveloperFunction
  */
 @Retention(RUNTIME)
 @Target(VALUE_PARAMETER)

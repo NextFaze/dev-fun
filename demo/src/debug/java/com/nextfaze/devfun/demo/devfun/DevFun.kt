@@ -18,7 +18,6 @@ import com.nextfaze.devfun.demo.inject.Initializer
 import com.nextfaze.devfun.demo.inject.applicationComponent
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.dagger2.tryGetInstanceFromComponent
-import com.nextfaze.devfun.inject.dagger2.useAutomaticDagger2Injector
 import com.nextfaze.devfun.menu.MenuHeader
 import com.nextfaze.devfun.view.viewFactory
 import dagger.Module
@@ -29,20 +28,27 @@ import kotlin.reflect.KClass
 
 @Module
 class DevFunModule {
-    init {
-        useAutomaticDagger2Injector = false
-    }
+    /*
+     * If we were using our own instance provider (i.e. the DemoInstanceProvider below) then we'd want to disable the automatic one.
+     */
+//    init {
+//        useAutomaticDagger2Injector = false
+//    }
 
     @Provides @IntoSet @Singleton
     fun initializeDevFun(application: Application, session: Session): Initializer = {
         //DevFun().initialize(application, DevMenu(), DevHttpD(), DevHttpIndex(), DevStetho(), useServiceLoader = false)
         devFun += onInitialized@{
             viewFactories += demoMenuHeaderFactory(session, get())
-            instanceProviders += DemoInstanceProvider(application, get())
+            /*
+             * Since the demo is leveraging the @Dagger2Component annotations this isn't needed.
+             */
+//            instanceProviders += DemoInstanceProvider(application, get())
         }
     }
 }
 
+@Suppress("unused")
 private class DemoInstanceProvider(private val app: Application, private val activityProvider: ActivityProvider) : InstanceProvider {
     private val applicationComponent by lazy { app.applicationComponent!! }
 

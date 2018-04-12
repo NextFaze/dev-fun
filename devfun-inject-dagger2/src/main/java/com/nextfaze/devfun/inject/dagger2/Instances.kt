@@ -4,15 +4,22 @@ import android.app.Activity
 import android.app.Application
 import android.app.Fragment
 import android.content.Context
+import android.view.View
 import com.google.auto.service.AutoService
+import com.nextfaze.devfun.annotations.Dagger2Component
+import com.nextfaze.devfun.annotations.Dagger2Scope
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.invoke.parameterInstances
+import com.nextfaze.devfun.invoke.receiverClassForInvocation
+import com.nextfaze.devfun.invoke.receiverInstance
 import dagger.Component
 import dagger.Module
 import dagger.Provides
 import java.lang.RuntimeException
 import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -28,8 +35,12 @@ private val log = logger("${BuildConfig.APPLICATION_ID}.Instances")
  *
  * This value can be disabled at any time - it can not be re-enabled without reinitializing DevFun.
  *
+ * Alternatively use `@Dagger2Component` on your functions (`@get:Dagger2Component` for properties) that return
+ * components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class, activity class, etc).
+ *
  * @see InjectFromDagger2
- * @see <a href="https://github.com/NextFaze/dev-fun/tree/master/demo/src/debug/java/com/nextfaze/devfun/demo/devfun/DevFun.kt#L29">DemoInstanceProvider</a>
+ * @see Dagger2Component
+ * @see <a href="https://github.com/NextFaze/dev-fun/tree/master/demo/src/debug/java/com/nextfaze/devfun/demo/devfun/DevFun.kt#L52">DemoInstanceProvider</a>
  */
 var useAutomaticDagger2Injector = true
     set(value) {
@@ -43,6 +54,12 @@ var useAutomaticDagger2Injector = true
  * Helper function to be used on Dagger 2.x [Component] implementations.
  *
  * Will traverse the component providers and modules for an instance type matching [clazz] - scoping is not considered.
+ *
+ * Alternatively use `@Dagger2Component` on your functions (`@get:Dagger2Component` for properties) that return
+ * components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class, activity
+ * class, etc) - which will end up using this method anyway.
+ *
+ * @see Dagger2Component
  */
 fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? {
     // Get from Provider
@@ -117,6 +134,7 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
  * _Due to limitations in KAPT it is not possible to generate Kotlin code that would then generate dagger bindings.
  * Once this has been resolved it should be possible to resolve this more gracefully._
  *
+ * ### Automatic Reflection Based
  * On [DevFunModule.initialize], your application (and its subclasses) are searched for a [Component]. This is assumed
  * to be your top-level (singleton scoped) dagger component. An instance provider is then added referencing this instance.
  *
@@ -124,6 +142,12 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
  * that [Provides] the requested type _(or subclasses the type)_.
  *
  * __This has not been tested extensively beyond simple object graphs!__
+ *
+ *
+ * ### Annotation Based
+ * Use [Dagger2Component] on functions that return components (`@get:Dagger2Component` on properties).
+ *
+ * Provides some level of support for manually specifying scopes (any/or attempts to guess them based on the context).
  *
  *
  * ### Complex Object Graphs
@@ -174,14 +198,23 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
  * [useAutomaticDagger2Injector] to `false` to disable the default instance provider.
  *
  * Add/remove providers using [DevFun.instanceProviders].
+ *
+ * @see Dagger2Component
  */
 @AutoService(DevFunModule::class)
 class InjectFromDagger2 : AbstractDevFunModule() {
+    private val log = logger()
+
     private var instanceProvider: InstanceProvider? = null
 
     override fun init(context: Context) {
         val application = context.applicationContext as Application
-        devFun.instanceProviders += Dagger2InstanceProvider(application, get()).also { instanceProvider = it }
+        val provider = Dagger2AnnotatedInstanceProvider(devFun, get()).takeIf { it.hasComponents }
+                ?: Dagger2ReflectiveInstanceProvider(application, get())
+        devFun.instanceProviders += provider.also {
+            log.d { "InjectFromDagger2 using instance provider $it" }
+            instanceProvider = it
+        }
     }
 
     override fun dispose() {
@@ -192,7 +225,106 @@ class InjectFromDagger2 : AbstractDevFunModule() {
     }
 }
 
-private class Dagger2InstanceProvider(private val app: Application, private val activityProvider: ActivityProvider) : InstanceProvider {
+private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun, private val activityProvider: ActivityProvider) :
+    InstanceProvider {
+    private val log = logger()
+
+    private data class ComponentReference(
+        val annotation: Dagger2Component,
+        val method: Method,
+        val scope: Int
+    )
+
+    private val components: List<ComponentReference>
+
+    val hasComponents get() = components.isNotEmpty()
+
+    init {
+        fun KClass<*>.toScope() =
+            when {
+                isSubclassOf<View>() -> Dagger2Scope.VIEW
+                isSubclassOf<Activity>() -> Dagger2Scope.ACTIVITY
+                isSubclassOf<Application>() -> Dagger2Scope.APPLICATION
+                isSubclassOf<Context>() -> Dagger2Scope.APPLICATION
+                else -> Dagger2Scope.UNDEFINED
+            }
+
+        components = devFun.developerReferences<Dagger2Component>()
+            .filter { it.method != null }
+            .map {
+                val method = it.method!!
+                val annotation = method.getAnnotation(Dagger2Component::class.java) ?: return@map null
+                val priority =
+                    when {
+                        annotation.scope != Dagger2Scope.UNDEFINED -> {
+                            log.t { "@Dagger2Component $method has scope of: ${annotation.scope}(${annotation.scope.ordinal})" }
+                            annotation.scope.ordinal
+                        }
+                        annotation.priority != 0 -> {
+                            log.t { "@Dagger2Component $method has priority of: ${annotation.priority}" }
+                            annotation.priority
+                        }
+                        else -> bestGuess@ {
+                            if (method.isStatic) {
+                                val receiverType = method.parameterTypes.firstOrNull()
+                                when (receiverType) {
+                                    null -> Dagger2Scope.APPLICATION
+                                    else -> receiverType.kotlin.toScope()
+                                }.also {
+                                    log.t { "Assuming scope of $it for static $method as receiver type is $receiverType" }
+                                }
+                            } else {
+                                val declaringClass = method.declaringClass.kotlin
+                                declaringClass.toScope().also {
+                                    log.t { "Assuming scope of $it for $method as receiver type is declaringClass is $declaringClass" }
+                                }
+                            }.ordinal
+                        }
+                    }
+
+                ComponentReference(annotation, method, priority).also {
+                    log.t { "Found @Dagger2Component annotated reference $it" }
+                }
+            }
+            .filterNotNull()
+            .sortedBy { it.scope }
+        log.d {
+            "Resolved & sorted component sources (lower scope # are checked first):${components.toString().replace(
+                "ComponentReference",
+                "\nComponentReference"
+            )}"
+        }
+    }
+
+    override fun <T : Any> get(clazz: KClass<out T>): T? {
+        if (components.isEmpty()) return null
+
+        components.forEach {
+            log.t { "Check component reference $it for $clazz ..." }
+
+            val receiver = if (it.method.isStatic) {
+                null
+            } else {
+                when {
+                    it.method.receiverClassForInvocation?.isSubclassOf<Activity>() == true -> activityProvider()
+                    else -> it.method.receiverInstance(devFun.instanceProviders)
+                } ?: return@forEach
+            }
+
+            val args = it.method.parameterInstances(devFun.instanceProviders)
+            val component = if (args != null) it.method.invoke(receiver, *args.toTypedArray()) else it.method.invoke(receiver)
+                    ?: return@forEach
+            tryGetInstanceFromComponent(component, clazz)?.let { return it }
+        }
+
+        return null
+    }
+}
+
+private class Dagger2ReflectiveInstanceProvider(
+    private val app: Application,
+    private val activityProvider: ActivityProvider
+) : InstanceProvider {
     private val log = logger()
     private var applicationComponents: List<Any>? = null
 

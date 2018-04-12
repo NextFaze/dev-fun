@@ -2,8 +2,7 @@ package com.nextfaze.devfun.annotations
 
 import com.nextfaze.devfun.core.*
 import kotlin.annotation.AnnotationRetention.BINARY
-import kotlin.annotation.AnnotationTarget.CLASS
-import kotlin.annotation.AnnotationTarget.FUNCTION
+import kotlin.annotation.AnnotationTarget.*
 import kotlin.reflect.KClass
 
 /**
@@ -112,9 +111,11 @@ import kotlin.reflect.KClass
  */
 @Target(CLASS)
 @Retention(BINARY)
-annotation class DeveloperCategory(val value: String = "",
-                                   val group: String = "",
-                                   val order: Int = 0)
+annotation class DeveloperCategory(
+    val value: String = "",
+    val group: String = "",
+    val order: Int = 0
+)
 
 /**
  * Functions/methods annotated with this will be shown on the Developer Menu (and other modules).
@@ -255,7 +256,20 @@ annotation class DeveloperCategory(val value: String = "",
  */
 @Target(FUNCTION)
 @Retention(BINARY)
-annotation class DeveloperFunction(val value: String = "",
-                                   val category: DeveloperCategory = DeveloperCategory(),
-                                   val requiresApi: Int = 0,
-                                   val transformer: KClass<out FunctionTransformer> = SingleFunctionTransformer::class)
+annotation class DeveloperFunction(
+    val value: String = "",
+    val category: DeveloperCategory = DeveloperCategory(),
+    val requiresApi: Int = 0,
+    val transformer: KClass<out FunctionTransformer> = SingleFunctionTransformer::class
+)
+
+/**
+ * Meta annotation used to by DevFun to "tag" references to some other annotations.
+ *
+ * Uses of referenced annotations result in generated [DeveloperReference] instances.
+ *
+ * @see Dagger2Component
+ */
+@Retention(BINARY)
+@Target(ANNOTATION_CLASS)
+annotation class DeveloperAnnotation

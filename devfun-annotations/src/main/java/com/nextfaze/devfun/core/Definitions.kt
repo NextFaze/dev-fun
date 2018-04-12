@@ -1,5 +1,7 @@
 package com.nextfaze.devfun.core
 
+import com.nextfaze.devfun.annotations.Dagger2Component
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import java.lang.reflect.Method
@@ -144,3 +146,29 @@ interface InvokeResult {
  * i.e. Under most conditions, if this is thrown it will crash your app.
  */
 class DebugException(message: String = "Debug") : Throwable(message)
+
+/**
+ * Defines references to annotations that are annotated by meta annotation [DeveloperAnnotation].
+ *
+ * Developer Annotation annotations will be noted by DevFun and wrapped by this interface.
+ * An example of this is used by the `devfun-inject-dagger2` module.
+ *
+ * _At present the scope of references is limited to only `ExecutableElement` but is likely to increase as needed (feel free to make an issue or PR)._
+ *
+ * __This is an experimental feature and subject to change. External input/suggestions welcome.__
+ *
+ * @see Dagger2Component
+ */
+interface DeveloperReference {
+    /** The annotation that wanted the reference.*/
+    val annotation: KClass<out Annotation>
+
+    /**
+     * The annotated method.
+     *
+     * In the future this may be changed to resemble [FunctionDefinition.invoke]. TODO?
+     *
+     * _This is nullable as other types of references may be supported in the future._
+     */
+    val method: Method?
+}

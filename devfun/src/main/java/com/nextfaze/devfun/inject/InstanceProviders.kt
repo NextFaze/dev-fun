@@ -15,11 +15,10 @@ import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.internal.*
 import java.util.ArrayDeque
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
-
-private inline fun <reified T : Any> KClass<*>.isSubclassOf() = T::class.java.isAssignableFrom(this.java)
-private fun <T : Any> KClass<*>.isSubclassOf(clazz: KClass<T>) = clazz.java.isAssignableFrom(this.java)
 
 /**
  * Instance provider that delegates to other providers.
@@ -43,13 +42,28 @@ fun createDefaultCompositeInstanceProvider(): CompositeInstanceProvider = Defaul
 internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Composited<InstanceProvider>() {
     private val log = logger()
 
+    private data class Crumb(val clazz: KClass<*>, val provider: InstanceProvider)
+
+    private val crumbs by threadLocal { mutableSetOf<Crumb>() }
+
     override fun <T : Any> get(clazz: KClass<out T>): T {
-        iterator().forEach {
-            log.t { "Try-get instanceOf $clazz from $it" }
-            it[clazz]?.let {
+        iterator().forEach { provider ->
+            val crumb = Crumb(clazz, provider).also {
+                if (crumbs.contains(it)) {
+                    log.t { "NOT Try-get instanceOf $clazz from $provider as just tried that." }
+                    return@forEach
+                } else {
+                    log.t { "Try-get instanceOf $clazz from $provider" }
+                }
+            }
+
+            crumbs += crumb
+            provider[clazz]?.let {
                 log.t { "> Got $it" }
+                crumbs -= crumb
                 return it
             }
+            crumbs -= crumb
         }
         if (clazz.isSubclassOf<InstanceProvider>()) {
             iterator().asSequence().firstOrNull { it::class.isSubclassOf(clazz) }?.let {
@@ -58,6 +72,18 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
             }
         }
         throw ClassInstanceNotFoundException(clazz)
+    }
+
+    private fun <T> threadLocal(initializer: () -> T): ThreadLocalDelegate<T> = ThreadLocalDelegate(initializer)
+    private class ThreadLocalDelegate<T>(val initializer: () -> T) : ReadWriteProperty<Any, T> {
+        private val threadLocal: ThreadLocal<T> = ThreadLocal()
+
+        init {
+            threadLocal.set(initializer())
+        }
+
+        override fun getValue(thisRef: Any, property: KProperty<*>): T = threadLocal.get()
+        override fun setValue(thisRef: Any, property: KProperty<*>, value: T) = threadLocal.set(value)
     }
 }
 
@@ -138,9 +164,9 @@ internal class AndroidInstanceProvider(context: Context, private val activityPro
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(clazz: KClass<out T>): T? {
         // Activities
-        val activity = activityProvider()
-        if (activity != null && clazz.isSubclassOf<Activity>()) {
-            return activity as T
+        if (clazz.isSubclassOf<Activity>()) {
+            // if the class is of type activity, then we need to return null if no activity is found (can't return Context as it could result in type error)
+            return activityProvider() as T?
         }
 
         // Application
@@ -149,6 +175,7 @@ internal class AndroidInstanceProvider(context: Context, private val activityPro
         }
 
         // Context
+        val activity = activityProvider()
         if (clazz.isSubclassOf<Context>()) {
             return (activity ?: applicationContext) as T
         }

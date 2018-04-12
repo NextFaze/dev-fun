@@ -15,7 +15,6 @@ import com.nextfaze.devfun.internal.*
 import fi.iki.elonen.NanoHTTPD.*
 import fi.iki.elonen.router.RouterNanoHTTPD
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource
-import java.lang.reflect.Modifier
 
 
 private val log = logger("com.nextfaze.devfun.httpd.frontend.FrontEnd")
@@ -425,7 +424,7 @@ private fun readSystemSettings(context: Context): Map<String, String> {
         val globalClass = Class.forName("android.provider.Settings\$Secure")
         globalClass.declaredFields.forEach {
             try {
-                if (Modifier.isStatic(it.modifiers) && it.type == String::class.java) {
+                if (it.isStatic && it.type == String::class.java) {
                     it.isAccessible = true
                     val key = it.get(null)
                     if (key is String) {
@@ -454,7 +453,7 @@ private fun readGlobalSettings(context: Context): Map<String, String> {
         val globalClass = Class.forName("android.provider.Settings\$Global")
         globalClass.declaredFields.forEach {
             try {
-                if (Modifier.isStatic(it.modifiers) && it.type == String::class.java) {
+                if (it.isStatic && it.type == String::class.java) {
                     it.isAccessible = true
                     val key = it.get(null)
                     if (key is String) {
