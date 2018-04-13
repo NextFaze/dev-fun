@@ -1,4 +1,5 @@
 import com.nextfaze.devfun.*
+import java.io.FileNotFoundException
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.DokkaAndroidTask
 import org.jetbrains.dokka.gradle.DokkaPlugin
@@ -10,6 +11,9 @@ plugins {
     kotlin("android")
     id("org.jetbrains.dokka-android")
 }
+
+registerCleanPlantUmlTask()
+registerRenderPlantUmlTask()
 
 android {
     compileSdkVersion(Android.compileSdkVersion)
@@ -106,7 +110,7 @@ project.afterEvaluate {
     // cLear previously generated Dokka files -  we need to do this as Dokka doesn't remove old files
     val dokkaOutputDir = "${rootDir.absolutePath}/gh-pages"
     mainDokkaTask.dependsOn(
-        getOrCreateTask<Delete>("clearDokka") {
+        getOrCreateTask<Delete>("cleanDokka") {
             setDelete(
                 fileTree(
                     mapOf(

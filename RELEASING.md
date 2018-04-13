@@ -10,10 +10,9 @@
 ## PlantUML
 [PlantUML](http://plantuml.com/) is used to generate UML images (gh-pages/assets/uml/).
 
-This is a little cumbersome at the moment (need to look into plugin or something).  
-To use it, you'll need to grab the jar from the website and set the path ([renderPlantUml()](plant_uml.gradle)).
+To (re)generate UML images/image maps:
 ```bash
-./gradlew renderPlantUml -PplantUmlJar=<path to jar> 
+./gradlew renderPlantUml
 ```
 
 

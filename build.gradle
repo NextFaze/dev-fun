@@ -60,12 +60,6 @@ allprojects {
 }
 println("")
 
-def dokkaDir = "${rootDir.absolutePath}/gh-pages"
-task clearDokka(type: Delete) {
-    delete fileTree(dir: dokkaDir, excludes: [".git", "assets", "_config.yml", "README.md"])
-}
-ext.clearDokkaTask = clearDokka
-
 ext.configureDokka = { project ->
     delegate = project
 
@@ -162,5 +156,3 @@ ext.doConfigureAndroidLibrary = { project, withPublishing ->
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
-apply from: 'plant_uml.gradle'
