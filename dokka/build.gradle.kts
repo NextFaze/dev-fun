@@ -142,6 +142,24 @@ project.afterEvaluate {
             }
         }
     )
+
+    // Dokka doesn't have HTML support (it strips all HTML tags)
+    // Thus to include image elements we wrap them in a code black and after Dokka we strip the code black elements
+    mainDokkaTask.finalizedBy(
+        getOrCreateTask("dokkaImageHack") {
+            doLast {
+                file(dokkaOutputDir).walkTopDown()
+                    .filter { it.extension == "md" }
+                    .forEach {
+                        it.writeText(
+                            it.readText()
+                                .replace("`IMG_START", "")
+                                .replace("IMG_END`", "")
+                        )
+                    }
+            }
+        }
+    )
 }
 
 fun String.execute(vararg args: String) {
