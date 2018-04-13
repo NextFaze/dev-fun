@@ -250,8 +250,6 @@ class DevFunProcessor : AbstractProcessor() {
         try {
             if (!env.errorRaised()) {
                 val devAnnotationElements = elements.filter { it.isDeveloperAnnotation }
-                note { "devAnnotationElements=$devAnnotationElements" }
-
                 doProcess(devAnnotationElements, env)
             }
         } catch (t: Throwable) {

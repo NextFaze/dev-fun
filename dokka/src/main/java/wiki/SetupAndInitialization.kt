@@ -1,3 +1,5 @@
+@file:Suppress("IllegalIdentifier", "ClassName", "unused")
+
 package wiki
 
 import com.nextfaze.devfun.core.DevFun

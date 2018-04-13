@@ -11,28 +11,33 @@ number of means - such as an automatically generated "Developer Menu".
 
   - [Quick Start](#quick-start)
       - [Project Setup](#project-setup)
+      - [Build File `build.gradle`](#build-file-buildgradle)
       - [Dependencies](#dependencies)
   - [Key Features](#key-features)
       - [Zero-configuration Setup](#zero-configuration-setup)
       - [Context Aware](#context-aware)
+      - [Invocation UI _(right)_](#invocation-ui-_right_)
       - [Modular](#modular)
       - [And More](#and-more)
   - [Showcase](#showcase)
       - [Developer Menu](#developer-menu)
+      - [Invocation UI](#invocation-ui)
       - [Local HTTP Server](#local-http-server)
       - [Stetho Integration](#stetho-integration)
 - [Dependency Injection](#dependency-injection)
+  - [Dagger 2.x Support](#dagger-2x-support)
 - [Troubleshooting](#troubleshooting)
   - [Java Compatibility](#java-compatibility)
   - [Documentation](#documentation)
   - [Logging](#logging)
   - [Kotlin `stdlib` Conflict](#kotlin-stdlib-conflict)
-  - [Compiler Options](#compiler-options)
+  - [Gradle Plugin and APT Options](#gradle-plugin-and-apt-options)
   - [Proguard](#proguard)
     - [Transformers](#transformers)
   - [Getting `ClassInstanceNotFoundException`](#getting-classinstancenotfoundexception)
   - [Missing Items](#missing-items)
 - [Build](#build)
+- [Contributing](#contributing)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -40,7 +45,7 @@ number of means - such as an automatically generated "Developer Menu".
 **Reasoning**  
 While developing some feature `Z`, there's nothing more annoying than having to go through `X`, to get to `Y`, to test
  your changes on `Z`. So it's not uncommon for developers to sometimes try and shortcut that process... Which inevitably
-  leads to your humiliation when your colleagues notice you committed said shortcut.
+ leads to your humiliation when your colleagues notice you committed said shortcut.
 
 **Example**  
 Simply adding the [`@DeveloperFunction`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-function/) annotation to a function/method is all that is needed.
@@ -58,21 +63,46 @@ See the documentation for advanced usage, including custom names, custom argumen
 
 ## Quick Start
 #### Project Setup
-- **REQUIRED** Android Gradle 3.0.0+ _(earlier versions may work intermittently, but will have missing items due to annotation processing issues)_
-  - See [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589)
+- **REQUIRED** Android Gradle 3.0.0+ (due to [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589))
 - Recommended to use Kotlin 1.2.31, though should work down to 1.1.1 _(largely untested)_
 - Recommended to use KAPT3 (`apply plugin: 'kotlin-kapt'`), though KAPT1 also works
 - Compiled with `minSdkVersion` >= 15
 - Built against Android Support libraries 27.1.1
 
-#### Dependencies
-Can be categorized into 4 types:
-- Main: minimum required libraries (annotations and compiler).
-- Core: extend the accessibility of DevFun (e.g. add menu/http server).
-- Inject: facilitate dependency injection for function invocation.
-- Util:  frequently used or just handy functions (e.g. show Glide memory use).
+#### Build File `build.gradle`
+Add the DevFun Gradle plugin to your build script.
 
-Add repository to module: _(will be put on JCenter &amp; MavenCentral eventually)_
+If you can use the Gradle `plugins` block (which you should be able to do - this locates and downloads it for you):
+```groovy
+plugins {
+    id 'com.nextfaze.devfun'
+}
+```
+
+**Or** the legacy method using `apply`;  
+Add the plugin to your classpath (found in the `jcenter()` repository):
+```groovy
+buildscript {
+    dependencies {
+        classpath 'com.nextfaze.devfun:devfun-gradle-plugin:0.2.0'
+    }
+}
+```
+
+And in your `build.gradle`:
+```groovy
+apply plugin: 'com.nextfaze.devfun'
+```
+
+#### Dependencies
+Can be categorized into 5 types:
+- Main: minimum required libraries (annotations and compiler).
+- Core: extend the functionality or accessibility of DevFun (e.g. add menu/http server).
+- Inject: facilitate dependency injection for function invocation.
+- Util: frequently used or just handy functions (e.g. show Glide memory use).
+- Invoke UI: provide additional views for the invocation UI (e.g. a color picker for `int` args)
+
+Add `jcenter()` repository or via bintray directly: _(will be put on MavenCentral eventually)_
 ```gradle
 repositories {
     maven { url 'https://dl.bintray.com/nextfaze/dev-fun' }
@@ -82,32 +112,41 @@ repositories {
 Add dependencies to build.gradle:
 ```gradle
     // Annotations, Compiler, and Developer Menu
-    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.1.7'
-    compile 'com.nextfaze.devfun:devfun-annotations:0.1.7'
-    // debugCompile 'com.nextfaze.devfun:devfun:0.1.7' // shared lib - transitive from menu et al.
-    debugCompile 'com.nextfaze.devfun:devfun-menu:0.1.7'
+    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.2.0'
+    compile 'com.nextfaze.devfun:devfun-annotations:0.2.0'
+    debugCompile 'com.nextfaze.devfun:devfun-menu:0.2.0'
     
-    // Dagger 2.x component inspector - only if using Dagger!
-    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.1.7'
+    // Dagger 2.x component inspector - only if using Dagger 2.x!
+    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.2.0'
     
     // Chrome Dev Tools JavaScript console integration
-    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.1.7'
+    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.2.0'
         
     // HTTP server and simple index page
-    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.1.7'
-    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.1.7'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.2.0'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.2.0'
     
     // Glide util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.1.7'
+    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.2.0'
     
     // Leak Canary util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.1.7'
+    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.2.0'
+    
+    /*
+     * Transitively included libs - in general you don't need to add these explicitly (except maybe for custom module libs).
+     */
+    
+    // Adds view factory handler for @ColorPicker for invoke UI - transitively included via devfun-menu
+    // debugCompile 'com.nextfaze.devfun:devfun-invoke-view-colorpicker:0.2.0'
+    
+    // DevFun core - transitive included from menu et al.
+    // debugCompile 'com.nextfaze.devfun:devfun:0.2.0' 
 ```
 
 That's it!
 
 Start adding [`@DeveloperFunction`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-function/)
-annotations to methods (can be private), and these will be added to the menu.
+annotations to methods (can be private, and arguments will be injected or renderd as needed), and these will be added to the menu.
 
 For advanced uses and configuration such as custom categories, item groups, argument providers, etc.
 - See the [wiki](https://nextfaze.github.io/dev-fun/wiki/), or
@@ -115,6 +154,9 @@ For advanced uses and configuration such as custom categories, item groups, argu
 
 
 ## Key Features
+
+<img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/invoke-ui.png" alt="Invocation UI for manual entry" width="35%" align="right"/>
+
 #### Zero-configuration Setup  
 A [Content Provider](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.core/-dev-fun-initializer-provider/)
  is used to automatically initialize DevFun, and most simple Dagger 2.x object graphs should work.  
@@ -123,6 +165,15 @@ See [Initialization](https://nextfaze.github.io/dev-fun/wiki/-setup%20and%20-ini
 #### Context Aware  
 Attempts are made to be aware of the current app state, in that the "Context" category should contain only the items
 that are relevant to the current screen (i.e. methods tagged in the current Activity and any attached Fragments).
+
+#### Invocation UI _(right)_
+If an annotated function has argument types that cannot be injected then DevFun will attempt to render a UI
+for you to manually set them (right). The arguments can be injected or otherwise. Simple types and a color picker UI is provided by default.
+
+Optional annotations can be added to configure/tweak their state and custom types can be added:
+- [@From](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.invoke.view/-from/) for an initial value.
+- [@Ranged](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.invoke.view/-ranged/) on a `number` type for a constrained value.
+- [@ColorPicker](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.invoke.view/-color-picker/) on an `int` types renders a color picker.
 
 #### Modular
 DevFun is designed to be modular, in terms of both its dependencies (limiting impact to main source tree) and its plugin-like architecture.
@@ -138,14 +189,21 @@ See [Components](https://nextfaze.github.io/dev-fun/wiki/-components.html) for m
 
 ## Showcase
 
-<img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/menu-auth.png" alt="Developer Menu on authenticate screen" width="35%" align="right"/>
+<img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/menu-auth.png" alt="Developer Menu on authenticate screen" width="35%" align="right"/>  
 
 #### Developer Menu  
-An easy to use developer menu accessible at any time via a floating cog button is added with the `devfun-menu` module (right):  
+An easy to use developer menu accessible at any time via a floating cog button added by the `devfun-menu` module (right):  
+
+#### Invocation UI
+Add custom parameter view factories to render a custom view for manually inputting a custom type at run time rather than via injection.
+
+An example of this is the [@ColorPicker](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.invoke.view/-color-picker/) annotation used
+ by the menu cog overlay (second right).
 
 #### Local HTTP Server  
+<img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/color-picker.png" alt="Invocation UI with custom view handling" width="35%" align="right"/>  
 Using the HTTPD modules `devfun-httpd` and `devfun-httpd-frontend`, a local server can be exported using ADB `adb forward tcp:23075 tcp:23075` 
-and accessed via http://localhost:23075 where you can invoke functions from your browser:  
+and accessed via http://localhost:23075 where you can invoke functions from your browser:
 <img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/httpd-auth-context.png" alt="Authenticate screen via local HTTP server" width="60%"/>
 
 #### Stetho Integration  
@@ -165,6 +223,13 @@ default providers are added, including;
 - Object instantiation (new instance + DI). *(opt-in only)*
 
 For more details see wiki entry [Dependency Injection](https://nextfaze.github.io/dev-fun/wiki/-dependency%20-injection.html).
+
+## Dagger 2.x Support
+Easiest method is to use `devfun-inject-dagger2` module - by default it might work depending on your setup (if the components are located
+ in the Application and/or Activity classes). However if you use extension functions to retrieve your components (or you put them in weird
+ places for whatever reason), then you can annotate the functions/getters with [@Dagger2Component](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-dagger2-component/).
+ 
+If all else fails you can define your own instance provider using with utility functions from `devfun-inject-dagger2` (see the demo for an example). 
 
 
 
@@ -209,17 +274,26 @@ configurations.all {
 }
 ```
 
+## Gradle Plugin and APT Options
+The gradle plugin `com.nextfaze.devfun` should automatically handle/provide the annotation processor with your project build configuration,
+ but can also be configured within your build file ([DevFunExtension](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.gradle.plugin/-dev-fun-extension)):
+```groovy
+devFun {
+    packageSuffix = "..."
+    packageRoot = "..."
+    packageOverride = "..."
+}
+```  
 
-## Compiler Options
-Due to limitations of the build system, the context of the build is derived by using known relative paths to processor outputs.  
-To determine the package/buildType/flavor, `BuildConfig.java` is located as 
+However due to limitations of the build system this can/is somewhat derived with string splitting and/or by using known relative paths to
+ processor outputs as needed.    
+e.g. To determine the package/buildType/flavor, `BuildConfig.java` is located as:
 ```regexp
 (?<buildDir>.*)(/intermediates/classes/|/tmp/kotlin-classes/|/tmp/kapt3/classes/)(?<variant>.*)/META-INF/services/.*
 ```
 
-If your build system has been customised or for whatever reason the processor cannot identify your build information,
-you can manually specify the required information using annotation processor options.  
-
+If your build system has been customised or for whatever reason the processor cannot identify your build information then
+ you can manually specify the required information using annotation processor options (values via APT args will override gradle plugin values).  
 Apply using Android DSL:
 ```gradle
  android {
@@ -267,7 +341,8 @@ I'm looking into better ways to handle this (suggestions welcome).
 
 ## Getting `ClassInstanceNotFoundException`
 When DevFun is unable to find an instance of an object it throws `ClassInstanceNotFoundException` - this happens when
- there is no instance provider that can give the object to DevFun.
+ there is no instance provider that can give the object to DevFun. If there is a view factory defined for the type the
+ invocation UI will be shown for manual entry, otherwise and error dialog will be shown.
 
 See the wiki entry on [Dependency Injection](https://nextfaze.github.io/dev-fun/wiki/-dependency%20-injection.html) 
 for details on how to set this up.
@@ -278,6 +353,8 @@ e.g.
 class SomeType : BaseType
 
 val provider = captureInstance { someObject.someType } // triggers for SomeType or BaseType
+val someOtherThing = singletonInstance { MyClass() } // lazy initialization
+val anotherThing = singletonInstance { devFun.get<MyType>() } // lazy initialization using DevFun to inject/create type
 ```
 
 If you want to reduce the type range then specify its base type manually:
@@ -290,8 +367,10 @@ _Be aware of leaks! The lambda could implicitly hold a local `this` reference._
 
 ## Missing Items
 If you are using Android Gradle versions prior to 3.0.0, then this is likely due to tooling issues where APT generated
- resources on Application projects were not packaged into the APK (see [#37140464](https://issuetracker.google.com/issues/37140464)
- and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589)). The extreme hacks/support for this were removed in DevFun 0.1.2.
+ resources of Application projects were not packaged into the APK (see [#37140464](https://issuetracker.google.com/issues/37140464)
+ and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589)).  
+The extreme hacks/support for this were removed in DevFun 0.1.2 and are unlikely to be re-implemented.  
+Android Gradle 3.0.0 and 3.1.0 are quite stable and its unlikely newer versions of Android Studio will support prior to that eventually.
 
 
 
@@ -316,6 +395,18 @@ adb shell monkey -p com.nextfaze.devfun.demo.debug -c android.intent.category.LA
 ```
 
 - See [RELEASING.md](RELEASING.md) for building artifacts and documentation.
+
+
+
+# Contributing
+DevFun is intended for developers (though it can be handy for testers). Because of this the API is intended to be quite open and flexible. 
+So if there is anything you want or think should be added then create an issue or PR and more than likely it will be accepted.  
+
+- Any bugs please report (desirably with reproduction steps) and/or PR/fix them.
+- Any crashes please report with the stack trace (doesn't need to be reproducible) and it'll be fixed (if DevFun's fault) and/or wrapped
+ with the (recently added) error handling functionality.
+
+Feel free also to submit your own handy util functions or whatever for submission.
 
 
 

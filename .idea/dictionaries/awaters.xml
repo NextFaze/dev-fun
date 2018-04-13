@@ -8,10 +8,12 @@
       <w>assertable</w>
       <w>benjamín</w>
       <w>bintray</w>
+      <w>buildscript</w>
       <w>bumptech</w>
       <w>caden</w>
       <w>candrawoverlays</w>
       <w>candrawoverlayscontext</w>
+      <w>cmapx</w>
       <w>codegen</w>
       <w>colorpicker</w>
       <w>coroutines</w>
@@ -30,15 +32,18 @@
       <w>genymotion</w>
       <w>glassfish</w>
       <w>glyphicon</w>
+      <w>guice</w>
       <w>httpd</w>
       <w>initializers</w>
       <w>issuetracker</w>
+      <w>jcenter</w>
       <w>jfrog</w>
       <w>joda</w>
       <w>jrebel</w>
       <w>kapt</w>
       <w>klass</w>
       <w>kotlinx</w>
+      <w>lateinit</w>
       <w>leakcanary</w>
       <w>lucía</w>
       <w>mailinator</w>
@@ -50,6 +55,8 @@
       <w>nextfaze</w>
       <w>nicolás</w>
       <w>onreadystatechange</w>
+      <w>plantuml</w>
+      <w>puml</w>
       <w>rarepebble</w>
       <w>recyclerview</w>
       <w>redir</w>

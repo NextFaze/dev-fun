@@ -67,8 +67,8 @@ thus it is necessary to do this *prior* to that (specifically, Dokka looks for t
    ```bash
    cd gh-pages
    git add .
-   git commit -m "Update for 0.1.8"
-   git tag 0.1.8-pages
+   git commit -m "Update for 0.2.0"
+   git tag 0.2.0-pages
    git push && git push --tags
    ```
 
