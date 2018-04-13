@@ -1,4 +1,4 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.httpd.frontend](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.httpd.frontend](./index.md)
 
 ## Package com.nextfaze.devfun.httpd.frontend
 

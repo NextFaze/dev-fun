@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](index.md) / [show](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](index.md) / [show](./show.md)
 
 # show
 

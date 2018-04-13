@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.utils.glide](../index.md) / [GlideUtils](index.md) / [showMemoryInfo](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.utils.glide](../index.md) / [GlideUtils](index.md) / [showMemoryInfo](./show-memory-info.md)
 
 # showMemoryInfo
 

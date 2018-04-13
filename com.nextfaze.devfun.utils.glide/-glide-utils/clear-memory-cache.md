@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.utils.glide](../index.md) / [GlideUtils](index.md) / [clearMemoryCache](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.utils.glide](../index.md) / [GlideUtils](index.md) / [clearMemoryCache](./clear-memory-cache.md)
 
 # clearMemoryCache
 

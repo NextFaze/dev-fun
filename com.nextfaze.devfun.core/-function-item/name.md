@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [FunctionItem](index.md) / [name](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [FunctionItem](index.md) / [name](./name.md)
 
 # name
 

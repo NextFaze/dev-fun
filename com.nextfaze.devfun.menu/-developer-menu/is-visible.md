@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](index.md) / [isVisible](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](index.md) / [isVisible](./is-visible.md)
 
 # isVisible
 

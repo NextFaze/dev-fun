@@ -1,4 +1,4 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.menu.controllers](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.menu.controllers](./index.md)
 
 ## Package com.nextfaze.devfun.menu.controllers
 

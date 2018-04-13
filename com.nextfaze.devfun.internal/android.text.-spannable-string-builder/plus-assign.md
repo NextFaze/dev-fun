@@ -1,0 +1,5 @@
+[gh-pages](../../index.md) / [com.nextfaze.devfun.internal](../index.md) / [android.text.SpannableStringBuilder](index.md) / [plusAssign](./plus-assign.md)
+
+# plusAssign
+
+`operator fun `[`SpannableStringBuilder`](https://developer.android.com/reference/android/text/SpannableStringBuilder.html)`.plusAssign(span: `[`Pair`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-pair/index.html)`<`[`CharSequence`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char-sequence/index.html)`, `[`ParcelableSpan`](https://developer.android.com/reference/android/text/ParcelableSpan.html)`>): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/Spannable.kt#L15)

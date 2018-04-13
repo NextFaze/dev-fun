@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [DevFunInitializerProvider](index.md) / [&lt;init&gt;](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [DevFunInitializerProvider](index.md) / [&lt;init&gt;](./-init-.md)
 
 # &lt;init&gt;
 
@@ -21,4 +21,8 @@ If you want to manually initialize DevFun, remove the node using standard Androi
     </application>
 </manifest>
 ```
+
+**See Also**
+
+[DevFun.initialize](../-dev-fun/initialize.md)
 

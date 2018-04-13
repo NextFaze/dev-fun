@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.httpd](../index.md) / [AbstractUriHandler](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.httpd](../index.md) / [AbstractUriHandler](./index.md)
 
 # AbstractUriHandler
 
-`abstract class AbstractUriHandler : UriResponder` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L257)
+`abstract class AbstractUriHandler : UriResponder` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L260)
 
 ### Constructors
 

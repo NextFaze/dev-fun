@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu.controllers](../index.md) / [CogOverlay](index.md) / [&lt;init&gt;](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu.controllers](../index.md) / [CogOverlay](index.md) / [&lt;init&gt;](./-init-.md)
 
 # &lt;init&gt;
 
-`CogOverlay(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.internal/-activity-provider.md)`)`
+`CogOverlay(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.core/-activity-provider.md)`)`
 
 Controls the floating cog overlay.
 

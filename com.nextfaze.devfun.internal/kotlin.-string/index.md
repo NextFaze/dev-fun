@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.internal](../index.md) / [kotlin.String](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.internal](../index.md) / [kotlin.String](./index.md)
 
 ### Extensions for kotlin.String
 

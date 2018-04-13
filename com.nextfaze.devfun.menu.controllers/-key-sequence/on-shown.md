@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu.controllers](../index.md) / [KeySequence](index.md) / [onShown](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu.controllers](../index.md) / [KeySequence](index.md) / [onShown](./on-shown.md)
 
 # onShown
 
-`fun onShown(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L114)
+`fun onShown(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L127)
 
 Overrides [MenuController.onShown](../../com.nextfaze.devfun.menu/-menu-controller/on-shown.md)
 

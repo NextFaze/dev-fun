@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [SimpleFunctionItem](index.md) / [function](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [SimpleFunctionItem](index.md) / [function](./function.md)
 
 # function
 

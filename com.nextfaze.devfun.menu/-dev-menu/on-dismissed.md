@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DevMenu](index.md) / [onDismissed](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DevMenu](index.md) / [onDismissed](./on-dismissed.md)
 
 # onDismissed
 
-`fun onDismissed(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L141)
+`fun onDismissed(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L159)
 
 Overrides [MenuController.onDismissed](../-menu-controller/on-dismissed.md)
 

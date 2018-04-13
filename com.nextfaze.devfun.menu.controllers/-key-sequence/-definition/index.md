@@ -1,19 +1,20 @@
-[gh-pages](../../../index.md) / [com.nextfaze.devfun.menu.controllers](../../index.md) / [KeySequence](../index.md) / [Definition](.)
+[gh-pages](../../../index.md) / [com.nextfaze.devfun.menu.controllers](../../index.md) / [KeySequence](../index.md) / [Definition](./index.md)
 
 # Definition
 
-`data class Definition` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L131)
+`data class Definition` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L146)
 
 ### Constructors
 
 | Name | Summary |
 |---|---|
-| [&lt;init&gt;](-init-.md) | `Definition(keyCodes: `[`IntArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int-array/index.html)`, description: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)`)` |
+| [&lt;init&gt;](-init-.md) | `Definition(keyCodes: `[`IntArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int-array/index.html)`, description: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)`, consumeEvent: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)`)` |
 
 ### Properties
 
 | Name | Summary |
 |---|---|
+| [consumeEvent](consume-event.md) | `val consumeEvent: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
 | [description](description.md) | `val description: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) |
 
 ### Functions

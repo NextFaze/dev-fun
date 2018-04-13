@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](index.md) / [plusAssign](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](index.md) / [plusAssign](./plus-assign.md)
 
 # plusAssign
 

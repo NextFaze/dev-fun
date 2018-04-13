@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [CategoryDefinition](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [CategoryDefinition](./index.md)
 
 # CategoryDefinition
 
-`interface CategoryDefinition` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Definitions.kt#L70)
+`interface CategoryDefinition` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Definitions.kt#L90)
 
 Classes annotated with [DeveloperCategory](../../com.nextfaze.devfun.annotations/-developer-category/index.md) will be defined using this interface at compile time.
 

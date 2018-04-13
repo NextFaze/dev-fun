@@ -1,5 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.httpd](../index.md) / [HttpDRouter](index.md) / [stop](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.httpd](../index.md) / [HttpDRouter](index.md) / [stop](./stop.md)
 
 # stop
 
-`fun stop(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L114)
+`fun stop(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L117)
+
+Stop the HTTPD server.
+

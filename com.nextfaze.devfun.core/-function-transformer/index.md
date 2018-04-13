@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [FunctionTransformer](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [FunctionTransformer](./index.md)
 
 # FunctionTransformer
 
@@ -8,7 +8,7 @@ Function transformers filter and/or convert a [FunctionDefinition](../-function-
 
 Item lifecycle:
 
-* [DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md) → [FunctionDefinition](../-function-definition/index.md) → **FunctionTransformer** → [FunctionItem](../-function-item/index.md) → `Menu Item`
+* [DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md) → [FunctionDefinition](../-function-definition/index.md) → **[FunctionTransformer](./index.md)** → [FunctionItem](../-function-item/index.md) → `Menu Item`
 
 They can be used to:
 
@@ -71,4 +71,4 @@ Final/default transformer that effectively just wraps a [FunctionDefinition](../
 
 | Name | Summary |
 |---|---|
-| [SingleFunctionTransformer](../-single-function-transformer/index.md) | `object SingleFunctionTransformer : FunctionTransformer`<br>The default transformer. Effectively just wraps the [FunctionDefinition](../-function-definition/index.md) to a [FunctionItem](../-function-item/index.md) (1:1). |
+| [SingleFunctionTransformer](../-single-function-transformer/index.md) | `object SingleFunctionTransformer : `[`FunctionTransformer`](./index.md)<br>The default transformer. Effectively just wraps the [FunctionDefinition](../-function-definition/index.md) to a [FunctionItem](../-function-item/index.md) (1:1). |

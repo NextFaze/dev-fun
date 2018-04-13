@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.utils.glide](../index.md) / [GlideUtils](index.md) / [clearDiskCache](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.utils.glide](../index.md) / [GlideUtils](index.md) / [clearDiskCache](./clear-disk-cache.md)
 
 # clearDiskCache
 

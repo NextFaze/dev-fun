@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [SingleFunctionTransformer](index.md) / [apply](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [SingleFunctionTransformer](index.md) / [apply](./apply.md)
 
 # apply
 

@@ -1,4 +1,4 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.stetho](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.stetho](./index.md)
 
 ## Package com.nextfaze.devfun.stetho
 
@@ -21,4 +21,4 @@ Allows generated methods to be invoked from Chrome's Dev Tools JavaScript consol
 
 | Name | Summary |
 |---|---|
-| [buildJsRuntime](build-js-runtime.md) | `fun buildJsRuntime(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../com.nextfaze.devfun.internal/-activity-provider.md)`, devFun: `[`DevFun`](../com.nextfaze.devfun.core/-dev-fun/index.md)`): RuntimeReplFactory` |
+| [buildJsRuntime](build-js-runtime.md) | `fun buildJsRuntime(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../com.nextfaze.devfun.core/-activity-provider.md)`, devFun: `[`DevFun`](../com.nextfaze.devfun.core/-dev-fun/index.md)`): RuntimeReplFactory` |

@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [CategoryItem](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [CategoryItem](./index.md)
 
 # CategoryItem
 

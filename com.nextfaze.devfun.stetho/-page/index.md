@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.stetho](../index.md) / [Page](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.stetho](../index.md) / [Page](./index.md)
 
 # Page
 
-`class Page : Page` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-stetho/src/main/java/com/nextfaze/devfun/stetho/Stetho.kt#L40)
+`class Page : Page` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-stetho/src/main/java/com/nextfaze/devfun/stetho/Stetho.kt#L39)
 
 ### Constructors
 

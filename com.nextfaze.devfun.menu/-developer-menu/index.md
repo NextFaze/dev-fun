@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](./index.md)
 
 # DeveloperMenu
 
@@ -32,13 +32,13 @@
 
 | Name | Summary |
 |---|---|
-| [attach](../-menu-controller/attach.md) | `abstract fun attach(developerMenu: DeveloperMenu): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when this controller is being attached/initialized to a DeveloperMenu. |
-| [detach](../-menu-controller/detach.md) | `abstract fun detach(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when this controller is being detached/removed from a DeveloperMenu. |
-| [onDismissed](../-menu-controller/on-dismissed.md) | `abstract fun onDismissed(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when DeveloperMenu is dismissed. |
-| [onShown](../-menu-controller/on-shown.md) | `abstract fun onShown(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when DeveloperMenu is shown. |
+| [attach](../-menu-controller/attach.md) | `abstract fun attach(developerMenu: `[`DeveloperMenu`](./index.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when this controller is being attached/initialized to a [DeveloperMenu](./index.md). |
+| [detach](../-menu-controller/detach.md) | `abstract fun detach(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when this controller is being detached/removed from a [DeveloperMenu](./index.md). |
+| [onDismissed](../-menu-controller/on-dismissed.md) | `abstract fun onDismissed(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when [DeveloperMenu](./index.md) is dismissed. |
+| [onShown](../-menu-controller/on-shown.md) | `abstract fun onShown(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called when [DeveloperMenu](./index.md) is shown. |
 
 ### Inheritors
 
 | Name | Summary |
 |---|---|
-| [DevMenu](../-dev-menu/index.md) | `class DevMenu : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md)`, DeveloperMenu, `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md) |
+| [DevMenu](../-dev-menu/index.md) | `class DevMenu : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md)`, `[`DeveloperMenu`](./index.md) |

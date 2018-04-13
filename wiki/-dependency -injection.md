@@ -1,11 +1,11 @@
-[gh-pages](../index.md) / [wiki](index.md) / [Dependency Injection](.)
+[gh-pages](../index.md) / [wiki](index.md) / [Dependency Injection](./-dependency -injection.md)
 
 # Dependency Injection
 
 `object Dependency Injection` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/DependencyInjection.kt#L114)
 
 DevFun supports a rudimentary form of dependency injection using an [InstanceProvider](../com.nextfaze.devfun.inject/-instance-provider/index.md) (a
-[CompositeInstanceProvider](../com.nextfaze.devfun.inject/-composite-instance-provider/index.md) at [DevFun.instanceProviders](../com.nextfaze.devfun.core/-dev-fun/instance-providers.md)).
+[CompositeInstanceProvider](../com.nextfaze.devfun.inject/-composite-instance-provider.md) at [DevFun.instanceProviders](../com.nextfaze.devfun.core/-dev-fun/instance-providers.md)).
 
 Dependency injection is used for:
 
@@ -18,7 +18,7 @@ Dependency injection is used for:
 
 # Instance Providers
 
-At runtime when an instance of an object is requested, [DevFun.instanceProviders](../com.nextfaze.devfun.core/-dev-fun/instance-providers.md) (a [CompositeInstanceProvider](../com.nextfaze.devfun.inject/-composite-instance-provider/index.md)
+At runtime when an instance of an object is requested, [DevFun.instanceProviders](../com.nextfaze.devfun.core/-dev-fun/instance-providers.md) (a [CompositeInstanceProvider](../com.nextfaze.devfun.inject/-composite-instance-provider.md)
 loops through requesting an instance, starting from the *most recently added* (to allow users to add their own to
 be checked first). If the type cannot be provided, a [ClassInstanceNotFoundException](../com.nextfaze.devfun.inject/-class-instance-not-found-exception/index.md) is thrown (will not crash the
 app - but it will be logged, and depending on the [DevFunModule](../com.nextfaze.devfun.core/-dev-fun-module/index.md) implementation will show an error).

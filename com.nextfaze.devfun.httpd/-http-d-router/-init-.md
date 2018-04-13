@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.httpd](../index.md) / [HttpDRouter](index.md) / [&lt;init&gt;](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.httpd](../index.md) / [HttpDRouter](index.md) / [&lt;init&gt;](./-init-.md)
 
 # &lt;init&gt;
 

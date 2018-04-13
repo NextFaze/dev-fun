@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DevMenu](index.md) / [detach](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DevMenu](index.md) / [detach](./detach.md)
 
 # detach
 
-`fun detach(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L134)
+`fun detach(): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L152)
 
 Overrides [MenuController.detach](../-menu-controller/detach.md)
 

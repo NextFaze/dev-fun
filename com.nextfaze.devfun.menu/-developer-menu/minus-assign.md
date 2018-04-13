@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](index.md) / [minusAssign](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [DeveloperMenu](index.md) / [minusAssign](./minus-assign.md)
 
 # minusAssign
 

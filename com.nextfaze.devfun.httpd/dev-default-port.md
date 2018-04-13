@@ -1,8 +1,8 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.httpd](index.md) / [devDefaultPort](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.httpd](index.md) / [devDefaultPort](./dev-default-port.md)
 
 # devDefaultPort
 
-`var devDefaultPort: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L39)
+`var devDefaultPort: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L40)
 
 The port to use for HTTPD server. Default value is 23075.
 

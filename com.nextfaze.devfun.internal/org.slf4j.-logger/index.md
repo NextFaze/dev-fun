@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.internal](../index.md) / [org.slf4j.Logger](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.internal](../index.md) / [org.slf4j.Logger](./index.md)
 
 ### Extensions for org.slf4j.Logger
 

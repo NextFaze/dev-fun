@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [MenuController](index.md) / [detach](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [MenuController](index.md) / [detach](./detach.md)
 
 # detach
 

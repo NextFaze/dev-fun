@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [AbstractDevFunModule](index.md) / [devFun](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [AbstractDevFunModule](index.md) / [devFun](./dev-fun.md)
 
 # devFun
 

@@ -1,5 +1,5 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.httpd](../index.md) / [DevHttpD](index.md) / [captured](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.httpd](../index.md) / [DevHttpD](index.md) / [captured](./captured.md)
 
 # captured
 
-`lateinit var captured: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L48)
+`lateinit var captured: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L49)

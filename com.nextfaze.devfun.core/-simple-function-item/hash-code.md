@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [SimpleFunctionItem](index.md) / [hashCode](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [SimpleFunctionItem](index.md) / [hashCode](./hash-code.md)
 
 # hashCode
 

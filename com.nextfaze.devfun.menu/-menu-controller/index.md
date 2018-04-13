@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [MenuController](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [MenuController](./index.md)
 
 # MenuController
 
@@ -24,6 +24,6 @@
 
 | Name | Summary |
 |---|---|
-| [CogOverlay](../../com.nextfaze.devfun.menu.controllers/-cog-overlay/index.md) | `class CogOverlay : MenuController`<br>Controls the floating cog overlay. |
-| [DeveloperMenu](../-developer-menu/index.md) | `interface DeveloperMenu : MenuController` |
-| [KeySequence](../../com.nextfaze.devfun.menu.controllers/-key-sequence/index.md) | `class KeySequence : MenuController`<br>Allows toggling the Developer Menu using button/key sequences. |
+| [CogOverlay](../../com.nextfaze.devfun.menu.controllers/-cog-overlay/index.md) | `class CogOverlay : `[`MenuController`](./index.md)<br>Controls the floating cog overlay. |
+| [DeveloperMenu](../-developer-menu/index.md) | `interface DeveloperMenu : `[`MenuController`](./index.md) |
+| [KeySequence](../../com.nextfaze.devfun.menu.controllers/-key-sequence/index.md) | `class KeySequence : `[`MenuController`](./index.md)<br>Allows toggling the Developer Menu using button/key sequences. |

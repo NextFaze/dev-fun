@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.inject](../index.md) / [ConstructingInstanceProvider](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.inject](../index.md) / [ConstructingInstanceProvider](./index.md)
 
 # ConstructingInstanceProvider
 
-`class ConstructingInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L94)
+`class ConstructingInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L129)
 
 Provides objects via instance construction. Type must be annotated with [Constructable](../-constructable/index.md).
 
@@ -27,10 +27,10 @@ Visible for testing - use at your own risk.
 
 | Name | Summary |
 |---|---|
-| [requireConstructable](require-constructable.md) | `var requireConstructable: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
+| [requireConstructable](require-constructable.md) | `var requireConstructable: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)<br>Flag indicating if a type must be [Constructable](../-constructable/index.md) to be instantiable |
 
 ### Functions
 
 | Name | Summary |
 |---|---|
-| [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out T>): T?`<br>Try to get an instance of some [clazz](get.md#com.nextfaze.devfun.inject.ConstructingInstanceProvider$get(kotlin.reflect.KClass((com.nextfaze.devfun.inject.ConstructingInstanceProvider.get.T)))/clazz). |
+| [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](get.md#T)`>): `[`T`](get.md#T)`?`<br>Try to get an instance of some [clazz](get.md#com.nextfaze.devfun.inject.ConstructingInstanceProvider$get(kotlin.reflect.KClass((com.nextfaze.devfun.inject.ConstructingInstanceProvider.get.T)))/clazz). |

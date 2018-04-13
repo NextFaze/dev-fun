@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [MenuController](index.md) / [attach](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [MenuController](index.md) / [attach](./attach.md)
 
 # attach
 

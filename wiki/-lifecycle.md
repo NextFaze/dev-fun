@@ -1,4 +1,4 @@
-[gh-pages](../index.md) / [wiki](index.md) / [Lifecycle](.)
+[gh-pages](../index.md) / [wiki](index.md) / [Lifecycle](./-lifecycle.md)
 
 # Lifecycle
 

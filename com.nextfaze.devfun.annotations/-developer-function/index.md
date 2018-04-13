@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.annotations](../index.md) / [DeveloperFunction](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.annotations](../index.md) / [DeveloperFunction](./index.md)
 
 # DeveloperFunction
 
-`@Target([AnnotationTarget.FUNCTION]) annotation class DeveloperFunction` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Annotations.kt#L258)
+`@Target([AnnotationTarget.FUNCTION]) annotation class DeveloperFunction` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Annotations.kt#L259)
 
 Functions/methods annotated with this will be shown on the Developer Menu (and other modules).
 
@@ -96,7 +96,7 @@ which simply converts (effectively just wraps) the [FunctionDefinition](../../co
 
 Item lifecycle:
 
-* DeveloperFunction → [FunctionDefinition](../../com.nextfaze.devfun.core/-function-definition/index.md) → [FunctionTransformer](../../com.nextfaze.devfun.core/-function-transformer/index.md) → [FunctionItem](../../com.nextfaze.devfun.core/-function-item/index.md) → "Menu Item"
+* [DeveloperFunction](./index.md) → [FunctionDefinition](../../com.nextfaze.devfun.core/-function-definition/index.md) → [FunctionTransformer](../../com.nextfaze.devfun.core/-function-transformer/index.md) → [FunctionItem](../../com.nextfaze.devfun.core/-function-item/index.md) → "Menu Item"
 
 For an in-depth explanation on transformers see [FunctionTransformer](../../com.nextfaze.devfun.core/-function-transformer/index.md).
 
@@ -172,7 +172,7 @@ private class SignInFunctionTransformer : FunctionTransformer {
 
 | Name | Summary |
 |---|---|
-| [category](category.md) | `val category: `[`DeveloperCategory`](../-developer-category/index.md) |
-| [requiresApi](requires-api.md) | `val requiresApi: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) |
-| [transformer](transformer.md) | `val transformer: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`FunctionTransformer`](../../com.nextfaze.devfun.core/-function-transformer/index.md)`>` |
-| [value](value.md) | `val value: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |
+| [category](category.md) | `val category: `[`DeveloperCategory`](../-developer-category/index.md)<br>Category definition override. Unset fields will be inherited. |
+| [requiresApi](requires-api.md) | `val requiresApi: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)<br>API required for this item to be visible/processed. Unset or values `<= 0` are ignored. |
+| [transformer](transformer.md) | `val transformer: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`FunctionTransformer`](../../com.nextfaze.devfun.core/-function-transformer/index.md)`>`<br>A transformer class to handle the [FunctionDefinition](../../com.nextfaze.devfun.core/-function-definition/index.md) to [FunctionItem](../../com.nextfaze.devfun.core/-function-item/index.md) processing. Defaults to [SingleFunctionTransformer](../../com.nextfaze.devfun.core/-single-function-transformer/index.md). |
+| [value](value.md) | `val value: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>The name that to be shown for this item. If blank the method name will be split by camel case. (e.g. "myFunction" → "My Function") |

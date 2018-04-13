@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [AbstractDevFunModule](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [AbstractDevFunModule](./index.md)
 
 # AbstractDevFunModule
 
@@ -30,10 +30,10 @@ Implementation of [DevFunModule](../-dev-fun-module/index.md) providing various 
 
 | Name | Summary |
 |---|---|
-| [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(): T` |
+| [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(): `[`T`](get.md#T) |
 | [init](init.md) | `abstract fun init(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Called upon [initialize](initialize.md). |
 | [initialize](initialize.md) | `open fun initialize(devFun: `[`DevFun`](../-dev-fun/index.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Module initialization. |
-| [instanceOf](instance-of.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> instanceOf(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out T>): T` |
+| [instanceOf](instance-of.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> instanceOf(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](instance-of.md#T)`>): `[`T`](instance-of.md#T) |
 
 ### Inherited Functions
 
@@ -45,8 +45,8 @@ Implementation of [DevFunModule](../-dev-fun-module/index.md) providing various 
 
 | Name | Summary |
 |---|---|
-| [DevHttpD](../../com.nextfaze.devfun.httpd/-dev-http-d/index.md) | `class DevHttpD : AbstractDevFunModule` |
-| [DevMenu](../../com.nextfaze.devfun.menu/-dev-menu/index.md) | `class DevMenu : AbstractDevFunModule, `[`DeveloperMenu`](../../com.nextfaze.devfun.menu/-developer-menu/index.md)`, `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md) |
-| [DevStetho](../../com.nextfaze.devfun.stetho/-dev-stetho/index.md) | `class DevStetho : AbstractDevFunModule` |
-| [HttpFrontEnd](../../com.nextfaze.devfun.httpd.frontend/-http-front-end/index.md) | `class HttpFrontEnd : AbstractDevFunModule` |
-| [InjectFromDagger2](../../com.nextfaze.devfun.inject.dagger2/-inject-from-dagger2/index.md) | `class InjectFromDagger2 : AbstractDevFunModule`<br>This module adds rudimentary support for searching Dagger 2.x component graphs for object instances. |
+| [DevHttpD](../../com.nextfaze.devfun.httpd/-dev-http-d/index.md) | `class DevHttpD : `[`AbstractDevFunModule`](./index.md) |
+| [DevMenu](../../com.nextfaze.devfun.menu/-dev-menu/index.md) | `class DevMenu : `[`AbstractDevFunModule`](./index.md)`, `[`DeveloperMenu`](../../com.nextfaze.devfun.menu/-developer-menu/index.md) |
+| [DevStetho](../../com.nextfaze.devfun.stetho/-dev-stetho/index.md) | `class DevStetho : `[`AbstractDevFunModule`](./index.md) |
+| [HttpFrontEnd](../../com.nextfaze.devfun.httpd.frontend/-http-front-end/index.md) | `class HttpFrontEnd : `[`AbstractDevFunModule`](./index.md) |
+| [InjectFromDagger2](../../com.nextfaze.devfun.inject.dagger2/-inject-from-dagger2/index.md) | `class InjectFromDagger2 : `[`AbstractDevFunModule`](./index.md)<br>This module adds rudimentary support for searching Dagger 2.x component graphs for object instances. |

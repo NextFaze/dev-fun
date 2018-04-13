@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.internal](../index.md) / [android.app.Application.ActivityLifecycleCallbacks](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.internal](../index.md) / [android.app.Application.ActivityLifecycleCallbacks](./index.md)
 
 ### Extensions for android.app.Application.ActivityLifecycleCallbacks
 

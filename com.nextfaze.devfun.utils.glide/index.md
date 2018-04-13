@@ -1,4 +1,4 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.utils.glide](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.utils.glide](./index.md)
 
 ## Package com.nextfaze.devfun.utils.glide
 

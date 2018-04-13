@@ -1,4 +1,4 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.inject.dagger2](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.inject.dagger2](./index.md)
 
 ## Package com.nextfaze.devfun.inject.dagger2
 
@@ -21,4 +21,4 @@ Provides default heavy-reflection based Dagger 2 injector and convenience functi
 
 | Name | Summary |
 |---|---|
-| [tryGetInstanceFromComponent](try-get-instance-from-component.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> tryGetInstanceFromComponent(component: `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`, clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<T>): T?`<br>Helper function to be used on Dagger 2.x [Component](#) implementations. |
+| [tryGetInstanceFromComponent](try-get-instance-from-component.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> tryGetInstanceFromComponent(component: `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`, clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<`[`T`](try-get-instance-from-component.md#T)`>): `[`T`](try-get-instance-from-component.md#T)`?`<br>Helper function to be used on Dagger 2.x [Component](#) implementations. |

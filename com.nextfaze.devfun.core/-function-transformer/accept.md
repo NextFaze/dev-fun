@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [FunctionTransformer](index.md) / [accept](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [FunctionTransformer](index.md) / [accept](./accept.md)
 
 # accept
 

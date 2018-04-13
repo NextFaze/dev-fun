@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu.controllers](../index.md) / [KeySequence](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu.controllers](../index.md) / [KeySequence](./index.md)
 
 # KeySequence
 
-`class KeySequence : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L40)
+`class KeySequence : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L48)
 
 Allows toggling the Developer Menu using button/key sequences.
 
@@ -21,7 +21,7 @@ Two sequences are added by default:
 
 | Name | Summary |
 |---|---|
-| [&lt;init&gt;](-init-.md) | `KeySequence(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.internal/-activity-provider.md)`)`<br>Allows toggling the Developer Menu using button/key sequences. |
+| [&lt;init&gt;](-init-.md) | `KeySequence(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.core/-activity-provider.md)`)`<br>Allows toggling the Developer Menu using button/key sequences. |
 
 ### Properties
 

@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [DevFunModule](index.md) / [dependsOn](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [DevFunModule](index.md) / [dependsOn](./depends-on.md)
 
 # dependsOn
 

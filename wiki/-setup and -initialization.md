@@ -1,8 +1,8 @@
-[gh-pages](../index.md) / [wiki](index.md) / [Setup and Initialization](.)
+[gh-pages](../index.md) / [wiki](index.md) / [Setup and Initialization](./-setup and -initialization.md)
 
 # Setup and Initialization
 
-`object Setup and Initialization` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/SetupAndInitialization.kt#L49)
+`object Setup and Initialization` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/SetupAndInitialization.kt#L51)
 
 Compiler configuration and initialization process.
 

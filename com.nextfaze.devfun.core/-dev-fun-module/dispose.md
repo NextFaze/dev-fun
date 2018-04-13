@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [DevFunModule](index.md) / [dispose](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [DevFunModule](index.md) / [dispose](./dispose.md)
 
 # dispose
 

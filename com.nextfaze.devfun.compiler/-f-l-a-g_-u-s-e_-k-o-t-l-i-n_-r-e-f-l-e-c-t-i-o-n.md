@@ -1,8 +1,8 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.compiler](index.md) / [FLAG_USE_KOTLIN_REFLECTION](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.compiler](index.md) / [FLAG_USE_KOTLIN_REFLECTION](./-f-l-a-g_-u-s-e_-k-o-t-l-i-n_-r-e-f-l-e-c-t-i-o-n.md)
 
 # FLAG_USE_KOTLIN_REFLECTION
 
-`const val FLAG_USE_KOTLIN_REFLECTION: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L48)
+`const val FLAG_USE_KOTLIN_REFLECTION: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L52)
 
 Flag to enable Kotlin reflection to get method references. *(default: `false`)* **(experimental)**
 

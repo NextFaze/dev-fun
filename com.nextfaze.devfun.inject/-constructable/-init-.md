@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.inject](../index.md) / [Constructable](index.md) / [&lt;init&gt;](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.inject](../index.md) / [Constructable](index.md) / [&lt;init&gt;](./-init-.md)
 
 # &lt;init&gt;
 
@@ -10,6 +10,8 @@ The class must have only one constructor. Any arguments to the constructor will 
 
 In general this should not be used (you should be using your own dependency injection framework).
 However for quick-n-dirty uses this can make life a bit easier (e.g. function transformers which are debug only anyway).
+
+Note: `inner` classes will work as long as the outer class can be resolved/injected..
 
 **See Also**
 

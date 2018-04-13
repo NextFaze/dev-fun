@@ -1,4 +1,4 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.utils.leakcanary](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.utils.leakcanary](./index.md)
 
 ## Package com.nextfaze.devfun.utils.leakcanary
 

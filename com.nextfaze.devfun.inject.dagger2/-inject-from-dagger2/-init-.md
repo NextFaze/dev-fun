@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.inject.dagger2](../index.md) / [InjectFromDagger2](index.md) / [&lt;init&gt;](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.inject.dagger2](../index.md) / [InjectFromDagger2](index.md) / [&lt;init&gt;](./-init-.md)
 
 # &lt;init&gt;
 
@@ -8,6 +8,8 @@ This module adds rudimentary support for searching Dagger 2.x component graphs f
 
 *Due to limitations in KAPT it is not possible to generate Kotlin code that would then generate dagger bindings.Once this has been resolved it should be possible to resolve this more gracefully.*
 
+### Automatic Reflection Based
+
 On [DevFunModule.initialize](../../com.nextfaze.devfun.core/-dev-fun-module/initialize.md), your application (and its subclasses) are searched for a [Component](#). This is assumed
 to be your top-level (singleton scoped) dagger component. An instance provider is then added referencing this instance.
 
@@ -15,6 +17,12 @@ At runtime (upon [InstanceProvider.get](../../com.nextfaze.devfun.inject/-instan
 that [Provides](#) the requested type *(or subclasses the type)*.
 
 **This has not been tested extensively beyond simple object graphs!**
+
+### Annotation Based
+
+Use [Dagger2Component](../../com.nextfaze.devfun.annotations/-dagger2-component/index.md) on functions that return components (`@get:Dagger2Component` on properties).
+
+Provides some level of support for manually specifying scopes (any/or attempts to guess them based on the context).
 
 ### Complex Object Graphs
 
@@ -64,4 +72,8 @@ When supplying your own instance provider (but want to use [tryGetInstanceFromCo
 [useAutomaticDagger2Injector](../use-automatic-dagger2-injector.md) to `false` to disable the default instance provider.
 
 Add/remove providers using [DevFun.instanceProviders](../../com.nextfaze.devfun.core/-dev-fun/instance-providers.md).
+
+**See Also**
+
+[Dagger2Component](../../com.nextfaze.devfun.annotations/-dagger2-component/index.md)
 

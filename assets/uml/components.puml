@@ -44,6 +44,15 @@ package "debugCompile" {
         [devfun-inject-dagger2] as Inject_Dagger2 [[https://nextfaze.github.io/dev-fun/]]
         DevFun <-- Inject_Dagger2
     }
+
+    node "Invoke UI Modules" {
+        [devfun-invoke-view-colorpicker] as Invoke_View_ColorPicker [[https://nextfaze.github.io/dev-fun/]]
+        Menu <-- Invoke_View_ColorPicker
+    }
+}
+
+package "gradle" {
+    [devfun-gradle-plugin] as Gradle_Plugin [[https://nextfaze.github.io/dev-fun/]]
 }
 
 @enduml

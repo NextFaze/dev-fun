@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [FunctionItem](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [FunctionItem](./index.md)
 
 # FunctionItem
 
@@ -28,15 +28,23 @@ Unless necessary, you should extend from convenience class [SimpleFunctionItem](
 | [invoke](invoke.md) | `open val invoke: `[`FunctionInvoke`](../-function-invoke.md)<br>Function to be invoked on click. |
 | [name](name.md) | `open val name: `[`CharSequence`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char-sequence/index.html)<br>The formatted display name. |
 
+### Extension Properties
+
+| Name | Summary |
+|---|---|
+| [receiverClass](../../com.nextfaze.devfun.invoke/receiver-class.md) | `val `[`FunctionItem`](./index.md)`.receiverClass: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>`<br>Get the receiver class for this function item. |
+| [receiverClassForInvocation](../../com.nextfaze.devfun.invoke/receiver-class-for-invocation.md) | `val `[`FunctionItem`](./index.md)`.receiverClassForInvocation: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?`<br>Get the receiver class for this function item if you intend to invoke it. That is, it will return `null` if the type isn't needed. |
+
 ### Extension Functions
 
 | Name | Summary |
 |---|---|
-| [call](../call.md) | `fun FunctionItem.call(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders): `[`InvokeResult`](../-invoke-result/index.md)<br>Convenience function for invoking a FunctionItem using the current [devFun](../dev-fun.md) instance. |
-| [callAndLog](../call-and-log.md) | `fun FunctionItem.callAndLog(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders, logger: Logger = log): `[`InvokeResult`](../-invoke-result/index.md)<br>Convenience function for invoking and logging a [FunctionItem.invoke](invoke.md). |
+| [call](../call.md) | `fun `[`FunctionItem`](./index.md)`.call(invoker: `[`Invoker`](../../com.nextfaze.devfun.invoke/-invoker/index.md)` = devFun.get()): `[`InvokeResult`](../-invoke-result/index.md)`?`<br>Convenience function for invoking a [FunctionItem](./index.md) using the current [devFun](../dev-fun.md) instance. |
+| [parameterInstances](../../com.nextfaze.devfun.invoke/parameter-instances.md) | `fun `[`FunctionItem`](./index.md)`.parameterInstances(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders): `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?>`<br>Get the parameter instances for this function item for invocation. |
+| [receiverInstance](../../com.nextfaze.devfun.invoke/receiver-instance.md) | `fun `[`FunctionItem`](./index.md)`.receiverInstance(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders): `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?`<br>Get the receiver instance for this function item to be used for invocation. |
 
 ### Inheritors
 
 | Name | Summary |
 |---|---|
-| [SimpleFunctionItem](../-simple-function-item/index.md) | `open class SimpleFunctionItem : FunctionItem`<br>Convenience class for FunctionItem to extend from, providing standard [equals](../-simple-function-item/equals.md) and [hashCode](../-simple-function-item/hash-code.md) implementations. |
+| [SimpleFunctionItem](../-simple-function-item/index.md) | `open class SimpleFunctionItem : `[`FunctionItem`](./index.md)<br>Convenience class for [FunctionItem](./index.md) to extend from, providing standard [equals](../-simple-function-item/equals.md) and [hashCode](../-simple-function-item/hash-code.md) implementations. |

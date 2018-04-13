@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [SimpleFunctionItem](index.md) / [equals](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.core](../index.md) / [SimpleFunctionItem](index.md) / [equals](./equals.md)
 
 # equals
 

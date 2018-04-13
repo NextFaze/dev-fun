@@ -1,8 +1,8 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.annotations](../index.md) / [DeveloperCategory](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.annotations](../index.md) / [DeveloperCategory](./index.md)
 
 # DeveloperCategory
 
-`@Target([AnnotationTarget.CLASS]) annotation class DeveloperCategory` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Annotations.kt#L115)
+`@Target([AnnotationTarget.CLASS]) annotation class DeveloperCategory` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Annotations.kt#L114)
 
 This annotation is optional, and is used to change the category's name/order or the group of the functions defined in this class.
 

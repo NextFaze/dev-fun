@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.annotations](../index.md) / [DeveloperCategory](index.md) / [group](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.annotations](../index.md) / [DeveloperCategory](index.md) / [group](./group.md)
 
 # group
 

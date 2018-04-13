@@ -1,12 +1,14 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.inject.dagger2](../index.md) / [InjectFromDagger2](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.inject.dagger2](../index.md) / [InjectFromDagger2](./index.md)
 
 # InjectFromDagger2
 
-`class InjectFromDagger2 : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-inject-dagger2/src/main/java/com/nextfaze/devfun/inject/dagger2/Instances.kt#L169)
+`class InjectFromDagger2 : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-inject-dagger2/src/main/java/com/nextfaze/devfun/inject/dagger2/Instances.kt#L205)
 
 This module adds rudimentary support for searching Dagger 2.x component graphs for object instances.
 
 *Due to limitations in KAPT it is not possible to generate Kotlin code that would then generate dagger bindings.Once this has been resolved it should be possible to resolve this more gracefully.*
+
+### Automatic Reflection Based
 
 On [DevFunModule.initialize](../../com.nextfaze.devfun.core/-dev-fun-module/initialize.md), your application (and its subclasses) are searched for a [Component](#). This is assumed
 to be your top-level (singleton scoped) dagger component. An instance provider is then added referencing this instance.
@@ -15,6 +17,12 @@ At runtime (upon [InstanceProvider.get](../../com.nextfaze.devfun.inject/-instan
 that [Provides](#) the requested type *(or subclasses the type)*.
 
 **This has not been tested extensively beyond simple object graphs!**
+
+### Annotation Based
+
+Use [Dagger2Component](../../com.nextfaze.devfun.annotations/-dagger2-component/index.md) on functions that return components (`@get:Dagger2Component` on properties).
+
+Provides some level of support for manually specifying scopes (any/or attempts to guess them based on the context).
 
 ### Complex Object Graphs
 
@@ -65,6 +73,10 @@ When supplying your own instance provider (but want to use [tryGetInstanceFromCo
 
 Add/remove providers using [DevFun.instanceProviders](../../com.nextfaze.devfun.core/-dev-fun/instance-providers.md).
 
+**See Also**
+
+[Dagger2Component](../../com.nextfaze.devfun.annotations/-dagger2-component/index.md)
+
 ### Constructors
 
 | Name | Summary |
@@ -89,6 +101,6 @@ Add/remove providers using [DevFun.instanceProviders](../../com.nextfaze.devfun.
 
 | Name | Summary |
 |---|---|
-| [get](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(): T` |
+| [get](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(): `[`T`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/get.md#T) |
 | [initialize](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/initialize.md) | `open fun initialize(devFun: `[`DevFun`](../../com.nextfaze.devfun.core/-dev-fun/index.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)<br>Module initialization. |
-| [instanceOf](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/instance-of.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> instanceOf(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out T>): T` |
+| [instanceOf](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/instance-of.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> instanceOf(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/instance-of.md#T)`>): `[`T`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/instance-of.md#T) |

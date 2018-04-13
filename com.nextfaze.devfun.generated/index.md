@@ -1,4 +1,4 @@
-[gh-pages](../index.md) / [com.nextfaze.devfun.generated](.)
+[gh-pages](../index.md) / [com.nextfaze.devfun.generated](./index.md)
 
 ## Package com.nextfaze.devfun.generated
 

@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [MenuController](index.md) / [onDismissed](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.menu](../index.md) / [MenuController](index.md) / [onDismissed](./on-dismissed.md)
 
 # onDismissed
 

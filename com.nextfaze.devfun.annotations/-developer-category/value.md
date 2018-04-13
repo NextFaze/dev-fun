@@ -1,4 +1,4 @@
-[gh-pages](../../index.md) / [com.nextfaze.devfun.annotations](../index.md) / [DeveloperCategory](index.md) / [value](.)
+[gh-pages](../../index.md) / [com.nextfaze.devfun.annotations](../index.md) / [DeveloperCategory](index.md) / [value](./value.md)
 
 # value
 
