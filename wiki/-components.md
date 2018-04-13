@@ -82,7 +82,7 @@ If you can use the Gradle `plugins` block (which you should be able to do - this
 
 ``` groovy
 plugins {
-    id 'com.nextfaze.devfun'
+    id 'com.nextfaze.devfun' version '0.2.0'
 }
 ```
 
