@@ -106,7 +106,7 @@ In your `build.gradle` add the DevFun Gradle plugin to your build script.
 If you can use the Gradle `plugins` block (which you should be able to do - this locates and downloads it for you):
  * ```groovy
  * plugins {
- *     id 'com.nextfaze.devfun'
+ *     id 'com.nextfaze.devfun' version '0.2.0'
  * }
  * ```
 
