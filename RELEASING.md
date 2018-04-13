@@ -17,15 +17,30 @@ To use it, you'll need to grab the jar from the website and set the path ([rende
 ```
 
 
+To preview PlantUML in the IDE there is an IntelliJ/Android Studio plugin.  
+For linux (and probably Mac, not sure about Windows) you will also need graphviz:
+```bash
+sudo apt install graphviz
+``` 
+
+
 ## Doctoc
 [Doctoc](https://github.com/thlorenz/doctoc/) is used to generate the README and various Wiki entries table of contents.
 
-Install using npn `npm install -g doctoc`.  
-Should be run whenever README/Wiki is altered.
+Install using npn:
+```bash
+npm install -g doctoc
+```
 
-Currently needed:
+It is used for the README and should be run whenever it is altered:
 ```bash
 doctoc README.md --github --notitle
+```
+
+It is also used in the Wiki (currently only `Components.kt`), however the Dokka task will handle that automatically (see
+ `dokka/build.gradle.kts#L123`), but if need be can be run manually (due to issues with Dokka generation we need to adjust the output with
+  `sed` as well):
+```bash
 doctoc dokka/src/main/java/wiki/Components.kt --github --notitle && sed '/<!-- START doctoc generated TOC/,/<!-- END doctoc generated TOC/s/^( *)/ * \1\1/' -ri dokka/src/main/java/wiki/Components.kt
 ```
 
