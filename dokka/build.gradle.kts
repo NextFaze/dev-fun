@@ -128,7 +128,10 @@ project.afterEvaluate {
             doLast {
                 try {
                     println("Running doctoc...")
-                    "doctoc".execute("dokka/src/main/java/wiki/Components.kt", "--github", "--notitle")
+                    // need to run from script to source nvm env. for non-interactive shells (i.e. when run from IDE)
+                    // suggestions welcome for how to do this without the need for external .sh file
+                    // (and no, you can't simply ". ~/.nvm/nvm.sh && doctoc ..." from JVM - not sure why)
+                    "bash".execute("dokka/run_doctoc.sh")
                     println("Doctoc complete!")
                 } catch (t: Throwable) {
                     println("Do you need to install doctoc?")
