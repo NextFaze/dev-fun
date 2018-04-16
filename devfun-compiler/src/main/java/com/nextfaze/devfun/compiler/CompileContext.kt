@@ -65,7 +65,12 @@ internal class CompileContext(private val processingEnv: ProcessingEnvironment) 
         warn(
             """Application package and/or variant arguments were missing or invalid.
             |Please ensure you have applied the DevFun gradle plugin.
-            |This can be done by adding "plugins { 'com.nextfaze.devfun' }" to your build.gradle file.
+            |
+            |This can be done by adding the plugins block to your build.gradle file:
+            |plugins {
+            |    id 'com.nextfaze.devfun' version '0.2.1'
+            |}
+            |
             |Falling back to inspection of classpath and file parsing - this method is unreliable!""".trimMargin()
         )
 

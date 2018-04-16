@@ -75,7 +75,7 @@ Add the DevFun Gradle plugin to your build script.
 If you can use the Gradle `plugins` block (which you should be able to do - this locates and downloads it for you):
 ```groovy
 plugins {
-    id 'com.nextfaze.devfun' version '0.2.0'
+    id 'com.nextfaze.devfun' version '0.2.1'
 }
 ```
 
@@ -84,7 +84,7 @@ Add the plugin to your classpath (found in the `jcenter()` repository):
 ```groovy
 buildscript {
     dependencies {
-        classpath 'com.nextfaze.devfun:devfun-gradle-plugin:0.2.0'
+        classpath 'com.nextfaze.devfun:devfun-gradle-plugin:0.2.1'
     }
 }
 ```
@@ -112,35 +112,35 @@ repositories {
 Add dependencies to build.gradle:
 ```gradle
     // Annotations, Compiler, and Developer Menu
-    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.2.0'
-    compile 'com.nextfaze.devfun:devfun-annotations:0.2.0'
-    debugCompile 'com.nextfaze.devfun:devfun-menu:0.2.0'
+    kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.2.1'
+    compile 'com.nextfaze.devfun:devfun-annotations:0.2.1'
+    debugCompile 'com.nextfaze.devfun:devfun-menu:0.2.1'
     
     // Dagger 2.x component inspector - only if using Dagger 2.x!
-    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.2.0'
+    debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.2.1'
     
     // Chrome Dev Tools JavaScript console integration
-    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.2.0'
+    debugCompile 'com.nextfaze.devfun:devfun-stetho:0.2.1'
         
     // HTTP server and simple index page
-    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.2.0'
-    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.2.0'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd:0.2.1'
+    debugCompile 'com.nextfaze.devfun:devfun-httpd-frontend:0.2.1'
     
     // Glide util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.2.0'
+    debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.2.1'
     
     // Leak Canary util functions
-    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.2.0'
+    debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.2.1'
     
     /*
      * Transitively included libs - in general you don't need to add these explicitly (except maybe for custom module libs).
      */
     
     // Adds view factory handler for @ColorPicker for invoke UI - transitively included via devfun-menu
-    // debugCompile 'com.nextfaze.devfun:devfun-invoke-view-colorpicker:0.2.0'
+    // debugCompile 'com.nextfaze.devfun:devfun-invoke-view-colorpicker:0.2.1'
     
     // DevFun core - transitive included from menu et al.
-    // debugCompile 'com.nextfaze.devfun:devfun:0.2.0' 
+    // debugCompile 'com.nextfaze.devfun:devfun:0.2.1' 
 ```
 
 That's it!
@@ -191,7 +191,7 @@ See [Components](https://nextfaze.github.io/dev-fun/wiki/-components.html) for m
 
 <img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/menu-auth.png" alt="Developer Menu on authenticate screen" width="35%" align="right"/>  
 
-#### Developer Menu  
+#### Developer Menu
 An easy to use developer menu accessible at any time via a floating cog button added by the `devfun-menu` module (right):  
 
 #### Invocation UI
@@ -201,10 +201,10 @@ An example of this is the [@ColorPicker](https://nextfaze.github.io/dev-fun/com.
  by the menu cog overlay (second right).
 
 #### Local HTTP Server  
-<img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/color-picker.png" alt="Invocation UI with custom view handling" width="35%" align="right"/>  
 Using the HTTPD modules `devfun-httpd` and `devfun-httpd-frontend`, a local server can be exported using ADB `adb forward tcp:23075 tcp:23075` 
 and accessed via http://localhost:23075 where you can invoke functions from your browser:
 <img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/httpd-auth-context.png" alt="Authenticate screen via local HTTP server" width="60%"/>
+<img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/color-picker.png" alt="Invocation UI with custom view handling" width="35%" align="right"/>  
 
 #### Stetho Integration  
 With the `devfun-stetho` module functions are exported and available to be invoked directly from Chrome's Developer Tools console:  
