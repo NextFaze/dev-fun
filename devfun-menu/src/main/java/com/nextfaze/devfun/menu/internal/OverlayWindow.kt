@@ -6,14 +6,13 @@ import android.graphics.PixelFormat
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.support.annotation.LayoutRes
 import android.support.v4.math.MathUtils.clamp
 import android.view.*
 import android.view.animation.OvershootInterpolator
-import com.nextfaze.devfun.internal.logger
-import com.nextfaze.devfun.internal.t
-import com.nextfaze.devfun.internal.w
-import com.nextfaze.devfun.internal.windowManager
+import com.nextfaze.devfun.internal.*
 import java.lang.Math.abs
 
 private const val MIN_ANIMATION_MILLIS = 250L
@@ -48,6 +47,7 @@ internal class OverlayWindow(
 
     private val log = logger()
     private val windowManager = application.windowManager
+    private val handler = Handler(Looper.getMainLooper())
 
     private val preferences = KSharedPreferences.named(application, prefsName)
     private var dock by preferences["dock", initialDock]
@@ -155,7 +155,7 @@ internal class OverlayWindow(
         }
         var y = when (side) {
             Dock.TOP, Dock.TOP_LEFT, Dock.TOP_RIGHT -> overlayBounds.top
-            Dock.BOTTOM, Dock.BOTTOM_LEFT, Dock.BOTTOM_RIGHT-> overlayBounds.bottom - height - statusBarHeight
+            Dock.BOTTOM, Dock.BOTTOM_LEFT, Dock.BOTTOM_RIGHT -> overlayBounds.bottom - height - statusBarHeight
             else -> {
                 val yOffset = (displacement * overlayBounds.height()).toInt()
                 clamp(overlayBounds.top + yOffset, overlayBounds.top, overlayBounds.bottom)
@@ -185,6 +185,12 @@ internal class OverlayWindow(
 
     fun addToWindow() {
         windowManager.addView(view, params)
+
+        // after adding to window for first time we need to wait to next loop to ensure view has had a layout pass (otherwise width=0) and
+        // end up with a 'left' value outside our overlay bounds
+        handler.post {
+            updateOverlayBounds(overlayBounds)
+        }
     }
 
     private fun updateLayout(x: Int? = null, y: Int? = null, width: Int? = null, height: Int? = null) {
@@ -280,7 +286,7 @@ internal class OverlayWindow(
         val startX = left
         val startY = top
         ValueAnimator.ofFloat(0f, 1.0f)?.apply {
-            duration = run calculateDuration@ {
+            duration = run calculateDuration@{
                 val proportionX = abs(if (distanceX != 0) distanceX.toFloat() / (overlayBounds.width() / 2f) else 0f)
                 val proportionY = abs(if (distanceY != 0) distanceY.toFloat() / (overlayBounds.height() / 2f) else 0f)
                 val proportion = Math.min(proportionX + proportionY, 1f)
