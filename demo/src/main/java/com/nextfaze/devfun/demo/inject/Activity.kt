@@ -29,11 +29,11 @@ class ActivityModule(private val activity: AppCompatActivity) {
 
 
 abstract class DaggerActivity : AppCompatActivity() {
-    @get:Dagger2Component(RETAINED_FRAGMENT)
+    @Dagger2Component(RETAINED_FRAGMENT) // on property
     lateinit var retainedComponent: RetainedComponent
         private set
 
-    @get:Dagger2Component
+    @get:Dagger2Component // or on getter explicitly
     lateinit var activityComponent: ActivityComponent
         private set
 

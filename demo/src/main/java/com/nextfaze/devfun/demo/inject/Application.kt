@@ -78,6 +78,6 @@ abstract class DaggerApplication : Application() {
         DaggerApplicationComponent.builder().androidModule(AndroidModule(this)).build()
 }
 
-@get:Dagger2Component
+@Dagger2Component
 val Context.applicationComponent: ApplicationComponent?
     get() = (applicationContext as DaggerApplication).applicationComponent

@@ -34,8 +34,9 @@ private val log = logger("${BuildConfig.APPLICATION_ID}.Instances")
  *
  * This value can be disabled at any time - it can not be re-enabled without reinitializing DevFun.
  *
- * Alternatively use `@Dagger2Component` on your functions (`@get:Dagger2Component` for properties) that return
- * components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class, activity class, etc).
+ * Alternatively use `@Dagger2Component` on your functions/properties (or `@get:Dagger2Component` for property getters)
+ * that return components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class,
+ * activity class, etc).
  *
  * @see InjectFromDagger2
  * @see Dagger2Component
@@ -54,9 +55,9 @@ var useAutomaticDagger2Injector = true
  *
  * Will traverse the component providers and modules for an instance type matching [clazz] - scoping is not considered.
  *
- * Alternatively use `@Dagger2Component` on your functions (`@get:Dagger2Component` for properties) that return
- * components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class, activity
- * class, etc) - which will end up using this method anyway.
+ * Alternatively use `@Dagger2Component` on your functions/properties (or `@get:Dagger2Component` for property getters)
+ * that return components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class,
+ * activity class, etc) - which will end up using this method anyway.
  *
  * @see Dagger2Component
  */
@@ -144,7 +145,7 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
  *
  *
  * ### Annotation Based
- * Use [Dagger2Component] on functions that return components (`@get:Dagger2Component` on properties).
+ * Use [Dagger2Component] on functions/properties/getters that return components.
  *
  * Provides some level of support for manually specifying scopes (any/or attempts to guess them based on the context).
  *
@@ -208,7 +209,7 @@ class InjectFromDagger2 : AbstractDevFunModule() {
 
     override fun init(context: Context) {
         val application = context.applicationContext as Application
-        val provider = Dagger2AnnotatedInstanceProvider(devFun, get()).takeIf { it.hasComponents }
+        val provider = Dagger2AnnotatedInstanceProvider(devFun).takeIf { it.hasComponents }
                 ?: Dagger2ReflectiveInstanceProvider(application, get())
         devFun.instanceProviders += provider.also {
             log.d { "InjectFromDagger2 using instance provider $it" }
@@ -224,8 +225,7 @@ class InjectFromDagger2 : AbstractDevFunModule() {
     }
 }
 
-private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun, private val activityProvider: ActivityProvider) :
-    InstanceProvider {
+private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : InstanceProvider {
     private val log = logger()
 
     private data class ComponentReference(
@@ -249,10 +249,18 @@ private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun, priva
             }
 
         components = devFun.developerReferences<Dagger2Component>()
+            .also { log.d { "Dagger2Component references: $it" } }
             .filter { it.method != null }
             .map {
-                val method = it.method!!
-                val annotation = method.getAnnotation(Dagger2Component::class.java) ?: return@map null
+                val origMethod = it.method!!
+                val method = if (origMethod.name.endsWith("\$annotations")) {
+                    // user has annotated a property
+                    val getterName = "get${origMethod.name.substringBeforeLast('$').capitalize()}"
+                    origMethod.declaringClass.getMethod(getterName, *origMethod.parameterTypes)
+                } else {
+                    origMethod
+                }
+                val annotation = origMethod.getAnnotation(Dagger2Component::class.java) ?: return@map null
                 val priority =
                     when {
                         annotation.scope != Dagger2Scope.UNDEFINED -> {

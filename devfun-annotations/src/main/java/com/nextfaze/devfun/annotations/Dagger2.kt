@@ -1,8 +1,7 @@
 package com.nextfaze.devfun.annotations
 
 import kotlin.annotation.AnnotationRetention.RUNTIME
-import kotlin.annotation.AnnotationTarget.FUNCTION
-import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
+import kotlin.annotation.AnnotationTarget.*
 
 /**
  * Some range of scopes for use with [Dagger2Component]. Priority is based on their ordinal value (higher = broader scope).
@@ -25,7 +24,7 @@ enum class Dagger2Scope {
 }
 
 /**
- * Annotated functions (`fun` or property getters with `@get:Dagger2Component`) will be checked/used as Dagger 2 components.
+ * Annotated functions (`fun`, properties, or property getters (`@get:Dagger2Component`)) will be checked/used as Dagger 2 components.
  *
  * If all [scope] and [priority] are unset/default then a best-guess will be made based on where the reference is.
  *
@@ -37,7 +36,7 @@ enum class Dagger2Scope {
  */
 @Retention(RUNTIME)
 @DeveloperAnnotation
-@Target(PROPERTY_GETTER, FUNCTION)
+@Target(PROPERTY, PROPERTY_GETTER, FUNCTION)
 annotation class Dagger2Component(
     /**
      * The scope of this component.

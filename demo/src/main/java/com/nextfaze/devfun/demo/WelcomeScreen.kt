@@ -83,7 +83,7 @@ class WelcomeFragment : BaseFragment() {
     }
 
     @DeveloperFunction
-    private fun setBackgroundColor(@ColorPicker @From(CurrentBackgroundColor::class) color: Int) {
+    internal fun setBackgroundColor(@ColorPicker @From(CurrentBackgroundColor::class) color: Int) {
         view?.setBackgroundColor(color)
     }
 

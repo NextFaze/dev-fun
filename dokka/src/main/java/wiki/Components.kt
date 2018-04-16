@@ -211,19 +211,21 @@ The scope/broadness/priority can be set on the annotation either via [Dagger2Com
 If unset then the scope will be assumed based on the context of its location (i.e. in Application class > probably the top level component,
 if static then first argument assumed to be the receiver, etc).
 
-_Be aware! For properties you must annotate the **getter**_
+Note: For properties you can annotated to property itself (`@Dagger2Component`) or the getter explicitly (`@get:Dagger2Component`) if for
+some reason on the property doesn't work (which could happen if it can't find your getter - which is done via method name string
+manipulation due to KAPT limitations.
 
 Example usage:
 - Where a top-level/singleton/application component is retrieved via an extension function _(from the demo)_:
  * ```kotlin
- * @get:Dagger2Component
+ * @Dagger2Component
  * val Context.applicationComponent: ApplicationComponent?
  *     get() = (applicationContext as DaggerApplication).applicationComponent
  *```
 
 - Where a component is kept in the activity _(from the demo)_:
  * ```kotlin
- * @get:Dagger2Component
+ * @get:Dagger2Component // if we want to specify getter explicitly
  * lateinit var activityComponent: ActivityComponent
  *     private set
  * ```
