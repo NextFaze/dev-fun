@@ -18,17 +18,21 @@ interface Composite<T : Any> : Iterable<T> {
 }
 
 internal abstract class Composited<T : Any> : Composite<T> {
-    private val components = ArrayDeque<T>()
+    private var components = ArrayDeque<T>()
 
     internal fun clear() = components.clear()
 
-    override fun iterator(): Iterator<T> = components.descendingIterator()
+    override fun iterator(): MutableIterator<T> = components.descendingIterator()
+
+    internal fun remove(other: T) {
+        components = components.clone().also { it.remove(other) }
+    }
 
     override operator fun plusAssign(other: T) {
-        components += other
+        components.add(other)
     }
 
     override operator fun minusAssign(other: T) {
-        components -= other
+        components.remove(other)
     }
 }

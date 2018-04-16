@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.*
 import java.util.ArrayDeque
 import kotlin.properties.ReadWriteProperty
@@ -44,10 +45,11 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
 
     private data class Crumb(val clazz: KClass<*>, val provider: InstanceProvider)
 
+    private val errorHandler by lazy { get(ErrorHandler::class) }
     private val crumbs by threadLocal { mutableSetOf<Crumb>() }
 
     override fun <T : Any> get(clazz: KClass<out T>): T {
-        iterator().forEach { provider ->
+        forEach { provider ->
             val crumb = Crumb(clazz, provider).also {
                 if (crumbs.contains(it)) {
                     log.t { "NOT Try-get instanceOf $clazz from $provider as just tried that." }
@@ -58,19 +60,33 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
             }
 
             crumbs += crumb
-            provider[clazz]?.let {
-                log.t { "> Got $it" }
-                crumbs -= crumb
-                return it
+            try {
+                provider[clazz]?.let {
+                    log.t { "> Got $it" }
+                    crumbs -= crumb
+                    return it
+                }
+            } catch (ignore: ClassInstanceNotFoundException) {
+                // we ignore these and just check others
+            } catch (t: Throwable) {
+                remove(provider)
+                log.w(t) { "The instance provider $provider threw an exception and has been removed from contention." }
+                errorHandler.onError(
+                    t,
+                    "Instance Provider",
+                    "The instance provider $provider threw an exception when trying to get type $clazz."
+                )
             }
             crumbs -= crumb
         }
+
         if (clazz.isSubclassOf<InstanceProvider>()) {
             iterator().asSequence().firstOrNull { it::class.isSubclassOf(clazz) }?.let {
                 @Suppress("UNCHECKED_CAST")
                 return it as T
             }
         }
+
         throw ClassInstanceNotFoundException(clazz)
     }
 

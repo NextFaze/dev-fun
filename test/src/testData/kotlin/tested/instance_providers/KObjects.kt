@@ -1,3 +1,5 @@
+@file:Suppress("PackageName")
+
 package tested.instance_providers
 
 import kotlin.reflect.KClass

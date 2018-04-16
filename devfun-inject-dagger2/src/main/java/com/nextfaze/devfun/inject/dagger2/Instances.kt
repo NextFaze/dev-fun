@@ -12,7 +12,6 @@ import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.invoke.parameterInstances
-import com.nextfaze.devfun.invoke.receiverClassForInvocation
 import com.nextfaze.devfun.invoke.receiverInstance
 import dagger.Component
 import dagger.Module
@@ -302,18 +301,17 @@ private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun, priva
         components.forEach {
             log.t { "Check component reference $it for $clazz ..." }
 
-            val receiver = if (it.method.isStatic) {
-                null
-            } else {
-                when {
-                    it.method.receiverClassForInvocation?.isSubclassOf<Activity>() == true -> activityProvider()
-                    else -> it.method.receiverInstance(devFun.instanceProviders)
-                } ?: return@forEach
+            val receiver = when {
+                it.method.isStatic -> null
+                else -> it.method.receiverInstance(devFun.instanceProviders)
             }
 
             val args = it.method.parameterInstances(devFun.instanceProviders)
-            val component = if (args != null) it.method.invoke(receiver, *args.toTypedArray()) else it.method.invoke(receiver)
-                    ?: return@forEach
+            val component = when {
+                args != null -> it.method.invoke(receiver, *args.toTypedArray())
+                else -> it.method.invoke(receiver)
+            } ?: return@forEach
+
             tryGetInstanceFromComponent(component, clazz)?.let { return it }
         }
 
