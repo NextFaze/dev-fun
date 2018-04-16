@@ -21,7 +21,7 @@ dependencies {
     api Config.kotlinStdLib
 
     // Dagger 2 - https://github.com/google/dagger
-    implementation Config.dagger
+    compileOnly Config.dagger
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt Config.autoService
