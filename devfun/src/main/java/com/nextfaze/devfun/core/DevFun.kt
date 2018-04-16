@@ -25,10 +25,8 @@ import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.invoke.*
-import com.nextfaze.devfun.view.CompositeViewFactoryProvider
-import com.nextfaze.devfun.view.DefaultCompositeViewFactory
-import com.nextfaze.devfun.view.ViewFactory
-import com.nextfaze.devfun.view.ViewFactoryProvider
+import com.nextfaze.devfun.invoke.view.ColorPicker
+import com.nextfaze.devfun.view.*
 import kotlin.reflect.KClass
 
 /**
@@ -163,7 +161,42 @@ class DevFun {
      * Providers are checked in reverse order.
      * i.e. Most recently added are checked first.
      *
-     * @see ViewFactory
+     * ### Utility Functions
+     * - [viewFactory] to create a ViewFactoryProvider that returns a [ViewFactory] for some layout
+     * - [inflate] in your custom ViewFactoryProvider to create/inflate just some layout
+     *
+     * ### Example Usage
+     * - Simple layout inflation (e.g. to change DevMenu header view):
+     *     ```kotlin
+     *     // Using a custom view/layout
+     *     devFun.viewFactories += viewFactory<MenuHeader, View>(R.layout.dev_fun_menu_header)
+     *     ```
+     *
+     * - From [demo](https://github.com/NextFaze/dev-fun/blob/master/demo/src/debug/java/com/nextfaze/devfun/demo/devfun/DevFun.kt#L70)
+     * using/configuring a custom view type:
+     *     ```kotlin
+     *     devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+     *         setTitle(activityProvider()!!::class.splitSimpleName)
+     *         setCurrentUser(session.user)
+     *     }
+     *     ```
+     *
+     * - Using a concrete ViewFactoryProvider (from [DevFun core](https://github.com/NextFaze/dev-fun/blob/master/devfun/src/main/java/com/nextfaze/devfun/view/Factory.kt#L80)):
+     *     ```kotlin
+     *     private class DevFunSimpleInvokeViewsFactory : ViewFactoryProvider {
+     *         override fun get(clazz: KClass<*>): ViewFactory<View>? =
+     *             when (clazz) {
+     *                 InjectedParameterView::class -> inflate(R.layout.df_devfun_injected)
+     *                 ErrorParameterView::class -> inflate(R.layout.df_devfun_type_error)
+     *                 else -> null
+     *             }
+     *         }
+     *     }
+     *
+     *     devFun.viewFactories += DevFunSimpleInvokeViewsFactory()
+     *     ```
+     *
+     * @see parameterViewFactories
      */
     val viewFactories: CompositeViewFactoryProvider by lazy { get<CompositeViewFactoryProvider>() }
 
@@ -171,18 +204,19 @@ class DevFun {
      * Composite list of all [ParameterViewFactoryProvider]s.
      *
      * If DevFun is unable to inject all parameters of a function, it will attempt to generate a UI that allows the user
-     * to input the missing parameter values.
-     *
-     * By default only simple types can be rendered (int, string, bool, etc). For an example of a custom type, see
-     * the DevMenu `Cog.kt` file which renders a color picker for an annotated Int parameter. _(this factory will likely
-     * be put into a lib at some point)_
+     * to input the missing parameter values. By default only simple types can be rendered (int, string, bool, etc).
      *
      * Add parameter view factory providers using [Composite.plusAssign]; `devFun.parameterViewFactories += MyParameterViewFactoryProvider()`.
      *
      * Providers are checked in reverse order.
      * i.e. Most recently added are checked first.
      *
+     * For an example of a custom type, see module `devfun-invoke-view-colorpicker` which provides a color picker for
+     * annotated int types using @[ColorPicker] ([ColorPickerParameterViewProvider](https://github.com/NextFaze/dev-fun/blob/master/devfun-invoke-view-colorpicker/src/main/java/com/nextfaze/devfun/invoke/view/colorpicker/Module.kt#L28)).
+     * If you have included the menu `devfun-menu` then the color picker module will be included transitively.
+     *
      * @see ViewFactory
+     * @see inflate
      */
     val parameterViewFactories: CompositeParameterViewFactoryProvider by lazy { get<CompositeParameterViewFactoryProvider>() }
 
