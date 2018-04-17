@@ -16,12 +16,12 @@ number of means - such as an automatically generated "Developer Menu".
   - [Key Features](#key-features)
       - [Zero-configuration Setup](#zero-configuration-setup)
       - [Context Aware](#context-aware)
-      - [Invocation UI _(right)_](#invocation-ui-_right_)
+      - [Invocation UI](#invocation-ui)
       - [Modular](#modular)
       - [And More](#and-more)
   - [Showcase](#showcase)
       - [Developer Menu](#developer-menu)
-      - [Invocation UI](#invocation-ui)
+      - [Invocation UI](#invocation-ui-1)
       - [Local HTTP Server](#local-http-server)
       - [Stetho Integration](#stetho-integration)
 - [Dependency Injection](#dependency-injection)
@@ -166,7 +166,7 @@ See [Initialization](https://nextfaze.github.io/dev-fun/wiki/-setup%20and%20-ini
 Attempts are made to be aware of the current app state, in that the "Context" category should contain only the items
 that are relevant to the current screen (i.e. methods tagged in the current Activity and any attached Fragments).
 
-#### Invocation UI _(right)_
+#### Invocation UI
 If an annotated function has argument types that cannot be injected then DevFun will attempt to render a UI
 for you to manually set them (right). The arguments can be injected or otherwise. Simple types and a color picker UI is provided by default.
 
