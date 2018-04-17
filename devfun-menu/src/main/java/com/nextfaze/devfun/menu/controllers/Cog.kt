@@ -266,6 +266,20 @@ class CogOverlay constructor(
         overlay.view.alpha = alpha / 255f
     }
 
+    @DeveloperFunction
+    private fun showOverlayState(activity: Activity) =
+        overlay.toString()
+            .also {
+                AlertDialog.Builder(activity)
+                    .setTitle("Overlay State")
+                    .setMessage(
+                        SpannableStringBuilder().apply {
+                            this += pre(it)
+                        }
+                    )
+                    .show()
+            }
+
     /**
      * Forcefully check if we have permissions on SDK 26
      *

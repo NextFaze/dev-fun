@@ -176,6 +176,10 @@ internal class OverlayWindow(
 
         updateLayout(x, y)
         snapToEdge(false)
+
+        if (width <= 0 && isAdded) {
+            postUpdateOverlayBounds()
+        }
     }
 
     fun resetPositionAndState() {
@@ -185,8 +189,12 @@ internal class OverlayWindow(
 
     fun addToWindow() {
         windowManager.addView(view, params)
+        postUpdateOverlayBounds()
+    }
 
-        // after adding to window for first time we need to wait to next loop to ensure view has had a layout pass (otherwise width=0) and
+    private fun postUpdateOverlayBounds() {
+        // after adding to window for first time or resetting position and state
+        // we need to wait to next loop to ensure view has had a layout pass (otherwise width=0) and
         // end up with a 'left' value outside our overlay bounds
         handler.post {
             updateOverlayBounds(overlayBounds)
@@ -329,37 +337,37 @@ internal class OverlayWindow(
     override fun toString() =
         """
           |overlay: {
-          |    name: $prefsName
-          |    isAdded: $isAdded,
-          |    prefs: {
-          |        dock: $dock,
-          |        delta: $delta
-          |    }
-          |    position: {
-          |        left: $left,
-          |        right: $right,
-          |        top: $top,
-          |        bottom: $bottom
-          |    },
-          |    size: {
-          |        width: $width,
-          |        height: $height
-          |    }
-          |    inset: {
-          |        left: ${viewInset.left}
-          |        right: ${viewInset.right}
-          |        top: ${viewInset.top}
-          |        bottom: ${viewInset.bottom}
-          |    }
-          |    edges: {
-          |        left: $leftEdge,
-          |        right: $rightEdge,
-          |        top: $topEdge,
-          |        bottom: $bottomEdge,
-          |    }
-          |    view: {w:${view.width}, h:${view.height}}
-          |    wind: {w:${params.width}, h:${params.height}}
-          |    overlayBounds: {l:${overlayBounds.left}, r:${overlayBounds.right}, t:${overlayBounds.top}, b:${overlayBounds.bottom}}
+          |  name: $prefsName,
+          |  isAdded: $isAdded,
+          |  prefs: {
+          |    dock: $dock,
+          |    delta: $delta
+          |  },
+          |  position: {
+          |    left: $left,
+          |    right: $right,
+          |    top: $top,
+          |    bottom: $bottom
+          |  },
+          |  size: {
+          |    width: $width,
+          |    height: $height
+          |  },
+          |  inset: {
+          |    left: ${viewInset.left},
+          |    right: ${viewInset.right},
+          |    top: ${viewInset.top},
+          |    bottom: ${viewInset.bottom}
+          |  },
+          |  edges: {
+          |    left: $leftEdge,
+          |    right: $rightEdge,
+          |    top: $topEdge,
+          |    bottom: $bottomEdge
+          |  },
+          |  view: {w:${view.width}, h:${view.height}},
+          |  wind: {w:${params.width}, h:${params.height}},
+          |  bounds: {l:${overlayBounds.left}, r:${overlayBounds.right}, t:${overlayBounds.top}, b:${overlayBounds.bottom}}
           |}""".trimMargin()
 }
 
