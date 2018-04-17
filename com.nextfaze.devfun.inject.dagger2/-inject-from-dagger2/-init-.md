@@ -20,7 +20,7 @@ that [Provides](#) the requested type *(or subclasses the type)*.
 
 ### Annotation Based
 
-Use [Dagger2Component](../../com.nextfaze.devfun.annotations/-dagger2-component/index.md) on functions that return components (`@get:Dagger2Component` on properties).
+Use [Dagger2Component](../../com.nextfaze.devfun.annotations/-dagger2-component/index.md) on functions/properties/getters that return components.
 
 Provides some level of support for manually specifying scopes (any/or attempts to guess them based on the context).
 

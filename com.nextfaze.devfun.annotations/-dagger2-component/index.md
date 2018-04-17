@@ -2,9 +2,9 @@
 
 # Dagger2Component
 
-`@Target([AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.FUNCTION]) annotation class Dagger2Component` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Dagger2.kt#L41)
+`@Target([AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.FUNCTION]) annotation class Dagger2Component` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Dagger2.kt#L40)
 
-Annotated functions (`fun` or property getters with `@get:Dagger2Component`) will be checked/used as Dagger 2 components.
+Annotated functions (`fun`, properties, or property getters (`@get:Dagger2Component`)) will be checked/used as Dagger 2 components.
 
 If all [scope](scope.md) and [priority](priority.md) are unset/default then a best-guess will be made based on where the reference is.
 
@@ -21,7 +21,7 @@ i.e.
 
 | Name | Summary |
 |---|---|
-| [&lt;init&gt;](-init-.md) | `Dagger2Component(scope: `[`Dagger2Scope`](../-dagger2-scope/index.md)` = Dagger2Scope.UNDEFINED, priority: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)` = 0)`<br>Annotated functions (`fun` or property getters with `@get:Dagger2Component`) will be checked/used as Dagger 2 components. |
+| [&lt;init&gt;](-init-.md) | `Dagger2Component(scope: `[`Dagger2Scope`](../-dagger2-scope/index.md)` = Dagger2Scope.UNDEFINED, priority: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)` = 0)`<br>Annotated functions (`fun`, properties, or property getters (`@get:Dagger2Component`)) will be checked/used as Dagger 2 components. |
 
 ### Properties
 

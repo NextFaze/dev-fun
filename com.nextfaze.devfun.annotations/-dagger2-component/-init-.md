@@ -4,7 +4,7 @@
 
 `Dagger2Component(scope: `[`Dagger2Scope`](../-dagger2-scope/index.md)` = Dagger2Scope.UNDEFINED, priority: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)` = 0)`
 
-Annotated functions (`fun` or property getters with `@get:Dagger2Component`) will be checked/used as Dagger 2 components.
+Annotated functions (`fun`, properties, or property getters (`@get:Dagger2Component`)) will be checked/used as Dagger 2 components.
 
 If all [scope](-init-.md#com.nextfaze.devfun.annotations.Dagger2Component$<init>(com.nextfaze.devfun.annotations.Dagger2Scope, kotlin.Int)/scope) and [priority](-init-.md#com.nextfaze.devfun.annotations.Dagger2Component$<init>(com.nextfaze.devfun.annotations.Dagger2Scope, kotlin.Int)/priority) are unset/default then a best-guess will be made based on where the reference is.
 

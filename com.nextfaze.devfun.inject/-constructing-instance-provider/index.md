@@ -2,7 +2,7 @@
 
 # ConstructingInstanceProvider
 
-`class ConstructingInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L129)
+`class ConstructingInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L145)
 
 Provides objects via instance construction. Type must be annotated with [Constructable](../-constructable/index.md).
 

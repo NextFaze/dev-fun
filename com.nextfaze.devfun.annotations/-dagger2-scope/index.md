@@ -2,7 +2,7 @@
 
 # Dagger2Scope
 
-`enum class Dagger2Scope` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Dagger2.kt#L12)
+`enum class Dagger2Scope` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Dagger2.kt#L11)
 
 Some range of scopes for use with [Dagger2Component](../-dagger2-component/index.md). Priority is based on their ordinal value (higher = broader scope).
 

@@ -2,7 +2,7 @@
 
 # instanceProviders
 
-`val instanceProviders: `[`CompositeInstanceProvider`](../../com.nextfaze.devfun.inject/-composite-instance-provider.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L153)
+`val instanceProviders: `[`CompositeInstanceProvider`](../../com.nextfaze.devfun.inject/-composite-instance-provider.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L151)
 
 Composite list of all [InstanceProvider](../../com.nextfaze.devfun.inject/-instance-provider/index.md)s.
 

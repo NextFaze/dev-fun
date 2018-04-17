@@ -11,8 +11,9 @@ For implementing your own (slightly more efficient) see the demo project `DemoIn
 
 This value can be disabled at any time - it can not be re-enabled without reinitializing DevFun.
 
-Alternatively use `@Dagger2Component` on your functions (`@get:Dagger2Component` for properties) that return
-components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class, activity class, etc).
+Alternatively use `@Dagger2Component` on your functions/properties (or `@get:Dagger2Component` for property getters)
+that return components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class,
+activity class, etc).
 
 **See Also**
 

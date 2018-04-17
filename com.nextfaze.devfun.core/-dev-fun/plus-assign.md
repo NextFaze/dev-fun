@@ -2,13 +2,13 @@
 
 # plusAssign
 
-`operator fun plusAssign(module: `[`DevFunModule`](../-dev-fun-module/index.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L259)
+`operator fun plusAssign(module: `[`DevFunModule`](../-dev-fun-module/index.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L293)
 
 Add a module.
 
 Can be called at any time. Call [tryInitModules](try-init-modules.md) after adding a module.
 
-`operator fun plusAssign(onInitialized: `[`OnInitialized`](../-on-initialized.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L322)
+`operator fun plusAssign(onInitialized: `[`OnInitialized`](../-on-initialized.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L356)
 
 Add an initialization callback.
 

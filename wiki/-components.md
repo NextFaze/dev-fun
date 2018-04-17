@@ -2,7 +2,7 @@
 
 # Components
 
-`object Components` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/Components.kt#L369)
+`object Components` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/Components.kt#L371)
 
 DevFun is designed to be modular, in terms of both its dependencies (limiting impact to main source tree) and its plugin-like architecture. ![Component Dependencies](https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/uml/components.png)
 
@@ -43,7 +43,7 @@ This library contains primarily interface definitions and inline functions, and 
 negligible impact on your method count and dex sizes. Apply to your main `compile` configuration:
 
 ``` gradle
-compile 'com.nextfaze.devfun:devfun-annotations:0.2.0'
+compile 'com.nextfaze.devfun:devfun-annotations:0.2.1'
 ```
 
 ### Compiler
@@ -53,7 +53,7 @@ Annotation processor [DevFunProcessor](../com.nextfaze.devfun.compiler/-dev-fun-
 This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.
 
 ``` gradle
-kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.2.0'
+kaptDebug 'com.nextfaze.devfun:devfun-compiler:0.2.1'
 ```
 
 Configuration options can be applied using Android DSL:
@@ -82,7 +82,7 @@ If you can use the Gradle `plugins` block (which you should be able to do - this
 
 ``` groovy
 plugins {
-    id 'com.nextfaze.devfun' version '0.2.0'
+    id 'com.nextfaze.devfun' version '0.2.1'
 }
 ```
 
@@ -92,7 +92,7 @@ Add the plugin to your classpath (found in the `jcenter()` repository):
 ``` groovy
 buildscript {
     dependencies {
-        classpath 'com.nextfaze.devfun:devfun-gradle-plugin:0.2.0'
+        classpath 'com.nextfaze.devfun:devfun-gradle-plugin:0.2.1'
     }
 }
 ```
@@ -116,7 +116,7 @@ Core of [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md). Loads modules a
 Apply to your non-main configuration:
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun:0.2.0'
+debugCompile 'com.nextfaze.devfun:devfun:0.2.1'
 ```
 
 Modules are loaded by [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md) using Java's [ServiceLoader](https://developer.android.com/reference/java/util/ServiceLoader.html).
@@ -138,7 +138,7 @@ See the demo app [DemoInstanceProvider](https://github.com/NextFaze/dev-fun/tree
 Adds a developer menu [DevMenu](../com.nextfaze.devfun.menu/-dev-menu/index.md), accessible by a floating cog [CogOverlay](../com.nextfaze.devfun.menu.controllers/-cog-overlay/index.md) (long-press to drag) or device button sequence [KeySequence](../com.nextfaze.devfun.menu.controllers/-key-sequence/index.md).
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:menu:0.2.0'
+debugCompile 'com.nextfaze.devfun:menu:0.2.1'
 ```
 
 Button sequence: *(this is not configurable at the moment but is intended to be eventually)*
@@ -164,7 +164,7 @@ Adds module [InjectFromDagger2](../com.nextfaze.devfun.inject.dagger2/-inject-fr
 [Dagger2Component](../com.nextfaze.devfun.annotations/-dagger2-component/index.md) uses.
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.2.0'
+debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:0.2.1'
 ```
 
 It only really supports simple graphs by finding provides methods/fields that match (or are a super type) of the requested type (scoping is
@@ -195,14 +195,16 @@ The scope/broadness/priority can be set on the annotation either via [Dagger2Com
 If unset then the scope will be assumed based on the context of its location (i.e. in Application class &gt; probably the top level component,
 if static then first argument assumed to be the receiver, etc).
 
-*Be aware! For properties you must annotate the **getter***
+Note: For properties you can annotated to property itself (`@Dagger2Component`) or the getter explicitly (`@get:Dagger2Component`) if for
+some reason on the property doesn't work (which could happen if it can't find your getter - which is done via method name string
+manipulation due to KAPT limitations.
 
 Example usage:
 
 * Where a top-level/singleton/application component is retrieved via an extension function *(from the demo)*:
 
 ``` kotlin
-@get:Dagger2Component
+@Dagger2Component
 val Context.applicationComponent: ApplicationComponent?
     get() = (applicationContext as DaggerApplication).applicationComponent
 ```
@@ -210,7 +212,7 @@ val Context.applicationComponent: ApplicationComponent?
 * Where a component is kept in the activity *(from the demo)*:
 
 ``` kotlin
-@get:Dagger2Component
+@get:Dagger2Component // if we want to specify getter explicitly
 lateinit var activityComponent: ActivityComponent
     private set
 ```
@@ -248,7 +250,7 @@ Adding them to modules and leveraging dependency injection allows for non-static
 Module [GlideUtils](../com.nextfaze.devfun.utils.glide/-glide-utils/index.md) provides some utility functions when using Glide.
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.2.0'
+debugCompile 'com.nextfaze.devfun:devfun-util-glide:0.2.1'
 ```
 
 Features:
@@ -262,7 +264,7 @@ Features:
 Module [LeakCanaryUtils](../com.nextfaze.devfun.utils.leakcanary/-leak-canary-utils/index.md) provides some utility functions when using Leak Canary.
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.2.0'
+debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:0.2.1'
 ```
 
 Features:
@@ -282,7 +284,7 @@ Adds a parameter annotation [ColorPicker](../com.nextfaze.devfun.invoke.view/-co
 *Note: Only needed if you don't include `devfun-menu` (as it uses/includes the color picker transitively).*
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun-invoke-view-colorpicker:0.2.0'
+debugCompile 'com.nextfaze.devfun-invoke-view-colorpicker:0.2.1'
 ```
 
 ## Experimental Modules
@@ -305,7 +307,7 @@ Module [DevHttpD](../com.nextfaze.devfun.httpd/-dev-http-d/index.md) adds a loca
 Provides a single `POST` method `invoke` with one parameter `hashCode` (expecting [FunctionItem.hashCode](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/hash-code.html))
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:httpd:0.2.0'
+debugCompile 'com.nextfaze.devfun:httpd:0.2.1'
 ```
 
 Use with HttpD Front-end.
@@ -343,7 +345,7 @@ Module [HttpFrontEnd](../com.nextfaze.devfun.httpd.frontend/-http-front-end/inde
 **Depends on [DevHttpD](../com.nextfaze.devfun.httpd/-dev-http-d/index.md).**
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:httpd-frontend:0.2.0'
+debugCompile 'com.nextfaze.devfun:httpd-frontend:0.2.1'
 ```
 
 Page is rather simple at the moment, but in the future it's somewhat intended (as a learning exercise) to create a React front end using
@@ -356,7 +358,7 @@ Kotlin or something.
 Module [DevStetho](../com.nextfaze.devfun.stetho/-dev-stetho/index.md) allows generated methods to be invoked from Chrome's Dev Tools JavaScript console.
 
 ``` gradle
-debugCompile 'com.nextfaze.devfun:devfun-stetho:0.2.0'
+debugCompile 'com.nextfaze.devfun:devfun-stetho:0.2.1'
 ```
 
 Opening console will show available functions.
