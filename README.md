@@ -192,7 +192,9 @@ See [Components](https://nextfaze.github.io/dev-fun/wiki/-components.html) for m
 <img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/menu-auth.png" alt="Developer Menu on authenticate screen" width="35%" align="right"/>  
 
 #### Developer Menu
-An easy to use developer menu accessible at any time via a floating cog button added by the `devfun-menu` module (right):  
+An easy to use developer menu accessible at any time via a floating cog button added by the `devfun-menu` module (right):
+
+Can be accessed via a floating cog, the tilde/grave key `` ` ``, or the volume button sequence `down, down, up, down`.
 
 #### Invocation UI
 Add custom parameter view factories to render a custom view for manually inputting a custom type at run time rather than via injection.
