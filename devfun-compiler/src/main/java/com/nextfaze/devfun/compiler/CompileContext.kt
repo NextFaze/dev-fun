@@ -62,13 +62,14 @@ internal class CompileContext(private val processingEnv: ProcessingEnvironment) 
         }
 
         // They aren't using the Gradle plugin, or it failed to identify the build details - fallback to inspection
+        // TODO Changing this version number every release is annoying!
         warn(
             """Application package and/or variant arguments were missing or invalid.
             |Please ensure you have applied the DevFun gradle plugin.
             |
             |This can be done by adding the plugins block to your build.gradle file:
             |plugins {
-            |    id 'com.nextfaze.devfun' version '1.0.0'
+            |    id 'com.nextfaze.devfun' version '1.0.1'
             |}
             |
             |Falling back to inspection of classpath and file parsing - this method is unreliable!""".trimMargin()
