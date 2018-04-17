@@ -93,7 +93,8 @@ class CogOverlay constructor(
 
     private val preferences = KSharedPreferences.named(context, "DevFunCog")
     private var cogVisible by preferences["cogVisible", true]
-    private var cogColor by preferences["cogColor", ContextCompat.getColor(context, R.color.df_menu_cog_background)]
+    private val cogColorPref = preferences["cogColor", ContextCompat.getColor(context, R.color.df_menu_cog_background)]
+    private var cogColor by cogColorPref
     private var permissions by preferences["permissionsState", OverlayPermissions.NEVER_REQUESTED]
 
     override fun attach(developerMenu: DeveloperMenu) {
@@ -211,13 +212,19 @@ class CogOverlay constructor(
         addOverlay(true)
     }
 
+    @DeveloperFunction
+    private fun resetColor() {
+        cogColorPref.delete()
+        setColor(cogColor)
+    }
+
     @Constructable
     private inner class CurrentVisibility : ValueSource<Boolean> {
         override val value get() = cogVisible
     }
 
     @DeveloperFunction
-    private fun setCogVisibility(@From(CurrentVisibility::class) visible: Boolean) {
+    private fun setVisibility(@From(CurrentVisibility::class) visible: Boolean) {
         cogVisible = visible
         setVisible(visible)
         activity?.let {
@@ -242,6 +249,7 @@ class CogOverlay constructor(
 
     @DeveloperFunction
     private fun setColor(@ColorPicker @From(CurrentColor::class) color: Int) {
+        log.t { "set ${color.toColorStruct()}" }
         cogColor = color
 
         // we need to separate it out otherwise the img gets a weird alpha shadow effect
@@ -300,6 +308,23 @@ class CogOverlay constructor(
             log.d(ignore) { "permissionCheckHack failed!" }
             false
         }
+
+    private fun Int.toColorStruct(): String {
+        fun Int.toHexString() = Integer.toHexString(this)
+
+        val a = Color.alpha(this)
+        val (r, g, b) = Triple(Color.red(this), Color.green(this), Color.blue(this))
+        return """$this as color:
+            |color {
+            |  components {
+            |    alpha: $a ($${a.toHexString()})
+            |    red: $r ($${r.toHexString()})
+            |    green: $g ($${g.toHexString()})
+            |    blue: $b ($${b.toHexString()})
+            |  }
+            |  code: #${this.toHexString()}
+            |}""".trimMargin()
+    }
 }
 
 internal enum class OverlayPermissions { NEVER_REQUESTED, DENIED, NEVER_ASK_AGAIN }
