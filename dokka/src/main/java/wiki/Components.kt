@@ -43,7 +43,7 @@ DevFun is designed to be modular, in terms of both its dependencies (limiting im
  *     - [Menu](#menu)
  * - [Inject Modules](#inject-modules)
  *     - [Dagger 2](#dagger-2)
- *         - [Reflection Based _(default)_](#reflection-based-_default_)
+ *         - [Reflection Based](#reflection-based)
  *         - [Annotation Based](#annotation-based)
  *         - [Custom Instance Provider](#custom-instance-provider)
  * - [Util Modules](#util-modules)
@@ -196,7 +196,7 @@ _I'm always looking into better ways to support this, comments/suggestions are w
 - Currently kapt doesn't support multi-staged processing of generated Kotlin code.
 - Possibly consider generating Java `Component` interfaces for some types?
 
-#### Reflection Based _(default)_
+#### Reflection Based
 By default simply including the module will use the reflection-based component locator.
 
 It will attempt to locate your component objects in your application class and/or your activity classes and use aforementioned utility
