@@ -1,13 +1,17 @@
 package com.nextfaze.devfun.inject.dagger2
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Application
 import android.app.Fragment
 import android.content.Context
+import android.text.SpannableStringBuilder
 import android.view.View
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.Dagger2Component
 import com.nextfaze.devfun.annotations.Dagger2Scope
+import com.nextfaze.devfun.annotations.DeveloperCategory
+import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.*
@@ -201,6 +205,7 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
  *
  * @see Dagger2Component
  */
+@DeveloperCategory("DevFun", group = "Inject")
 @AutoService(DevFunModule::class)
 class InjectFromDagger2 : AbstractDevFunModule() {
     private val log = logger()
@@ -209,7 +214,7 @@ class InjectFromDagger2 : AbstractDevFunModule() {
 
     override fun init(context: Context) {
         val application = context.applicationContext as Application
-        val provider = Dagger2AnnotatedInstanceProvider(devFun).takeIf { it.hasComponents }
+        val provider: InstanceProvider = Dagger2AnnotatedInstanceProvider(devFun).takeIf { it.hasComponents }
                 ?: Dagger2ReflectiveInstanceProvider(application, get())
         devFun.instanceProviders += provider.also {
             log.d { "InjectFromDagger2 using instance provider $it" }
@@ -223,16 +228,46 @@ class InjectFromDagger2 : AbstractDevFunModule() {
             instanceProvider = null
         }
     }
+
+    @DeveloperFunction("Dagger 2.x Provider Details")
+    private fun providerDetails(activity: Activity) =
+        SpannableStringBuilder().apply {
+            this += "useAutomaticDagger2Injector: $useAutomaticDagger2Injector\n"
+            this += "providerType: "
+            this += pre("${instanceProvider?.let { it::class }}")
+            this += "\nproviderDetails:\n"
+            this += (instanceProvider as WithDescription?)?.description() ?: "null"
+        }.also {
+            AlertDialog.Builder(activity)
+                .setTitle("Inject From Dagger 2.x")
+                .setMessage(it)
+                .show()
+        }
 }
 
-private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : InstanceProvider {
+private interface WithDescription {
+    fun description(): CharSequence
+}
+
+private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : InstanceProvider, WithDescription {
     private val log = logger()
 
     private data class ComponentReference(
         val annotation: Dagger2Component,
         val method: Method,
         val scope: Int
-    )
+    ) {
+        override fun toString() =
+            """component {
+                |  resolvedScope: $scope
+                |  annotation {
+                |    scope: ${annotation.scope}
+                |    priority: ${annotation.priority}
+                |  }
+                |  method: $method
+                |}
+                |""".trimMargin()
+    }
 
     private val components: List<ComponentReference>
 
@@ -325,12 +360,18 @@ private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : Ins
 
         return null
     }
+
+    override fun description() =
+        SpannableStringBuilder().apply {
+            this += "Component References (lower scope # are checked first): \n\n"
+            this += pre(components.joinToString(separator = "\n"))
+        }
 }
 
 private class Dagger2ReflectiveInstanceProvider(
     private val app: Application,
     private val activityProvider: ActivityProvider
-) : InstanceProvider {
+) : InstanceProvider, WithDescription {
     private val log = logger()
     private var applicationComponents: List<Any>? = null
 
@@ -380,6 +421,8 @@ private class Dagger2ReflectiveInstanceProvider(
         }
         log.d { "Using Dagger2InstanceProvider with $applicationComponents" }
     }
+
+    override fun description() = "applicationComponents=$applicationComponents"
 }
 
 private val ANY_CLASS = Any::class.java
