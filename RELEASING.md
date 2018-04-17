@@ -5,6 +5,7 @@
 3. Update [Doctoc](#doctoc) (README and Wiki etc.) _before GH Pages as it may affect Wiki object line numbers_
 4. Update [GitHub Pages](#github-pages) _must be done before artifact release for documentation linking_
 5. Build/upload [Artifacts](#artifacts)
+6. Merge/push changes/tags etc. _should be done after artifacts are deployed to ensure README is valid at time of push_
 
 
 ## PlantUML
@@ -74,16 +75,31 @@ thus it is necessary to do this *prior* to that (specifically, Dokka looks for t
 
 
 ## Artifacts
+All libraries/modules/plugins should be tagged/published as the latest version even if there were no changes to simplify the documentation
+and installation process for users.
+
+When adding a new module you also need to tell BinTray to add the artifact to JCenter (via bintray on the artifact's page).  
+The final push/merge to master should be delayed until you receive the notification from JCenter that the artifact has been added (~12 hours).
+
+### Modules
 - **Note: Due to Gradle and/or BinTray plugin issues, parallel task execution may result in skipped/empty uploads!**    
     _Typically this is enabled with `org.gradle.parallel=true` in your user/project `gradle.properties`._  
     _You can tell if you have it enabled if the first line of your Gradle output has something like "Parallel execution is an incubating feature"._
     - **If this is enabled, you must disable it (and `./gradlew --stop`), or manually call each module's `:module:bintrayUpload` task to ensure successful deployment.**  
      
 This should be done *after* GitHub Pages (Dokka) due to external documentation linking.
-
 - Snapshots are defined by `gradle.properties` value `VERSION_SNAPSHOT` (true/false).  
 - Remember to check BinTray task options `dryRun`, `publish`, and `override`, and also `mavenCentralSync.sync`. 
 
 ```bash
 ./gradlew clean bintrayUpload
+```
+
+_This can take 10-15 minutes!_
+
+### Gradle Plugin
+This should be done after the artifacts are updated.
+
+```bash
+./gradlew publishPlugins
 ```
