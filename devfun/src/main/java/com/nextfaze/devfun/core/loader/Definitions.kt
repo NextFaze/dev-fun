@@ -40,12 +40,12 @@ private object NoGeneratedDefinitionsFound : DevFunGenerated {
 @Constructable
 private class EmptyFunctionTransformer(private val context: Context) : FunctionTransformer {
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition) = listOf(
-            object : FunctionItem {
-                override val function = EmptyFunctionDefinition
-                override val category = EmptyCategoryDefinition
-                override val group = context.getText(R.string.df_devfun_no_generated_definitions_found)
-                override val name = context.getText(R.string.df_devfun_no_generated_definitions_found_reasons)
-            }
+        object : FunctionItem {
+            override val function = EmptyFunctionDefinition
+            override val category = EmptyCategoryDefinition
+            override val group = context.getText(R.string.df_devfun_no_generated_definitions_found)
+            override val name = context.getText(R.string.df_devfun_no_generated_definitions_found_reasons)
+        }
     )
 }
 

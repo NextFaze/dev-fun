@@ -38,7 +38,7 @@ private data class BuildConfig(
 }
 
 internal class CompileContext(private val processingEnv: ProcessingEnvironment) {
-    val pkg by lazy pkg@ {
+    val pkg by lazy pkg@{
         // Use package overrides if provided
         val override = packageOverride ?: extPackageOverride
         if (override != null) {
@@ -151,7 +151,7 @@ internal class CompileContext(private val processingEnv: ProcessingEnvironment) 
 
         buildConfigs.singleOrNull {
             it.variantDir.equals(buildVariant, true) || it.variantDir.replace(File.separator, "").equals(buildVariant, true)
-        } ?: run failedToMatch@ {
+        } ?: run failedToMatch@{
             error("Failed to match single build variant '$buildVariant' to any buildConfigs: $buildConfigs")
             throw BuildContextException("Failed to locate active BuildConfig.java")
         }

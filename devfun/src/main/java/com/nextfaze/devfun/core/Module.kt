@@ -66,7 +66,7 @@ abstract class AbstractDevFunModule : DevFunModule {
      * @see DevFun.instanceOf
      * @see DevFun.instanceProviders
      */
-    inline fun <reified T : Any> get(): T = devFun.get<T>()
+    inline fun <reified T : Any> get(): T = devFun.get()
 
     /**
      * @see DevFun.instanceOf

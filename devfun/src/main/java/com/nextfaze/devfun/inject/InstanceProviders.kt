@@ -91,7 +91,7 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
     }
 
     private fun <T> threadLocal(initializer: () -> T): ThreadLocalDelegate<T> = ThreadLocalDelegate(initializer)
-    private class ThreadLocalDelegate<T>(val initializer: () -> T) : ReadWriteProperty<Any, T> {
+    private class ThreadLocalDelegate<T>(initializer: () -> T) : ReadWriteProperty<Any, T> {
         private val threadLocal: ThreadLocal<T> = ThreadLocal()
 
         init {

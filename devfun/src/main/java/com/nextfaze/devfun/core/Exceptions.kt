@@ -9,8 +9,8 @@ import kotlin.reflect.jvm.javaMethod
 internal val Throwable.stackTraceAsString get() = StringWriter().apply { printStackTrace(PrintWriter(this)) }.toString()
 
 private object ExceptionInvokeResult : InvokeResult {
-    override val value = null
-    override val exception = null
+    override val value: Nothing? = null
+    override val exception: Nothing? = null
 }
 
 private object ExceptionFunctionDefinition : FunctionDefinition {

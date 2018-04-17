@@ -8,20 +8,22 @@ import java.io.StringWriter
 /**
  * Same as `Iterable.joinToString` but returns and empty string if [List] is empty. (i.e. wont include [prefix] or [postfix])
  */
-internal fun <T> List<T>.joiner(separator: CharSequence = ", ",
-                                prefix: CharSequence = "",
-                                postfix: CharSequence = "",
-                                limit: Int = -1,
-                                truncated: CharSequence = "...",
-                                transform: ((T) -> CharSequence)? = null) =
-        when {
-            this.isEmpty() -> ""
-            else -> joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-        }
+internal fun <T> List<T>.joiner(
+    separator: CharSequence = ", ",
+    prefix: CharSequence = "",
+    postfix: CharSequence = "",
+    limit: Int = -1,
+    truncated: CharSequence = "...",
+    transform: ((T) -> CharSequence)? = null
+) =
+    when {
+        this.isEmpty() -> ""
+        else -> joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
+    }
 
 internal val Throwable.stackTraceAsString get() = StringWriter().apply { printStackTrace(PrintWriter(this)) }.toString()
 
-internal inline fun File.filterRecursively(predicate: (File) -> Boolean) = filterRecursivelyTo(ArrayList<File>(), predicate)
+internal inline fun File.filterRecursively(predicate: (File) -> Boolean) = filterRecursivelyTo(ArrayList(), predicate)
 
 internal inline fun <C : MutableCollection<in File>> File.filterRecursivelyTo(destination: C, predicate: (File) -> Boolean): C {
     val directories = ArrayList<File>()

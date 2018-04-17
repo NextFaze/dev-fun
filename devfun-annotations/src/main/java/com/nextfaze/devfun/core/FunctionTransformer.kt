@@ -43,7 +43,7 @@ import com.nextfaze.devfun.annotations.DeveloperFunction
  * `ContextFunctionItem` that overrides the category with a `ContextCategory`. This sets the category to "Context", and
  * its group to the class where the function is defined -  e.g. "Main Activity" or "Navigation Fragment", etc.
  *
- * Items that aren't on the current screen are filtered out (by returning an empty list - stopping futher processing).
+ * Items that aren't on the current screen are filtered out (by returning an empty list - stopping further processing).
  *
  * ### `CustomProviderTransformer`
  * Delegates to a user declared transformer - as declared by [FunctionDefinition.transformer].
@@ -77,5 +77,5 @@ interface FunctionTransformer {
  */
 object SingleFunctionTransformer : FunctionTransformer {
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition) =
-            setOf(SimpleFunctionItem(functionDefinition, categoryDefinition))
+        setOf(SimpleFunctionItem(functionDefinition, categoryDefinition))
 }
