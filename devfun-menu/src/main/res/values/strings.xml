@@ -4,7 +4,7 @@
 
     <string name="df_menu_developer_menu">Developer Menu</string>
     <string name="df_menu_crash_app">Crash App</string>
-    <string name="df_menu_version">NextFaze Developer Menu <xliff:g id="version" example="0.2.1" notranslate="true">%1$s</xliff:g></string>
+    <string name="df_menu_version">NextFaze Developer Menu <xliff:g id="version" notranslate="true">%1$s</xliff:g></string>
 
     <!-- Controllers -->
     <string name="df_menu_available_controllers"><u>Available Menu Controllers</u></string>
@@ -18,7 +18,7 @@
     <string name="df_menu_cog_hide_message">Available menu controllers:\n<xliff:g id="menu_controllers" notranslate="true">%1$s</xliff:g></string>
     <string name="df_menu_cog_tap_to_show">Tapping cog overlay</string>
     <string name="df_menu_overlay_request">Overlay Request</string>
-    <string name="df_menu_overlay_reason">"NextFaze Developer Menu <xliff:g id="version" example="0.2.1" notranslate="true">%1$s</xliff:g>
+    <string name="df_menu_overlay_reason">"NextFaze Developer Menu <xliff:g id="version" notranslate="true">%1$s</xliff:g>
 
 Requesting permission to show Developer Menu floating cog overlay."</string>
     <string name="df_menu_never_ask_again">Never ask again</string>
