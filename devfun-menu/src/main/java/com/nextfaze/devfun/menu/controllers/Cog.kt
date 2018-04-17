@@ -90,12 +90,14 @@ class CogOverlay constructor(
 
     private var listener: Application.ActivityLifecycleCallbacks? = null
     private var developerMenu: DeveloperMenu? = null
+    private var menuVisible = false
 
     private val preferences = KSharedPreferences.named(context, "DevFunCog")
     private var cogVisible by preferences["cogVisible", true]
     private val cogColorPref = preferences["cogColor", ContextCompat.getColor(context, R.color.df_menu_cog_background)]
     private var cogColor by cogColorPref
     private var permissions by preferences["permissionsState", OverlayPermissions.NEVER_REQUESTED]
+
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
@@ -161,11 +163,18 @@ class CogOverlay constructor(
                 }
             }
 
-    override fun onShown() = setVisible(false)
-    override fun onDismissed() = setVisible(true)
+    override fun onShown() {
+        menuVisible = true
+        setVisible(false)
+    }
+
+    override fun onDismissed() {
+        menuVisible = false
+        setVisible(true)
+    }
 
     private fun setVisible(visible: Boolean) {
-        overlay.view.visibility = if (visible && cogVisible && fragmentActivity != null) View.VISIBLE else View.GONE
+        overlay.view.visibility = if (visible && !menuVisible && cogVisible && fragmentActivity != null) View.VISIBLE else View.GONE
     }
 
     private fun addOverlay(force: Boolean = false) {
