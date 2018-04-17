@@ -19,14 +19,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.nextfaze.devfun.core.*
-import com.nextfaze.devfun.internal.splitSimpleName
+import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.view.ViewFactory
 import kotlinx.android.synthetic.main.df_menu_dialog_fragment.*
 
 internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     companion object {
-        fun show(activity: FragmentActivity) =
-            DeveloperMenuDialogFragment().let { it.show(activity.supportFragmentManager, it.defaultTag) }
+        fun show(activity: FragmentActivity) {
+            activity.obtain { DeveloperMenuDialogFragment() }
+                .apply { takeIf { !it.isAdded }?.show(activity.supportFragmentManager) }
+        }
 
         fun hide(activity: FragmentActivity) {
             (activity.supportFragmentManager.findFragmentByTag(DeveloperMenuDialogFragment::class.defaultTag) as? DialogFragment)?.dismiss()
