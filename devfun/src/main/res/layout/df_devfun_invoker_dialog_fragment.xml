@@ -2,15 +2,16 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:requiresFadingEdge="vertical">
+            android:requiresFadingEdge="vertical"
+            android:theme="@style/AlertDialog.AppCompat">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="?attr/dialogPreferredPadding"
-        android:orientation="vertical"
-        android:paddingEnd="?attr/dialogPreferredPadding"
-        android:paddingStart="?attr/dialogPreferredPadding">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/titleText"
@@ -31,6 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:typeface="monospace"
             tools:text="fun com.nextfaze.devfun.SomeClass.someFunction(kotlin.Type)" />
 
         <TextView
