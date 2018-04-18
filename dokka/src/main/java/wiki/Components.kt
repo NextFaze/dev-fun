@@ -161,13 +161,22 @@ Adds a developer menu [DevMenu], accessible by a floating cog [CogOverlay] (long
 debugCompile 'com.nextfaze.devfun:menu:1.0.1'
 ```
 
-Button sequence: *(this is not configurable at the moment but is intended to be eventually)*
+Button sequences: *(this are not configurable at the moment but are intended to be eventually)*
  * ```kotlin
- * private val DEFAULT_KEY_SEQUENCE = intArrayOf(
- *     KeyEvent.KEYCODE_VOLUME_DOWN,
- *     KeyEvent.KEYCODE_VOLUME_DOWN,
- *     KeyEvent.KEYCODE_VOLUME_UP,
- *     KeyEvent.KEYCODE_VOLUME_DOWN
+ * internal val GRAVE_KEY_SEQUENCE = KeySequence.Definition(
+ *     keyCodes = intArrayOf(KeyEvent.KEYCODE_GRAVE),
+ *     description = R.string.df_menu_grave_sequence,
+ *     consumeEvent = true
+ * )
+ * internal val VOLUME_KEY_SEQUENCE = KeySequence.Definition(
+ *     keyCodes = intArrayOf(
+ *         KeyEvent.KEYCODE_VOLUME_DOWN,
+ *         KeyEvent.KEYCODE_VOLUME_DOWN,
+ *         KeyEvent.KEYCODE_VOLUME_UP,
+ *         KeyEvent.KEYCODE_VOLUME_DOWN
+ *     ),
+ *     description = R.string.df_menu_volume_sequence,
+ *     consumeEvent = false
  * )
  * ```
 
