@@ -87,8 +87,7 @@
             android:layout_height="wrap_content"
             android:background="#eee"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            app:fontFamily="serif-monospace"
-            tools:fontFamily="serif-monospace"
+            android:typeface="monospace"
             tools:text="@tools:sample/lorem/random" />
 
     </com.nextfaze.devfun.error.HVScrollView>
