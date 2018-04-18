@@ -2,7 +2,7 @@
 
 # ErrorHandler
 
-`interface ErrorHandler` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/error/Handler.kt#L56)
+`interface ErrorHandler` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/error/Handler.kt#L58)
 
 Handles errors that occur during/throughout DevFun.
 

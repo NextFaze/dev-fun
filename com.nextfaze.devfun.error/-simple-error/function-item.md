@@ -2,7 +2,7 @@
 
 # functionItem
 
-`val functionItem: `[`FunctionItem`](../../com.nextfaze.devfun.core/-function-item/index.md)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/error/Handler.kt#L44)
+`val functionItem: `[`FunctionItem`](../../com.nextfaze.devfun.core/-function-item/index.md)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/error/Handler.kt#L46)
 
 Overrides [ErrorDetails.functionItem](../-error-details/function-item.md)
 

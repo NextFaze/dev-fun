@@ -2,7 +2,7 @@
 
 # CogOverlay
 
-`class CogOverlay : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Cog.kt#L61)
+`class CogOverlay : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Cog.kt#L62)
 
 Controls the floating cog overlay.
 
