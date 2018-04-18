@@ -281,6 +281,9 @@ class CogOverlay constructor(
         val c = cogColor
         cogColor = Color.argb(alpha, Color.red(c), Color.green(c), Color.blue(c))
         overlay.view.alpha = alpha / 255f
+
+        // required for older devices
+        overlay.view.invalidate()
     }
 
     @DeveloperFunction
