@@ -1,6 +1,7 @@
 package com.nextfaze.devfun.error
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -58,6 +59,9 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
         errors = arguments!!.getParcelableArrayList<RenderedError>(ERRORS).apply { sortBy { it.nanoTime } }
         currentErrorIdx = errors.indexOfFirst { !it.seen }.takeIf { it >= 0 } ?: errors.size - 1
     }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        super.onCreateDialog(savedInstanceState).apply { requestWindowFeature(Window.FEATURE_NO_TITLE) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.df_devfun_error_dialog_fragment, container, false)
