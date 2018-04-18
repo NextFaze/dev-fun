@@ -1,5 +1,6 @@
 package com.nextfaze.devfun.invoke
 
+import android.app.Dialog
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.TextInputLayout
@@ -7,6 +8,7 @@ import android.support.v4.app.FragmentActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.*
 import com.nextfaze.devfun.BaseDialogFragment
 import com.nextfaze.devfun.core.DebugException
@@ -52,6 +54,9 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
             dismissAllowingStateLoss()
         }
     }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        super.onCreateDialog(savedInstanceState).apply { requestWindowFeature(Window.FEATURE_NO_TITLE) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.df_devfun_invoker_dialog_fragment, container, false)
