@@ -52,7 +52,7 @@ configure<PublishingExtension> {
 }
 
 pluginBundle {
-    website = Publishing.Organization.URL
+    website = Publishing.Vcs.URL // use GitHub URL so that the Gradle plugin page points to repo rather than just the NextFaze site
     vcsUrl = Publishing.Vcs.URL
 
     description = project.description
