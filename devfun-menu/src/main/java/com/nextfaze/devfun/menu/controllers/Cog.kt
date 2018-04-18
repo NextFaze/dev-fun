@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -260,15 +261,7 @@ class CogOverlay constructor(
     private fun setColor(@ColorPicker @From(CurrentColor::class) color: Int) {
         log.t { "set ${color.toColorStruct()}" }
         cogColor = color
-
-        // we need to separate it out otherwise the img gets a weird alpha shadow effect
-        val alpha = Color.alpha(color)
-        val noAlphaColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color))
-
-        overlay.view.findViewById<View>(R.id.cogButton).apply {
-            DrawableCompat.setTint(DrawableCompat.wrap(background), noAlphaColor)
-        }
-        setAlpha(alpha)
+        tintOverlayView(cogColor)
     }
 
     @Constructable
@@ -280,7 +273,30 @@ class CogOverlay constructor(
     private fun setAlpha(@Ranged(to = 255.0) @From(CurrentAlpha::class) alpha: Int) {
         val c = cogColor
         cogColor = Color.argb(alpha, Color.red(c), Color.green(c), Color.blue(c))
-        overlay.view.alpha = alpha / 255f
+        tintOverlayView(cogColor)
+    }
+
+    private fun tintOverlayView(color: Int) {
+        val alpha = Color.alpha(color)
+        val noAlphaColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color))
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            // we need to separate it out otherwise the img gets a weird alpha shadow effect
+            overlay.view.alpha = alpha / 255f
+            overlay.view.findViewById<View>(R.id.cogButton).apply {
+                DrawableCompat.setTint(DrawableCompat.wrap(background), noAlphaColor)
+            }
+        } else {
+            // older SDKs don't support setting the alpha value on a ViewGroup
+            // so we do it to the ImageView instead (doesn't look as nice though)
+            overlay.view.findViewById<ImageView>(R.id.cogButton).apply {
+                DrawableCompat.setTint(DrawableCompat.wrap(background), color)
+                when {
+                    Build.VERSION.SDK_INT >= 16 -> imageAlpha = alpha
+                    else -> @Suppress("DEPRECATION") setAlpha(alpha)
+                }
+            }
+        }
 
         // required for older devices
         overlay.view.invalidate()
