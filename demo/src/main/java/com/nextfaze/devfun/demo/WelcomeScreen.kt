@@ -87,5 +87,15 @@ class WelcomeFragment : BaseFragment() {
         view?.setBackgroundColor(color)
     }
 
+    @DeveloperFunction
+    private fun thrownExceptionsShowErrorDialog(): Unit = throw RuntimeException("Test")
+
+    private enum class SomeEnum { OPTION_1, OPTION_2 }
+
+    @DeveloperFunction
+    private fun invokeUiWithMissingType(context: Context, anIntParam: Int, anEnumParam: SomeEnum, someType: SomeType) = Unit
+
     override fun inject(injector: FragmentInjector) = injector.inject(this)
 }
+
+private class SomeType
