@@ -15,7 +15,7 @@ interface DevFunModule {
      *
      * Primarily used for logging/debugging purposes.
      */
-    val name get() = this::class.qualifiedName!!
+    val name: String get() = this.javaClass.name
 
     /**
      * List of dependencies that this module requires to function correctly.

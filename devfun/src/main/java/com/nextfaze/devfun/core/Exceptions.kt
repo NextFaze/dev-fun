@@ -4,7 +4,6 @@ import android.support.annotation.Keep
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.reflect.Method
-import kotlin.reflect.jvm.javaMethod
 
 internal val Throwable.stackTraceAsString get() = StringWriter().apply { printStackTrace(PrintWriter(this)) }.toString()
 
@@ -14,7 +13,7 @@ private object ExceptionInvokeResult : InvokeResult {
 }
 
 private object ExceptionFunctionDefinition : FunctionDefinition {
-    override val method: Method = this::exception.javaMethod!!
+    override val method: Method by lazy { this.javaClass.getMethod("exception") }
     override val invoke: FunctionInvoke get() = { _, _ -> ExceptionInvokeResult }
     @Keep fun exception() = Unit
 }

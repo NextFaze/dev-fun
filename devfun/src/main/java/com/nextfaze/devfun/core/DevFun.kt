@@ -400,7 +400,7 @@ class DevFun {
                     .toSet()
                     .forEach functionItems@{ func ->
                         try {
-                            log.t { "Processing ${func.clazz.simpleName}::${func.name}" }
+                            log.t { "Processing ${func.clazz.java.simpleName}::${func.name}" }
                             transformations.forEach {
                                 if (it.accept(func)) {
                                     val funcClass = try {
