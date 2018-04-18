@@ -265,8 +265,7 @@ private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : Ins
                 |    priority: ${annotation.priority}
                 |  }
                 |  method: $method
-                |}
-                |""".trimMargin()
+                 |}""".trimMargin()
     }
 
     private val components: List<ComponentReference>
@@ -325,13 +324,13 @@ private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : Ins
                     }
 
                 ComponentReference(annotation, method, priority).also {
-                    log.t { "Found @Dagger2Component annotated reference $it" }
+                    log.t { "Found @Dagger2Component annotated reference:\n$it" }
                 }
             }
             .filterNotNull()
             .sortedBy { it.scope }
         log.d {
-            "Resolved & sorted component sources (lower scope # are checked first):${components.toString().replace(
+            "Resolved & sorted component sources (lower scope # are checked first):\n${components.toString().replace(
                 "ComponentReference",
                 "\nComponentReference"
             )}"
@@ -364,7 +363,7 @@ private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : Ins
     override fun description() =
         SpannableStringBuilder().apply {
             this += "Component References (lower scope # are checked first): \n\n"
-            this += pre(components.joinToString(separator = "\n"))
+            this += pre(components.joinToString(separator = "\n\n"))
         }
 }
 
