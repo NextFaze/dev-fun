@@ -35,13 +35,13 @@ object Android {
 
 object Config {
     const val bintrayPlugin = "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
-    const val androidPlugin = "com.android.tools.build:gradle:3.1.0"
+    const val androidPlugin = "com.android.tools.build:gradle:3.1.1"
     const val androidMavenGradlePlugin = "com.github.dcendents:android-maven-gradle-plugin:2.1"
 
     const val kotlinVersion = "1.2.31"
     const val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     const val kotlinPluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
-    const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
+    const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
     const val kotlinCoroutinesVersion = "0.22.5"
