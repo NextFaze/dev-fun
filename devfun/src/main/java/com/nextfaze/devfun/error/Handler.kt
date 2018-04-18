@@ -1,6 +1,8 @@
 package com.nextfaze.devfun.error
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.app.FragmentActivity
 import android.text.SpannableStringBuilder
 import com.nextfaze.devfun.annotations.DeveloperCategory
@@ -100,10 +102,14 @@ interface ErrorHandler {
 @DeveloperCategory("DevFun")
 internal class DefaultErrorHandler(application: Application, private val activityProvider: ActivityProvider) : ErrorHandler {
     private val log = logger()
+    private val handler = Handler(Looper.getMainLooper())
     private val activity get() = activityProvider() as? FragmentActivity
 
     private val errorLock = Any()
     private var errors = mutableMapOf<Any, RenderedError>()
+
+    private val showLock = Any()
+    private var showCallback: (() -> Unit)? = null
 
     init {
         application.registerActivityCallbacks(
@@ -122,7 +128,7 @@ internal class DefaultErrorHandler(application: Application, private val activit
             errors[renderedError.nanoTime] = renderedError
         }
 
-        showErrorDialogIfHaveUnseen()
+        postShowErrorDialog()
     }
 
     override fun markSeen(key: Any) {
@@ -150,6 +156,22 @@ internal class DefaultErrorHandler(application: Application, private val activit
 
     @DeveloperFunction(transformer = ShowErrorDialogVisibility::class)
     private fun showErrorDialog() = showErrorDialogIfHaveUnseen(true)
+
+    private fun postShowErrorDialog() {
+        synchronized(showLock) {
+            if (showCallback != null) return
+
+            showCallback = { showErrorDialogIfHaveUnseen() }
+            handler.post {
+                synchronized(showLock) {
+                    showCallback?.let {
+                        showCallback = null
+                        it()
+                    }
+                }
+            }
+        }
+    }
 
     private fun showErrorDialogIfHaveUnseen(force: Boolean = false) {
         val dialogErrors = synchronized(errorLock) {
