@@ -24,6 +24,7 @@ import java.lang.RuntimeException
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.reflect.KClass
@@ -65,22 +66,40 @@ var useAutomaticDagger2Injector = true
  *
  * @see Dagger2Component
  */
+@Suppress("UNCHECKED_CAST")
 fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? {
+    // Special case - a non-singleton no-args injected type will not have a provider or getter
+    if (!clazz.java.isAnnotationPresent(Singleton::class.java) &&
+        clazz.java.constructors.singleOrNull()?.isAnnotationPresent(Inject::class.java) == true) {
+        log.t { "$clazz is non-singleton no-args @Inject - creating new instance..." }
+        return clazz.java.newInstance()
+    }
+
     // Get from Provider
     log.t { "Trying to get $clazz from $component providers..." }
-    component::class.java.declaredFields
-        .firstOrNull {
-            it.type == Provider::class.java && (
-                    (it.genericType as? ParameterizedType)?.let { it.actualTypeArguments[0] == clazz.java } ?: false ||
-                            it.name.toLowerCase() == "${clazz.java.simpleName}Provider".toLowerCase() // raw types
-                    )
+    component::class.java.declaredFields.forEach {
+        if (it.type != Provider::class.java) return@forEach
+
+        val genericType = it.genericType
+        if (genericType is ParameterizedType) {
+            if (genericType.actualTypeArguments[0] == clazz.java) {
+                return it.apply { isAccessible = true }.get(component)?.let { (it as Provider<T>).get() }
+            }
         }
-        ?.apply { isAccessible = true }
-        ?.get(component)
-        ?.also {
-            @Suppress("UNCHECKED_CAST")
-            return (it as Provider<T>).get()
+
+        // raw types (package private non-singleton types)
+        // since we can't know the type until we get it, we at least check the name matches first
+        if (it.name.toLowerCase() == "${clazz.java.simpleName}Provider".toLowerCase()) {
+            try {
+                val instance = it.apply { isAccessible = true }.get(component)?.let { (it as Provider<*>).get() }
+                if (instance?.javaClass == clazz.java) {
+                    return instance as T
+                }
+            } catch (t: Throwable) {
+                log.d(t) { "Exception when trying to get $clazz from raw-type Provider $it (package private non-singleton type) - skipping provider." }
+            }
         }
+    }
 
     // Get from Component getter (@Inject on constructor, but not @Singleton types)
     log.t { "Trying to get $clazz from $component getters..." }
@@ -88,7 +107,6 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
         .firstOrNull { it.name.startsWith("get") && it.returnType == clazz.java }
         ?.apply { isAccessible = true }
         ?.also {
-            @Suppress("UNCHECKED_CAST")
             return it.invoke(component) as T
         }
 
@@ -105,7 +123,6 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
                 }
                 ?.let {
                     f.isAccessible = true
-                    @Suppress("UNCHECKED_CAST")
                     return it.invoke(f.get(component)) as T
                 }
         }
