@@ -153,6 +153,9 @@ ext.doConfigureAndroidLibrary = { project, withPublishing ->
     }
 }
 
-task clean(type: Delete) {
+task cleanRoot(type: Delete) {
     delete rootProject.buildDir
+}
+getTasksByName("clean", true).each {
+    it.dependsOn(cleanRoot)
 }
