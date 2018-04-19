@@ -1,6 +1,7 @@
 package com.nextfaze.devfun.menu.internal
 
 import android.animation.ValueAnimator
+import android.annotation.TargetApi
 import android.app.Application
 import android.graphics.PixelFormat
 import android.graphics.PointF
@@ -8,6 +9,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.support.annotation.LayoutRes
 import android.support.v4.math.MathUtils.clamp
 import android.view.*
@@ -25,26 +27,6 @@ internal class OverlayWindow(
     initialDock: Dock = Dock.TOP_LEFT,
     initialDelta: Float = 0f
 ) {
-    companion object {
-        @Suppress("DEPRECATION")
-        private val windowOverlayType by lazy {
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                else -> WindowManager.LayoutParams.TYPE_PHONE
-            }
-        }
-
-        fun newParams() =
-            WindowManager.LayoutParams().apply {
-                type = windowOverlayType
-                format = PixelFormat.TRANSLUCENT
-                flags = WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                width = ViewGroup.LayoutParams.WRAP_CONTENT
-                height = ViewGroup.LayoutParams.WRAP_CONTENT
-                gravity = Gravity.TOP or Gravity.START
-            }
-    }
-
     private val log = logger()
     private val windowManager = application.windowManager
     private val handler = Handler(Looper.getMainLooper())
@@ -59,13 +41,21 @@ internal class OverlayWindow(
 
     var viewInset = Rect()
 
+    val canDrawOverlays: Boolean
+        get() = when {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(application) -> true
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.O -> forceCheckPermissionsEnabled()
+            else -> false
+        }
+
+    private val params = createOverlayWindowParams()
     private val overlayBounds = Rect()
+
     fun updateOverlayBounds(bounds: Rect) {
         overlayBounds.set(bounds)
         loadSavedPosition()
     }
 
-    private val params = newParams()
     val view: View by lazy {
         View.inflate(application, layoutId, null).apply {
             setOnTouchListener(object : View.OnTouchListener {
@@ -334,6 +324,28 @@ internal class OverlayWindow(
         }
     }
 
+    /**
+     * Forcefully check if we have permissions on SDK 26
+     *
+     * See
+     * - https://stackoverflow.com/questions/46187625/settings-candrawoverlayscontext-returns-false-on-android-oreo
+     * - https://stackoverflow.com/questions/46173460/why-in-android-o-method-settings-candrawoverlays-returns-false-when-user-has
+     * - https://issuetracker.google.com/issues/66072795
+     */
+    @TargetApi(Build.VERSION_CODES.O)
+    private fun forceCheckPermissionsEnabled() =
+        try {
+            val params = createOverlayWindowParams()
+            val view = View(application).apply { layoutParams = params }
+            windowManager.addView(view, params)
+            windowManager.removeView(view)
+            log.d { "Overlay permissions check hack for SDK 26 success!" }
+            true
+        } catch (ignore: Throwable) {
+            log.d(ignore) { "Overlay permissions check hack for SDK 26 failed!" }
+            false
+        }
+
     override fun toString() =
         """
           |overlay: {
@@ -372,3 +384,21 @@ internal class OverlayWindow(
 }
 
 internal enum class Dock { TOP, BOTTOM, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT }
+
+private fun createOverlayWindowParams() =
+    WindowManager.LayoutParams().apply {
+        type = windowOverlayType
+        format = PixelFormat.TRANSLUCENT
+        flags = WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        width = ViewGroup.LayoutParams.WRAP_CONTENT
+        height = ViewGroup.LayoutParams.WRAP_CONTENT
+        gravity = Gravity.TOP or Gravity.START
+    }
+
+@Suppress("DEPRECATION")
+private val windowOverlayType by lazy {
+    when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        else -> WindowManager.LayoutParams.TYPE_PHONE
+    }
+}

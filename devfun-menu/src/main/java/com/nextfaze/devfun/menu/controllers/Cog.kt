@@ -65,21 +65,9 @@ class CogOverlay constructor(
 ) : MenuController {
     private val log = logger()
     private val application = context.applicationContext as Application
-    private val windowManager = application.windowManager
 
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
-
-    private val canDrawOverlays: Boolean
-        get() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(application)) {
-                return true
-            }
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-                return forceCheckPermissionsEnabled()
-            }
-            return false
-        }
 
     private val overlay = OverlayWindow(application, R.layout.df_menu_cog_overlay, "DevFunCog", Dock.RIGHT, 0.7f)
         .apply {
@@ -98,7 +86,6 @@ class CogOverlay constructor(
     private val cogColorPref = preferences["cogColor", ContextCompat.getColor(context, R.color.df_menu_cog_background)]
     private var cogColor by cogColorPref
     private var permissions by preferences["permissionsState", OverlayPermissions.NEVER_REQUESTED]
-
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
@@ -122,7 +109,7 @@ class CogOverlay constructor(
                 updateDisplayBounds(it)
                 if (it is FragmentActivity) {
                     when {
-                        canDrawOverlays -> addOverlay()
+                        overlay.canDrawOverlays -> addOverlay()
                         permissions != OverlayPermissions.NEVER_ASK_AGAIN && !isInstrumentationTest -> managePermissions()
                     }
                     setVisible(it.isRunningInForeground)
@@ -150,7 +137,7 @@ class CogOverlay constructor(
                 if (!cogVisible) {
                     this += R.string.df_menu_cog_overlay_hidden_by_user
                 }
-                if (!canDrawOverlays) {
+                if (!overlay.canDrawOverlays) {
                     this += R.string.df_menu_cog_overlay_no_permissions
                 }
                 if (isEmpty()) {
@@ -180,7 +167,7 @@ class CogOverlay constructor(
 
     private fun addOverlay(force: Boolean = false) {
         val developerMenu = developerMenu ?: return
-        if (!force && (overlay.isAdded || !canDrawOverlays)) return
+        if (!force && (overlay.isAdded || !overlay.canDrawOverlays)) return
 
         overlay.apply {
             removeFromWindow()
@@ -315,27 +302,6 @@ class CogOverlay constructor(
                     )
                     .show()
             }
-
-    /**
-     * Forcefully check if we have permissions on SDK 26
-     *
-     * See
-     * - https://stackoverflow.com/questions/46187625/settings-candrawoverlayscontext-returns-false-on-android-oreo
-     * - https://stackoverflow.com/questions/46173460/why-in-android-o-method-settings-candrawoverlays-returns-false-when-user-has
-     * - https://issuetracker.google.com/issues/66072795
-     */
-    private fun forceCheckPermissionsEnabled() =
-        try {
-            val params = OverlayWindow.newParams()
-            val view = View(application).apply { layoutParams = params }
-            windowManager.addView(view, params)
-            windowManager.removeView(view)
-            log.d { "permissionCheckHack success!" }
-            true
-        } catch (ignore: Throwable) {
-            log.d(ignore) { "permissionCheckHack failed!" }
-            false
-        }
 
     private fun Int.toColorStruct(): String {
         fun Int.toHexString() = Integer.toHexString(this)
