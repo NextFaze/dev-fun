@@ -5,6 +5,7 @@ import android.app.Application
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Rect
 import android.net.Uri
@@ -51,11 +52,11 @@ private const val PREF_PERMISSIONS = "permissions"
  *
  * Manages/requests permissions as needed, and hides/shows when app view context changes.
  *
- * Background color/tint of the cog can be changed by declaring (overriding) a color resource `df_menu_cog_background_color`
+ * Background color/tint of the cog can be changed by declaring (overriding) a color resource `df_menu_cog_tint`
  *
  * e.g.
  * ```xml
- *     <color name="df_menu_cog_background_color">#FF0000</color> <!-- red -->
+ * <color name="df_menu_cog_tint">#77FF0000</color> <!-- red -->
  * ```
  */
 @DeveloperCategory("DevFun", "Cog Overlay")
@@ -83,7 +84,7 @@ class CogOverlay constructor(
 
     private val preferences = KSharedPreferences.named(context, "DevFunCog")
     private var cogVisible by preferences["cogVisible", true]
-    private val cogColorPref = preferences["cogColor", ContextCompat.getColor(context, R.color.df_menu_cog_background)]
+    private val cogColorPref = preferences["cogColor", defaultTint]
     private var cogColor by cogColorPref
     private var permissions by preferences["permissionsState", OverlayPermissions.NEVER_REQUESTED]
 
@@ -109,7 +110,7 @@ class CogOverlay constructor(
                 updateDisplayBounds(it)
                 if (it is FragmentActivity) {
                     when {
-                        overlay.canDrawOverlays -> addOverlay()
+                        overlay.canDrawOverlays -> addOverlay(it)
                         permissions != OverlayPermissions.NEVER_ASK_AGAIN && !isInstrumentationTest -> managePermissions()
                     }
                     setVisible(it.isRunningInForeground)
@@ -165,20 +166,36 @@ class CogOverlay constructor(
         overlay.view.visibility = if (visible && !menuVisible && cogVisible && fragmentActivity != null) View.VISIBLE else View.GONE
     }
 
-    private fun addOverlay(force: Boolean = false) {
-        val developerMenu = developerMenu ?: return
+    private fun addOverlay(activity: Activity, force: Boolean = false) {
         if (!force && (overlay.isAdded || !overlay.canDrawOverlays)) return
 
         overlay.apply {
             removeFromWindow()
-            onClick = { fragmentActivity?.let(developerMenu::show) }
+            onClick = ::onOverlayClick
             view.apply {
                 findViewById<View>(R.id.cogButton).apply {
                     ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.df_menu_cog_elevation).toFloat())
-                    setColor(cogColor)
+                    tintOverlayView(resolveTint(activity))
                 }
             }
             addToWindow()
+        }
+    }
+
+    /**
+     * This function was extracted like this as the activity parameter is leaked from with the original code:
+     * ```kotlin
+     * val developerMenu = developerMenu ?: return
+     * onClick = { fragmentActivity?.let(developerMenu::show) }
+     * ```
+     * (bug has been reported - the onClick lambda is incorrectly generated)
+     * https://youtrack.jetbrains.com/issue/KT-23881
+     */
+    private fun onOverlayClick(@Suppress("UNUSED_PARAMETER") view: View) {
+        developerMenu?.also { menu ->
+            fragmentActivity?.also { activity ->
+                menu.show(activity)
+            }
         }
     }
 
@@ -203,16 +220,16 @@ class CogOverlay constructor(
     }
 
     @DeveloperFunction
-    private fun resetPositionAndState() {
+    private fun resetPositionAndState(activity: Activity) {
         preferences.clear()
         overlay.resetPositionAndState()
-        addOverlay(true)
+        addOverlay(activity, true)
     }
 
     @DeveloperFunction
-    private fun resetColor() {
+    private fun resetColor(activity: Activity) {
         cogColorPref.delete()
-        setColor(cogColor)
+        tintOverlayView(resolveTint(activity))
     }
 
     @Constructable
@@ -240,25 +257,24 @@ class CogOverlay constructor(
     }
 
     @Constructable
-    private inner class CurrentColor : ValueSource<Int> {
-        override val value get() = cogColor
+    private inner class CurrentColor(private val activity: Activity) : ValueSource<Int> {
+        override val value get() = resolveTint(activity)
     }
 
     @DeveloperFunction
     private fun setColor(@ColorPicker @From(CurrentColor::class) color: Int) {
-        log.t { "set ${color.toColorStruct()}" }
         cogColor = color
         tintOverlayView(cogColor)
     }
 
     @Constructable
-    private inner class CurrentAlpha : ValueSource<Int> {
-        override val value get() = Color.alpha(cogColor)
+    private inner class CurrentAlpha(private val activity: Activity) : ValueSource<Int> {
+        override val value get() = Color.alpha(resolveTint(activity))
     }
 
     @DeveloperFunction
-    private fun setAlpha(@Ranged(to = 255.0) @From(CurrentAlpha::class) alpha: Int) {
-        val c = cogColor
+    private fun setAlpha(activity: Activity, @Ranged(to = 255.0) @From(CurrentAlpha::class) alpha: Int) {
+        val c = resolveTint(activity)
         cogColor = Color.argb(alpha, Color.red(c), Color.green(c), Color.blue(c))
         tintOverlayView(cogColor)
     }
@@ -302,6 +318,48 @@ class CogOverlay constructor(
                     )
                     .show()
             }
+
+    private fun resolveTint(activity: Activity) =
+        try {
+            if (cogColorPref.isSet) {
+                // user has overridden value manually
+                cogColor.also {
+                    log.d { "Using custom tint set by user: ${it.toColorStruct()}" }
+                }
+            } else {
+                // if the use has defined their own tint
+                ContextCompat.getColor(activity, R.color.df_menu_cog_tint).also {
+                    log.d { "Using user defined resource 'df_menu_cog_tint' for cog overlay tint: ${it.toColorStruct()}" }
+                }
+            }
+        } catch (ignore: Resources.NotFoundException) {
+            log.d { "Override resource tint 'df_menu_cog_tint' not defined. Trying theme accent color..." }
+
+            try {
+                // otherwise use app accent color if defined
+                val ta = activity.theme.obtainStyledAttributes(intArrayOf(android.support.v7.appcompat.R.attr.colorAccent))
+                try {
+                    if (ta.hasValue(0)) {
+                        ta.getColor(0, defaultTint).let {
+                            when {
+                                Color.alpha(it) == 0xFF -> (it.toLong() and 0x77FFFFFF).toInt()
+                                else -> it
+                            }
+                        }.also { log.d { "Using primary color attribute for tint: ${it.toColorStruct()}" } }
+                    } else {
+                        defaultTint.also {
+                            log.d { "No appcompat 'colorPrimary' attribute defined. Using default tint value: ${it.toColorStruct()}" }
+                        }
+                    }
+                } finally {
+                    ta.recycle()
+                }
+            } catch (t: Throwable) {
+                log.w(t) { "Unexpected error when trying to resolve cog overlay tint - falling back to default tint value: ${defaultTint.toColorStruct()}" }
+                // else fall back to default tint
+                defaultTint
+            }
+        }
 
     private fun Int.toColorStruct(): String {
         fun Int.toHexString() = Integer.toHexString(this)
@@ -401,3 +459,5 @@ private val Context.isRunningInForeground: Boolean
         val topActivityName = tasks[0].topActivity.packageName
         return topActivityName.equals(packageName, ignoreCase = true)
     }
+
+private val defaultTint = Color.argb(0x77, 0xEE, 0x41, 0x36)

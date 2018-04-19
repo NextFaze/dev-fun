@@ -3,6 +3,6 @@
 <resources>
 
     <public name="df_menu_developer_menu" type="string"/>
-    <public name="df_menu_cog_background" type="color"/>
+    <public name="df_menu_cog_tint" type="color"/>
 
 </resources>

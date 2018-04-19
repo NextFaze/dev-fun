@@ -19,7 +19,7 @@
     <color name="df_menu_white_transparent100_selected">#64c3c3c3</color>
 
     <color name="df_menu_header_bottom_border">@color/df_menu_grey200_normal</color>
-    <color name="df_menu_cog_background">#869800c6</color>
+    <color name="df_menu_cog_tint">@null</color>
 
     <!-- Dimensions -->
 

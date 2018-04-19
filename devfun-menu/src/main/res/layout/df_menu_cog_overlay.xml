@@ -7,16 +7,16 @@
              android:padding="@dimen/df_menu_cog_padding">
 
     <ImageView
-            android:id="@+id/cogButton"
-            android:layout_width="@dimen/df_menu_cog_size"
-            android:layout_height="@dimen/df_menu_cog_size"
-            android:background="@drawable/df_menu_cog_background"
-            android:contentDescription="@string/df_menu_developer_menu"
-            android:elevation="@dimen/df_menu_cog_elevation"
-            android:padding="@dimen/df_menu_cog_elevation"
-            android:scaleType="fitCenter"
-            android:src="@drawable/df_menu_ic_settings_black_64dp"
-            android:tint="@color/df_menu_white_normal"
-            tools:targetApi="lollipop"/>
+        android:id="@+id/cogButton"
+        android:layout_width="@dimen/df_menu_cog_size"
+        android:layout_height="@dimen/df_menu_cog_size"
+        android:background="@drawable/df_menu_cog_background"
+        android:contentDescription="@string/df_menu_developer_menu"
+        android:elevation="@dimen/df_menu_cog_elevation"
+        android:padding="@dimen/df_menu_cog_elevation"
+        android:scaleType="fitCenter"
+        android:src="@drawable/df_menu_ic_settings_black_64dp"
+        android:tint="@color/df_menu_white_normal"
+        tools:targetApi="lollipop" />
 
 </FrameLayout>

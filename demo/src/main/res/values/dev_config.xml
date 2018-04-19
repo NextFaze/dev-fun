@@ -3,6 +3,7 @@
 
     <integer name="df_httpd_default_port">20123</integer>
 
-    <color name="df_menu_cog_background">#55ee4136</color>
+    <!-- If you want to set it manually -->
+    <!--<color name="df_menu_cog_tint">#55ee4136</color>-->
 
 </resources>
