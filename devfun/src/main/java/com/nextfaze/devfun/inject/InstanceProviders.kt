@@ -69,8 +69,6 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
             } catch (ignore: ClassInstanceNotFoundException) {
                 // we ignore these and just check others
             } catch (t: Throwable) {
-                remove(provider)
-                log.w(t) { "The instance provider $provider threw an exception and has been removed from contention." }
                 errorHandler.onError(
                     t,
                     "Instance Provider",
