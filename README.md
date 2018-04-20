@@ -231,7 +231,7 @@ Easiest method is to use `devfun-inject-dagger2` module - by default it might wo
  in the Application and/or Activity classes). However if you use extension functions to retrieve your components (or you put them in weird
  places for whatever reason), then you can annotate the functions/properties/getters with [@Dagger2Component](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-dagger2-component/).
  
-If all else fails you can define your own instance provider using with utility functions from `devfun-inject-dagger2` (see the demo for an example). 
+If all else fails you can define your own instance provider with utility functions from `devfun-inject-dagger2` (see the demo for an example). 
 
 
 
