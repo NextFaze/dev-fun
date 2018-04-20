@@ -70,7 +70,7 @@ Contains the annotations [DeveloperFunction] and [DeveloperCategory], and variou
 This library contains primarily interface definitions and inline functions, and will have a
 negligible impact on your method count and dex sizes. Apply to your main `compile` configuration:
 ```gradle
-compile 'com.nextfaze.devfun:devfun-annotations:1.0.2'
+compile 'com.nextfaze.devfun:devfun-annotations:1.1.0'
 ```
 
 
@@ -79,7 +79,7 @@ Annotation processor [DevFunProcessor] that handles [DeveloperFunction] and [Dev
 
 This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.
 ```gradle
-kaptDebug 'com.nextfaze.devfun:devfun-compiler:1.0.2'
+kaptDebug 'com.nextfaze.devfun:devfun-compiler:1.1.0'
 ```
 
 Configuration options can be applied using Android DSL:
@@ -106,7 +106,7 @@ In your `build.gradle` add the DevFun Gradle plugin to your build script.
 If you can use the Gradle `plugins` block (which you should be able to do - this locates and downloads it for you):
  * ```groovy
  * plugins {
- *     id 'com.nextfaze.devfun' version '1.0.2'
+ *     id 'com.nextfaze.devfun' version '1.1.0'
  * }
  * ```
 
@@ -115,7 +115,7 @@ Add the plugin to your classpath (found in the `jcenter()` repository):
  * ```groovy
  * buildscript {
  *     dependencies {
- *         classpath 'com.nextfaze.devfun:devfun-gradle-plugin:1.0.2'
+ *         classpath 'com.nextfaze.devfun:devfun-gradle-plugin:1.1.0'
  *     }
  * }
  * ```
@@ -138,7 +138,7 @@ Core of [DevFun]. Loads modules and definitions.
 
 Apply to your non-main configuration:
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun:1.0.2'
+debugCompile 'com.nextfaze.devfun:devfun:1.1.0'
 ```
 
 Modules are loaded by [DevFun] using Java's [ServiceLoader].
@@ -158,7 +158,7 @@ See the demo app [DemoInstanceProvider](https://github.com/NextFaze/dev-fun/tree
 ### Menu
 Adds a developer menu [DevMenu], accessible by a floating cog [CogOverlay] (long-press to drag) or device button sequence [KeySequence].
 ```gradle
-debugCompile 'com.nextfaze.devfun:menu:1.0.2'
+debugCompile 'com.nextfaze.devfun:menu:1.1.0'
 ```
 
 Button sequences: *(this are not configurable at the moment but are intended to be eventually)*
@@ -192,7 +192,7 @@ Modules to facilitate dependency injection for function invocation.
 Adds module [InjectFromDagger2] which adds an [InstanceProvider] that can reflectively locate Dagger 2 components or (if used) resolve
 [Dagger2Component] uses.
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:1.0.2'
+debugCompile 'com.nextfaze.devfun:devfun-inject-dagger2:1.1.0'
 ```
 
 It only really supports simple graphs by finding provides methods/fields that match (or are a super type) of the requested type (scoping is
@@ -270,7 +270,7 @@ _Still playing with this concept and naming conventions etc._
 ### Glide
 Module [GlideUtils] provides some utility functions when using Glide.
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun-util-glide:1.0.2'
+debugCompile 'com.nextfaze.devfun:devfun-util-glide:1.1.0'
 ```
 
 Features:
@@ -282,7 +282,7 @@ Features:
 ### Leak Canary
 Module [LeakCanaryUtils] provides some utility functions when using Leak Canary.
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:1.0.2'
+debugCompile 'com.nextfaze.devfun:devfun-util-leakcanary:1.1.0'
 ```
 
 Features:
@@ -299,7 +299,7 @@ Adds a parameter annotation [ColorPicker] that lets the invocation UI render a c
 
 _Note: Only needed if you don't include `devfun-menu` (as it uses/includes the color picker transitively)._
 ```gradle
-debugCompile 'com.nextfaze.devfun-invoke-view-colorpicker:1.0.2'
+debugCompile 'com.nextfaze.devfun-invoke-view-colorpicker:1.1.0'
 ```
 
 
@@ -321,7 +321,7 @@ Module [DevHttpD] adds a local HTTP server (uses [NanoHttpD](https://github.com/
 
 Provides a single `POST` method `invoke` with one parameter `hashCode` (expecting [FunctionItem.hashCode])
 ```gradle
-debugCompile 'com.nextfaze.devfun:httpd:1.0.2'
+debugCompile 'com.nextfaze.devfun:httpd:1.1.0'
 ```
 
 Use with HttpD Front-end.
@@ -354,7 +354,7 @@ Module [HttpFrontEnd] generates an admin interface using SB Admin 2 (similar to 
 
 __Depends on [DevHttpD].__
 ```gradle
-debugCompile 'com.nextfaze.devfun:httpd-frontend:1.0.2'
+debugCompile 'com.nextfaze.devfun:httpd-frontend:1.1.0'
 ```
 
 Page is rather simple at the moment, but in the future it's somewhat intended (as a learning exercise) to create a React front end using
@@ -366,7 +366,7 @@ Kotlin or something.
 ### Stetho
 Module [DevStetho] allows generated methods to be invoked from Chrome's Dev Tools JavaScript console.
 ```gradle
-debugCompile 'com.nextfaze.devfun:devfun-stetho:1.0.2'
+debugCompile 'com.nextfaze.devfun:devfun-stetho:1.1.0'
 ```
 
 Opening console will show available functions.
