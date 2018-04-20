@@ -1,3 +1,5 @@
+@file:Suppress("IllegalIdentifier", "ClassName", "unused")
+
 package wiki
 
 import android.app.Activity
@@ -6,6 +8,7 @@ import android.content.Context
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.view.View
+import com.nextfaze.devfun.annotations.Dagger2Component
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.core.FunctionTransformer
@@ -43,6 +46,8 @@ import kotlin.reflect.KClass
  * In short, it is a module that adds an instance provider. Your application (and its supers) are searched for any
  * object that has an `@Component` annotation. This instance is then traversed for type providers or modules that
  * provide the type. This may fail or be insufficient if your application has non-trivial object graphs.
+ *
+ * The annotation [Dagger2Component] can also be used to tell DevFun how to get your components.
  *
  * See [InjectFromDagger2] for more details and limitations, or for details and examples on implementing your own.
  *
