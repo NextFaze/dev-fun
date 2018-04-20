@@ -1,8 +1,32 @@
 # Releasing
+In general it is desirable to release all aspects of DevFun even for untouched modules for point-releases etc.  
+This is to done to simplify the documentation and installation process for users, as well as for our own sanity, rather than having different
+versions for every other module.
+
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Release Process](#release-process)
+  - [PlantUML](#plantuml)
+  - [Doctoc](#doctoc)
+  - [GitHub Pages](#github-pages)
+  - [Artifacts](#artifacts)
+    - [Modules](#modules)
+    - [Gradle Plugin](#gradle-plugin)
+- [TLDR;](#tldr)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# Release Process
+
+Due to the different module types/aspects (a Gradle plugin, java and android libs, Dokka/Javadoc generation, GitHub pages, etc.) there are a
+number of steps that need to be run in a specific order:
 
 1. Finalize and tag release commit (latest git tag is in referenced in documentation)
 2. Update [UML](#plantuml) (if needed)
-3. Update [Doctoc](#doctoc) (README and Wiki etc.) _before GH Pages as it may affect Wiki object line numbers_
+3. Update [Doctoc](#doctoc) (README, RELEASING, and Wiki etc.) _before GH Pages as it may affect Wiki object line numbers_
 4. Update [GitHub Pages](#github-pages) _must be done before artifact release for documentation linking_
 5. Build/upload [Artifacts](#artifacts)
 6. Merge/push changes/tags etc. _should be done after artifacts are deployed to ensure README is valid at time of push_
@@ -32,9 +56,9 @@ Install using npn:
 npm install -g doctoc
 ```
 
-It is used for the README and should be run whenever it is altered:
+It is used for the README and RELEASING documents and should be run whenever they are altered:
 ```bash
-doctoc README.md --github --notitle
+doctoc *.md --github --notitle
 ```
 
 It is also used in the Wiki (currently only `Components.kt`), however the Dokka task will handle that automatically (see
@@ -103,3 +127,27 @@ This should be done after the artifacts are updated.
 ```bash
 ./gradlew publishPlugins
 ```
+
+
+# TLDR;
+- On local copy merge in release to master, and if needed, run doctoc, uml generation, etc.
+- Add git tag for release
+- Turn off snapshot flag `VERSION_SNAPSHOT=false` in `gradle.properties`
+- Turn off dryRun flag `dryRun = false` in `publishing.gradle`
+- Ensure gradle parallel is turned off (`org.gradle.parallel=false`)
+- Run commands:
+    ```bash
+    git tag 1.0.2
+    ./gradlew clean
+    ./gradlew assemble
+    ./gradlew dokka
+    ./gradlew bintrayUpload
+    ./gradlew publishPlugins
+   cd gh-pages
+   git add .
+   git commit -m "Update for 1.0.2"
+   git tag 1.0.2-pages
+   git push && git push --tags
+   cd ..
+   git push && git push --tags
+    ```
