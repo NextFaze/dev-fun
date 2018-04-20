@@ -8,11 +8,11 @@ Controls the floating cog overlay.
 
 Manages/requests permissions as needed, and hides/shows when app view context changes.
 
-Background color/tint of the cog can be changed by declaring (overriding) a color resource `df_menu_cog_background_color`
+Background color/tint of the cog can be changed by declaring (overriding) a color resource `df_menu_cog_tint`
 
 e.g.
 
 ``` xml
-    <color name="df_menu_cog_background_color">#FF0000</color> <!-- red -->
+<color name="df_menu_cog_tint">#77FF0000</color> <!-- red -->
 ```
 

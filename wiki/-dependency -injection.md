@@ -2,7 +2,7 @@
 
 # Dependency Injection
 
-`object Dependency Injection` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/DependencyInjection.kt#L114)
+`object Dependency Injection` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/DependencyInjection.kt#L119)
 
 DevFun supports a rudimentary form of dependency injection using an [InstanceProvider](../com.nextfaze.devfun.inject/-instance-provider/index.md) (a
 [CompositeInstanceProvider](../com.nextfaze.devfun.inject/-composite-instance-provider.md) at [DevFun.instanceProviders](../com.nextfaze.devfun.core/-dev-fun/instance-providers.md)).
@@ -34,6 +34,8 @@ supported eventually.
 In short, it is a module that adds an instance provider. Your application (and its supers) are searched for any
 object that has an `@Component` annotation. This instance is then traversed for type providers or modules that
 provide the type. This may fail or be insufficient if your application has non-trivial object graphs.
+
+The annotation [Dagger2Component](../com.nextfaze.devfun.annotations/-dagger2-component/index.md) can also be used to tell DevFun how to get your components.
 
 See [InjectFromDagger2](../com.nextfaze.devfun.inject.dagger2/-inject-from-dagger2/index.md) for more details and limitations, or for details and examples on implementing your own.
 

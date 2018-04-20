@@ -2,18 +2,18 @@
 
 # CogOverlay
 
-`class CogOverlay : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Cog.kt#L62)
+`class CogOverlay : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Cog.kt#L63)
 
 Controls the floating cog overlay.
 
 Manages/requests permissions as needed, and hides/shows when app view context changes.
 
-Background color/tint of the cog can be changed by declaring (overriding) a color resource `df_menu_cog_background_color`
+Background color/tint of the cog can be changed by declaring (overriding) a color resource `df_menu_cog_tint`
 
 e.g.
 
 ``` xml
-    <color name="df_menu_cog_background_color">#FF0000</color> <!-- red -->
+<color name="df_menu_cog_tint">#77FF0000</color> <!-- red -->
 ```
 
 ### Constructors
