@@ -47,11 +47,11 @@ internal class StringOrNumberParameterViewFactoryProvider : ParameterViewFactory
     override fun get(parameter: Parameter): ViewFactory<View>? {
         fun inflateEditText(inputType: Int) =
             inflate<StringOrNumberTextView>(R.layout.df_devfun_edit_text_input) {
-                type = parameter.clazz
+                type = parameter.type
                 editText!!.inputType = inputType
             }
 
-        return when (parameter.clazz) {
+        return when (parameter.type) {
             String::class -> inflateEditText(TYPE_CLASS_TEXT or TYPE_TEXT_FLAG_MULTI_LINE)
             Byte::class, Short::class, Int::class, Long::class -> inflateEditText(TYPE_CLASS_NUMBER or TYPE_NUMBER_FLAG_SIGNED)
             Float::class, Double::class -> inflateEditText(TYPE_CLASS_NUMBER or TYPE_NUMBER_FLAG_DECIMAL or TYPE_NUMBER_FLAG_SIGNED)

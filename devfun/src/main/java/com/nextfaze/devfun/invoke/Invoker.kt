@@ -10,11 +10,13 @@ import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.*
 import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.jvm.kotlinFunction
 
-/** Used to invoke a [FunctionItem] and automatically handles parameter injection and errors. */
+/** Used to invoke a [FunctionItem] or [UiFunction] and automatically handles parameter injection and errors. */
 interface Invoker {
     /**
-     * Invokes the provided [FunctionItem].
+     * Invokes a function item, using the invocation UI if needed.
      *
      * Any exceptions thrown during invocation should be caught and returned as an [InvokeResult] - exception for
      * [DebugException], which is intended to crash the app and should simply be re-thrown when encountered.
@@ -23,6 +25,16 @@ interface Invoker {
      *         If the result is `null` then the invocation is pending user interaction.
      */
     fun invoke(item: FunctionItem): InvokeResult?
+
+    /**
+     * Invokes a function using the invocation UI.
+     *
+     * @param function The function description.
+     *
+     * @return The result of the invocation and/or any exception thrown (other than [DebugException]).
+     *         If the result is `null` then the invocation is pending user interaction.
+     */
+    fun invoke(function: UiFunction): InvokeResult?
 }
 
 @Constructable
@@ -58,6 +70,11 @@ internal class DefaultInvoker(private val devFun: DevFun, private val errorHandl
         }
     }
 
+    override fun invoke(function: UiFunction): InvokeResult? {
+        InvokingDialogFragment.show(devFun.get(), function)
+        return null
+    }
+
     private fun doInvoke(item: FunctionItem): InvokeResult? {
         var haveAllInstances = true
 
@@ -84,7 +101,30 @@ internal class DefaultInvoker(private val devFun: DevFun, private val errorHandl
                 SimpleInvokeResult(exception = t)
             }
         } else {
-            InvokingDialogFragment.show(devFun.get(), item)
+            val group = item.group
+            val category = item.category.name
+            val kFun = item.function.method.kotlinFunction
+                    ?: throw RuntimeException(
+                        """
+                        Could not get Kotlin Function equivalent for ${item.function.method}
+                            Try reloading the DevFun definitions:
+                            DevFun > Misc > Reload Item Definitions""".trimIndent()
+                    )
+            val parameters = kFun.parameters.filter { it.kind == KParameter.Kind.VALUE }.map(::NativeParameter)
+            val invoke: SimpleInvoke = { it ->
+                log.d { "Invoke $item\nwith args: $it" }
+                item.function.invoke(item.receiverInstance(devFun.instanceProviders), it)
+            }
+
+            val description = uiFunction(
+                title = item.name,
+                subtitle = if (group == null) category else "$category - $group",
+                signature = kFun.toString(),
+                parameters = parameters,
+                invoke = invoke
+            )
+
+            InvokingDialogFragment.show(devFun.get(), description)
         }
 
         return null
@@ -97,3 +137,11 @@ internal fun <T : Any> DevFun.tryGetInstanceOf(clazz: KClass<T>) =
     } catch (ignore: ClassInstanceNotFoundException) {
         null
     }
+
+private class NativeParameter(
+    override val kParameter: KParameter
+) : Parameter, WithKParameter {
+    override val name = kParameter.name
+    override val type: KClass<*> = kParameter.type.classifier as KClass<*>
+    override val annotations = kParameter.annotations
+}

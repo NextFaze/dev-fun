@@ -35,7 +35,7 @@ internal class SpinnerInputView @JvmOverloads constructor(
 
 internal class EnumParameterViewFactoryProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? {
-        val classifier = parameter.clazz.takeIf { it.java.isEnum } ?: return null
+        val classifier = parameter.type.takeIf { it.java.isEnum } ?: return null
         return inflate<SpinnerInputView>(R.layout.df_devfun_spinner_input) {
             valueOptions = classifier.java.enumConstants.toList()
         }

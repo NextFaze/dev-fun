@@ -29,7 +29,7 @@ internal class SwitchInputView @JvmOverloads constructor(
 
 internal class BooleanParameterViewFactoryProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? {
-        parameter.clazz.takeIf { it == Boolean::class } ?: return null
+        parameter.type.takeIf { it == Boolean::class } ?: return null
         return inflate(R.layout.df_devfun_switch_input)
     }
 }

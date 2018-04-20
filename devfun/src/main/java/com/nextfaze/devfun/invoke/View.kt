@@ -3,8 +3,9 @@ package com.nextfaze.devfun.invoke
 import android.view.View
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
-import com.nextfaze.devfun.internal.logger
-import com.nextfaze.devfun.internal.t
+import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.invoke.view.From
+import com.nextfaze.devfun.invoke.view.ValueSource
 import com.nextfaze.devfun.invoke.view.types.BooleanParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.EnumParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.RangedNumberParameterViewFactoryProvider
@@ -29,14 +30,7 @@ interface Parameter {
      *
      * @see KParameter.name
      */
-    val name: String? get() = kParameter.name
-
-    /**
-     * The annotations on the parameter.
-     *
-     * @see KAnnotatedElement.annotations
-     */
-    val annotations: List<Annotation> get() = kParameter.annotations
+    val name: CharSequence?
 
     /**
      * The parameter's type/class.
@@ -44,14 +38,52 @@ interface Parameter {
      * @see KParameter.type
      * @see KType.classifier
      */
-    val clazz: KClass<*> get() = kParameter.type.classifier as KClass<*>
+    val type: KClass<*>
 
     /**
-     * Reference to the underlying [KParameter].
+     * The annotations on the parameter.
+     *
+     * @see KAnnotatedElement.annotations
+     */
+    val annotations: List<Annotation> get() = emptyList()
+}
+
+/**
+ * [Parameter] objects that implement this will use the value provided by [WithInitialValue.value] rather than checking
+ * for an @[From] annotation.
+ *
+ * @see ValueSource
+ *
+ */
+interface WithInitialValue<out T : Any> {
+    /**
+     * The initial/default value of the parameter.
+     *
+     * @see Parameter
+     * @see From
+     * @see ValueSource
+     */
+    val value: T
+}
+
+/**
+ * [Parameter] objects that implement this will can be nullable.
+ *
+ * _Warning: Should only be used for user-defined [UiFunction] parameters as most of DevFun does not support nullability._
+ */
+interface WithNullability {
+    /** Is this parameter nullable. If true, then a `null` checkbox will be visible. */
+    val isNullable: Boolean get() = true
+}
+
+/** [Parameter] objects that implement this will have their values backed by a native function parameter description. */
+interface WithKParameter {
+    /**
+     * Reference to the underlying [KParameter] if this parameter represents a native function.
      *
      * If you need to use this please create an issue for why so that the [Parameter] API can be updated accordingly.
      *
-     * If you do you this, you can safely ignore the warnings regarding the kotlin-reflect lib as DevFun requires it.
+     * If you do use this you can safely ignore the warnings regarding the kotlin-reflect lib as DevFun requires it.
      * If/when the reflect lib is no longer needed, this field will be deprecated and removed.
      * Having said that, I don't expect it to be removed any time soon.
      */

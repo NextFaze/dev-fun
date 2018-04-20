@@ -43,7 +43,7 @@ internal class RangedNumberInputView @JvmOverloads constructor(
 
 internal class RangedNumberParameterViewFactoryProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? {
-        val clazz = parameter.clazz.takeIf { it.isNumber } ?: return null
+        val clazz = parameter.type.takeIf { it.isNumber } ?: return null
         val annotation = parameter.annotations.getTypeOrNull<Ranged>() ?: return null
 
         return inflate<RangedNumberInputView>(R.layout.df_devfun_range_number_input) {

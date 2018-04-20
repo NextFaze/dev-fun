@@ -12,7 +12,6 @@ import android.view.Window
 import android.widget.*
 import com.nextfaze.devfun.BaseDialogFragment
 import com.nextfaze.devfun.core.DebugException
-import com.nextfaze.devfun.core.FunctionItem
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.*
@@ -26,15 +25,13 @@ import com.nextfaze.devfun.obtain
 import com.nextfaze.devfun.show
 import kotlinx.android.synthetic.main.df_devfun_invoker_dialog_fragment.*
 import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.jvm.kotlinFunction
 
 internal class InvokingDialogFragment : BaseDialogFragment() {
     companion object {
-        fun show(activity: FragmentActivity, functionItem: FunctionItem) = activity
+        fun show(activity: FragmentActivity, function: UiFunction) = activity
             .obtain {
                 InvokingDialogFragment().apply {
-                    this.functionItem = functionItem
+                    this.function = function
                 }
             }
             .apply { takeIf { !it.isAdded }?.show(activity.supportFragmentManager) }
@@ -42,9 +39,11 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
 
     private val log = logger()
 
-    private lateinit var functionItem: FunctionItem
+    private lateinit var function: UiFunction
     private val devFun = com.nextfaze.devfun.core.devFun
     private val errorHandler get() = devFun.get<ErrorHandler>()
+
+    private var canExecute = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,18 +60,23 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.df_devfun_invoker_dialog_fragment, container, false)
 
-    private val Parameter.displayName
-        get() = (name?.capitalize() ?: "Unknown").splitCamelCase()
+    private val Parameter.displayName: CharSequence
+        get() = name.let { name ->
+            when (name) {
+                is String -> name.capitalize().splitCamelCase()
+                else -> name ?: "Unknown"
+            }
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         try {
+            canExecute = true
             performOnViewCreated()
         } catch (t: Throwable) {
             errorHandler.onError(
                 t,
                 "View Creation Failure",
-                "Something when wrong when trying to create the invocation dialog view.",
-                functionItem
+                "Something when wrong when trying to create the invocation dialog view for $function."
             )
             Handler().post { dismissAllowingStateLoss() }
         }
@@ -84,68 +88,23 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
     }
 
     private fun performOnViewCreated() {
-        val category = functionItem.category.name
-        val group = functionItem.category.group
-        subtitleText.text = if (group == null) category else "$category - $group"
-        titleText.text = functionItem.name
+        titleText.text = function.title
 
-        val kFun = functionItem.function.method.kotlinFunction
-                ?: throw RuntimeException(
-                    """
-                        Could not get Kotlin Function equivalent for ${functionItem.function.method}
-                            Try reloading the DevFun definitions:
-                            DevFun > Misc > Reload Item Definitions""".trimIndent()
-                )
-        functionSignatureText.text = kFun.toString()
+        subtitleText.text = function.subtitle
+        subtitleText.visibility = if (function.subtitle == null) View.GONE else View.VISIBLE
 
-        var canExecute = true
-        kFun.parameters.asSequence()
-            .filter { it.kind == KParameter.Kind.VALUE }
-            .map { SimpleParameter(it) }
-            .forEach {
-                val paramView = layoutInflater.inflate(R.layout.df_devfun_parameter, inputsList, false) as ViewGroup
-                paramView as InvokeParameterView
-                paramView.label = it.displayName
+        functionSignatureText.text = function.signature
+        functionSignatureText.visibility = if (function.signature == null) View.GONE else View.VISIBLE
 
-                if (it.clazz.isInjectable) {
-                    paramView.view = devFun.viewFactories[InjectedParameterView::class]?.inflate(layoutInflater, inputsList)?.apply {
-                        if (this is InjectedParameterView) {
-                            value = it.clazz
-                            paramView.attributes = getText(R.string.df_devfun_injected)
-                        }
-                    }
-                } else {
-                    val inputViewFactory = devFun.parameterViewFactories[it]
-                    if (inputViewFactory != null) {
-                        paramView.view = inputViewFactory.inflate(layoutInflater, inputsList).apply {
-                            if (this is WithValue<*>) {
-                                it.annotations.getTypeOrNull<From> {
-                                    @Suppress("UNCHECKED_CAST")
-                                    (this as WithValue<Any>).value = devFun.instanceOf(it.source).value
-                                }
-                            }
-                        }
-                    } else {
-                        canExecute = false
-                        devFun.viewFactories[ErrorParameterView::class]?.inflate(layoutInflater, inputsList)?.apply {
-                            this as ErrorParameterView
-                            this.value = it.clazz
-                            paramView.attributes = getText(R.string.df_devfun_missing)
-                            paramView.view = this
-                        }
-                    }
-                }
-
-                inputsList.addView(paramView)
-            }
+        function.parameters.forEach { buildParameterView(it) }
 
         cancelButton.setOnClickListener { dialog.dismiss() }
         executeButton.setOnClickListener {
             try {
-                fun View?.getValue(): Any {
+                fun View?.getValue(): Any? {
                     return when (this) {
+                        is InvokeParameterView -> if (isNull) null else view.getValue()
                         is InjectedParameterView -> devFun.instanceOf(value)
-                        is InvokeParameterView -> view.getValue()
                         is WithValue<*> -> value
                         is TextInputLayout -> editText!!.text
                         is Switch -> isChecked
@@ -160,12 +119,12 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
                     inputsList.getChildAt(it).getValue()
                 }
 
-                log.d { "Invoke $functionItem\nwith params: $params" }
-                functionItem.function.invoke(functionItem.receiverInstance(devFun.instanceProviders), params)
+                log.d { "Invoke $function\nwith params: $params" }
+                function.invoke(params)
             } catch (de: DebugException) {
                 throw de
             } catch (t: Throwable) {
-                errorHandler.onError(t, "Invocation Failure", "Something went wrong when trying to execute requested method.", functionItem)
+                errorHandler.onError(t, "Invocation Failure", "Something went wrong when trying to execute requested method for $function.")
             }
             dialog.dismiss()
         }
@@ -179,7 +138,48 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
         }
     }
 
+    private fun buildParameterView(parameter: Parameter) {
+        val paramView = layoutInflater.inflate(R.layout.df_devfun_parameter, inputsList, false) as ViewGroup
+        paramView as InvokeParameterView
+        paramView.label = parameter.displayName
+        paramView.nullable = if (parameter is WithNullability) parameter.isNullable else false
+
+        if (parameter.type.isInjectable) {
+            paramView.view = devFun.viewFactories[InjectedParameterView::class]?.inflate(layoutInflater, inputsList)?.apply {
+                if (this is InjectedParameterView) {
+                    value = parameter.type
+                    paramView.attributes = getText(R.string.df_devfun_injected)
+                }
+            }
+        } else {
+            val inputViewFactory = devFun.parameterViewFactories[parameter]
+            if (inputViewFactory != null) {
+                paramView.view = inputViewFactory.inflate(layoutInflater, inputsList).apply {
+                    if (this is WithValue<*>) {
+                        if (parameter is WithInitialValue<*>) {
+                            @Suppress("UNCHECKED_CAST")
+                            (this as WithValue<Any>).value = parameter.value
+                        } else {
+                            parameter.annotations.getTypeOrNull<From> {
+                                @Suppress("UNCHECKED_CAST")
+                                (this as WithValue<Any>).value = devFun.instanceOf(it.source).value
+                            }
+                        }
+                    }
+                }
+            } else {
+                canExecute = false
+                devFun.viewFactories[ErrorParameterView::class]?.inflate(layoutInflater, inputsList)?.apply {
+                    this as ErrorParameterView
+                    this.value = parameter.type
+                    paramView.attributes = getText(R.string.df_devfun_missing)
+                    paramView.view = this
+                }
+            }
+        }
+
+        inputsList.addView(paramView)
+    }
+
     private val <T : Any> KClass<T>.isInjectable get() = devFun.tryGetInstanceOf(this) != null
 }
-
-private class SimpleParameter(override val kParameter: KParameter) : Parameter

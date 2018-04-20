@@ -42,10 +42,7 @@ interface FunctionItem {
      *
      * @see CategoryDefinition.group
      */
-    val group: CharSequence? get() = when {
-        category.group == "" -> null
-        else -> category.group
-    }
+    val group: CharSequence? get() = category.group?.takeIf { it.isNotEmpty() }
 
     /**
      * Custom arguments for the [invoke] invocation. Otherwise arguments will be requested from an [InstanceProvider].
@@ -71,8 +68,10 @@ interface FunctionItem {
  *
  * @see FunctionTransformer
  */
-open class SimpleFunctionItem(override val function: FunctionDefinition,
-                              override val category: CategoryDefinition) : FunctionItem {
+open class SimpleFunctionItem(
+    override val function: FunctionDefinition,
+    override val category: CategoryDefinition
+) : FunctionItem {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FunctionItem) return false
@@ -95,7 +94,8 @@ open class SimpleFunctionItem(override val function: FunctionDefinition,
         return result
     }
 
-    override fun toString() = "SimpleFunctionItem(name='$name', group=$group, args=${args?.filter { it !== this }}, function=$function, category=$category)"
+    override fun toString() =
+        "SimpleFunctionItem(name='$name', group=$group, args=${args?.filter { it !== this }}, function=$function, category=$category)"
 }
 
 /**

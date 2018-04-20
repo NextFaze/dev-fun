@@ -28,7 +28,7 @@ internal class DevInvokeViewColorPicker : AbstractDevFunModule() {
 private object ColorPickerParameterViewProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? =
         when {
-            parameter.clazz == Int::class && parameter.annotations.any { it is ColorPicker } -> inflate(R.layout.df_invoke_view_colorpicker)
+            parameter.type == Int::class && parameter.annotations.any { it is ColorPicker } -> inflate(R.layout.df_invoke_view_colorpicker)
             else -> null
         }
 }

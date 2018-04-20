@@ -41,6 +41,12 @@ interface InvokeParameterView : WithLabel {
 
     /** The wrapped view the represents the parameter. */
     var view: View?
+
+    /** Can this value be nullable. */
+    var nullable: Boolean
+
+    /** Is this value `null`. */
+    val isNull: Boolean get() = false
 }
 
 internal class SimpleParameterView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -88,4 +94,11 @@ internal class SimpleParameterView @JvmOverloads constructor(context: Context, a
         }
 
     private fun getParamView(): View? = paramView.getChildAt(0)
+
+    override var nullable: Boolean = false
+        set(value) {
+            nullCheckBox.visibility = if (value) View.VISIBLE else View.GONE
+        }
+
+    override val isNull get() = nullCheckBox.isChecked
 }
