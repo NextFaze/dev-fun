@@ -269,7 +269,7 @@ If this is not possible, you can force Gradle to use a specific version of Kotli
 // Force specific Kotlin version
 configurations.all {
     resolutionStrategy.force(
-            "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version",
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
             "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
             "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     )
