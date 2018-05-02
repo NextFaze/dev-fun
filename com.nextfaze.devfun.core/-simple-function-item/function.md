@@ -2,7 +2,7 @@
 
 # function
 
-`open val function: `[`FunctionDefinition`](../-function-definition/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Items.kt#L74)
+`open val function: `[`FunctionDefinition`](../-function-definition/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Items.kt#L72)
 
 Overrides [FunctionItem.function](../-function-item/function.md)
 

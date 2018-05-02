@@ -13,6 +13,8 @@ Be careful if using this as a custom implementation has not been tested (though 
 | Name | Summary |
 |---|---|
 | [attributes](attributes.md) | `abstract var attributes: `[`CharSequence`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char-sequence/index.html)<br>Attributes of the parameter this view represents (e.g. if it is injected or missing etc.). |
+| [isNull](is-null.md) | `open val isNull: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)<br>Is this value `null`. |
+| [nullable](nullable.md) | `abstract var nullable: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)<br>Can this value be nullable. |
 | [view](view.md) | `abstract var view: `[`View`](https://developer.android.com/reference/android/view/View.html)`?`<br>The wrapped view the represents the parameter. |
 
 ### Inherited Properties

@@ -2,7 +2,7 @@
 
 # args
 
-`open val args: `[`FunctionArgs`](../-function-args.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Items.kt#L57)
+`open val args: `[`FunctionArgs`](../-function-args.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Items.kt#L54)
 
 Custom arguments for the [invoke](invoke.md) invocation. Otherwise arguments will be requested from an [InstanceProvider](../../com.nextfaze.devfun.inject/-instance-provider/index.md).
 

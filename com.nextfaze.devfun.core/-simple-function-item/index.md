@@ -2,7 +2,7 @@
 
 # SimpleFunctionItem
 
-`open class SimpleFunctionItem : `[`FunctionItem`](../-function-item/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Items.kt#L74)
+`open class SimpleFunctionItem : `[`FunctionItem`](../-function-item/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Items.kt#L71)
 
 Convenience class for [FunctionItem](../-function-item/index.md) to extend from, providing standard [equals](equals.md) and [hashCode](hash-code.md) implementations.
 

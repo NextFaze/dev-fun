@@ -2,7 +2,7 @@
 
 # CompositeParameterViewFactoryProvider
 
-`interface CompositeParameterViewFactoryProvider : `[`ParameterViewFactoryProvider`](-parameter-view-factory-provider/index.md)`, `[`Composite`](../com.nextfaze.devfun.core/-composite/index.md)`<`[`ParameterViewFactoryProvider`](-parameter-view-factory-provider/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/View.kt#L83)
+`interface CompositeParameterViewFactoryProvider : `[`ParameterViewFactoryProvider`](-parameter-view-factory-provider/index.md)`, `[`Composite`](../com.nextfaze.devfun.core/-composite/index.md)`<`[`ParameterViewFactoryProvider`](-parameter-view-factory-provider/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/View.kt#L115)
 
 A [ParameterViewFactoryProvider](-parameter-view-factory-provider/index.md) that delegates to other providers.
 
