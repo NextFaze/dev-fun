@@ -60,6 +60,7 @@ dependencies {
 
     // Kotlin
     implementation Config.kotlinStdLib
+    implementation Config.kotlinReflect
     implementation Config.kotlinCoroutines
     implementation Config.kotlinCoroutinesAndroid
 

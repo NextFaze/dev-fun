@@ -20,6 +20,7 @@ interface FragmentInjector {
     fun inject(welcomeFragment: WelcomeFragment)
     fun inject(registerFragment: RegisterFragment)
     fun inject(authenticateFragment: AuthenticateFragment)
+    fun inject(kotlinBugFragment: KotlinBugFragment)
 }
 
 interface DialogFragmentInjector
