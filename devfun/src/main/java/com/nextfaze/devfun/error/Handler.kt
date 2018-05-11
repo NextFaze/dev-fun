@@ -187,7 +187,7 @@ internal class DefaultErrorHandler(application: Application, private val activit
         override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): List<SimpleFunctionItem>? {
             val errorCount = synchronized(errorLock) { errors.size }.takeIf { it > 0 } ?: return emptyList()
             val category = object : CategoryDefinition {
-                override val name = SpannableStringBuilder().apply { this += bold("Errors ($errorCount)") }
+                override val name = SpannableStringBuilder().apply { this += b("Errors ($errorCount)") }
                 override val order = -9_000 // under Context
             }
 

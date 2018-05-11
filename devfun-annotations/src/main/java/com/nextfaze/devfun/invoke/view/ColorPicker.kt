@@ -3,6 +3,7 @@ package com.nextfaze.devfun.invoke.view
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.inject.Constructable
 import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.annotation.AnnotationTarget.PROPERTY
 import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 
 /**
@@ -36,5 +37,5 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
  * @see DeveloperFunction
  */
 @Retention(RUNTIME)
-@Target(VALUE_PARAMETER)
+@Target(VALUE_PARAMETER, PROPERTY)
 annotation class ColorPicker

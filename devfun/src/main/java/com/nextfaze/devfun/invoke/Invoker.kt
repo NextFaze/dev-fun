@@ -94,7 +94,7 @@ internal class DefaultInvoker(private val devFun: DevFun, private val errorHandl
 
         if (haveAllInstances) {
             return try {
-                SimpleInvokeResult(value = item.function.invoke(receiver, args))
+                SimpleInvokeResult(value = item.invoke(receiver, args))
             } catch (de: DebugException) {
                 throw de
             } catch (t: Throwable) {
@@ -113,7 +113,7 @@ internal class DefaultInvoker(private val devFun: DevFun, private val errorHandl
             val parameters = kFun.parameters.filter { it.kind == KParameter.Kind.VALUE }.map(::NativeParameter)
             val invoke: SimpleInvoke = { it ->
                 log.d { "Invoke $item\nwith args: $it" }
-                item.function.invoke(item.receiverInstance(devFun.instanceProviders), it)
+                item.invoke(item.receiverInstance(devFun.instanceProviders), it)
             }
 
             val description = uiFunction(

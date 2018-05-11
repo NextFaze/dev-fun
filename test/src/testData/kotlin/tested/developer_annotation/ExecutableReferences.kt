@@ -3,12 +3,15 @@
 package tested.developer_annotation
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
+import kotlin.annotation.AnnotationRetention.BINARY
+import kotlin.annotation.AnnotationTarget.FUNCTION
+import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
 
 annotation class ExecutableReferences
 
-@Retention(AnnotationRetention.BINARY)
+@Retention(BINARY)
 @DeveloperAnnotation
-@Target(AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.FUNCTION)
+@Target(PROPERTY_GETTER, FUNCTION)
 annotation class ExecutableElementTagging
 
 class SomeClass {

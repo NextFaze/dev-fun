@@ -55,7 +55,7 @@ interface Parameter {
  * @see ValueSource
  *
  */
-interface WithInitialValue<out T : Any> {
+interface WithInitialValue<out T : Any?> {
     /**
      * The initial/default value of the parameter.
      *

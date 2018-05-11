@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.enabled
 import com.nextfaze.devfun.demo.kotlin.findOrCreate
@@ -40,6 +41,17 @@ class WelcomeActivity : BaseActivity() {
 class WelcomeFragment : BaseFragment() {
     @Inject lateinit var config: Config
 
+    @DeveloperProperty
+    private var signInButtonEnabled
+        get() = signInButton.enabled
+        set(value) = run { signInButton.enabled = value }
+
+    @DeveloperProperty
+    private var createAccountButtonEnabled
+        get() = createAccountButton.enabled
+        set(value) = run { createAccountButton.enabled = value }
+
+    override fun inject(injector: FragmentInjector) = injector.inject(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
@@ -67,16 +79,6 @@ class WelcomeFragment : BaseFragment() {
         config.welcomeString().observable.autoDisposable(scope()).subscribe { motdText.text = it.value }
     }
 
-    @DeveloperFunction
-    private fun enableSignInButton() {
-        signInButton.enabled = true
-    }
-
-    @DeveloperFunction
-    private fun enableCreateAccountButton() {
-        createAccountButton.enabled = true
-    }
-
     @Constructable
     private inner class CurrentBackgroundColor : ValueSource<Int> {
         override val value get() = (view?.background as? ColorDrawable)?.color ?: Color.rgb(250, 250, 250)
@@ -94,8 +96,10 @@ class WelcomeFragment : BaseFragment() {
 
     @DeveloperFunction
     private fun invokeUiWithMissingType(context: Context, anIntParam: Int, anEnumParam: SomeEnum, someType: SomeType) = Unit
-
-    override fun inject(injector: FragmentInjector) = injector.inject(this)
 }
 
+/**
+ * This type is not an `object`, nor injected by Dagger, or annotated @[Constructable].
+ * Thus if we try to call a function via DevFun that takes this type an error will be shown that it can't find/instantiate it.
+ */
 private class SomeType

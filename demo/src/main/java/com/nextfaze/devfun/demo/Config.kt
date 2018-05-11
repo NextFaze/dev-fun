@@ -5,6 +5,7 @@ import android.content.Context.MODE_PRIVATE
 import android.widget.Toast
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.demo.util.KxSharedPreferences
 import com.nextfaze.devfun.demo.util.toOptional
 import com.nextfaze.devfun.inject.Constructable
@@ -24,18 +25,22 @@ class Config @Inject constructor(context: Context) {
     private val prefs = KxSharedPreferences(context.getSharedPreferences("session", MODE_PRIVATE))
 
     fun splashDuration() = prefs["splashDuration", 1000L]
+    @DeveloperProperty
     var splashDuration by splashDuration()
         private set
 
     fun signInEnabled() = prefs["signInEnabled", false]
+    @DeveloperProperty
     var signInEnabled by signInEnabled()
         private set
 
     fun registrationEnabled() = prefs["registrationEnabled", false]
+    @DeveloperProperty
     var registrationEnabled by registrationEnabled()
         private set
 
     fun welcomeString() = prefs["welcomeString", "Welcome!\n\nSet my value via\nDevFun > Config > Set Welcome Message".toOptional()]
+    @DeveloperProperty
     var welcomeString by welcomeString()
         private set
 

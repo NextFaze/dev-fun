@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
  * @see Method.receiverClass
  * @see FunctionDefinition.receiverClassForInvocation
  */
-val FunctionDefinition.receiverClass: KClass<*> get() = method.declaringClass.kotlin
+inline val FunctionDefinition.receiverClass: KClass<*> get() = method.declaringClass.kotlin
 
 /**
  * Get the receiver class for this function definition if you intend to invoke it. That is, it will return `null` if the type isn't needed.
@@ -26,7 +26,12 @@ val FunctionDefinition.receiverClass: KClass<*> get() = method.declaringClass.ko
  * @see FunctionDefinition.receiverClass
  * @see FunctionItem.receiverClassForInvocation
  */
-val FunctionDefinition.receiverClassForInvocation: KClass<*>? get() = if (method.isStatic) null else receiverClass
+inline val FunctionDefinition.receiverClassForInvocation: KClass<*>?
+    get() = when {
+        method.isProperty -> receiverClass
+        method.isStatic -> null
+        else -> receiverClass
+    }
 
 /**
  * Get the receiver instance for this function definition to be used for invocation.
@@ -55,7 +60,7 @@ fun FunctionDefinition.parameterInstances(instanceProvider: InstanceProvider = d
  * @see Method.receiverClass
  * @see FunctionItem.receiverClassForInvocation
  */
-val FunctionItem.receiverClass get() = function.receiverClass
+inline val FunctionItem.receiverClass get() = function.receiverClass
 
 /**
  * Get the receiver class for this function item if you intend to invoke it. That is, it will return `null` if the type isn't needed.
@@ -63,7 +68,7 @@ val FunctionItem.receiverClass get() = function.receiverClass
  * @see FunctionItem.receiverClass
  * @see FunctionDefinition.receiverClassForInvocation
  */
-val FunctionItem.receiverClassForInvocation: KClass<*>? get() = if (function.method.isStatic) null else receiverClass
+inline val FunctionItem.receiverClassForInvocation: KClass<*>? get() = function.receiverClassForInvocation
 
 /**
  * Get the receiver instance for this function item to be used for invocation.
@@ -92,7 +97,7 @@ fun FunctionItem.parameterInstances(instanceProvider: InstanceProvider = devFun.
  * @see FunctionItem.receiverClass
  * @see Method.receiverClassForInvocation
  */
-val Method.receiverClass: KClass<*> get() = declaringClass.kotlin
+inline val Method.receiverClass: KClass<*> get() = declaringClass.kotlin
 
 
 /**
@@ -102,7 +107,12 @@ val Method.receiverClass: KClass<*> get() = declaringClass.kotlin
  * @see FunctionDefinition.receiverClassForInvocation
  * @see FunctionItem.receiverClassForInvocation
  */
-val Method.receiverClassForInvocation: KClass<*>? get() = if (isStatic) null else receiverClass
+inline val Method.receiverClassForInvocation: KClass<*>?
+    get() = when {
+        isProperty -> receiverClass
+        isStatic -> null
+        else -> receiverClass
+    }
 
 /**
  * Get the receiver instance for this method to be used for invocation.

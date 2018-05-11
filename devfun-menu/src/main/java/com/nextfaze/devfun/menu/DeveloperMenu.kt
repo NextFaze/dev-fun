@@ -129,7 +129,7 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
             .takeIf { it.isNotEmpty() }
             ?.joinTo(SpannableStringBuilder(), "\n\n") {
                 SpannableStringBuilder().apply {
-                    this += bold(it.first)
+                    this += b(it.first)
                     this += "\n"
                     this += it.second
                 }

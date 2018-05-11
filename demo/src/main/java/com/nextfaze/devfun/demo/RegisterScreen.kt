@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.*
 import kotlinx.android.synthetic.main.register_layout.*
@@ -37,6 +38,7 @@ class RegisterActivity : BaseActivity() {
 class RegisterFragment : BaseFragment() {
     @Inject lateinit var session: Session
 
+    @DeveloperProperty
     private var validateForm = true
     private var registerJob: Job? = null
 
@@ -75,7 +77,7 @@ class RegisterFragment : BaseFragment() {
             try {
                 DateTime.parse(dateOfBirthEditText.text.trim().toString())
             } catch (ignore: Throwable) {
-                null
+                DateTime.now()
             }
         }
         dateOfBirthEditText.apply {
@@ -140,7 +142,7 @@ class RegisterFragment : BaseFragment() {
         if (focusView != null) {
             focusView?.requestFocus()
         } else {
-            registerJob = asyncPerformRegistration(givenName, familyName, userName, password, email, dob!!, gender)
+            registerJob = asyncPerformRegistration(givenName, familyName, userName, password, email, dob, gender)
         }
     }
 

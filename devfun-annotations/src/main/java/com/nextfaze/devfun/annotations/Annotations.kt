@@ -266,10 +266,19 @@ annotation class DeveloperFunction(
 /**
  * Meta annotation used to by DevFun to "tag" references to some other annotations.
  *
- * Uses of referenced annotations result in generated [DeveloperReference] instances.
+ * By default uses of the annotated annotations result in generated [DeveloperReference] instances.
+ *
+ * However, if [developerFunction] is set to `true` then the compiler will treat it as if it was an @[DeveloperFunction] annotation.
+ * In this state the compiler will check for the same fields of `@DeveloperFunction`.
+ * If you have different defaults defined compared to [DeveloperFunction] then these values will be written as if you had used
+ * `@DeveloperFunction(field = value)` at the declaration site - this behaviour is somewhat experimental. Please report any issues you have.
+ * An example of this can be seen with @[DeveloperProperty]
+ *
+ * @param developerFunction Set to `true` to have the compiler treat the annotation as a @[DeveloperFunction]. _(experimental)_
  *
  * @see Dagger2Component
+ * @see DeveloperProperty
  */
 @Retention(BINARY)
 @Target(ANNOTATION_CLASS)
-annotation class DeveloperAnnotation
+annotation class DeveloperAnnotation(val developerFunction: Boolean = false)

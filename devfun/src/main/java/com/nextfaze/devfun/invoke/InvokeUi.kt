@@ -138,6 +138,7 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun buildParameterView(parameter: Parameter) {
         val paramView = layoutInflater.inflate(R.layout.df_devfun_parameter, inputsList, false) as ViewGroup
         paramView as InvokeParameterView
@@ -157,11 +158,13 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
                 paramView.view = inputViewFactory.inflate(layoutInflater, inputsList).apply {
                     if (this is WithValue<*>) {
                         if (parameter is WithInitialValue<*>) {
-                            @Suppress("UNCHECKED_CAST")
-                            (this as WithValue<Any>).value = parameter.value
+                            val value = parameter.value
+                            when (value) {
+                                null -> paramView.isNull = paramView.nullable
+                                else -> (this as WithValue<Any>).value = value
+                            }
                         } else {
                             parameter.annotations.getTypeOrNull<From> {
-                                @Suppress("UNCHECKED_CAST")
                                 (this as WithValue<Any>).value = devFun.instanceOf(it.source).value
                             }
                         }

@@ -2,7 +2,6 @@ package com.nextfaze.devfun.compiler
 
 import java.io.File
 import javax.annotation.processing.ProcessingEnvironment
-import javax.tools.Diagnostic
 import javax.tools.StandardLocation
 
 // Kapt1 uses <buildDir>/intermediates/classes/<buildType>/...
@@ -37,7 +36,7 @@ private data class BuildConfig(
         "BuildConfig(manifestPackage='$manifestPackage', applicationId='$applicationId', buildType='$buildType', flavor='$flavor', variantDir='$variantDir')"
 }
 
-internal class CompileContext(private val processingEnv: ProcessingEnvironment) {
+internal class CompileContext(override val processingEnvironment: ProcessingEnvironment) : WithProcessingEnvironment {
     val pkg by lazy pkg@{
         // Use package overrides if provided
         val override = packageOverride ?: extPackageOverride
@@ -100,7 +99,7 @@ internal class CompileContext(private val processingEnv: ProcessingEnvironment) 
     }
 
     private val servicesPath by lazy {
-        val resource = processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "$META_INF_SERVICES/services.tmp")
+        val resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", "$META_INF_SERVICES/services.tmp")
         try {
             File(resource.toUri()).canonicalPath
         } finally {
@@ -169,14 +168,7 @@ internal class CompileContext(private val processingEnv: ProcessingEnvironment) 
     private val applicationPackage by lazy { APPLICATION_PACKAGE.optionOf() }
     private val applicationVariant by lazy { APPLICATION_VARIANT.optionOf() }
 
-    private val isDebugVerbose by lazy { FLAG_DEBUG_VERBOSE.optionOf()?.toBoolean() ?: false }
-
-    private fun error(message: String) = processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, message)
-    private fun warn(message: String) = processingEnv.messager.printMessage(Diagnostic.Kind.MANDATORY_WARNING, message)
-    private fun note(condition: Boolean = isDebugVerbose, body: () -> String) =
-        runIf(condition) { processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, body()) }
-
-    private fun String.optionOf() = processingEnv.options[this]?.trim()?.takeIf { it.isNotBlank() }
+    override val isDebugVerbose by lazy { FLAG_DEBUG_VERBOSE.optionOf()?.toBoolean() ?: false }
 }
 
 private class BuildContextException(message: String?) : Throwable(message)

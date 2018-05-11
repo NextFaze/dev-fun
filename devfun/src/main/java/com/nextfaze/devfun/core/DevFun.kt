@@ -13,10 +13,7 @@ import android.os.Looper
 import android.support.annotation.RestrictTo
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
-import com.nextfaze.devfun.annotations.Dagger2Component
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.*
 import com.nextfaze.devfun.core.loader.DefinitionsLoader
 import com.nextfaze.devfun.core.loader.ModuleLoader
 import com.nextfaze.devfun.error.DefaultErrorHandler
@@ -276,6 +273,9 @@ class DevFun {
             // Parameter View Factories
             this += singletonInstance<CompositeParameterViewFactoryProvider> { DefaultCompositeParameterViewFactoryProvider() }
             this += singletonInstance<ParameterViewFactoryProvider> { get<CompositeParameterViewFactoryProvider>() }
+
+            // Custom Transformers
+            this += singletonInstance<PropertyTransformer> { get<PropertyTransformerImpl>() }
         }
 
         moduleLoader.init(modules.toList(), useServiceLoader)

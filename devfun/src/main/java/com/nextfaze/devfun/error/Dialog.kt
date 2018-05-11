@@ -99,6 +99,11 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        stackTraceTextView.setOnLongClickListener {
+            log.w { "Exception:\n${stackTraceTextView.text}" }
+            true
+        }
+
         bindCurrentError()
 
         prevButton.setOnClickListener { showPreviousError() }

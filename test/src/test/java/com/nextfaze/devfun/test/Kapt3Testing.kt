@@ -8,10 +8,15 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
+import com.nextfaze.devfun.core.FunctionDefinition
+import com.nextfaze.devfun.core.FunctionItem
+import com.nextfaze.devfun.error.ErrorDetails
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
+import com.nextfaze.devfun.inject.singletonInstance
 import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
@@ -66,7 +71,11 @@ import javax.annotation.processing.Processor
 import kotlin.collections.set
 import kotlin.reflect.KClass
 import kotlin.reflect.full.NoSuchPropertyException
+import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.kotlinProperty
 import kotlin.test.Asserter
 import kotlin.test.assertTrue
 import com.sun.tools.javac.util.List as JCList
@@ -345,6 +354,15 @@ data class TestContext(
                 this += captureInstance { activityTracker.invoke() }
                 this += PrimitivesInstanceProvider()
                 this += SimpleTypesInstanceProvider()
+                this += singletonInstance<ErrorHandler> {
+                    object : ErrorHandler {
+                        override fun onError(t: Throwable, title: CharSequence, body: CharSequence, functionItem: FunctionItem?) = throw t
+                        override fun onError(error: ErrorDetails) = throw error.t
+                        override fun markSeen(key: Any) = Unit
+                        override fun remove(key: Any) = Unit
+                        override fun clearAll() = Unit
+                    }
+                }
                 classLoader.loadClasses<InstanceProvider>(testInstanceProviders).forEach {
                     this += instanceProviders[it]
                 }
@@ -361,7 +379,12 @@ data class TestContext(
     fun testInvocations(log: Logger) {
         funDefs.forEach { fd ->
             log.d { "Invoke $fd" }
-            val v = fd.invoke(fd.receiverInstance(devFun.instanceProviders), fd.parameterInstances(devFun.instanceProviders, null))
+
+            val receiver = fd.receiverInstance(devFun.instanceProviders)
+            val v = when {
+                fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
+                else -> fd.invoke(receiver, fd.parameterInstances(devFun.instanceProviders, null))
+            }
             val value = if (v is Pair<*, *>) v.first else v
             val testable = when (value) {
                 is List<*> -> value
@@ -378,7 +401,15 @@ data class TestContext(
         allItems.forEach { fd, items ->
             items.forEach {
                 log.d { "Invoke $it" }
-                val v = it.invoke(fd.receiverInstance(devFun.instanceProviders), fd.parameterInstances(devFun.instanceProviders, it.args))
+
+                val receiver = fd.receiverInstance(devFun.instanceProviders)
+                val v = when {
+                    fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
+                    else -> it.invoke(
+                        fd.receiverInstance(devFun.instanceProviders),
+                        fd.parameterInstances(devFun.instanceProviders, it.args)
+                    )
+                }
                 val value = if (v is Pair<*, *>) v.second else v
                 val testable = when (value) {
                     is List<*> -> value
@@ -400,6 +431,25 @@ data class TestContext(
             }
         }
     }
+
+    private val FunctionDefinition.getterMethod: Method?
+        get() {
+            val fieldName = method.name.substringBefore('$')
+            val propertyField = try {
+                clazz.java.getDeclaredField(fieldName).apply { isAccessible = true }
+            } catch (ignore: NoSuchFieldException) {
+                null // is property without backing field (i.e. has custom getter/setter)
+            }
+            val property = when {
+                propertyField != null -> propertyField.kotlinProperty!!
+                else -> clazz.declaredMemberProperties.first { it.name == fieldName }
+            }.apply { isAccessible = true }
+
+
+            // Kotlin reflection has weird accessibility issues when invoking get/set/getter/setter .call()
+            // it only seems to work the first time with subsequent calls failing with illegal access exceptions and the like
+            return property.getter.javaMethod?.apply { isAccessible = true }
+        }
 }
 
 

@@ -14,6 +14,7 @@ internal inline val Element.isPublic get() = modifiers.contains(Modifier.PUBLIC)
 internal inline val Element.isFinal get() = modifiers.contains(Modifier.FINAL)
 internal inline val Element.isStatic get() = modifiers.contains(Modifier.STATIC)
 internal inline val Element.isInterface get() = this.kind.isInterface
+internal inline val Element.isProperty get() = isStatic && simpleName.endsWith("\$annotations")
 
 internal inline val TypeMirror.isPrimitive get() = this.kind.isPrimitive
 internal inline val TypeMirror.isClassPublic get() = ((this as DeclaredType).asElement() as TypeElement).isClassPublic
@@ -53,8 +54,13 @@ internal inline operator fun <reified T : Any> AnnotationMirror.get(name: String
 internal inline operator fun <reified T : Annotation> AnnotationMirror.get(callable: KCallable<T>) =
     elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as AnnotationMirror?
 
-internal operator fun <K : KClass<*>> AnnotationMirror.get(callable: KCallable<K>) =
-    elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as DeclaredType?
+internal operator fun <K : KClass<*>> AnnotationMirror.get(
+    callable: KCallable<K>,
+    orDefault: (() -> DeclaredType?)? = null
+): DeclaredType? {
+    val entry = elementValues.filter { it.key.simpleName.toString() == callable.name }.entries.singleOrNull() ?: return orDefault?.invoke()
+    return (entry.value.value ?: orDefault?.invoke()) as DeclaredType?
+}
 
 internal fun Name.stripInternal() = toString().substringBefore("\$")
 internal fun CharSequence.escapeDollar() = this.toString().replace("\$", "\\\$")

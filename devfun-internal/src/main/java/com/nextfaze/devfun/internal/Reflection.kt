@@ -8,3 +8,4 @@ inline fun <reified T : Any> KClass<*>.isSubclassOf() = T::class.java.isAssignab
 fun <T : Any> KClass<*>.isSubclassOf(clazz: KClass<T>) = clazz.java.isAssignableFrom(this.java)
 
 val Member.isStatic get() = Modifier.isStatic(modifiers)
+val Member.isProperty get() = isSynthetic && isStatic && name.endsWith("\$annotations")

@@ -7,6 +7,7 @@ import com.nextfaze.devfun.test.singleFileTests
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 import tested.developer_annotation.ExecutableReferences
+import tested.developer_annotation.MetaDevFunAnnotation
 import tested.developer_annotation.UnsupportedElements
 import java.lang.reflect.Method
 import kotlin.test.assertFailsWith
@@ -20,6 +21,12 @@ class TestDeveloperAnnotation : AbstractKotlinKapt3Tester() {
 
     @Test(dataProvider = "testDeveloperAnnotationsData")
     fun testDeveloperAnnotations(test: TestContext) = test.testInvocations(log)
+
+    @DataProvider(name = "testDeveloperAnnotationPropertiesData")
+    fun testDeveloperAnnotationPropertiesData(testMethod: Method) = singleFileTests(testMethod, MetaDevFunAnnotation::class)
+
+    @Test(dataProvider = "testDeveloperAnnotationPropertiesData")
+    fun testDeveloperAnnotationProperties(test: TestContext) = test.testInvocations(log)
 
     //
     // Currently we only support ExecutableElement types

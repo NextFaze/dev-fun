@@ -12,14 +12,13 @@ import com.nextfaze.devfun.generated.DevFunGenerated
 import java.io.File
 import java.io.IOException
 import java.lang.reflect.Method
-import javax.annotation.processing.AbstractProcessor
-import javax.annotation.processing.Processor
-import javax.annotation.processing.RoundEnvironment
-import javax.annotation.processing.SupportedOptions
+import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.*
+import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
-import javax.tools.Diagnostic
 import javax.tools.StandardLocation.CLASS_OUTPUT
 import javax.tools.StandardLocation.SOURCE_OUTPUT
 import kotlin.reflect.KCallable
@@ -229,28 +228,30 @@ private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
     EXT_PACKAGE_OVERRIDE
 )
 @AutoService(Processor::class)
-class DevFunProcessor : AbstractProcessor() {
+class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
     override fun getSupportedAnnotationTypes() = setOf("*") // we need to accept all to be able to process meta annotated elements
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
     private val useKotlinReflection by lazy { processingEnv.options[FLAG_USE_KOTLIN_REFLECTION]?.toBoolean() ?: false }
     private val isDebugCommentsEnabled by lazy { isDebugVerbose || processingEnv.options[FLAG_DEBUG_COMMENTS]?.toBoolean() ?: false }
-    private val isDebugVerbose by lazy { processingEnv.options[FLAG_DEBUG_VERBOSE]?.toBoolean() ?: false }
     private val ctx by lazy { CompileContext(processingEnv) }
 
-    private val filer by lazy { processingEnv.filer }
+    override val processingEnvironment: ProcessingEnvironment get() = super.processingEnv
+    override val isDebugVerbose by lazy { FLAG_DEBUG_VERBOSE.optionOf()?.toBoolean() ?: false }
 
     private val categoryDefinitions = HashMap<String, String>()
     private val functionDefinitions = HashMap<String, String>()
     private val developerMethods = HashMap<String, String>()
 
-    private val TypeElement.isDeveloperAnnotation get() = getAnnotation(DeveloperAnnotation::class.java) != null
+    private val devFunElement by lazy { DevFunTypeElement(processingEnv.elementUtils.getTypeElement(DeveloperFunction::class.qualifiedName)) }
+
+    private val TypeElement.isDevAnnotated get() = getAnnotation(DeveloperAnnotation::class.java) != null
 
     override fun process(elements: Set<TypeElement>, env: RoundEnvironment): Boolean {
         try {
             if (!env.errorRaised()) {
-                val devAnnotationElements = elements.filter { it.isDeveloperAnnotation }
-                doProcess(devAnnotationElements, env)
+                val devAnnotatedElements = elements.filter { it.isDevAnnotated }
+                doProcess(devAnnotatedElements, env)
             }
         } catch (t: Throwable) {
             error("Unexpected error: ${t.stackTraceAsString}")
@@ -260,14 +261,14 @@ class DevFunProcessor : AbstractProcessor() {
         return false
     }
 
-    private fun doProcess(devAnnotationElements: List<TypeElement>, env: RoundEnvironment) {
+    private fun doProcess(devAnnotatedElements: List<TypeElement>, env: RoundEnvironment) {
         if (env.processingOver()) {
             if (categoryDefinitions.isNotEmpty() || functionDefinitions.isNotEmpty()) {
                 writeServiceFile()
                 writeSourceFile(generateKSource())
             }
         } else {
-            processAnnotations(devAnnotationElements, env)
+            processAnnotations(devAnnotatedElements, env)
         }
     }
 
@@ -293,7 +294,7 @@ class DevFunProcessor : AbstractProcessor() {
             types = *types
         )
 
-    private fun processAnnotations(devAnnotationElements: List<TypeElement>, env: RoundEnvironment) {
+    private fun processAnnotations(devAnnotatedElements: List<TypeElement>, env: RoundEnvironment) {
         fun Element.toInstance(from: String, forStaticUse: Boolean = false, isClassKtFile: Boolean = false): String = when {
             this is TypeElement && (forStaticUse || isKObject) -> when {
                 isClassPublic -> {
@@ -311,14 +312,14 @@ class DevFunProcessor : AbstractProcessor() {
         // DeveloperCategory
         //
 
-        fun generateCatDef(clazz: String, devCat: AnnotationMirror) = mutableMapOf<KCallable<*>, Any>().apply {
+        fun generateCatDef(clazz: String, devCat: DevCategory) = mutableMapOf<KCallable<*>, Any>().apply {
             this += CategoryDefinition::clazz to clazz
-            devCat[DeveloperCategory::value]?.let { this += CategoryDefinition::name to it.toKString() }
-            devCat[DeveloperCategory::group]?.let { this += CategoryDefinition::group to it.toKString() }
-            devCat[DeveloperCategory::order]?.let { this += CategoryDefinition::order to it }
+            devCat.value?.let { this += CategoryDefinition::name to it.toKString() }
+            devCat.group?.let { this += CategoryDefinition::group to it.toKString() }
+            devCat.order?.let { this += CategoryDefinition::order to it }
         }.let { "SimpleCategoryDefinition(${it.entries.joinToString { "${it.key.name} = ${it.value}" }})" }
 
-        fun addCategoryDefinition(element: TypeElement, devCat: AnnotationMirror) {
+        fun addCategoryDefinition(element: TypeElement, devCat: DevCategory) {
             // Debugging
             val categoryDefinition = "${element.enclosingElement}::$element"
             var debugAnnotationInfo = ""
@@ -341,7 +342,8 @@ class DevFunProcessor : AbstractProcessor() {
                 return
             }
 
-            val devCat = element.annotationMirrors.single { it.annotationType.toString() == DeveloperCategory::class.qualifiedName }
+            val devCat =
+                DevCategory(element.annotationMirrors.single { it.annotationType.toString() == DeveloperCategory::class.qualifiedName })
             addCategoryDefinition(element, devCat)
 
             if (element.kind == ElementKind.ANNOTATION_TYPE) {
@@ -355,7 +357,7 @@ class DevFunProcessor : AbstractProcessor() {
         // DeveloperFunction
         //
 
-        fun generateFunctionDefinition(element: ExecutableElement) {
+        fun generateFunctionDefinition(annotation: DevFunAnnotation, element: ExecutableElement) {
             val clazz = element.enclosingElement as TypeElement
             note { "Processing $clazz::$element..." }
 
@@ -393,25 +395,23 @@ class DevFunProcessor : AbstractProcessor() {
             }
 
             // Annotation values
-            val devFunc = element.annotationMirrors.single { it.annotationType.toString() == DeveloperFunction::class.qualifiedName }
-
             // Name
-            val name = devFunc[DeveloperFunction::value]?.let {
+            val name = annotation.value?.let {
                 "\n#|    override val ${FunctionDefinition::name.name} = ${it.toKString()}"
             } ?: ""
 
             // Category
-            val category = devFunc[DeveloperFunction::category]?.let {
+            val category = annotation.category?.let {
                 "\n#|    override val ${FunctionDefinition::category.name} = ${generateCatDef(FunctionDefinition::clazz.name, it)}"
             } ?: ""
 
             // Requires API
-            val requiresApi = devFunc[DeveloperFunction::requiresApi]?.let {
+            val requiresApi = annotation.requiresApi?.let {
                 "\n#|    override val ${FunctionDefinition::requiresApi.name} = $it"
             } ?: ""
 
             // Transformer
-            val transformer = devFunc[DeveloperFunction::transformer]?.let {
+            val transformer = annotation.transformer?.let {
                 "\n#|    override val ${FunctionDefinition::transformer.name} = ${it.asElement().toClass(
                     castIfNotPublic = KClass::class,
                     types = *arrayOf(FunctionTransformer::class)
@@ -428,6 +428,9 @@ class DevFunProcessor : AbstractProcessor() {
 
             // For simplicity, for now we always invoke extension functions via reflection
             val isExtensionFunction by lazy { element.parameters.firstOrNull()?.simpleName?.toString() == "\$receiver" }
+
+            // Kotlin properties
+            val isProperty = element.isProperty
 
             // Arguments
             val receiver = clazz.toInstance(RECEIVER_VAR_NAME, element.isStatic, isClassKtFile)
@@ -465,6 +468,7 @@ class DevFunProcessor : AbstractProcessor() {
             // Call invocation
             val invocation = run generateInvocation@{
                 when {
+                    isProperty -> "throw UnsupportedOperationException(\"Direct invocation of an annotated property is not supported. This invocation should have been handled by the PropertyTransformer.\")"
                     callFunDirectly && !isExtensionFunction -> {
                         val typeParams = if (element.typeParameters.isNotEmpty()) {
                             element.typeParameters.map { it.asType().toType() }.joiner(prefix = "<", postfix = ">")
@@ -501,7 +505,7 @@ class DevFunProcessor : AbstractProcessor() {
                 #|        // params: ${element.parameters.joiner {
                     "${it.simpleName}=@[${it.annotationMirrors}] ${it.asType()}"
                 }}
-                #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction"""
+                #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction, isProperty=$isProperty"""
             }
 
             // Generate definition
@@ -516,7 +520,10 @@ class DevFunProcessor : AbstractProcessor() {
         }
 
         env.getElementsAnnotatedWith(DeveloperFunction::class.java).forEach {
-            generateFunctionDefinition(it as ExecutableElement)
+            generateFunctionDefinition(
+                DevFunAnnotation(processingEnv, it.devFunAnnotation, devFunElement.element, devFunElement),
+                it as ExecutableElement
+            )
         }
 
         //
@@ -562,16 +569,23 @@ class DevFunProcessor : AbstractProcessor() {
                         #|}"""
         }
 
-        devAnnotationElements.forEach { devAnnotation ->
-            env.getElementsAnnotatedWith(devAnnotation).forEach {
+        devAnnotatedElements.forEach { devAnnotatedElement ->
+            val handleAsDeveloperFunction = devAnnotatedElement.devAnnotation[DeveloperAnnotation::developerFunction] == true
+            env.getElementsAnnotatedWith(devAnnotatedElement).forEach {
                 if (it !is ExecutableElement) {
                     error(
                         """Only executable elements are supported at the moment.
-                            |Please make an issue if you want someone else (or feel free to make a PR)""".trimMargin(),
+                            |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin(),
                         element = it
                     )
                 } else {
-                    generateDeveloperReferences(devAnnotation, it)
+                    if (handleAsDeveloperFunction) {
+                        val annotation =
+                            it.annotationMirrors.first { it.annotationType.toString() == devAnnotatedElement.qualifiedName.toString() }
+                        generateFunctionDefinition(DevFunAnnotation(processingEnv, annotation, devAnnotatedElement, devFunElement), it)
+                    } else {
+                        generateDeveloperReferences(devAnnotatedElement, it)
+                    }
                 }
             }
         }
@@ -658,17 +672,10 @@ ${developerMethods.values.sorted().joinToString(",").replaceIndentByMargin("    
             error("Failed to write source file:\n${e.stackTraceAsString}")
         }
     }
-
-    private fun error(message: String, element: Element? = null, annotationMirror: AnnotationMirror? = null) =
-        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, message, element, annotationMirror)
-
-    @Suppress("unused")
-    private fun warn(message: String, element: Element? = null, annotationMirror: AnnotationMirror? = null) =
-        processingEnv.messager.printMessage(Diagnostic.Kind.MANDATORY_WARNING, message, element, annotationMirror)
-
-    private fun note(condition: Boolean = isDebugVerbose, body: () -> String) =
-        runIf(condition) { processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, body()) }
 }
 
 private const val RECEIVER_VAR_NAME = "receiver"
 private const val ARGS_VAR_NAME = "args"
+
+internal val Element.devFunAnnotation get() = annotationMirrors.first { it.annotationType.toString() == DeveloperFunction::class.qualifiedName }
+internal val Element.devAnnotation get() = annotationMirrors.first { it.annotationType.toString() == DeveloperAnnotation::class.qualifiedName }

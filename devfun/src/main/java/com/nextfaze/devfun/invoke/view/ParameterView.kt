@@ -12,10 +12,10 @@ import kotlinx.android.synthetic.main.df_devfun_parameter_view.view.*
  *
  * If absent, DevFun will attempt to grab the value based on the view type (e.g. if TextView it will use `.text`)
  *
- * Currently `null` types are not supported due to limitations/complications of KAPT and reflection. It is intended to
- * be permissible in the future.
+ * Currently `null` types are not well supported due to limitations/complications of KAPT and reflection. It is intended
+ * to be better supported in the future - use at your own risk.
  */
-interface WithValue<T : Any> {
+interface WithValue<T : Any?> {
     /** The value of this view to be passed to the function for invocation. */
     var value: T
 }
@@ -46,7 +46,7 @@ interface InvokeParameterView : WithLabel {
     var nullable: Boolean
 
     /** Is this value `null`. */
-    val isNull: Boolean get() = false
+    var isNull: Boolean
 }
 
 internal class SimpleParameterView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -55,6 +55,9 @@ internal class SimpleParameterView @JvmOverloads constructor(context: Context, a
     init {
         orientation = VERTICAL
         View.inflate(context, R.layout.df_devfun_parameter_view, this)
+        nullCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            getParamView()?.isEnabled = !isChecked
+        }
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -90,15 +93,24 @@ internal class SimpleParameterView @JvmOverloads constructor(context: Context, a
             } else {
                 labelView.visibility = View.VISIBLE
             }
-            value?.let { paramView.addView(it) }
+            value?.let {
+                paramView.addView(it)
+                it.isEnabled = !isNull
+            }
         }
 
-    private fun getParamView(): View? = paramView.getChildAt(0)
-
-    override var nullable: Boolean = false
+    override var nullable
+        get() = nullCheckBox.visibility == View.VISIBLE
         set(value) {
             nullCheckBox.visibility = if (value) View.VISIBLE else View.GONE
         }
 
-    override val isNull get() = nullCheckBox.isChecked
+    override var isNull
+        get() = nullCheckBox.isChecked
+        set(value) {
+            nullCheckBox.isChecked = value
+            getParamView()?.isEnabled = !value
+        }
+
+    private fun getParamView(): View? = paramView.getChildAt(0)
 }
