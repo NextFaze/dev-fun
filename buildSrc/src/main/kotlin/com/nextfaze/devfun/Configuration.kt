@@ -55,6 +55,8 @@ object Config {
     const val supportAnnotations = "com.android.support:support-annotations:$supportVersion"
     const val supportConstraintLayout = "com.android.support.constraint:constraint-layout:1.0.2"
 
+    const val javaxInject = "javax.inject:javax.inject:1"
+
     const val daggerVersion = "2.15"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
     const val dagger = "com.google.dagger:dagger:$daggerVersion"

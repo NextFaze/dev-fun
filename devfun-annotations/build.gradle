@@ -10,6 +10,9 @@ description = "Contains the annotations @DeveloperFunction and @DeveloperCategor
 dependencies {
     // Kotlin
     compile Config.kotlinStdLib
+
+    // JavaX Inject
+    compile Config.javaxInject
 }
 
 configureDokka(this)

@@ -1,6 +1,7 @@
 package com.nextfaze.devfun.inject
 
 import com.nextfaze.devfun.core.FunctionTransformer
+import javax.inject.Singleton
 import kotlin.reflect.KClass
 
 /**
@@ -143,10 +144,14 @@ inline fun <reified T : Any> singletonInstance(noinline instance: () -> T?): Ins
  *
  * Note: `inner` classes will work as long as the outer class can be resolved/injected..
  *
+ * Types annotated with @[Singleton] will only be created once.
+ *
+ * @param singleton If `true` then a single shared instance will be constructed.
+ *
  * @see FunctionTransformer
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Constructable
+annotation class Constructable(val singleton: Boolean = false)
 
 private fun <T : Any> KClass<*>.isSuperclassOf(clazz: KClass<T>) = this.java.isAssignableFrom(clazz.java)

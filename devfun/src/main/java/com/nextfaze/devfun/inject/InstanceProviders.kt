@@ -16,6 +16,7 @@ import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.*
 import java.util.ArrayDeque
+import javax.inject.Singleton
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -132,7 +133,9 @@ class KObjectInstanceProvider : InstanceProvider {
 /**
  * Provides objects via instance construction. Type must be annotated with [Constructable].
  *
- * Only supports objects with a single constructor. Constructor arguments will fetched using [root].
+ * Only supports objects with a single constructor. Constructor arguments will fetched using param `rootInstanceProvider`.
+ *
+ * If [Constructable.singleton] is `true` or type is annotated @[Singleton] then only one instance will be created and shared.
  *
  * @param rootInstanceProvider An instance provider used to fetch constructor args. If `null`,  then self (`this`) is used
  * @param requireConstructable Flag indicating if a type must be [Constructable] to be instantiable
@@ -145,13 +148,18 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
     private val log = logger()
     private val root = rootInstanceProvider ?: this
 
+    private val singletonsLock = Any()
+    private val singletons = mutableMapOf<KClass<*>, Any>()
+
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(clazz: KClass<out T>): T? {
         /*
         Using Java reflection (faster and better ProGuard comparability).
          */
 
         // must be annotated @Constructable
-        if (requireConstructable && clazz.java.annotations.none { it is Constructable }) {
+        val constructable = clazz.java.annotations.firstOrNull { it is Constructable } as Constructable?
+        if (requireConstructable && constructable == null) {
             return null
         }
 
@@ -165,10 +173,28 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
                 "Could not get instance of @Constructable $clazz: Multiple constructors found; \n${constructors.joinToString("\n")}"
             )
         }
+
+        val isSingleton = constructable?.singleton == true || clazz.java.annotations.any { it is Singleton }
+        if (isSingleton) {
+            synchronized(singletonsLock) {
+                singletons[clazz]?.also {
+                    log.t { "> Found singleton instance of $clazz" }
+                    return it as T
+                }
+            }
+        }
+
         log.t { "> Constructing new instance of $clazz" }
         val ctor = constructors.first().apply { isAccessible = true }
-        @Suppress("UNCHECKED_CAST")
-        return ctor.newInstance(*(ctor.parameterTypes.map { root[it.kotlin] }.toTypedArray())) as T
+        return (ctor.newInstance(*(ctor.parameterTypes.map { root[it.kotlin] }.toTypedArray())) as T)
+            .also {
+                if (isSingleton) {
+                    log.t { "> Created singleton instance of $clazz" }
+                    synchronized(singletonsLock) {
+                        singletons[clazz] = it
+                    }
+                }
+            }
     }
 }
 
