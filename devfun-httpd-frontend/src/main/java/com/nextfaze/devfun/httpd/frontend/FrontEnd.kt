@@ -11,7 +11,8 @@ import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.httpd.AbstractUriHandler
 import com.nextfaze.devfun.httpd.DevHttpD
 import com.nextfaze.devfun.httpd.devHttpD
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.reflect.*
 import fi.iki.elonen.NanoHTTPD.*
 import fi.iki.elonen.router.RouterNanoHTTPD
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource
@@ -66,7 +67,7 @@ private fun buildConfigTable(context: Context): String {
      * However if the app uses an `applicationIdSuffix`, it will be included as part of the deployed app package (from [Context.getPackageName]).
      * Thus we traverse up the packages in hope of finding it.
      */
-    val appBuildConfigClass = run loadClass@ {
+    val appBuildConfigClass = run loadClass@{
         var pkg = context.packageName
         while (pkg.isNotBlank()) {
             val buildConfigPath = "$pkg.BuildConfig"
@@ -158,7 +159,8 @@ ${if (hasGroups) """
                                                 </thead>
                                                 <tbody>
         ${items.joinToString("\n") {
-                        val funDef = "${it.function.clazz.java.name}::${it.function.method.name}(${it.function.method.parameterTypes.joinToString { it.simpleName }})"
+                        val funDef =
+                            "${it.function.clazz.java.name}::${it.function.method.name}(${it.function.method.parameterTypes.joinToString { it.simpleName }})"
                         """
                                                     <tr>
                                                         <td>${it.name}<br /><small class="text-muted">$funDef</small></td>
@@ -178,8 +180,8 @@ ${if (hasGroups) """
                 }
             }
         } ?:
-                // Dashboard
-                """
+        // Dashboard
+        """
         <div class="col-lg-6">
 ${buildConfigTable(context)}
 ${javaPropertiesTable()}
@@ -199,7 +201,7 @@ ${globalSettingsTable(context)}
 
         //language=HTML
         return newFixedLengthResponse(
-                """<!DOCTYPE html>
+            """<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -377,18 +379,23 @@ $body
 </body>
 
 </html>
-""")
+"""
+        )
     }
 }
 
-private fun addScript(path: String) = """<script src="${if (BuildConfig.VERSION_SNAPSHOT) path.replace(".min.js", ".js") else path}"></script>"""
-private fun addCss(path: String) = """<link href="${if (BuildConfig.VERSION_SNAPSHOT) path.replace(".min.css", ".css") else path}" rel="stylesheet" type="text/css">"""
+private fun addScript(path: String) =
+    """<script src="${if (BuildConfig.VERSION_SNAPSHOT) path.replace(".min.js", ".js") else path}"></script>"""
 
-private val Context.applicationName: String get() {
-    val applicationInfo = applicationInfo
-    val stringId = applicationInfo.labelRes
-    return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else getString(stringId)
-}
+private fun addCss(path: String) =
+    """<link href="${if (BuildConfig.VERSION_SNAPSHOT) path.replace(".min.css", ".css") else path}" rel="stylesheet" type="text/css">"""
+
+private val Context.applicationName: String
+    get() {
+        val applicationInfo = applicationInfo
+        val stringId = applicationInfo.labelRes
+        return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else getString(stringId)
+    }
 
 private val PROPERTY_REGEX = Regex("\\[(.*)]: \\[(.*)]")
 private fun readDeviceProperties(): Map<String, String> {

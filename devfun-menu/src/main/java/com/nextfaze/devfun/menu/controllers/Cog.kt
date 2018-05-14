@@ -33,14 +33,14 @@ import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.inject.Constructable
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.android.*
+import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.Ranged
 import com.nextfaze.devfun.invoke.view.ValueSource
 import com.nextfaze.devfun.menu.*
-import com.nextfaze.devfun.menu.BuildConfig
-import com.nextfaze.devfun.menu.R
 import com.nextfaze.devfun.menu.internal.Dock
 import com.nextfaze.devfun.menu.internal.KSharedPreferences
 import com.nextfaze.devfun.menu.internal.OverlayWindow

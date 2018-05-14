@@ -19,7 +19,7 @@ import android.widget.ScrollView
 import com.nextfaze.devfun.BaseDialogFragment
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.obtain
 import com.nextfaze.devfun.show
 import kotlinx.android.synthetic.main.df_devfun_error_dialog_fragment.*

@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.test.tests
 
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.test.AbstractKotlinKapt3Tester
 import com.nextfaze.devfun.test.TestContext
 import com.nextfaze.devfun.test.singleFileTests

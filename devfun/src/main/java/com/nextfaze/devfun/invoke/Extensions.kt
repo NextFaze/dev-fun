@@ -7,7 +7,7 @@ package com.nextfaze.devfun.invoke
 
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.reflect.*
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 

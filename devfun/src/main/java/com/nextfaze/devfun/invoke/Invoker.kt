@@ -8,7 +8,7 @@ import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.ClassInstanceNotFoundException
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.kotlinFunction

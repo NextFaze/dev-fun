@@ -1,8 +1,7 @@
 package com.nextfaze.devfun.test.tests
 
-import com.nextfaze.devfun.internal.d
-import com.nextfaze.devfun.internal.logger
-import com.nextfaze.devfun.internal.splitSimpleName
+import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.test.AbstractKotlinKapt3Tester
 import com.nextfaze.devfun.test.TestContext
 import com.nextfaze.devfun.test.combine
@@ -97,10 +96,12 @@ class TestCategories : AbstractKotlinKapt3Tester() {
 
     @DataProvider(name = "testMetaCategoriesData")
     fun testMetaCategoriesData(testMethod: Method) =
-            singleFileTests(testMethod,
-                    MetaCategories::class,
-                    MetaGroupingCategory::class,
-                    autoKaptAndCompile = false)
+        singleFileTests(
+            testMethod,
+            MetaCategories::class,
+            MetaGroupingCategory::class,
+            autoKaptAndCompile = false
+        )
 
     @Test(dataProvider = "testMetaCategoriesData", groups = arrayOf("unsupported"))
     fun testMetaCategories(test: TestContext) {

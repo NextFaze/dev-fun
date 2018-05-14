@@ -18,6 +18,7 @@ import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.inject.singletonInstance
 import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
 import com.nhaarman.mockito_kotlin.KStubbing

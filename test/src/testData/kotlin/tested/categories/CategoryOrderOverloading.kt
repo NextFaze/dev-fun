@@ -2,31 +2,31 @@ package tested.categories
 
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.internal.splitSimpleName
+import com.nextfaze.devfun.internal.string.*
 
 annotation class CategoryOrderOverloading
 
 object coo_ExpectedCategoryOrdering {
     val order = listOf(
-            // MIN_VALUE
-            coo_ClassThatShouldBeFirst::class.splitSimpleName,
+        // MIN_VALUE
+        coo_ClassThatShouldBeFirst::class.splitSimpleName,
 
-            // default=0
-            coo_ClassWithoutCategoryAAAAA::class.splitSimpleName,
-            coo_ClassWithoutCategoryBBBBB::class.splitSimpleName,
+        // default=0
+        coo_ClassWithoutCategoryAAAAA::class.splitSimpleName,
+        coo_ClassWithoutCategoryBBBBB::class.splitSimpleName,
 
-            // 9,10
-            coo_ClassWithOrderShouldBeBefore_AAAA::class.splitSimpleName,
-            coo_ClassWithOrderAAAA::class.splitSimpleName,
+        // 9,10
+        coo_ClassWithOrderShouldBeBefore_AAAA::class.splitSimpleName,
+        coo_ClassWithOrderAAAA::class.splitSimpleName,
 
-            // 50
-            "Order Set On Function",
+        // 50
+        "Order Set On Function",
 
-            // 100
-            "Custom Name",
+        // 100
+        "Custom Name",
 
-            // MAX_VALUE
-            coo_ClassThatShouldBeLast::class.splitSimpleName
+        // MAX_VALUE
+        coo_ClassThatShouldBeLast::class.splitSimpleName
     )
 }
 

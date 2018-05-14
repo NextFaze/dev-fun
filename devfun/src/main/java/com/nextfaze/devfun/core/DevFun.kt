@@ -20,7 +20,8 @@ import com.nextfaze.devfun.error.DefaultErrorHandler
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.*
 import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.view.*

@@ -8,7 +8,8 @@ import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.error.SimpleError
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.string.*
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import kotlin.reflect.KClass

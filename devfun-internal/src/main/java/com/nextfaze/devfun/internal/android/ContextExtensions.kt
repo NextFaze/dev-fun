@@ -1,4 +1,4 @@
-package com.nextfaze.devfun.internal
+package com.nextfaze.devfun.internal.android
 
 import android.app.ActivityManager
 import android.app.Application
@@ -20,7 +20,11 @@ internal fun Context.unregisterActivityCallbacks(callbacks: Application.Activity
 val Context.activityManager: ActivityManager by lazier { applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager }
 val Context.wifiManager: WifiManager by lazier { applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager }
 val Context.windowManager: WindowManager by lazier { applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
-val Context.connectivityManager: ConnectivityManager by lazier { applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
+val Context.connectivityManager: ConnectivityManager by lazier {
+    applicationContext.getSystemService(
+        Context.CONNECTIVITY_SERVICE
+    ) as ConnectivityManager
+}
 
 private fun <T : Any, R> lazier(initializer: T.() -> R) = UnsafeLazyImpl(initializer)
 

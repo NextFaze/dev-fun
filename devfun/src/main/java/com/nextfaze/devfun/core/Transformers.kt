@@ -9,7 +9,9 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.PropertyTransformer
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.RequiringInstanceProvider
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.reflect.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.*
 import kotlin.reflect.*
 import kotlin.reflect.full.IllegalPropertyDelegateAccessException

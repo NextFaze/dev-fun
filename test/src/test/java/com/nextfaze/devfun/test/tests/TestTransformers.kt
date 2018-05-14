@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.test.tests
 
-import com.nextfaze.devfun.internal.logger
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.test.AbstractKotlinKapt3Tester
 import com.nextfaze.devfun.test.TestContext
 import com.nextfaze.devfun.test.singleFileTests
@@ -17,9 +17,11 @@ class TestTransformers : AbstractKotlinKapt3Tester() {
     private val log = logger()
 
     @DataProvider(name = "testFunctionTransformersData")
-    fun testFunctionTransformersData(testMethod: Method) = singleFileTests(testMethod,
-            FunctionsWithTransformers::class,
-            FunctionsWithTransformersAndProvidedArgs::class)
+    fun testFunctionTransformersData(testMethod: Method) = singleFileTests(
+        testMethod,
+        FunctionsWithTransformers::class,
+        FunctionsWithTransformersAndProvidedArgs::class
+    )
 
     @Test(dataProvider = "testFunctionTransformersData", groups = arrayOf("supported"))
     fun testFunctionTransformers(test: TestContext) = test.testInvocations(log)
@@ -28,8 +30,10 @@ class TestTransformers : AbstractKotlinKapt3Tester() {
     // Nullable types are not not properly supported
 
     @DataProvider(name = "testFunctionTransformersUnsupportedData")
-    fun testFunctionTransformersUnsupportedData(testMethod: Method) = singleFileTests(testMethod,
-            FunctionsWithTransformersAndNullableProvidedArgs::class)
+    fun testFunctionTransformersUnsupportedData(testMethod: Method) = singleFileTests(
+        testMethod,
+        FunctionsWithTransformersAndNullableProvidedArgs::class
+    )
 
     @Test(dataProvider = "testFunctionTransformersUnsupportedData", groups = arrayOf("unsupported"))
     fun testFunctionTransformersUnsupported(test: TestContext) {

@@ -4,8 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
-import com.nextfaze.devfun.internal.registerActivityCallbacks
-import com.nextfaze.devfun.internal.unregister
+import com.nextfaze.devfun.internal.android.*
 import java.lang.ref.WeakReference
 import kotlin.reflect.KProperty
 

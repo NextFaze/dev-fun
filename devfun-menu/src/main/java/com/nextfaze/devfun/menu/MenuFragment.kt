@@ -19,7 +19,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.nextfaze.devfun.core.*
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.view.ViewFactory
 import kotlinx.android.synthetic.main.df_menu_dialog_fragment.*
 

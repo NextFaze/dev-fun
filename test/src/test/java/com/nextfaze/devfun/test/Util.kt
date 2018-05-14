@@ -2,7 +2,7 @@
 
 package com.nextfaze.devfun.test
 
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
 import org.jetbrains.kotlin.com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.kotlin.utils.KotlinPaths
 import org.jetbrains.kotlin.utils.PathUtil

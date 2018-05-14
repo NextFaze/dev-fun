@@ -1,4 +1,4 @@
-package com.nextfaze.devfun.internal
+package com.nextfaze.devfun.internal.reflect
 
 import java.lang.reflect.Member
 import java.lang.reflect.Modifier

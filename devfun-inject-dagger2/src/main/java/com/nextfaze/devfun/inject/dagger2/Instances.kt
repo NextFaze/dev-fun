@@ -14,7 +14,9 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.reflect.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
 import dagger.Component

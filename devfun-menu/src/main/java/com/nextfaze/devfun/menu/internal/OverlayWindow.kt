@@ -14,7 +14,8 @@ import android.support.annotation.LayoutRes
 import android.support.v4.math.MathUtils.clamp
 import android.view.*
 import android.view.animation.OvershootInterpolator
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.android.*
+import com.nextfaze.devfun.internal.log.*
 import java.lang.Math.abs
 
 private const val MIN_ANIMATION_MILLIS = 250L

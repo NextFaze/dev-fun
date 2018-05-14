@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.test.tests
 
-import com.nextfaze.devfun.internal.logger
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.test.AbstractKotlinKapt3Tester
 import com.nextfaze.devfun.test.TestContext
 import com.nextfaze.devfun.test.singleFileTests
@@ -14,9 +14,11 @@ class TestOverrides : AbstractKotlinKapt3Tester() {
     private val log = logger()
 
     @DataProvider(name = "testOverridesData")
-    fun testOverridesData(testMethod: Method) = singleFileTests(testMethod,
-            OverriddenFunctions::class,
-            AbstractFunctions::class)
+    fun testOverridesData(testMethod: Method) = singleFileTests(
+        testMethod,
+        OverriddenFunctions::class,
+        AbstractFunctions::class
+    )
 
     @Test(dataProvider = "testOverridesData", groups = arrayOf("kapt", "compile", "supported"))
     fun testOverrides(test: TestContext) = test.testInvocations(log)

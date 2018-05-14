@@ -1,4 +1,4 @@
-package com.nextfaze.devfun.internal
+package com.nextfaze.devfun.internal.string
 
 import android.graphics.Typeface
 import android.support.annotation.ColorInt

@@ -1,4 +1,4 @@
-package com.nextfaze.devfun.internal
+package com.nextfaze.devfun.internal.android
 
 import android.app.Activity
 import android.app.Application

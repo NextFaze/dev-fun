@@ -2,7 +2,7 @@ package com.nextfaze.devfun.test.tests
 
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
 import com.nextfaze.devfun.test.*

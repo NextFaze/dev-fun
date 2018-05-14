@@ -9,7 +9,9 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.Constructable
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.android.*
+import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.string.*
 import kotlinx.android.parcel.Parcelize
 
 /**

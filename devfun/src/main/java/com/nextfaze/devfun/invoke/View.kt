@@ -3,7 +3,7 @@ package com.nextfaze.devfun.invoke
 import android.view.View
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.ValueSource
 import com.nextfaze.devfun.invoke.view.types.BooleanParameterViewFactoryProvider

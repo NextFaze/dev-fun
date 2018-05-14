@@ -13,7 +13,7 @@ import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.menu.controllers.CogOverlay
 import com.nextfaze.devfun.menu.controllers.GRAVE_KEY_SEQUENCE
 import com.nextfaze.devfun.menu.controllers.KeySequence

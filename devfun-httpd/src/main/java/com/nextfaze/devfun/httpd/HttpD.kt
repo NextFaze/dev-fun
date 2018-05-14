@@ -12,7 +12,8 @@ import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.android.*
+import com.nextfaze.devfun.internal.log.*
 import fi.iki.elonen.NanoHTTPD.IHTTPSession
 import fi.iki.elonen.NanoHTTPD.Response
 import fi.iki.elonen.NanoHTTPD.Response.Status.*
@@ -54,7 +55,7 @@ class DevHttpD : AbstractDevFunModule() {
         // We'll try requested port and one based on package name
         // Maybe only use package-generated one unless manually specified?
         var lastException: Throwable? = null
-        val nanoHttpD = run startNanoHttpD@ {
+        val nanoHttpD = run startNanoHttpD@{
             listOf(port, generatePortFromPackage(port, context)).forEach { p ->
                 try {
                     // TODO? do this in another thread? (I suspect this will block during start() until new server thread is bound)
@@ -118,22 +119,22 @@ class HttpDRouter(private val context: Context, private val port: Int) : RouterN
 
     @DeveloperFunction
     private fun showServerInfoDialog(activity: Activity) =
-            logServerInfo().also {
-                AlertDialog.Builder(activity)
-                        .setTitle("Server Info")
-                        .setMessage(it)
-                        .show()
-            }
+        logServerInfo().also {
+            AlertDialog.Builder(activity)
+                .setTitle("Server Info")
+                .setMessage(it)
+                .show()
+        }
 
     @DeveloperFunction("Show Server Info Dialog TL;DR;")
     private fun showServerInfoDialogTlDr(activity: Activity) =
-            serverInfoTlDr().also {
-                log.i { "Server Info TL;DR;\n$it" }
-                AlertDialog.Builder(activity)
-                        .setTitle("Server Info TL;DR;")
-                        .setMessage(it)
-                        .show()
-            }
+        serverInfoTlDr().also {
+            log.i { "Server Info TL;DR;\n$it" }
+            AlertDialog.Builder(activity)
+                .setTitle("Server Info TL;DR;")
+                .setMessage(it)
+                .show()
+        }
 
     private fun serverInfoTlDr() = """
 Run this: adb forward tcp:$port tcp:$port
@@ -227,10 +228,10 @@ ${serverInfoTlDr()}
 
         // Dump all possible network address
         val addresses = NetworkInterface.getNetworkInterfaces().asSequence()
-                .flatMap { it.inetAddresses.asSequence().filter { it.address != null && it.address.isNotEmpty() } }
-                .map { if (it.address.size == 4) it.hostAddress else "[${it.hostAddress}]" }
-                .filter { it != AVD_IP }
-                .toSet()
+            .flatMap { it.inetAddresses.asSequence().filter { it.address != null && it.address.isNotEmpty() } }
+            .map { if (it.address.size == 4) it.hostAddress else "[${it.hostAddress}]" }
+            .filter { it != AVD_IP }
+            .toSet()
         if (addresses.isNotEmpty()) {
             """Other possible access addresses from device all-networks list (these might not work):
 ${addresses.joinToString("\n") { "http://$it:$port/" }}""".also {
@@ -244,7 +245,7 @@ ${addresses.joinToString("\n") { "http://$it:$port/" }}""".also {
 
     private val wifiIpV4 get() = wifiManager.connectionInfo?.ipAddress ?: 0
 
-    private val isAvd by lazy(NONE) hasAvdIp@ {
+    private val isAvd by lazy(NONE) hasAvdIp@{
         NetworkInterface.getNetworkInterfaces().asSequence().any {
             it.inetAddresses.asSequence().any {
                 it.hostAddress == AVD_IP
@@ -282,12 +283,13 @@ internal class InvokeHandler : AbstractUriHandler() {
 
     override fun post(uriResource: UriResource, urlParams: Map<String, String>, session: IHTTPSession): Response {
         log.t { "uriResource=$uriResource, session.uri=${session.uri}, urlParams=[${urlParams.entries.joinToString { "${it.key}=${it.value}" }}]" }
-        val hashCode = urlParams["hashCode"]?.toIntOrNull() ?: return response(NOT_FOUND, "Invoke '${urlParams["hashCode"]}' not not found.")
+        val hashCode = urlParams["hashCode"]?.toIntOrNull()
+                ?: return response(NOT_FOUND, "Invoke '${urlParams["hashCode"]}' not not found.")
 
         log.t { devFun.categories.flatMap { it.items }.joinToString { "item[${it.hashCode()}]=$it" } }
 
-        val item = devFun.categories.flatMap { it.items }.firstOrNull { it.hashCode() == hashCode } ?:
-                return run notFoundBadRequest@ {
+        val item = devFun.categories.flatMap { it.items }.firstOrNull { it.hashCode() == hashCode }
+                ?: return run notFoundBadRequest@{
                     "${BAD_REQUEST.description}\nItem with hashCode $hashCode not found!".let {
                         log.d { it }
                         response(BAD_REQUEST, it)
@@ -313,8 +315,8 @@ internal class InvokeHandler : AbstractUriHandler() {
         }
     }
 
-    private fun response(status: Response.IStatus, text: String, mimeType: String = "text/plain")
-            = newFixedLengthResponse(status, mimeType, "${status.description}\n$text")
+    private fun response(status: Response.IStatus, text: String, mimeType: String = "text/plain") =
+        newFixedLengthResponse(status, mimeType, "${status.description}\n$text")
 }
 
 private val isEmulator by lazy(LazyThreadSafetyMode.NONE) {

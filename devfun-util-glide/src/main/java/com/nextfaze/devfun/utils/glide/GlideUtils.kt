@@ -8,7 +8,7 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.engine.cache.MemoryCache
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.log.*
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 

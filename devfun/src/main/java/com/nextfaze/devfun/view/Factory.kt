@@ -7,8 +7,7 @@ import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.R
-import com.nextfaze.devfun.internal.logger
-import com.nextfaze.devfun.internal.t
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.view.simple.ErrorParameterView
 import com.nextfaze.devfun.invoke.view.simple.InjectedParameterView
 import kotlin.reflect.KClass

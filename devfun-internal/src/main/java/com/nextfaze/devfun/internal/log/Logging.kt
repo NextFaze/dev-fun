@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.nextfaze.devfun.internal
+package com.nextfaze.devfun.internal.log
 
 import android.support.annotation.Keep
 import android.support.annotation.RestrictTo

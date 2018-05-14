@@ -4,31 +4,31 @@ package tested.categories
 
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.internal.splitSimpleName
+import com.nextfaze.devfun.internal.string.*
 
 annotation class CategoryOrdering
 
 object co_ExpectedCategoryOrdering {
     val order = listOf(
-            // MIN_VALUE
-            co_ClassThatShouldBeFirst::class.splitSimpleName,
+        // MIN_VALUE
+        co_ClassThatShouldBeFirst::class.splitSimpleName,
 
-            // default=0
-            co_ClassWithoutCategoryAAAAA::class.splitSimpleName,
-            co_ClassWithoutCategoryBBBBB::class.splitSimpleName,
+        // default=0
+        co_ClassWithoutCategoryAAAAA::class.splitSimpleName,
+        co_ClassWithoutCategoryBBBBB::class.splitSimpleName,
 
-            // 9,10
-            co_ClassWithOrderShouldBeBefore_AAAA::class.splitSimpleName,
-            co_ClassWithOrderAAAA::class.splitSimpleName,
+        // 9,10
+        co_ClassWithOrderShouldBeBefore_AAAA::class.splitSimpleName,
+        co_ClassWithOrderAAAA::class.splitSimpleName,
 
-            // 50
-            co_ClassWithFunctionCategory::class.splitSimpleName,
+        // 50
+        co_ClassWithFunctionCategory::class.splitSimpleName,
 
-            // 100
-            "My Named Category (order=100 set at fun)",
+        // 100
+        "My Named Category (order=100 set at fun)",
 
-            // MAX_VALUE
-            co_ClassThatShouldBeLast::class.splitSimpleName
+        // MAX_VALUE
+        co_ClassThatShouldBeLast::class.splitSimpleName
     )
 }
 
