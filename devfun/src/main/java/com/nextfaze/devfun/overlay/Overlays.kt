@@ -80,7 +80,7 @@ class OverlayManager(
     private var fullScreenOwner by weak<Any> { null }
     private var fullScreenInUse = false
 
-    fun takeFullScreenLock(who: Any) {
+    fun takeFullScreenLock(who: Any): Boolean {
         synchronized(fullScreenLock) {
             val isCurrentOwner = who === fullScreenOwner
             val canObtain = fullScreenOwner == null || isCurrentOwner
@@ -93,11 +93,12 @@ class OverlayManager(
             }
             """.trimMargin()
             }
-            if (canObtain) {
+            if (canObtain && !isCurrentOwner) {
                 fullScreenOwner = who
                 fullScreenInUse = true
                 updateVisibilities()
             }
+            return canObtain
         }
     }
 

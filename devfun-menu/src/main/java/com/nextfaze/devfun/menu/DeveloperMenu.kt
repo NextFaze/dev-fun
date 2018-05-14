@@ -12,6 +12,7 @@ import com.nextfaze.devfun.core.AbstractDevFunModule
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.menu.controllers.CogOverlay
@@ -21,6 +22,7 @@ import com.nextfaze.devfun.menu.controllers.VOLUME_KEY_SEQUENCE
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.view.ViewFactoryProvider
 import com.nextfaze.devfun.view.viewFactory
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
 interface DeveloperMenu : MenuController {
@@ -123,9 +125,9 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     }
 
     private val controllers = hashSetOf<MenuController>()
-    private var visible = false
+    private val showing = AtomicBoolean(false)
 
-    override val isVisible get() = visible
+    override val isVisible get() = showing.get()
     override val title: String get() = context.getString(R.string.df_menu_developer_menu)
     override val actionDescription: CharSequence?
         get() = controllers
@@ -150,27 +152,32 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     }
 
     override fun show(activity: FragmentActivity) {
-        overlays.takeFullScreenLock(this)
-        DeveloperMenuDialogFragment.show(activity)
+        if (!showing.get() && overlays.takeFullScreenLock(this)) {
+            try {
+                showing.set(true)
+                DeveloperMenuDialogFragment.show(activity)
+            } catch (t: Throwable) {
+                showing.set(false)
+                overlays.releaseFullScreenLock(this)
+                get<ErrorHandler>().onError(t, "Show Menu Failed", "Please report this error!")
+            }
+        }
     }
 
-    override fun hide(activity: FragmentActivity) {
-        overlays.releaseFullScreenLock(this)
-        DeveloperMenuDialogFragment.hide(activity)
-    }
-
+    override fun hide(activity: FragmentActivity) = DeveloperMenuDialogFragment.hide(activity)
     override fun attach(developerMenu: DeveloperMenu) = Unit
     override fun detach() = Unit
 
     override fun onShown() {
-        visible = true
+        showing.set(true)
+        overlays.takeFullScreenLock(this)
         controllers.forEach { it.onShown() }
     }
 
     override fun onDismissed() {
-        visible = false
-        controllers.forEach { it.onDismissed() }
+        showing.set(false)
         overlays.releaseFullScreenLock(this)
+        controllers.forEach { it.onDismissed() }
     }
 
     @DeveloperFunction
