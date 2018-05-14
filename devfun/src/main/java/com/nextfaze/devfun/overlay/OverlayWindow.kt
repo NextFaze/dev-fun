@@ -37,7 +37,10 @@ class OverlayWindow(
     private val onLongClick: ClickListener? = null,
     internal val visibilityPredicate: VisibilityPredicate? = null,
     initialDock: Dock = Dock.TOP_LEFT,
-    initialDelta: Float = 0f
+    initialDelta: Float = 0f,
+    snapToEdge: Boolean = true,
+    initialLeft: Float = 0f,
+    initialTop: Float = 0f
 ) {
     private val log = logger()
     private val windowManager = application.windowManager
@@ -46,6 +49,9 @@ class OverlayWindow(
     private val preferences = KSharedPreferences.named(application, prefsName)
     private var dock by preferences["dock", initialDock]
     private var delta by preferences["delta", initialDelta]
+    private var left by preferences["left", initialLeft]
+    private var top by preferences["top", initialTop]
+    var snapToEdge: Boolean by preferences["snapToEdge", snapToEdge, { _, _ -> updatePosition(false) }]
     var enabled by preferences["enabled", true, { _, _ -> overlays.updateVisibilities() }]
 
     var viewInset = Rect()
@@ -56,9 +62,9 @@ class OverlayWindow(
     private val params = createOverlayWindowParams()
     private val overlayBounds = Rect()
 
-    fun updateOverlayBounds(bounds: Rect) {
+    fun updateOverlayBounds(bounds: Rect, postUpdate: Boolean = true) {
         overlayBounds.set(bounds)
-        loadSavedPosition()
+        loadSavedPosition(postUpdate)
     }
 
     val view: View by lazy {
@@ -134,7 +140,7 @@ class OverlayWindow(
                             if (!moved) {
                                 v.performClick()
                             } else {
-                                snapToEdge(true)
+                                updatePosition(true)
                             }
 
                             moved = false
@@ -151,15 +157,33 @@ class OverlayWindow(
                     onClick?.invoke(this)
                 }
             }
+
+            addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+                val prevWidth = oldRight - oldLeft
+                val newWidth = right - left
+                val prevHeight = oldBottom - oldTop
+                val newHeight = bottom - top
+                if (prevWidth != newWidth || prevHeight != newHeight) {
+                    updatePosition(false)
+                }
+            }
         }
     }
 
-    private fun loadSavedPosition() {
-        val side = dock
+    private fun updatePosition(updatePrefs: Boolean) {
+        if (!snapToEdge && updatePrefs) {
+            saveNonSnapPosition()
+        }
+        adjustPosition(updatePrefs)
+    }
+
+    private fun loadSavedPosition(postUpdate: Boolean) {
+        val side = dock.takeIf { snapToEdge }
         val displacement = delta
 
         // initial position
         var x = when (side) {
+            null -> (left * overlayBounds.width()).toInt()
             Dock.LEFT, Dock.TOP_LEFT, Dock.BOTTOM_LEFT -> overlayBounds.left
             Dock.RIGHT, Dock.TOP_RIGHT, Dock.BOTTOM_RIGHT -> overlayBounds.right - width
             else -> {
@@ -168,6 +192,7 @@ class OverlayWindow(
             }
         }
         var y = when (side) {
+            null -> (top * overlayBounds.height()).toInt()
             Dock.TOP, Dock.TOP_LEFT, Dock.TOP_RIGHT -> overlayBounds.top
             Dock.BOTTOM, Dock.BOTTOM_LEFT, Dock.BOTTOM_RIGHT -> overlayBounds.bottom - height - statusBarHeight
             else -> {
@@ -189,16 +214,16 @@ class OverlayWindow(
         }
 
         updateLayout(x, y)
-        snapToEdge(false)
+        adjustPosition(false)
 
-        if (width <= 0 && isAdded) {
+        if (postUpdate && width <= 0 && isAdded && enabled) {
             postUpdateOverlayBounds()
         }
     }
 
     fun resetPositionAndState() {
         preferences.clear()
-        loadSavedPosition()
+        loadSavedPosition(true)
     }
 
     fun addToWindow() {
@@ -212,7 +237,7 @@ class OverlayWindow(
         // we need to wait to next loop to ensure view has had a layout pass (otherwise width=0) and
         // end up with a 'left' value outside our overlay bounds
         handler.post {
-            updateOverlayBounds(overlayBounds)
+            updateOverlayBounds(overlayBounds, false)
         }
     }
 
@@ -226,14 +251,14 @@ class OverlayWindow(
 
     private val width get() = view.width
     private val height get() = view.height
-    private val left get() = params.x
-    private val right get() = params.x + width
-    private val top get() = params.y
-    private val bottom get() = params.y + height
+    private val windowLeft get() = params.x
+    private val windowRight get() = params.x + width
+    private val windowTop get() = params.y
+    private val windowBottom get() = params.y + height
 
-    private val leftEdge get() = left
+    private val leftEdge get() = windowLeft
     private val rightEdge get() = overlayBounds.width() - leftEdge - width
-    private val topEdge get() = top
+    private val topEdge get() = windowTop
     private val bottomEdge get() = overlayBounds.height() - topEdge - height - statusBarHeight
 
     private val statusBarHeight: Int
@@ -243,24 +268,28 @@ class OverlayWindow(
             return if (resourceId > 0) res.getDimensionPixelSize(resourceId) else 0
         }
 
-    private fun snapToEdge(updatePrefs: Boolean) {
+    private fun adjustPosition(updatePrefs: Boolean) {
         // find nearest edge
         val leftEdge = leftEdge
         val rightEdge = rightEdge
         val topEdge = topEdge
         val bottomEdge = bottomEdge
 
+        // don't trigger force-snap for non-snapping mode
+        val snapToEdge = snapToEdge
+        val edgeValue = if (snapToEdge) 0 else -1
+
         // force snap edges if out of bounds (preferentially to left/top if out of multiple sides)
-        val forceSnapLeft = leftEdge <= 0
-        val forceSnapRight = !forceSnapLeft && rightEdge <= 0
-        val forceSnapTop = topEdge <= 0
-        val forceSnapBottom = !forceSnapTop && bottomEdge <= 0
+        val forceSnapLeft = leftEdge <= edgeValue
+        val forceSnapRight = !forceSnapLeft && rightEdge <= edgeValue
+        val forceSnapTop = topEdge <= edgeValue
+        val forceSnapBottom = !forceSnapTop && bottomEdge <= edgeValue
 
         // where do we want to snap to (preferentially to left/top if equidistant)
-        val snapToLeft = leftEdge <= rightEdge && leftEdge <= topEdge && leftEdge <= bottomEdge
-        val snapToRight = rightEdge < leftEdge && rightEdge < topEdge && rightEdge < bottomEdge
-        val snapToTop = topEdge < leftEdge && topEdge < rightEdge && topEdge <= bottomEdge
-        val snapToBottom = bottomEdge < leftEdge && bottomEdge < rightEdge && bottomEdge < topEdge
+        val snapToLeft = snapToEdge && leftEdge <= rightEdge && leftEdge <= topEdge && leftEdge <= bottomEdge
+        val snapToRight = snapToEdge && rightEdge < leftEdge && rightEdge < topEdge && rightEdge < bottomEdge
+        val snapToTop = snapToEdge && topEdge < leftEdge && topEdge < rightEdge && topEdge <= bottomEdge
+        val snapToBottom = snapToEdge && bottomEdge < leftEdge && bottomEdge < rightEdge && bottomEdge < topEdge
 
         // where are we snapping to
         val toLeft = forceSnapLeft || snapToLeft
@@ -270,51 +299,33 @@ class OverlayWindow(
 
         // how far to move
         val distanceX = when {
+            !toLeft && !toRight && !snapToEdge -> leftEdge - (left * overlayBounds.width()).toInt()
             toLeft -> leftEdge + viewInset.left
             toRight && rightEdge < 0 -> Math.min(-rightEdge, leftEdge) - viewInset.right // don't go over left of overlay bounds
             toRight -> -rightEdge - viewInset.right
             else -> 0
         }
         val distanceY = when {
+            !toTop && !toBottom && !snapToEdge -> topEdge - (top * overlayBounds.height()).toInt()
             toTop -> topEdge + viewInset.top
             toBottom && bottomEdge < 0 -> Math.min(-bottomEdge, topEdge) - viewInset.bottom // don't go over top of overlay bounds
             toBottom -> -bottomEdge - viewInset.bottom
             else -> 0
         }
 
-        log.t(predicate = false) {
-            """snapToEdge:
+        log.d(predicate = false) {
+            """adjustPosition(updatePrefs=$updatePrefs):
               |$this
+              |snapToEdge: $snapToEdge
               |forceSnap: {l:$forceSnapLeft, r:$forceSnapRight, t:$forceSnapTop, b:$forceSnapBottom}
               |wantSnap: {l:$snapToLeft, r:$snapToRight, t:$snapToTop, b:$snapToBottom}
               |willSnap: {l:$toLeft, r:$toRight, t:$toTop, b:$toBottom}
               |travel: {x:$distanceX, y:$distanceY}""".trimMargin()
         }
 
-        // nothing to see
-        if (distanceX == 0 && distanceY == 0) {
-            return
-        }
-
-        val startX = left
-        val startY = top
-        ValueAnimator.ofFloat(0f, 1.0f)?.apply {
-            duration = run calculateDuration@{
-                val proportionX = abs(if (distanceX != 0) distanceX.toFloat() / (overlayBounds.width() / 2f) else 0f)
-                val proportionY = abs(if (distanceY != 0) distanceY.toFloat() / (overlayBounds.height() / 2f) else 0f)
-                val proportion = Math.min(proportionX + proportionY, 1f)
-                Math.max((MAX_ANIMATION_MILLIS * proportion).toLong(), MIN_ANIMATION_MILLIS)
-            }
-            interpolator = OvershootInterpolator(0.8f)
-            addUpdateListener { valueAnimator ->
-                val percent = valueAnimator.animatedValue as Float
-
-                params.apply {
-                    x = startX - (percent * distanceX).toInt()
-                    y = startY - (percent * distanceY).toInt()
-                }
-
-                if (updatePrefs && percent >= 1.0f) {
+        animateToPosition(distanceX, distanceY) { percent ->
+            if (updatePrefs && percent >= 1.0f) {
+                if (snapToEdge) {
                     dock = when {
                         toLeft && toTop -> Dock.TOP_LEFT
                         toRight && toTop -> Dock.TOP_RIGHT
@@ -331,7 +342,44 @@ class OverlayWindow(
                         Dock.TOP, Dock.BOTTOM -> (params.x - overlayBounds.left) / overlayBounds.width().toFloat()
                         else -> 0f
                     }
+                } else {
+                    saveNonSnapPosition()
                 }
+            }
+        }
+    }
+
+    private fun saveNonSnapPosition() {
+        left = (params.x - overlayBounds.left) / overlayBounds.width().toFloat()
+        top = (params.y - overlayBounds.top) / overlayBounds.height().toFloat()
+    }
+
+    private fun animateToPosition(distanceX: Int, distanceY: Int, onPercentChange: ((Float) -> Unit)? = null) {
+        // nothing to see
+        if (distanceX == 0 && distanceY == 0) {
+            onPercentChange?.invoke(1f)
+            return
+        }
+
+        val startX = windowLeft
+        val startY = windowTop
+        ValueAnimator.ofFloat(0f, 1.0f)?.apply {
+            duration = run calculateDuration@{
+                val proportionX = abs(if (distanceX != 0) distanceX.toFloat() / (overlayBounds.width() / 2f) else 0f)
+                val proportionY = abs(if (distanceY != 0) distanceY.toFloat() / (overlayBounds.height() / 2f) else 0f)
+                val proportion = Math.min(proportionX + proportionY, 1f)
+                Math.max((MAX_ANIMATION_MILLIS * proportion).toLong(), MIN_ANIMATION_MILLIS)
+            }
+            interpolator = OvershootInterpolator(0.8f)
+            addUpdateListener { valueAnimator ->
+                val percent = valueAnimator.animatedValue as Float
+
+                params.apply {
+                    x = startX - (percent * distanceX).toInt()
+                    y = startY - (percent * distanceY).toInt()
+                }
+
+                onPercentChange?.invoke(percent)
 
                 updateLayout()
             }
@@ -356,13 +404,17 @@ class OverlayWindow(
           |  isAdded: $isAdded,
           |  prefs: {
           |    dock: $dock,
-          |    delta: $delta
+          |    delta: $delta,
+          |    left: $left,
+          |    top: $top,
+          |    snapToEdge: $snapToEdge,
+          |    enabled: $enabled
           |  },
           |  position: {
-          |    left: $left,
-          |    right: $right,
-          |    top: $top,
-          |    bottom: $bottom
+          |    left: $windowLeft,
+          |    right: $windowRight,
+          |    top: $windowTop,
+          |    bottom: $windowBottom
           |  },
           |  size: {
           |    width: $width,
@@ -380,10 +432,19 @@ class OverlayWindow(
           |    top: $topEdge,
           |    bottom: $bottomEdge
           |  },
-          |  view: {w:${view.width}, h:${view.height}},
+          |  view: {w:${view.width}, h:${view.height}, visibility:${Visibility.fromValue(view.visibility)}},
           |  wind: {w:${params.width}, h:${params.height}},
           |  bounds: {l:${overlayBounds.left}, r:${overlayBounds.right}, t:${overlayBounds.top}, b:${overlayBounds.bottom}}
           |}""".trimMargin()
+
+    private enum class Visibility(val value: Int) {
+        VISIBLE(0), INVISIBLE(4), GONE(8);
+
+        companion object {
+            private val values = values().associateBy { it.value }
+            fun fromValue(value: Int) = values[value]
+        }
+    }
 }
 
 internal fun createOverlayWindowParams() =

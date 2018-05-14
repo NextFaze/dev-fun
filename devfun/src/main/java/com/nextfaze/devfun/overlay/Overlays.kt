@@ -84,7 +84,7 @@ class OverlayManager(
         synchronized(fullScreenLock) {
             val isCurrentOwner = who === fullScreenOwner
             val canObtain = fullScreenOwner == null || isCurrentOwner
-            log.d {
+            log.t {
                 """$who wants to take full-screen lock {
                 currentOwner: $fullScreenOwner,
                 isCurrentOwner: $isCurrentOwner,
@@ -107,7 +107,7 @@ class OverlayManager(
         synchronized(fullScreenLock) {
             val isCurrentOwner = who === fullScreenOwner
             val canRelease = fullScreenOwner == null || isCurrentOwner
-            log.d {
+            log.t {
                 """$who wants to release full-screen lock {
                 currentOwner: $fullScreenOwner,
                 isCurrentOwner: $isCurrentOwner,
@@ -132,7 +132,10 @@ class OverlayManager(
         onLongClick: ClickListener? = null,
         visibilityPredicate: VisibilityPredicate? = null,
         initialDock: Dock = Dock.TOP_LEFT,
-        initialDelta: Float = 0f
+        initialDelta: Float = 0f,
+        snapToEdge: Boolean = true,
+        initialLeft: Float = 0f,
+        initialTop: Float = 0f
     ): OverlayWindow {
         synchronized(overlaysLock) {
             if (overlays.containsKey(prefsName)) {
@@ -150,7 +153,10 @@ class OverlayManager(
             onLongClick,
             visibilityPredicate,
             initialDock,
-            initialDelta
+            initialDelta,
+            snapToEdge,
+            initialLeft,
+            initialTop
         ).apply {
             synchronized(overlaysLock) { overlays[prefsName] = this }
             if (permissions.canDrawOverlays) {
