@@ -36,7 +36,7 @@ import com.nextfaze.devfun.show
 internal enum class OverlayPermissions { NEVER_REQUESTED, DENIED, NEVER_ASK_AGAIN }
 
 @Constructable(singleton = true)
-@DeveloperCategory("DevFun", group = "Permissions")
+@DeveloperCategory("DevFun", group = "Overlays")
 class OverlayPermissionsManager(
     context: Context,
     private val activityProvider: ActivityProvider

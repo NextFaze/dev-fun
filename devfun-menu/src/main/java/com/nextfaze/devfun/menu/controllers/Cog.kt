@@ -14,7 +14,6 @@ import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
 import android.view.View
-import android.view.WindowManager
 import android.widget.ImageView
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -34,8 +33,7 @@ import com.nextfaze.devfun.menu.MenuController
 import com.nextfaze.devfun.menu.R
 import com.nextfaze.devfun.menu.devMenu
 import com.nextfaze.devfun.overlay.Dock
-import com.nextfaze.devfun.overlay.OverlayPermissionsManager
-import com.nextfaze.devfun.overlay.OverlayWindow
+import com.nextfaze.devfun.overlay.OverlayManager
 
 /**
  * Controls the floating cog overlay.
@@ -53,7 +51,7 @@ import com.nextfaze.devfun.overlay.OverlayWindow
 class CogOverlay constructor(
     context: Context,
     private val activityProvider: ActivityProvider,
-    private val permissions: OverlayPermissionsManager
+    private val overlayManager: OverlayManager
 ) : MenuController {
     private val log = logger()
     private val application = context.applicationContext as Application
@@ -61,62 +59,38 @@ class CogOverlay constructor(
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
 
-    private val overlay = OverlayWindow(application, permissions, R.layout.df_menu_cog_overlay, "DevFunCog", Dock.RIGHT, 0.7f)
-        .apply {
+    private val overlay =
+        overlayManager.createOverlay(
+            layoutId = R.layout.df_menu_cog_overlay,
+            prefsName = "DevFunCog",
+            reason = ::generateCogDescriptionState,
+            onClick = ::onOverlayClick,
+            visibilityPredicate = { it is FragmentActivity },
+            initialDock = Dock.RIGHT,
+            initialDelta = 0.7f
+        ).apply {
             val padding = application.resources.getDimension(R.dimen.df_menu_cog_padding).toInt()
             val halfSize = ((padding * 2 + application.resources.getDimension(R.dimen.df_menu_cog_size)) / 2).toInt()
             viewInset = Rect(halfSize, halfSize, halfSize, padding)
-            onClick = { fragmentActivity?.let { developerMenu?.show(it) } }
         }
 
     private var listener: Application.ActivityLifecycleCallbacks? = null
     private var developerMenu: DeveloperMenu? = null
-    private var menuVisible = false
 
     private val preferences = KSharedPreferences.named(context, "DevFunCog")
-    private var cogVisible by preferences["cogVisible", true]
     private val cogColorPref = preferences["cogColor", defaultTint]
     private var cogColor by cogColorPref
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
 
-        /**
-         * Using the activity like this ensures that rotation, status bar, and other system views are taken into account.
-         * Thus for multi-window use it should be properly bounded to the relevant app window area.
-         * i.e. This is the space available for the *app* now the *device*
-         */
-        fun updateDisplayBounds(activity: Activity) {
-            val displayBounds = Rect(0, 0, 0, 0)
-            (activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay?.getRectSize(displayBounds)
-            overlay.updateOverlayBounds(displayBounds)
-        }
-
         listener = application.registerActivityCallbacks(
-            onCreated = { activity, _ ->
-                updateDisplayBounds(activity)
-            },
-            onResumed = {
-                updateDisplayBounds(it)
-                if (it is FragmentActivity) {
-                    when {
-                        overlay.canDrawOverlays -> addOverlay(it)
-                        else -> permissions.requestPermission(generateCogDescriptionState())
-                    }
-                    setVisible(it.isRunningInForeground)
-                } else {
-                    setVisible(false)
-                }
-            },
-            onStopped = {
-                if (it === activity) {
-                    setVisible(false)
-                }
-            }
+            onResumed = { updateAppearance(it) }
         )
     }
 
     override fun detach() {
+        overlayManager.destroyOverlay(overlay)
         listener?.unregister(application).also { listener = null }
         developerMenu = null
     }
@@ -125,7 +99,7 @@ class CogOverlay constructor(
     override val actionDescription: CharSequence?
         get() = mutableListOf<Int>()
             .apply {
-                if (!cogVisible) {
+                if (!overlay.enabled) {
                     this += R.string.df_menu_cog_overlay_hidden_by_user
                 }
                 if (!overlay.canDrawOverlays) {
@@ -142,33 +116,15 @@ class CogOverlay constructor(
                 }
             }
 
-    override fun onShown() {
-        menuVisible = true
-        setVisible(false)
-    }
+    override fun onShown() = Unit
+    override fun onDismissed() = Unit
 
-    override fun onDismissed() {
-        menuVisible = false
-        setVisible(true)
-    }
-
-    private fun setVisible(visible: Boolean) {
-        overlay.view.visibility = if (visible && !menuVisible && cogVisible && fragmentActivity != null) View.VISIBLE else View.GONE
-    }
-
-    private fun addOverlay(activity: Activity, force: Boolean = false) {
-        if (!force && (overlay.isAdded || !overlay.canDrawOverlays)) return
-
-        overlay.apply {
-            removeFromWindow()
-            onClick = ::onOverlayClick
-            view.apply {
-                findViewById<View>(R.id.cogButton).apply {
-                    ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.df_menu_cog_elevation).toFloat())
-                    tintOverlayView(resolveTint(activity))
-                }
+    private fun updateAppearance(activity: Activity) {
+        with(overlay.view) {
+            findViewById<View>(R.id.cogButton).apply {
+                ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.df_menu_cog_elevation).toFloat())
+                tintOverlayView(resolveTint(activity))
             }
-            addToWindow()
         }
     }
 
@@ -192,8 +148,12 @@ class CogOverlay constructor(
     @DeveloperFunction
     private fun resetPositionAndState(activity: Activity) {
         preferences.clear()
-        overlay.resetPositionAndState()
-        addOverlay(activity, true)
+        overlay.apply {
+            resetPositionAndState()
+            removeFromWindow()
+            updateAppearance(activity)
+            addToWindow()
+        }
     }
 
     @DeveloperFunction
@@ -204,7 +164,7 @@ class CogOverlay constructor(
 
     @Constructable
     private inner class CurrentVisibility : ValueSource<Boolean> {
-        override val value get() = cogVisible
+        override val value get() = overlay.enabled
     }
 
     private fun generateCogDescriptionState() =
@@ -216,8 +176,7 @@ class CogOverlay constructor(
 
     @DeveloperFunction
     private fun setVisibility(@From(CurrentVisibility::class) visible: Boolean) {
-        cogVisible = visible
-        setVisible(visible)
+        overlay.enabled = visible
         activity?.let {
             if (!visible) {
                 AlertDialog.Builder(it)
@@ -350,16 +309,5 @@ class CogOverlay constructor(
             |}""".trimMargin()
     }
 }
-
-private val Context.isRunningInForeground: Boolean
-    get() {
-        @Suppress("DEPRECATION")
-        val tasks = activityManager.getRunningTasks(1)
-        if (tasks.isEmpty()) {
-            return false
-        }
-        val topActivityName = tasks[0].topActivity.packageName
-        return topActivityName.equals(packageName, ignoreCase = true)
-    }
 
 private val defaultTint = Color.argb(0x77, 0xEE, 0x41, 0x36)

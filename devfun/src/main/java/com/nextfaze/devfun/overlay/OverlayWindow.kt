@@ -1,6 +1,7 @@
 package com.nextfaze.devfun.overlay
 
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.app.Application
 import android.graphics.PixelFormat
 import android.graphics.PointF
@@ -20,11 +21,21 @@ import java.lang.Math.abs
 private const val MIN_ANIMATION_MILLIS = 250L
 private const val MAX_ANIMATION_MILLIS = 500L
 
+typealias ClickListener = (View) -> Unit
+typealias OverlayReason = () -> CharSequence
+typealias VisibilityPredicate = (Activity) -> Boolean
+
+enum class Dock { TOP, BOTTOM, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT }
+
 class OverlayWindow(
     private val application: Application,
-    private val permissions: OverlayPermissionsManager,
+    private val overlays: OverlayManager,
     @LayoutRes layoutId: Int,
-    private val prefsName: String,
+    internal val prefsName: String,
+    internal val reason: OverlayReason,
+    private val onClick: ClickListener? = null,
+    private val onLongClick: ClickListener? = null,
+    internal val visibilityPredicate: VisibilityPredicate? = null,
     initialDock: Dock = Dock.TOP_LEFT,
     initialDelta: Float = 0f
 ) {
@@ -35,15 +46,13 @@ class OverlayWindow(
     private val preferences = KSharedPreferences.named(application, prefsName)
     private var dock by preferences["dock", initialDock]
     private var delta by preferences["delta", initialDelta]
-
-    var onClick: ((View) -> Unit)? = null
-
-    val isAdded get() = view.parent != null
+    var enabled by preferences["enabled", true, { _, _ -> overlays.updateVisibilities() }]
 
     var viewInset = Rect()
 
-    val canDrawOverlays get() = permissions.canDrawOverlays
+    val canDrawOverlays get() = overlays.canDrawOverlays
 
+    private val isAdded get() = view.parent != null
     private val params = createOverlayWindowParams()
     private val overlayBounds = Rect()
 
@@ -54,7 +63,16 @@ class OverlayWindow(
 
     val view: View by lazy {
         View.inflate(application, layoutId, null).apply {
+            var allowOnClick = true
+
             setOnTouchListener(object : View.OnTouchListener {
+                private val onLongClickRunnable = Runnable {
+                    onLongClick?.run {
+                        allowOnClick = false
+                        invoke(view)
+                    }
+                }
+
                 private var currentPosition = PointF(0f, 0f)
                 private var initialPosition = PointF(0f, 0f)
                 private var initialWindowPosition = PointF(0f, 0f)
@@ -62,9 +80,15 @@ class OverlayWindow(
                 private var actionDownTime = 0L
                 private var moved = false
 
-                override fun onTouch(v: View, event: MotionEvent?): Boolean {
-                    return when (event?.action) {
+                override fun onTouch(v: View, event: MotionEvent): Boolean {
+                    when {
+                        onLongClick != null && event.action == MotionEvent.ACTION_DOWN -> handler.postDelayed(onLongClickRunnable, 1250L)
+                        else -> handler.removeCallbacks(onLongClickRunnable)
+                    }
+
+                    return when (event.action) {
                         MotionEvent.ACTION_DOWN -> {
+                            allowOnClick = true
                             actionDownTime = System.currentTimeMillis()
 
                             initialPosition.apply {
@@ -122,7 +146,11 @@ class OverlayWindow(
                 }
             })
 
-            setOnClickListener { onClick?.invoke(this) }
+            setOnClickListener {
+                if (allowOnClick) {
+                    onClick?.invoke(this)
+                }
+            }
         }
     }
 
@@ -174,6 +202,7 @@ class OverlayWindow(
     }
 
     fun addToWindow() {
+        if (isAdded) return
         windowManager.addView(view, params)
         postUpdateOverlayBounds()
     }
@@ -184,16 +213,6 @@ class OverlayWindow(
         // end up with a 'left' value outside our overlay bounds
         handler.post {
             updateOverlayBounds(overlayBounds)
-        }
-    }
-
-    private fun updateLayout(x: Int? = null, y: Int? = null, width: Int? = null, height: Int? = null) {
-        x?.let { params.x = it }
-        y?.let { params.y = it }
-        width?.let { params.width = it }
-        height?.let { params.height = it }
-        view.parent?.let {
-            windowManager.updateViewLayout(view, params)
         }
     }
 
@@ -320,6 +339,16 @@ class OverlayWindow(
         }
     }
 
+    private fun updateLayout(x: Int? = null, y: Int? = null, width: Int? = null, height: Int? = null) {
+        x?.let { params.x = it }
+        y?.let { params.y = it }
+        width?.let { params.width = it }
+        height?.let { params.height = it }
+        view.parent?.let {
+            windowManager.updateViewLayout(view, params)
+        }
+    }
+
     override fun toString() =
         """
           |overlay: {
@@ -356,8 +385,6 @@ class OverlayWindow(
           |  bounds: {l:${overlayBounds.left}, r:${overlayBounds.right}, t:${overlayBounds.top}, b:${overlayBounds.bottom}}
           |}""".trimMargin()
 }
-
-enum class Dock { TOP, BOTTOM, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT }
 
 internal fun createOverlayWindowParams() =
     WindowManager.LayoutParams().apply {

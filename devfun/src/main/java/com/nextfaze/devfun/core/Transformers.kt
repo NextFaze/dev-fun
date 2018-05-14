@@ -206,7 +206,7 @@ internal class PropertyTransformerImpl(
                             else -> false
                         }
                     } catch (t: IllegalPropertyDelegateAccessException) {
-                        log.d(t) { "Kotlin Bug: Ignoring IllegalPropertyDelegateAccessException" }
+                        log.d(t) { "Kotlin Bug: Ignoring IllegalPropertyDelegateAccessException for $property" }
                         null
                     }
 

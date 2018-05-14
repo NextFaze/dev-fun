@@ -18,6 +18,7 @@ import com.nextfaze.devfun.menu.controllers.CogOverlay
 import com.nextfaze.devfun.menu.controllers.GRAVE_KEY_SEQUENCE
 import com.nextfaze.devfun.menu.controllers.KeySequence
 import com.nextfaze.devfun.menu.controllers.VOLUME_KEY_SEQUENCE
+import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.view.ViewFactoryProvider
 import com.nextfaze.devfun.view.viewFactory
 import kotlin.reflect.KClass
@@ -91,6 +92,8 @@ val DevFun.devMenu get() = get<DevMenu>()
 @AutoService(DevFunModule::class)
 @DeveloperCategory("DevFun", "Developer Menu")
 class DevMenu : AbstractDevFunModule(), DeveloperMenu {
+    private val overlays by lazy { devFun.get<OverlayManager>() }
+
     private val views = object : ViewFactoryProvider {
         override fun get(clazz: KClass<*>) = clazz.takeIf { it == MenuHeader::class }?.let { DefaultMenuHeaderViewFactory() }
     }
@@ -116,6 +119,7 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
         controllers.forEach(MenuController::detach)
         devFun.instanceProviders -= instances
         devFun.viewFactories -= views
+        overlays.releaseFullScreenLock(this)
     }
 
     private val controllers = hashSetOf<MenuController>()
@@ -145,8 +149,15 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
         menuController.takeIf { controllers.remove(menuController) }?.detach()
     }
 
-    override fun show(activity: FragmentActivity) = DeveloperMenuDialogFragment.show(activity)
-    override fun hide(activity: FragmentActivity) = DeveloperMenuDialogFragment.hide(activity)
+    override fun show(activity: FragmentActivity) {
+        overlays.takeFullScreenLock(this)
+        DeveloperMenuDialogFragment.show(activity)
+    }
+
+    override fun hide(activity: FragmentActivity) {
+        overlays.releaseFullScreenLock(this)
+        DeveloperMenuDialogFragment.hide(activity)
+    }
 
     override fun attach(developerMenu: DeveloperMenu) = Unit
     override fun detach() = Unit
@@ -159,6 +170,7 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     override fun onDismissed() {
         visible = false
         controllers.forEach { it.onDismissed() }
+        overlays.releaseFullScreenLock(this)
     }
 
     @DeveloperFunction

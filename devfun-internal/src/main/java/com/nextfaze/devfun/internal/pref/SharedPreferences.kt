@@ -8,6 +8,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import java.lang.Enum as JavaLangEnum
 
+typealias OnChange<T> = (T, T) -> Unit
+
 interface KPreference<TValue : Any?> {
     var value: TValue
 
@@ -35,7 +37,9 @@ class KSharedPreferences(private val preferences: SharedPreferences) {
     operator fun get(key: String, default: String): KPreference<String> = KStringPref(preferences, key, default)
     operator fun get(key: String, default: Int): KPreference<Int> = KIntPref(preferences, key, default)
     operator fun get(key: String, default: Float): KPreference<Float> = KFloatPref(preferences, key, default)
-    operator fun get(key: String, default: Boolean): KPreference<Boolean> = KBooleanPref(preferences, key, default)
+    operator fun get(key: String, default: Boolean, onChange: OnChange<Boolean>? = null): KPreference<Boolean> =
+        KBooleanPref(preferences, key, default, onChange)
+
     operator fun <E : Enum<E>> get(key: String, default: E): KPreference<E> = KEnumPref(preferences, key, default)
 
     operator fun get(key: String, default: Int? = null): KNullablePreference<Int> =
@@ -111,11 +115,17 @@ private class KFloatPref(preferences: SharedPreferences, key: String, default: F
         set(value) = preferences.edit().putFloat(key, value).apply()
 }
 
-private class KBooleanPref(preferences: SharedPreferences, key: String, default: Boolean) :
+private class KBooleanPref(preferences: SharedPreferences, key: String, default: Boolean, private val onChange: OnChange<Boolean>?) :
     KPreferenceImpl<Boolean>(preferences, key, default) {
     override var value: Boolean
         get() = preferences.getBoolean(key, default)
-        set(value) = preferences.edit().putBoolean(key, value).apply()
+        set(value) {
+            val before = if (onChange != null) this.value else null
+            preferences.edit().putBoolean(key, value).apply()
+            if (onChange != null && before != null && before != value) {
+                onChange.invoke(before, value)
+            }
+        }
 }
 
 private class KEnumPref<E : Enum<E>>(preferences: SharedPreferences, key: String, default: E) :
