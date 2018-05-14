@@ -1,6 +1,6 @@
 @file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 
-package com.nextfaze.devfun.menu.internal
+package com.nextfaze.devfun.internal.pref
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import java.lang.Enum as JavaLangEnum
 
-internal interface KPreference<TValue : Any?> {
+interface KPreference<TValue : Any?> {
     var value: TValue
 
     val isSet: Boolean
@@ -19,10 +19,10 @@ internal interface KPreference<TValue : Any?> {
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: TValue)
 }
 
-internal interface KNullablePreference<T : Any> : KPreference<T?>
+interface KNullablePreference<T : Any> : KPreference<T?>
 
 
-internal class KSharedPreferences(private val preferences: SharedPreferences) {
+class KSharedPreferences(private val preferences: SharedPreferences) {
     companion object {
         fun named(context: Context, name: String) =
             KSharedPreferences(context.getSharedPreferences(name, Context.MODE_PRIVATE))

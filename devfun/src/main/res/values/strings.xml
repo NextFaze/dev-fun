@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools"
+           xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <string name="df_devfun">DevFun</string>
     <string name="df_devfun_about">
@@ -32,22 +33,28 @@ Version %1$s
     </string>
 
     <!-- Invoke UI -->
-
     <string name="df_devfun_execute">Execute</string>
     <string name="df_devfun_injected">(injected)</string>
     <string name="df_devfun_missing"><font color="red">(missing)</font></string>
     <string name="df_devfun_cannot_execute">Error: A type could not be injected and does not have an input view assigned.</string>
 
     <!-- Service Loader -->
-
     <string name="df_devfun_service_loader_exception">Service Loader Exception</string>
     <string name="df_devfun_service_loader_error">Failed to load a DevFun module.</string>
     <string name="df_devfun_service_loader_module_error">Failed to load DevFun module: </string>
 
     <!-- Error Dialog -->
-
     <string name="df_devfun_error_position">%1$d of %2$d</string>
     <string name="df_devfun_clear">Clear</string>
     <string name="df_devfun_clear_all">Clear All</string>
+
+    <!-- Overlays -->
+    <string name="df_devfun_overlay_request">Overlay Request</string>
+    <string name="df_devfun_overlay_reason">"NextFaze DevFun <xliff:g id="version" notranslate="true">%1$s</xliff:g>
+
+Requesting permission to allow overlay views (such as DevMenu cog overlay)."</string>
+    <string name="df_devfun_never_ask_again">Never ask again</string>
+    <string name="df_devfun_allow">Allow</string>
+    <string name="df_devfun_deny">Deny</string>
 
 </resources>

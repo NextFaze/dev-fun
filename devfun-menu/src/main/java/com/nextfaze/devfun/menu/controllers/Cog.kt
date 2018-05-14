@@ -2,32 +2,20 @@ package com.nextfaze.devfun.menu.controllers
 
 import android.app.Activity
 import android.app.Application
-import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Rect
-import android.net.Uri
 import android.os.Build
-import android.os.Bundle
-import android.provider.Settings
-import android.support.annotation.RequiresApi
-import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.CheckBox
 import android.widget.ImageView
-import android.widget.TextView
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
@@ -35,17 +23,19 @@ import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.pref.*
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.Ranged
 import com.nextfaze.devfun.invoke.view.ValueSource
-import com.nextfaze.devfun.menu.*
-import com.nextfaze.devfun.menu.internal.Dock
-import com.nextfaze.devfun.menu.internal.KSharedPreferences
-import com.nextfaze.devfun.menu.internal.OverlayWindow
-
-private const val PREF_PERMISSIONS = "permissions"
+import com.nextfaze.devfun.menu.DeveloperMenu
+import com.nextfaze.devfun.menu.MenuController
+import com.nextfaze.devfun.menu.R
+import com.nextfaze.devfun.menu.devMenu
+import com.nextfaze.devfun.overlay.Dock
+import com.nextfaze.devfun.overlay.OverlayPermissionsManager
+import com.nextfaze.devfun.overlay.OverlayWindow
 
 /**
  * Controls the floating cog overlay.
@@ -62,7 +52,8 @@ private const val PREF_PERMISSIONS = "permissions"
 @DeveloperCategory("DevFun", "Cog Overlay")
 class CogOverlay constructor(
     context: Context,
-    private val activityProvider: ActivityProvider
+    private val activityProvider: ActivityProvider,
+    private val permissions: OverlayPermissionsManager
 ) : MenuController {
     private val log = logger()
     private val application = context.applicationContext as Application
@@ -70,7 +61,7 @@ class CogOverlay constructor(
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
 
-    private val overlay = OverlayWindow(application, R.layout.df_menu_cog_overlay, "DevFunCog", Dock.RIGHT, 0.7f)
+    private val overlay = OverlayWindow(application, permissions, R.layout.df_menu_cog_overlay, "DevFunCog", Dock.RIGHT, 0.7f)
         .apply {
             val padding = application.resources.getDimension(R.dimen.df_menu_cog_padding).toInt()
             val halfSize = ((padding * 2 + application.resources.getDimension(R.dimen.df_menu_cog_size)) / 2).toInt()
@@ -86,7 +77,6 @@ class CogOverlay constructor(
     private var cogVisible by preferences["cogVisible", true]
     private val cogColorPref = preferences["cogColor", defaultTint]
     private var cogColor by cogColorPref
-    private var permissions by preferences["permissionsState", OverlayPermissions.NEVER_REQUESTED]
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
@@ -111,7 +101,7 @@ class CogOverlay constructor(
                 if (it is FragmentActivity) {
                     when {
                         overlay.canDrawOverlays -> addOverlay(it)
-                        permissions != OverlayPermissions.NEVER_ASK_AGAIN && !isInstrumentationTest -> managePermissions()
+                        else -> permissions.requestPermission(generateCogDescriptionState())
                     }
                     setVisible(it.isRunningInForeground)
                 } else {
@@ -199,26 +189,6 @@ class CogOverlay constructor(
         }
     }
 
-    @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
-    private fun managePermissions() = fragmentActivity?.let {
-        OverlayPermissionsDialogFragment.show(it, permissions).apply {
-            deniedCallback = { neverAskAgain ->
-                permissions = if (neverAskAgain) OverlayPermissions.NEVER_ASK_AGAIN else OverlayPermissions.DENIED
-            }
-        }
-    }
-
-    private val isInstrumentationTest by lazy {
-        when {
-            Thread.currentThread().contextClassLoader?.toString().orEmpty().contains("android.test.runner.jar") -> true
-            else -> Log.getStackTraceString(Throwable()).contains("android.support.test.runner.MonitoringInstrumentation")
-        }.also {
-            if (it) {
-                log.d { "Instance detected as instrumentation test - debug cog overlay disabled." }
-            }
-        }
-    }
-
     @DeveloperFunction
     private fun resetPositionAndState(activity: Activity) {
         preferences.clear()
@@ -237,20 +207,22 @@ class CogOverlay constructor(
         override val value get() = cogVisible
     }
 
+    private fun generateCogDescriptionState() =
+        SpannableStringBuilder().apply {
+            this += application.getText(R.string.df_menu_available_controllers)
+            this += "\n\n"
+            this += devFun.devMenu.actionDescription ?: application.getString(R.string.df_menu_no_controllers)
+        }
+
     @DeveloperFunction
     private fun setVisibility(@From(CurrentVisibility::class) visible: Boolean) {
         cogVisible = visible
         setVisible(visible)
         activity?.let {
             if (!visible) {
-                val msg = SpannableStringBuilder().also {
-                    it += application.getText(R.string.df_menu_available_controllers)
-                    it += "\n\n"
-                    it += devFun.devMenu.actionDescription ?: application.getString(R.string.df_menu_no_controllers)
-                }
                 AlertDialog.Builder(it)
                     .setTitle(R.string.df_menu_cog_overlay_hidden)
-                    .setMessage(msg)
+                    .setMessage(generateCogDescriptionState())
                     .show()
             }
         }
@@ -378,76 +350,6 @@ class CogOverlay constructor(
             |}""".trimMargin()
     }
 }
-
-internal enum class OverlayPermissions { NEVER_REQUESTED, DENIED, NEVER_ASK_AGAIN }
-
-internal class OverlayPermissionsDialogFragment : DialogFragment() {
-    companion object {
-        fun show(activity: FragmentActivity, permissions: OverlayPermissions) = activity
-            .obtain {
-                OverlayPermissionsDialogFragment().apply {
-                    arguments = Bundle().apply {
-                        putString(PREF_PERMISSIONS, permissions.name)
-                    }
-                }
-            }
-            .apply {
-                takeIf { !it.isAdded }?.show(activity.supportFragmentManager)
-            }
-    }
-
-    var deniedCallback: ((neverAskAgain: Boolean) -> Unit)? = null
-
-    private val permissions by lazy { OverlayPermissions.valueOf(arguments!!.getString(PREF_PERMISSIONS)) }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val activity = activity!!
-        val msg = SpannableStringBuilder().also {
-            it += activity.getString(R.string.df_menu_overlay_reason, BuildConfig.VERSION_NAME)
-            it += "\n\n"
-            it += activity.getText(R.string.df_menu_available_controllers)
-            it += "\n\n"
-            it += devFun.devMenu.actionDescription ?: activity.getString(R.string.df_menu_no_controllers)
-        }
-
-        val (neverAskAgainCheckBox, dialogView) = LayoutInflater.from(context)
-            .inflate(R.layout.df_menu_permissions_checkbox, view as ViewGroup?)
-            .run {
-                findViewById<TextView>(R.id.messageTextView).text = msg
-                findViewById<CheckBox>(R.id.neverAskAgainCheckBox).apply {
-                    isChecked = permissions != OverlayPermissions.NEVER_REQUESTED
-                } to this
-            }
-
-        return AlertDialog.Builder(activity)
-            .setTitle(R.string.df_menu_overlay_request)
-            .setView(dialogView)
-            .setPositiveButton(R.string.df_menu_allow, { dialog, _ ->
-                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${activity.packageName}".toUri())
-                activity.startActivityForResult(intent, 1234)
-                dialog.dismiss()
-            })
-            .setNegativeButton(R.string.df_menu_deny, { dialog, _ ->
-                deniedCallback?.invoke(neverAskAgainCheckBox.isChecked)
-                dialog.dismiss()
-            })
-            .show()
-    }
-
-    override fun onDestroyView() {
-        // Fix http:///issuetracker.google.com/17423
-        dialog?.takeIf { retainInstance }?.setDismissMessage(null)
-        super.onDestroyView()
-    }
-}
-
-private fun String.toUri(): Uri = Uri.parse(this)
 
 private val Context.isRunningInForeground: Boolean
     get() {

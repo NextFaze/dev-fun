@@ -106,7 +106,7 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
             it += GRAVE_KEY_SEQUENCE
             it += VOLUME_KEY_SEQUENCE
         }
-        this += CogOverlay(context, activityProvider)
+        this += CogOverlay(context, activityProvider, get())
 
         devFun.instanceProviders += instances
         devFun.viewFactories += views

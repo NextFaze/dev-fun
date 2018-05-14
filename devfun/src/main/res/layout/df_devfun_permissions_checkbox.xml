@@ -23,7 +23,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="?attr/dialogPreferredPadding"
-                android:text="@string/df_menu_never_ask_again"/>
+                android:text="@string/df_devfun_never_ask_again"/>
 
     </LinearLayout>
 
