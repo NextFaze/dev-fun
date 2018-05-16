@@ -14,12 +14,14 @@ import android.support.v7.app.AppCompatDialogFragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.LinearLayoutManager.VERTICAL
 import android.support.v7.widget.RecyclerView
+import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.LayoutInflater.from
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.internal.WithSubGroup
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.view.ViewFactory
 import kotlinx.android.synthetic.main.df_menu_dialog_fragment.*
@@ -40,7 +42,7 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
 
     private val devMenu by lazy { devFun.devMenu }
     private val categories by lazy { devFun.categories }
-    private var categoryItems = emptyList<Any>()
+    private var categoryItems = emptyList<WithText>()
     private var selectedCategoryIdx = -1
 
     @get:DrawableRes
@@ -51,7 +53,21 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
         return@lazy resourceId
     }
 
-    data class MenuHeaderItem(val title: CharSequence)
+    private interface WithText {
+        val text: CharSequence
+    }
+
+    private data class FunctionListItem(val functionItem: FunctionItem, val indent: CharSequence? = null) : WithText {
+        override val text = indent?.let {
+            SpannableStringBuilder().apply {
+                this += indent
+                this += functionItem.name
+            }
+        } ?: functionItem.name
+    }
+
+    private data class GroupHeaderItem(override val text: CharSequence) : WithText
+    private data class SubGroupHeaderItem(override val text: CharSequence) : WithText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,13 +122,16 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
             adapter = object : RecyclerView.Adapter<ViewHolder>() {
                 override fun onBindViewHolder(holder: ViewHolder, position: Int) {
                     val item = categoryItems[position]
+                    holder.textView.text = item.text
                     when (item) {
-                        is FunctionItem -> {
-                            holder.textView.text = item.name
-                            holder.textView.setOnClickListener { onCategoryItemClick(item) }
+                        is FunctionListItem -> {
+                            holder.textView.setOnClickListener { onCategoryItemClick(item.functionItem) }
                         }
-                        is MenuHeaderItem -> {
-                            holder.textView.text = item.title
+                        is GroupHeaderItem -> {
+                            holder.textView.setOnClickListener(null)
+                            holder.textView.isClickable = false
+                        }
+                        is SubGroupHeaderItem -> {
                             holder.textView.setOnClickListener(null)
                             holder.textView.isClickable = false
                         }
@@ -122,12 +141,14 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
                     when (viewType) {
                         1 -> (from(parent.context).inflate(R.layout.df_menu_item, parent, false) as TextView).let(::ViewHolder)
-                        else -> (from(parent.context).inflate(R.layout.df_menu_item_header, parent, false) as TextView).let(::ViewHolder)
+                        2 -> (from(parent.context).inflate(R.layout.df_menu_item_sub_group, parent, false) as TextView).let(::ViewHolder)
+                        else -> (from(parent.context).inflate(R.layout.df_menu_item_group, parent, false) as TextView).let(::ViewHolder)
                     }
 
                 override fun getItemViewType(position: Int) =
                     when (categoryItems[position]) {
-                        is FunctionItem -> 1
+                        is FunctionListItem -> 1
+                        is SubGroupHeaderItem -> 2
                         else -> 0
                     }
 
@@ -156,18 +177,31 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
         categoryItems = run generateCategoryItems@{
             // if no groups, then just sort and return
             if (category.items.all { it.group.isNullOrBlank() }) {
-                return@generateCategoryItems category.items.sortedBy { it.name.toString() }
+                return@generateCategoryItems category.items.map { FunctionListItem(it) }.sortedBy { it.text.toString() }
             }
 
             // create item group headers
             val groups = category.items.groupBy { it.group }
-                .mapKeys { MenuHeaderItem(it.key ?: "Misc") }
-                .toSortedMap(compareBy { it.title.toString() })
+                .mapKeys { GroupHeaderItem(it.key ?: "Misc") }
+                .toSortedMap(compareBy { it.text.toString() })
 
-            ArrayList<Any>().apply {
+            ArrayList<WithText>().apply {
                 groups.forEach {
                     add(it.key)
-                    addAll(it.value.sortedBy { it.name.toString() })
+                    if (it.value.any { it is WithSubGroup }) {
+                        it.value.groupBy { if (it is WithSubGroup) it.subGroup else null }
+                            .mapKeys { it.key?.let { SubGroupHeaderItem(it) } }
+                            .toSortedMap(compareBy { it?.text?.toString() })
+                            .forEach {
+                                val indent = it.key?.let {
+                                    add(it)
+                                    "\t"
+                                }
+                                addAll(it.value.map { FunctionListItem(it, indent) }.sortedBy { it.text.toString() })
+                            }
+                    } else {
+                        addAll(it.value.map { FunctionListItem(it) }.sortedBy { it.text.toString() })
+                    }
                 }
             }
         }

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.core.CategoryDefinition
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.core.FunctionTransformer
@@ -18,6 +19,7 @@ import com.nextfaze.devfun.core.SimpleFunctionItem
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.*
 import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.internal.string.*
 import kotlinx.android.synthetic.main.authenticate_layout.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
@@ -55,6 +57,9 @@ private val CREDENTIALS = arrayOf("foo@example.com:hello", "bar@example.com:worl
 class AuthenticateFragment : BaseFragment() {
     @Inject lateinit var session: Session
 
+    @DeveloperProperty
+    private var validateForm = true
+
     private var authJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,8 +96,10 @@ class AuthenticateFragment : BaseFragment() {
         // error state
         var focusView: View? = null
         fun TextView.focusError(stringId: Int) {
-            this.error = getString(stringId)
-            focusView = this
+            if (validateForm) {
+                this.error = getString(stringId)
+                focusView = this
+            }
         }
 
         fun TextView.focusRequired() = focusError(R.string.error_field_required)
@@ -177,14 +184,26 @@ class AuthenticateFragment : BaseFragment() {
 
 @Constructable
 private class SignInFunctionTransformer : FunctionTransformer {
-    private data class TestAccount(val email: String, val password: String) {
-        val title = "Authenticate as $email"
+    private enum class Type { NORMAL, RESTRICTED, BANNED, UNDERAGE, INVALID_PASSWORD, UNKNOWN_USER }
+    private data class TestAccount(val email: String, val password: String, val type: Type) {
+        val group = "Authenticate as ${type.toString().toLowerCase().splitCamelCase()}"
     }
 
     private val accounts = if (BuildConfig.DEBUG) { // BuildConfig.DEBUG for dead-code removal
         listOf(
-            TestAccount("foo@example.com", "hello"),
-            TestAccount("bar@example.com", "world")
+            TestAccount("foo@example.com", "hello", Type.NORMAL),
+            TestAccount("bar@example.com", "world", Type.NORMAL),
+            TestAccount("mary@mailinator.com", "ContainDateNeck76", Type.NORMAL),
+            TestAccount("eli@example.com", "EveningVermontNeck29", Type.NORMAL),
+            TestAccount("trevor@example.com", "OftenJumpCost02", Type.NORMAL),
+            TestAccount("rude.user@example.com", "TakePlayThought95", Type.RESTRICTED),
+            TestAccount("block.stars@mailinator.com", "DeviceSeedsSeason16", Type.RESTRICTED),
+            TestAccount("vulgar@user.com", "ChinaMisterGeneral11", Type.BANNED),
+            TestAccount("thirteen@years.old", "my.password", Type.UNDERAGE),
+            TestAccount("twelve@years.old", "password", Type.UNDERAGE),
+            TestAccount("bad.password.1@example.com", "D3;d<HF-", Type.INVALID_PASSWORD),
+            TestAccount("bad.password.2@example.com", "r2Z@fMhA", Type.INVALID_PASSWORD),
+            TestAccount("unknown@example.com", "RV[(x43@", Type.UNKNOWN_USER)
         )
     } else {
         emptyList()
@@ -193,8 +212,9 @@ private class SignInFunctionTransformer : FunctionTransformer {
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): List<SimpleFunctionItem> =
         accounts.map {
             object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-                override val name = it.title
+                override val name = it.email
                 override val args = listOf(it.email, it.password) // arguments as expected from signInAs(...)
+                override val group = it.group
             }
         }
 }

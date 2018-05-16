@@ -9,6 +9,7 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.PropertyTransformer
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.RequiringInstanceProvider
+import com.nextfaze.devfun.internal.WithSubGroup
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
 import com.nextfaze.devfun.internal.string.*
@@ -53,14 +54,16 @@ internal class CustomProviderTransformer(private val instanceProvider: Requiring
 }
 
 @DeveloperCategory("Context", order = -10_000)
-internal data class ContextFunctionItem(private val functionItem: FunctionItem, override val group: String) : FunctionItem by functionItem {
+internal data class ContextFunctionItem(private val functionItem: FunctionItem, override val group: CharSequence?) :
+    FunctionItem by functionItem, WithSubGroup {
     private object ContextCategory : CategoryDefinition {
-        override val name get() = "Context"
-        override val order get() = -10_000
+        override val name = "Context"
+        override val order = -10_000
         override fun toString() = "ContextCategory"
     }
 
     override val category: CategoryDefinition = ContextCategory
+    override val subGroup = if (functionItem is WithSubGroup) functionItem.subGroup else functionItem.group
 }
 
 @Constructable

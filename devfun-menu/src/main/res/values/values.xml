@@ -37,11 +37,18 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="DfMenu.Header">
+    <style name="DfMenu.GroupHeader">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/df_menu_white</item>
         <item name="android:textStyle">bold</item>
         <item name="android:background">@drawable/df_menu_item_header_bottom_border</item>
+        <item name="android:clickable">false</item>
+    </style>
+
+    <style name="DfMenu.SubGroupHeader">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/df_menu_white</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:clickable">false</item>
     </style>
 
