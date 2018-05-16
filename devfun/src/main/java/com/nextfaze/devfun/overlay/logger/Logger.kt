@@ -4,11 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.TextView
 import com.nextfaze.devfun.core.R
-import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.invoke.Invoker
-import com.nextfaze.devfun.invoke.Parameter
-import com.nextfaze.devfun.invoke.WithInitialValue
-import com.nextfaze.devfun.invoke.uiFunction
+import com.nextfaze.devfun.invoke.*
 import com.nextfaze.devfun.overlay.OverlayManager
 import kotlin.reflect.KClass
 
@@ -18,23 +14,21 @@ typealias OnClick = () -> Unit
 class OverlayLogger(
     private val overlayManager: OverlayManager,
     private val invoker: Invoker,
-    private val prefsName: String,
+    private val name: String,
     private val update: UpdateCallback,
     private val onClick: OnClick? = null
 ) {
-    private val log = logger()
     private val handler = Handler(Looper.getMainLooper())
     private val runnable = Runnable {
         update()
         postUpdate()
     }
+    private val prefsName = "OverlayLogger_$name"
 
     private val overlay = overlayManager.createOverlay(
         layoutId = R.layout.df_devfun_logger_overlay,
         prefsName = prefsName,
-        reason = {
-            "OverlayLogger"
-        },
+        reason = { "Show overlay logger for $prefsName" },
         onClick = {
             update()
             onClick?.invoke()
@@ -67,7 +61,6 @@ class OverlayLogger(
         }
 
     fun destroy() {
-        log.d { "destroy $this" }
         handler.removeCallbacks(runnable)
         overlayManager.destroyOverlay(overlay)
     }
@@ -107,8 +100,9 @@ class OverlayLogger(
         invoker.invoke(
             uiFunction(
                 title = "Overlay Options",
-                subtitle = "Logger Overlay $prefsName",
+                subtitle = "Logger Overlay $name",
                 parameters = params,
+                neutralButton = uiButton(textId = R.string.df_devfun_reset, onClick = { overlay.resetPositionAndState() }),
                 invoke = {
                     params.asSequence().zip(it.asSequence()).forEach { (param, arg) ->
                         @Suppress("UNCHECKED_CAST")

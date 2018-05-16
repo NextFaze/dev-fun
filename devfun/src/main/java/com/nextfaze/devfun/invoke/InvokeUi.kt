@@ -99,43 +99,61 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
 
         function.parameters.forEach { buildParameterView(it) }
 
-        cancelButton.setOnClickListener { dialog.dismiss() }
-        executeButton.setOnClickListener {
-            try {
-                fun View?.getValue(): Any? {
-                    return when (this) {
-                        is InvokeParameterView -> if (isNull) null else view.getValue()
-                        is InjectedParameterView -> devFun.instanceOf(value)
-                        is WithValue<*> -> value
-                        is TextInputLayout -> editText!!.text
-                        is Switch -> isChecked
-                        is Spinner -> selectedItem
-                        is ProgressBar -> progress
-                        is TextView -> text
-                        else -> throw RuntimeException("Unexpected view type $this. If this is a custom view, add the WithValue interface. If this is a standard platform view, create an issue to have it handled.")
-                    }
+        fun Button.setUiButton(uiButton: UiButton) {
+            visibility = View.VISIBLE
+            uiButton.text?.also { text = it }
+            uiButton.textId?.also { text = getText(it) }
+            setOnClickListener {
+                val invoke = uiButton.invoke
+                when {
+                    invoke != null -> onInvokeButtonClick(invoke)
+                    else -> uiButton.onClick?.invoke()
                 }
-
-                val params = (0 until inputsList.childCount).map {
-                    inputsList.getChildAt(it).getValue()
-                }
-
-                log.d { "Invoke $function\nwith params: $params" }
-                function.invoke(params)
-            } catch (de: DebugException) {
-                throw de
-            } catch (t: Throwable) {
-                errorHandler.onError(t, "Invocation Failure", "Something went wrong when trying to execute requested method for $function.")
+                dialog.dismiss()
             }
-            dialog.dismiss()
+            if (!canExecute && uiButton.invoke != null) {
+                isEnabled = false
+            }
         }
+
+        (function.negativeButton ?: uiButton()).also { negativeButton.setUiButton(it) }
+        function.neutralButton?.also { neutralButton.setUiButton(it) }
+        (function.positiveButton ?: uiButton()).also { positiveButton.setUiButton(it) }
 
         if (!canExecute) {
             (0 until inputsList.childCount).forEach {
                 inputsList.getChildAt(it).isEnabled = false
             }
-            executeButton.isEnabled = false
             errorMessageText.visibility = View.VISIBLE
+        }
+    }
+
+    private fun onInvokeButtonClick(simpleInvoke: SimpleInvoke) {
+        try {
+            fun View?.getValue(): Any? {
+                return when (this) {
+                    is InvokeParameterView -> if (isNull) null else view.getValue()
+                    is InjectedParameterView -> devFun.instanceOf(value)
+                    is WithValue<*> -> value
+                    is TextInputLayout -> editText!!.text
+                    is Switch -> isChecked
+                    is Spinner -> selectedItem
+                    is ProgressBar -> progress
+                    is TextView -> text
+                    else -> throw RuntimeException("Unexpected view type $this. If this is a custom view, add the WithValue interface. If this is a standard platform view, create an issue to have it handled.")
+                }
+            }
+
+            val params = (0 until inputsList.childCount).map {
+                inputsList.getChildAt(it).getValue()
+            }
+
+            log.d { "Invoke $function\nwith params: $params" }
+            simpleInvoke(params)
+        } catch (de: DebugException) {
+            throw de
+        } catch (t: Throwable) {
+            errorHandler.onError(t, "Invocation Failure", "Something went wrong when trying to execute requested method for $function.")
         }
     }
 

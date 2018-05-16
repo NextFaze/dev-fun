@@ -34,6 +34,7 @@ Version %1$s
 
     <!-- Invoke UI -->
     <string name="df_devfun_execute">Execute</string>
+    <string name="df_devfun_reset">Reset</string>
     <string name="df_devfun_injected">(injected)</string>
     <string name="df_devfun_missing"><font color="red">(missing)</font></string>
     <string name="df_devfun_cannot_execute">Error: A type could not be injected and does not have an input view assigned.</string>

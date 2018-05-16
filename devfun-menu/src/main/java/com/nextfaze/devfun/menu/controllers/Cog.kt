@@ -264,7 +264,7 @@ class CogOverlay constructor(
                 }
             }
         } catch (ignore: Resources.NotFoundException) {
-            log.d { "Override resource tint 'df_menu_cog_tint' not defined. Trying theme accent color..." }
+            log.t { "Override resource tint 'df_menu_cog_tint' not defined. Trying theme accent color..." }
 
             try {
                 // otherwise use app accent color if defined
@@ -276,7 +276,7 @@ class CogOverlay constructor(
                                 Color.alpha(it) == 0xFF -> (it.toLong() and 0x77FFFFFF).toInt()
                                 else -> it
                             }
-                        }.also { log.d { "Using primary color attribute for tint: ${it.toColorStruct()}" } }
+                        }.also { log.t { "Using primary color attribute for tint: ${it.toColorStruct()}" } }
                     } else {
                         defaultTint.also {
                             log.d { "No appcompat 'colorPrimary' attribute defined. Using default tint value: ${it.toColorStruct()}" }

@@ -74,14 +74,22 @@
                 android:visibility="invisible" />
 
             <Button
-                android:id="@+id/cancelButton"
+                android:id="@+id/negativeButton"
                 style="?attr/buttonBarNegativeButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@android:string/cancel" />
 
             <Button
-                android:id="@+id/executeButton"
+                android:id="@+id/neutralButton"
+                style="?attr/buttonBarNeutralButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@android:string/untitled"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/positiveButton"
                 style="?attr/buttonBarPositiveButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -21,7 +21,7 @@ import com.nextfaze.devfun.invoke.Invoker
 import com.nextfaze.devfun.overlay.OverlayManager
 
 interface OverlayLogging {
-    fun createLogger(prefsName: String, updateCallback: UpdateCallback, onClick: OnClick? = null): OverlayLogger
+    fun createLogger(name: String, updateCallback: UpdateCallback, onClick: OnClick? = null): OverlayLogger
 }
 
 @DeveloperCategory("Logging", order = 90_000)
@@ -34,11 +34,10 @@ internal class OverlayLoggingImpl(
 ) : OverlayLogging {
     private val loggers = devFun.developerReferences<DeveloperLogger>().map { Logger(it) }
 
-    @DeveloperLogger
     private val overlays = mutableMapOf<Logger, OverlayLogger>().apply {
         loggers.forEach { ref ->
             if (!ref.isContextual) {
-                this[ref] = createLogger(ref.reflected.name, ref.updateCallback)
+                this[ref] = createLogger(ref.prefsName, ref.updateCallback)
             }
         }
     }
@@ -67,7 +66,7 @@ internal class OverlayLoggingImpl(
         loggers.forEach {
             if (it.isContextual) {
                 if (it.isInContext) {
-                    overlays.getOrPut(it) { createLogger(it.reflected.name, it.updateCallback, it.onClick) }
+                    overlays.getOrPut(it) { createLogger(it.prefsName, it.updateCallback, it.onClick) }
                 } else {
                     overlays.remove(it)?.also { it.destroy() }
                 }
@@ -77,6 +76,7 @@ internal class OverlayLoggingImpl(
 
     private inner class Logger(ref: DeveloperReference) {
         val reflected = ref.method!!.toReflected()
+        val prefsName = "${reflected.declaringClass.simpleName}.${reflected.name.substringBefore('$')}"
 
         val isInActivity = Activity::class.java.isAssignableFrom(reflected.declaringClass)
         val isInFragment = reflected.clazz.isSubclassOf<Fragment>()
@@ -170,8 +170,8 @@ internal class OverlayLoggingImpl(
         }
     }
 
-    override fun createLogger(prefsName: String, updateCallback: UpdateCallback, onClick: OnClick?) =
-        OverlayLogger(overlayManager, invoker, prefsName, updateCallback, onClick)
+    override fun createLogger(name: String, updateCallback: UpdateCallback, onClick: OnClick?) =
+        OverlayLogger(overlayManager, invoker, name, updateCallback, onClick)
 
     @DeveloperFunction(transformer = LoggersTransformer::class)
     private fun configureLogger(logger: OverlayLogger) {

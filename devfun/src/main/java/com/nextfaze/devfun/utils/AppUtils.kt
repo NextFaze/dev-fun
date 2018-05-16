@@ -9,6 +9,7 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.internal.WithSubGroup
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.*
@@ -72,6 +73,16 @@ internal class AppUtils {
 internal object SharedPrefs {
     private val log = logger()
 
+    @DeveloperFunction
+    fun deleteAllFiles(context: Context) {
+        val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
+        if (!prefsDir.exists() || !prefsDir.isDirectory) return
+
+        prefsDir.listFiles().filter { it.extension == "xml" }.forEach {
+            it.delete()
+        }
+    }
+
     @DeveloperFunction(transformer = FetchPrefsTransformer::class)
     fun editSharedPreferences(context: Context, invoker: Invoker, file: File) {
         log.d { "file: $file" }
@@ -92,6 +103,7 @@ internal object SharedPrefs {
                 subtitle = file.nameWithoutExtension,
                 signature = file.canonicalPath,
                 parameters = params,
+                neutralButton = uiButton(textId = R.string.df_devfun_reset, onClick = { prefs.edit().clear().apply() }),
                 invoke = {
                     val edit = prefs.edit()
                     params.asSequence().zip(it.asSequence()).forEach { (param, arg) ->
@@ -128,9 +140,10 @@ internal class FetchPrefsTransformer(private val context: Context) : FunctionTra
             if (prefs.all.isEmpty()) {
                 null
             } else {
-                object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
+                object : SimpleFunctionItem(functionDefinition, categoryDefinition), WithSubGroup {
                     override val name = it.name
                     override val args = listOf(Unit, Unit, it)
+                    override val subGroup = "Files"
                 }
             }
         }
