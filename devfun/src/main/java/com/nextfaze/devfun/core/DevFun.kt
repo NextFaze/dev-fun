@@ -21,9 +21,12 @@ import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.*
 import com.nextfaze.devfun.invoke.view.ColorPicker
+import com.nextfaze.devfun.overlay.logger.OverlayLogging
+import com.nextfaze.devfun.overlay.logger.OverlayLoggingImpl
 import com.nextfaze.devfun.view.*
 import kotlin.reflect.KClass
 
@@ -277,6 +280,10 @@ class DevFun {
 
             // Custom Transformers
             this += singletonInstance<PropertyTransformer> { get<PropertyTransformerImpl>() }
+
+            // Overlay Loggers
+            val overlayLogging = get<OverlayLoggingImpl>().apply { init() }
+            this += singletonInstance<OverlayLogging> { overlayLogging }
         }
 
         moduleLoader.init(modules.toList(), useServiceLoader)
@@ -476,7 +483,7 @@ class DevFun {
      * @see Dagger2Component
      * @see getDeveloperReferences
      */
-    inline fun <reified T : Annotation> developerReferences() =
+    inline fun <reified T : Annotation> developerReferences(): List<DeveloperReference> =
         definitions.flatMap {
             it.developerReferences.filter { it.annotation == T::class }
         }

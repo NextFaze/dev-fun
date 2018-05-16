@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperLogger
 import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.enabled
@@ -41,11 +42,13 @@ class WelcomeActivity : BaseActivity() {
 class WelcomeFragment : BaseFragment() {
     @Inject lateinit var config: Config
 
+    @DeveloperLogger
     @DeveloperProperty
     private var signInButtonEnabled
         get() = signInButton.enabled
         set(value) = run { signInButton.enabled = value }
 
+    @DeveloperLogger
     @DeveloperProperty
     private var createAccountButtonEnabled
         get() = createAccountButton.enabled

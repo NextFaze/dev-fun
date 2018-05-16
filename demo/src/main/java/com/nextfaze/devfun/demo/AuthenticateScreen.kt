@@ -19,7 +19,7 @@ import com.nextfaze.devfun.core.SimpleFunctionItem
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.*
 import com.nextfaze.devfun.inject.Constructable
-import com.nextfaze.devfun.internal.string.*
+import com.nextfaze.devfun.internal.splitCamelCase
 import kotlinx.android.synthetic.main.authenticate_layout.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI

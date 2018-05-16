@@ -9,17 +9,15 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.PropertyTransformer
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.RequiringInstanceProvider
+import com.nextfaze.devfun.internal.ReflectedProperty
 import com.nextfaze.devfun.internal.WithSubGroup
-import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
+import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
+import com.nextfaze.devfun.internal.toReflected
 import com.nextfaze.devfun.invoke.*
-import kotlin.reflect.*
-import kotlin.reflect.full.IllegalPropertyDelegateAccessException
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.isAccessible
-import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.kotlinProperty
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 
 internal val TRANSFORMERS = listOf(
     RequiresApiTransformer::class,
@@ -117,12 +115,7 @@ internal class ContextTransformer(
 }
 
 @Constructable
-internal class PropertyTransformerImpl(
-    private val instanceProvider: RequiringInstanceProvider,
-    private val invoker: Invoker
-) : PropertyTransformer {
-    private val log = logger()
-
+internal class PropertyTransformerImpl(private val invoker: Invoker) : PropertyTransformer {
     private class Property<out T : Any?>(kProperty: KProperty<T>, override val value: T) : Parameter, WithInitialValue<T>, WithNullability {
         override val name: String = kProperty.name
         override val type = kProperty.returnType.classifier as KClass<*>
@@ -133,52 +126,19 @@ internal class PropertyTransformerImpl(
     override fun accept(functionDefinition: FunctionDefinition) = functionDefinition.transformer == PropertyTransformer::class
 
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
-        val fieldName = functionDefinition.method.name.substringBefore('$')
-        val propertyField = try {
-            functionDefinition.clazz.java.getDeclaredField(fieldName).apply { isAccessible = true }
-        } catch (ignore: NoSuchFieldException) {
-            null // is property without backing field (i.e. has custom getter/setter)
-        }
-        val property = when {
-            propertyField != null -> propertyField.kotlinProperty!!
-            else -> functionDefinition.clazz.declaredMemberProperties.first { it.name == fieldName }
-        }.apply { isAccessible = true }
-
-
-        // Kotlin reflection has weird accessibility issues when invoking get/set/getter/setter .call()
-        // it only seems to work the first time with subsequent calls failing with illegal access exceptions and the like
-        val getter = property.getter.javaMethod?.apply { isAccessible = true }
-        val setter = if (property is KMutableProperty<*>) property.setter.javaMethod?.apply { isAccessible = true } else null
-
-        val propertyDesc = run {
-            val lateInit = if (property.isLateinit) "lateinit " else ""
-            val varType = if (property is KMutableProperty<*>) "var" else "val"
-            "$lateInit$varType $fieldName: ${property.simpleName}"
-        }
-
+        val prop = functionDefinition.method.toReflected() as ReflectedProperty
         return listOf(object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-            private val receiver by lazy { functionDefinition.receiverInstance(instanceProvider) }
-            private val isUninitialized by lazy { property.isUninitialized }
+            private val isUninitialized by lazy { prop.isUninitialized }
 
-            private var value: Any?
-                get() = when {
-                    getter != null -> getter.invoke(receiver)
-                    else -> propertyField?.get(receiver)
-                }
-                set(value) {
-                    when {
-                        setter != null -> setter.invoke(receiver, value)
-                        else -> propertyField?.set(receiver, value)
-                    }
-                }
             override val name by lazy {
+                val value = prop.value
                 SpannableStringBuilder().apply {
-                    this += propertyDesc
+                    this += prop.desc
                     this += " = "
                     when {
-                        property.isLateinit && value == null -> this += i("undefined")
+                        prop.isLateinit && value == null -> this += i("undefined")
                         isUninitialized -> this += i("uninitialized")
-                        property.type == String::class && value != null -> this += """"$value""""
+                        prop.type == String::class && value != null -> this += """"$value""""
                         else -> this += "$value"
                     }
                     if (isUninitialized) {
@@ -191,34 +151,13 @@ internal class PropertyTransformerImpl(
             override val invoke: FunctionInvoke = { _, _ ->
                 invoker.invoke(
                     uiFunction(
-                        title = propertyDesc,
-                        signature = property.toString(),
-                        parameters = listOf(Property(property, value)),
-                        invoke = { it.first().also { value = it } }
+                        title = prop.desc,
+                        signature = prop.property.toString(),
+                        parameters = listOf(Property(prop.property, prop.value)),
+                        invoke = { it.first().also { prop.value = it } }
                     )
                 )
             }
-
-            @Suppress("UNCHECKED_CAST")
-            private val KProperty<*>.isUninitialized: Boolean
-                get() {
-                    fun tryGet() = try {
-                        when (this) {
-                            is KProperty0<*> -> (getDelegate() as? Lazy<*>)?.isInitialized() == false
-                            is KProperty1<*, *> -> ((this as KProperty1<Any?, Any>).getDelegate(receiver) as? Lazy<*>)?.isInitialized() == false
-                            else -> false
-                        }
-                    } catch (t: IllegalPropertyDelegateAccessException) {
-                        log.d(t) { "Kotlin Bug: Ignoring IllegalPropertyDelegateAccessException for $property" }
-                        null
-                    }
-
-                    isAccessible = true
-                    return tryGet() ?: tryGet() ?: false // try it again if it first fails
-                }
         })
     }
-
-    private val KProperty<*>.simpleName get() = "${type.simpleName}${if (returnType.isMarkedNullable) "?" else ""}"
-    private val KProperty<*>.type get() = returnType.classifier as KClass<*>
 }

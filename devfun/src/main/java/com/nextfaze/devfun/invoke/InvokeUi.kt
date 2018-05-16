@@ -15,7 +15,7 @@ import com.nextfaze.devfun.core.DebugException
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.internal.string.*
+import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.InvokeParameterView
 import com.nextfaze.devfun.invoke.view.WithValue

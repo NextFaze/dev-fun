@@ -1,4 +1,4 @@
-package com.nextfaze.devfun.internal.string
+package com.nextfaze.devfun.internal
 
 import kotlin.reflect.KClass
 
@@ -11,4 +11,4 @@ fun String.splitCamelCase() = this
     .filter(String::isNotBlank)
     .joinToString(" ")
 
-inline val KClass<*>.splitSimpleName get() = this.java.simpleName.splitCamelCase()
+inline val KClass<*>.splitSimpleName get() = java.simpleName.splitCamelCase()

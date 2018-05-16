@@ -5,6 +5,7 @@ import android.content.Context.MODE_PRIVATE
 import android.widget.Toast
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperLogger
 import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.demo.util.KxSharedPreferences
 import com.nextfaze.devfun.demo.util.toOptional
@@ -80,6 +81,15 @@ class Config @Inject constructor(context: Context) {
         registrationEnabled().delete()
         welcomeString().delete()
     }
+
+    @DeveloperLogger
+    override fun toString() = """Config {
+        |  splashDuration: $splashDuration,
+        |  signInEnabled: $signInEnabled,
+        |  registrationEnabled: $registrationEnabled,
+        |  welcomeString: "$welcomeString"
+        |}
+    """.trimMargin()
 }
 
 /** They can be inner classes or whatever - they are treated like any other injectable class. */
