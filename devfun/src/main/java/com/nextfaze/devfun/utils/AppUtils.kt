@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.support.v7.app.AlertDialog
 import android.widget.Toast
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -81,6 +82,12 @@ internal object SharedPrefs {
         prefsDir.listFiles().filter { it.extension == "xml" }.forEach {
             it.delete()
         }
+
+        AlertDialog.Builder(context)
+            .setTitle("Restart Needed")
+            .setMessage("Shared preference files deleted.\n\nThis does not trigger listeners or reset memory states!")
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     @DeveloperFunction(transformer = FetchPrefsTransformer::class)

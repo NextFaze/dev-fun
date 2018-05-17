@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.graphics.Rect
 import android.support.annotation.LayoutRes
+import android.text.SpannableStringBuilder
 import android.view.View
 import android.view.WindowManager
 import com.nextfaze.devfun.annotations.DeveloperCategory
@@ -45,11 +46,7 @@ class OverlayManager(
         fun updateDisplayBounds(activity: Activity): Rect? {
             (activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay?.getRectSize(displayBoundsTmp)
             return when {
-                displayBounds.isEmpty -> { // first time
-                    displayBounds.set(displayBoundsTmp)
-                    displayBounds
-                }
-                displayBounds != displayBoundsTmp -> { // changed
+                displayBounds.isEmpty || displayBounds != displayBoundsTmp -> { // first time || changed
                     displayBounds.set(displayBoundsTmp)
                     displayBounds
                 }
@@ -59,16 +56,19 @@ class OverlayManager(
 
         application.registerActivityCallbacks(
             onResumed = {
-                val newBounds = updateDisplayBounds(it)
-                synchronized(overlaysLock) {
-                    if (overlays.isNotEmpty()) {
-                        when {
-                            permissions.canDrawOverlays -> {
-                                updateBounds(newBounds)
-                                updateVisibilities()
-                            }
-                            else -> permissions.requestPermission(overlays.values.first().reason.invoke())
+                if (overlays.isNotEmpty()) {
+                    if (!canDrawOverlays) {
+                        val reason = synchronized(overlaysLock) {
+                            overlays.values.joinTo(SpannableStringBuilder(), separator = "\n\n") { it.reason() }
                         }
+                        permissions.requestPermission(reason)
+                    } else {
+                        updateDisplayBounds(it)?.also { newBounds ->
+                            synchronized(overlaysLock) {
+                                overlays.forEach { it.value.updateOverlayBounds(newBounds) }
+                            }
+                        }
+                        updateVisibilities()
                     }
                 }
             },
@@ -172,23 +172,16 @@ class OverlayManager(
     }
 
     internal fun updateVisibilities() {
+        if (!permissions.canDrawOverlays) return
+
         val shouldBeVisible = !fullScreenInUse && application.isRunningInForeground
         synchronized(overlaysLock) {
             overlays.forEach {
+                it.value.addToWindow()
                 it.value.updateVisibility(shouldBeVisible)
             }
         }
     }
-
-    private fun updateBounds(newBounds: Rect?) =
-        synchronized(overlaysLock) {
-            overlays.forEach {
-                it.value.addToWindow()
-                if (newBounds != null) {
-                    it.value.updateOverlayBounds(newBounds)
-                }
-            }
-        }
 
     private fun OverlayWindow.updateVisibility(shouldBeVisible: Boolean = !fullScreenInUse && application.isRunningInForeground) {
         val activity = activity
