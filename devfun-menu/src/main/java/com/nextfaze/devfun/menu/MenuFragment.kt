@@ -210,7 +210,9 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     }
 
     private fun onCategoryItemClick(functionItem: FunctionItem) {
-        functionItem.call()
+        handler.post {
+            functionItem.call()
+        }
         dismiss()
     }
 

@@ -1,6 +1,7 @@
 package com.nextfaze.devfun.invoke
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.TextInputLayout
@@ -10,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.*
+import android.widget.Toast.LENGTH_LONG
 import com.nextfaze.devfun.BaseDialogFragment
 import com.nextfaze.devfun.core.DebugException
 import com.nextfaze.devfun.core.R
@@ -23,6 +25,7 @@ import com.nextfaze.devfun.invoke.view.simple.ErrorParameterView
 import com.nextfaze.devfun.invoke.view.simple.InjectedParameterView
 import com.nextfaze.devfun.invoke.view.types.getTypeOrNull
 import com.nextfaze.devfun.obtain
+import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.show
 import kotlinx.android.synthetic.main.df_devfun_invoker_dialog_fragment.*
 import kotlin.reflect.KClass
@@ -41,16 +44,17 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
     private val log = logger()
 
     private lateinit var function: UiFunction
+
     private val devFun = com.nextfaze.devfun.core.devFun
-    private val errorHandler get() = devFun.get<ErrorHandler>()
+    private val errorHandler by lazy { devFun.get<ErrorHandler>() }
+    private val overlays by lazy { devFun.get<OverlayManager>() }
 
     private var canExecute = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
-            Toast.makeText(context, "Invocation dialog does not support recreation from a saved state at this time.", Toast.LENGTH_LONG)
-                .show()
+            Toast.makeText(context, "Invocation dialog does not support recreation from a saved state at this time.", LENGTH_LONG).show()
             dismissAllowingStateLoss()
         }
     }
@@ -86,6 +90,17 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
     override fun onResume() {
         super.onResume()
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        overlays.takeFullScreenLock(this)
+    }
+
+    override fun onDestroy() {
+        overlays.releaseFullScreenLock(this)
+        super.onDestroy()
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        overlays.releaseFullScreenLock(this)
+        super.onDismiss(dialog)
     }
 
     private fun performOnViewCreated() {
