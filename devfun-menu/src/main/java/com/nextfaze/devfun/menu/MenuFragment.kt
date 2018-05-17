@@ -219,14 +219,15 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
         super.onStart()
     }
 
+    // we will not get an onDismiss callback if a dialog fragment is opened on an activity that is then finished while the dialog is open
+    override fun onDestroy() {
+        devMenu.onDismissed()
+        super.onDestroy()
+    }
+
     override fun onDismiss(dialog: DialogInterface) {
         devMenu.onDismissed()
         super.onDismiss(dialog)
-    }
-
-    override fun dismissAllowingStateLoss() {
-        devMenu.onDismissed()
-        super.dismissAllowingStateLoss()
     }
 
     override fun onResume() {
