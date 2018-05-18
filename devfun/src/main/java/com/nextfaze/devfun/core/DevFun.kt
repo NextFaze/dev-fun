@@ -262,7 +262,7 @@ class DevFun {
             this += captureInstance { definitionsLoader }
             this += captureInstance { activityTracker }
             this += captureInstance { { activityTracker.activity } }
-            this += AndroidInstanceProvider(context.applicationContext, activityTracker::activity)
+            this += AndroidInstanceProviderImpl(context.applicationContext, activityTracker::activity)
             this += moduleLoader
 
             // Invocation and Errors

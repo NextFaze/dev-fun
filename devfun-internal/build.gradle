@@ -10,6 +10,9 @@ description = "Provides common functionality used across various DevFun modules,
 project.configureAndroidLibrary(this)
 
 dependencies {
+    // DevFun
+    api project(':devfun-annotations')
+
     // Kotlin
     api Config.kotlinStdLib
 

@@ -153,5 +153,3 @@ inline fun <reified T : Any> singletonInstance(noinline instance: () -> T?): Ins
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Constructable(val singleton: Boolean = false)
-
-private fun <T : Any> KClass<*>.isSuperclassOf(clazz: KClass<T>) = this.java.isAssignableFrom(clazz.java)

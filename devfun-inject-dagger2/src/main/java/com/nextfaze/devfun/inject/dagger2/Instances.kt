@@ -14,6 +14,8 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.inject.isSubclassOf
+import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
 import com.nextfaze.devfun.internal.string.*
@@ -229,12 +231,13 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
 class InjectFromDagger2 : AbstractDevFunModule() {
     private val log = logger()
 
-    private var instanceProvider: InstanceProvider? = null
+    private var instanceProvider: Dagger2InstanceProvider? = null
 
     override fun init(context: Context) {
         val application = context.applicationContext as Application
-        val provider: InstanceProvider = Dagger2AnnotatedInstanceProvider(devFun).takeIf { it.hasComponents }
-                ?: Dagger2ReflectiveInstanceProvider(application, get())
+        val androidInstanceProvider = devFun.get<AndroidInstanceProviderInternal>()
+        val provider = Dagger2AnnotatedInstanceProvider(devFun, androidInstanceProvider).takeIf { it.hasComponents }
+                ?: Dagger2ReflectiveInstanceProvider(application, get(), androidInstanceProvider)
         devFun.instanceProviders += provider.also {
             log.d { "InjectFromDagger2 using instance provider $it" }
             instanceProvider = it
@@ -255,7 +258,7 @@ class InjectFromDagger2 : AbstractDevFunModule() {
             this += "providerType: "
             this += pre("${instanceProvider?.let { it::class }}")
             this += "\nproviderDetails:\n"
-            this += (instanceProvider as WithDescription?)?.description() ?: "null"
+            this += instanceProvider?.description() ?: "null"
         }.also {
             AlertDialog.Builder(activity)
                 .setTitle("Inject From Dagger 2.x")
@@ -264,11 +267,24 @@ class InjectFromDagger2 : AbstractDevFunModule() {
         }
 }
 
-private interface WithDescription {
-    fun description(): CharSequence
+abstract class Dagger2InstanceProvider(
+    private val androidInstances: AndroidInstanceProviderInternal
+) : InstanceProvider {
+    var deferToAndroidInstanceProvider: Boolean = true
+
+    override fun <T : Any> get(clazz: KClass<out T>) =
+        when {
+            deferToAndroidInstanceProvider -> androidInstances[clazz]
+            else -> null
+        }
+
+    abstract fun description(): CharSequence
 }
 
-private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : InstanceProvider, WithDescription {
+private class Dagger2AnnotatedInstanceProvider(
+    private val devFun: DevFun,
+    androidInstances: AndroidInstanceProviderInternal
+) : Dagger2InstanceProvider(androidInstances) {
     private val log = logger()
 
     private data class ComponentReference(
@@ -357,6 +373,7 @@ private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : Ins
     }
 
     override fun <T : Any> get(clazz: KClass<out T>): T? {
+        super.get(clazz)?.let { return it }
         if (components.isEmpty()) return null
 
         components.forEach {
@@ -388,13 +405,16 @@ private class Dagger2AnnotatedInstanceProvider(private val devFun: DevFun) : Ins
 
 private class Dagger2ReflectiveInstanceProvider(
     private val app: Application,
-    private val activityProvider: ActivityProvider
-) : InstanceProvider, WithDescription {
+    private val activityProvider: ActivityProvider,
+    androidInstances: AndroidInstanceProviderInternal
+) : Dagger2InstanceProvider(androidInstances) {
     private val log = logger()
     private var applicationComponents: List<Any>? = null
 
     override fun <T : Any> get(clazz: KClass<out T>): T? {
+        super.get(clazz)?.let { return it }
         if (!useAutomaticDagger2Injector) return null
+
         resolveApplicationComponents()
 
         applicationComponents?.forEach {

@@ -11,9 +11,9 @@ import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.annotations.DeveloperLogger
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.internal.ReflectedProperty
 import com.nextfaze.devfun.internal.android.*
-import com.nextfaze.devfun.internal.reflect.*
 import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.internal.toReflected

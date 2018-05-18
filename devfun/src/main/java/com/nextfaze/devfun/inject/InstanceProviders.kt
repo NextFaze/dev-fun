@@ -14,8 +14,8 @@ import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.internal.reflect.*
 import java.util.ArrayDeque
 import javax.inject.Singleton
 import kotlin.properties.ReadWriteProperty
@@ -199,7 +199,9 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
     }
 }
 
-internal class AndroidInstanceProvider(context: Context, private val activityProvider: ActivityProvider) : InstanceProvider {
+interface AndroidInstanceProvider : AndroidInstanceProviderInternal
+
+internal class AndroidInstanceProviderImpl(context: Context, private val activityProvider: ActivityProvider) : AndroidInstanceProvider {
     private val applicationContext = context.applicationContext
 
     @Suppress("UNCHECKED_CAST")

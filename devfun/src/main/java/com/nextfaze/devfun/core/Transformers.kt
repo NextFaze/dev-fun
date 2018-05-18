@@ -9,6 +9,7 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.PropertyTransformer
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.RequiringInstanceProvider
+import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.internal.ReflectedProperty
 import com.nextfaze.devfun.internal.WithSubGroup
 import com.nextfaze.devfun.internal.reflect.*
