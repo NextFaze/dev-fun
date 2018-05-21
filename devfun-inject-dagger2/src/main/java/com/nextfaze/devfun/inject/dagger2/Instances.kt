@@ -32,7 +32,7 @@ import javax.inject.Singleton
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.reflect.KClass
 
-private val log = logger("${BuildConfig.APPLICATION_ID}.Instances")
+private val log = logger("${BuildConfig.APPLICATION_ID}.Dagger2.Instances")
 
 /**
  * Flag to indicate if the default heavy-reflection based Dagger 2 injector should be used.
@@ -60,7 +60,7 @@ var useAutomaticDagger2Injector = true
 
 private data class ProviderField(val field: Field) {
     val genericType: Type = field.genericType
-    val providerFieldName by lazy(NONE) { field.name.toLowerCase() }
+    val providerFieldName by lazy(NONE) { field.name.removeSuffix("Provider").toLowerCase() }
 }
 
 private val providerFields = mutableMapOf<Field, ProviderField>()
@@ -77,7 +77,7 @@ private val providerFields = mutableMapOf<Field, ProviderField>()
  * @see Dagger2Component
  */
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? {
+fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>, cacheResolvedTypes: Boolean = true): T? {
     // Special case - a non-singleton no-args injected type will not have a provider or getter
     if (!clazz.java.isAnnotationPresent(Singleton::class.java) &&
         clazz.java.constructors.singleOrNull()?.isAnnotationPresent(Inject::class.java) == true) {
@@ -85,9 +85,14 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
         return clazz.java.newInstance()
     }
 
+    if (cacheResolvedTypes) {
+        val resolvedComponent = resolvedComponents.getOrPut(component::class) { ResolvedComponent(component::class) }
+        return resolvedComponent.getInstance(component, clazz)
+    }
+
     // Get from Provider
     log.t { "Trying to get $clazz from $component providers..." }
-    val providerFieldName by lazy(NONE) { "${clazz.java.simpleName}Provider".toLowerCase() }
+    val providerFieldName by lazy(NONE) { clazz.java.simpleName.toLowerCase() }
     component::class.java.declaredFields.forEach {
         if (it.type != Provider::class.java) return@forEach
 
@@ -116,11 +121,12 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
     // Get from Component getter (@Inject on constructor, but not @Singleton types)
     log.t { "Trying to get $clazz from $component getters..." }
     component::class.java.declaredMethods
-        .firstOrNull { it.name.startsWith("get") && it.returnType == clazz.java }
-        ?.apply { isAccessible = true }
-        ?.also {
-            return it.invoke(component) as T
+        .firstOrNull {
+            (it.name.startsWith("get") && it.returnType == clazz.java) ||
+                    (it.returnType == Any::class.java && it.name == "get${clazz.java.simpleName}")
         }
+        ?.apply { isAccessible = true }
+        ?.also { return it.invoke(component) as T }
 
     // Get from Module @Provides
     log.t { "Trying to get $clazz from $component modules..." }
@@ -300,7 +306,8 @@ private class Dagger2AnnotatedInstanceProvider(
         val method: Method,
         val scope: Int
     ) {
-        private val toString by lazy { // render once for logging purposes
+        private val toString by lazy {
+            // render once for logging purposes
             """component {
                 |  resolvedScope: $scope
                 |  annotation {
@@ -525,6 +532,6 @@ private fun tryGetComponents(instance: Any, required: Boolean): List<Any> {
     }
 }
 
-private inline fun <reified T : Annotation> AnnotatedElement.hasAnnotation() = isAnnotationPresent(T::class.java)
+internal inline fun <reified T : Annotation> AnnotatedElement.hasAnnotation() = isAnnotationPresent(T::class.java)
 
 private class PossiblyUninitializedException : Throwable("Failed to find components but encountered lazy uninitialized fields.")
