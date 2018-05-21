@@ -79,13 +79,15 @@ internal class DefaultInvoker(private val devFun: DevFun, private val errorHandl
         var haveAllInstances = true
 
         class Checker : InstanceProvider {
-            override fun <T : Any> get(clazz: KClass<out T>): T? {
-                return devFun.tryGetInstanceOf(clazz).also {
-                    if (it == null) {
-                        haveAllInstances = false
+            override fun <T : Any> get(clazz: KClass<out T>) =
+                when {
+                    !haveAllInstances -> null
+                    else -> devFun.tryGetInstanceOf(clazz).also {
+                        if (it == null) {
+                            haveAllInstances = false
+                        }
                     }
                 }
-            }
         }
 
         val instanceProvider = Checker()

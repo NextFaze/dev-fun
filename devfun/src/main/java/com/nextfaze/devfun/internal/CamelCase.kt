@@ -11,4 +11,6 @@ fun String.splitCamelCase() = this
     .filter(String::isNotBlank)
     .joinToString(" ")
 
-inline val KClass<*>.splitSimpleName get() = java.simpleName.splitCamelCase()
+val KClass<*>.splitSimpleName get() = nameCache.getOrPut(this) { java.simpleName.splitCamelCase() }
+
+private val nameCache = mutableMapOf<KClass<*>, String>()

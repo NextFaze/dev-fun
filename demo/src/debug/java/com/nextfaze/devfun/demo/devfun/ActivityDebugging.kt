@@ -113,10 +113,12 @@ class OrientationTransformer(currentOrientation: CurrentOrientation) : FunctionT
      */
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? =
         ScreenOrientations.values().map { orientation ->
-            val shortName = orientation.toString().substringAfter("SCREEN_ORIENTATION_")
-            val selected = if (currentOrientation == orientation.value) "****" else ""
             object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-                override val name = "$selected $shortName (${orientation.value}) $selected".trim()
+                override val name by lazy {
+                    val shortName = orientation.toString().substringAfter("SCREEN_ORIENTATION_")
+                    val selected = if (currentOrientation == orientation.value) "****" else ""
+                    "$selected $shortName (${orientation.value}) $selected".trim()
+                }
                 override val args = listOf(Unit /* Unit means inject */, orientation.value)
                 override val group = "Set Orientation"
             }

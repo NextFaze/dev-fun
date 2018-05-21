@@ -570,7 +570,7 @@ private class SimpleCategory(
 }
 
 private data class SimpleCategoryDefinition(override val clazz: KClass<*>) : CategoryDefinition {
-    override val name get() = clazz.splitSimpleName
+    override val name = clazz.splitSimpleName
 }
 
 private data class InheritingCategoryDefinition(val parent: CategoryDefinition, val child: CategoryDefinition) : CategoryDefinition {
