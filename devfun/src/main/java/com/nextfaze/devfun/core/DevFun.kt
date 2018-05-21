@@ -420,7 +420,7 @@ class DevFun {
             val functionCategories = mutableListOf<CategoryDefinition>()
 
             // transform function items to menu items
-            val funItems = HashSet<FunctionItem>()
+            val funItems = mutableListOf<FunctionItem>()
             definitionsLoader.definitions
                 .flatMap { it.functionDefinitions }
                 .toSet()
@@ -560,11 +560,14 @@ var devFunVerbose
         allowTraceLogs = value
     }
 
-private data class SimpleCategory(
+private class SimpleCategory(
     override val name: CharSequence,
     override val items: List<FunctionItem>,
     override val order: Int = 0
-) : CategoryItem
+) : CategoryItem {
+    override fun equals(other: Any?) = if (other is CategoryItem) name == other.name else false
+    override fun hashCode() = name.hashCode()
+}
 
 private data class SimpleCategoryDefinition(override val clazz: KClass<*>) : CategoryDefinition {
     override val name get() = clazz.splitSimpleName
