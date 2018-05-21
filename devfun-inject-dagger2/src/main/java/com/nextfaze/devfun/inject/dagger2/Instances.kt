@@ -240,7 +240,7 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>, cach
  *
  * @see Dagger2Component
  */
-@DeveloperCategory("DevFun", group = "Inject")
+@DeveloperCategory("DevFun", group = "Instance Providers")
 @AutoService(DevFunModule::class)
 class InjectFromDagger2 : AbstractDevFunModule() {
     private val log = logger()
