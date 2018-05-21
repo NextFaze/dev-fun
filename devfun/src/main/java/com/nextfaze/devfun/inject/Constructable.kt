@@ -3,6 +3,7 @@ package com.nextfaze.devfun.inject
 import android.support.annotation.RestrictTo
 import com.nextfaze.devfun.internal.log.*
 import javax.inject.Singleton
+import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.reflect.KClass
 
 /**
@@ -26,14 +27,32 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
     private val singletonsLock = Any()
     private val singletons = mutableMapOf<KClass<*>, Any>()
 
+    private data class ConstructableType(val isConstructable: Boolean, val factory: () -> Any)
+
+    private val constructablesLock = Any()
+    private val constructables = mutableMapOf<KClass<*>, ConstructableType>()
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(clazz: KClass<out T>): T? {
-        /*
-        Using Java reflection (faster and better ProGuard comparability).
-         */
+        // Do we already have it?
+        synchronized(singletonsLock) {
+            singletons[clazz]?.also {
+                log.t { "> Found singleton instance of $clazz" }
+                return it as T
+            }
+        }
+
+        // Can we already create it?
+        synchronized(constructablesLock) {
+            constructables[clazz]?.also {
+                if (requireConstructable && !it.isConstructable) return null
+                else return it.factory() as T
+            }
+        }
 
         // must be annotated @Constructable
-        val constructable = clazz.java.annotations.firstOrNull { it is Constructable } as Constructable?
+        val annotations by lazy(NONE) { clazz.java.annotations }
+        val constructable by lazy(NONE) { annotations.firstOrNull { it is Constructable } as Constructable? }
         if (requireConstructable && constructable == null) {
             return null
         }
@@ -41,34 +60,32 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
         // must have a single constructor
         val constructors = clazz.java.constructors
         if (constructors.isEmpty()) {
-            throw ClassInstanceNotFoundException("Could not get instance of @Constructable $clazz; No constructors found (is it an interface?)")
+            throw ClassInstanceNotFoundException(
+                """Could not get instance of @Constructable $clazz
+                    |> No constructors found (is it an interface?)""".trimMargin()
+            )
         }
         if (constructors.size != 1) {
             throw ClassInstanceNotFoundException(
-                "Could not get instance of @Constructable $clazz: Multiple constructors found; \n${constructors.joinToString("\n")}"
+                """Could not get instance of @Constructable $clazz
+                    |> Multiple constructors found:
+                    |${constructors.joinToString("\n") { "- $it" }}""".trimMargin()
             )
-        }
-
-        val isSingleton = constructable?.singleton == true || clazz.java.annotations.any { it is Singleton }
-        if (isSingleton) {
-            synchronized(singletonsLock) {
-                singletons[clazz]?.also {
-                    log.t { "> Found singleton instance of $clazz" }
-                    return it as T
-                }
-            }
         }
 
         log.t { "> Constructing new instance of $clazz" }
         val ctor = constructors.first().apply { isAccessible = true }
-        return (ctor.newInstance(*(ctor.parameterTypes.map { root[it.kotlin] }.toTypedArray())) as T)
-            .also {
-                if (isSingleton) {
-                    log.t { "> Created singleton instance of $clazz" }
-                    synchronized(singletonsLock) {
-                        singletons[clazz] = it
-                    }
-                }
+        fun createInstance() = ctor.newInstance(*(ctor.parameterTypes.map { root[it.kotlin] }.toTypedArray())) as T
+
+        if (constructable?.singleton == true || annotations.any { it is Singleton }) {
+            log.t { "> Create singleton instance of $clazz" }
+            synchronized(singletonsLock) {
+                return singletons.getOrPut(clazz) { createInstance() } as T
             }
+        } else {
+            synchronized(constructablesLock) {
+                return constructables.getOrPut(clazz) { ConstructableType(constructable != null, ::createInstance) }.factory() as T
+            }
+        }
     }
 }
