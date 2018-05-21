@@ -92,7 +92,7 @@ interface MenuHeader
 val DevFun.devMenu get() = get<DevMenu>()
 
 @AutoService(DevFunModule::class)
-@DeveloperCategory("DevFun", "Developer Menu")
+@DeveloperCategory("DevMenu", order = 90_000)
 class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     private val overlays by lazy { devFun.get<OverlayManager>() }
 

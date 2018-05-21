@@ -47,7 +47,7 @@ import com.nextfaze.devfun.overlay.OverlayManager
  * <color name="df_menu_cog_tint">#77FF0000</color> <!-- red -->
  * ```
  */
-@DeveloperCategory("DevFun", "Cog Overlay")
+@DeveloperCategory("DevMenu", "Cog Overlay")
 class CogOverlay constructor(
     context: Context,
     private val activityProvider: ActivityProvider,
