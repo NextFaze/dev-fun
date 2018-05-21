@@ -147,6 +147,8 @@ inline fun <reified T : Any> singletonInstance(noinline instance: () -> T?): Ins
  * Types annotated with @[Singleton] will only be created once.
  *
  * @param singleton If `true` then a single shared instance will be constructed.
+ * Be careful when using this on inner classes as it will hold a reference to its outer class.
+ * i.e. Only use this if the outer class is an object/singleton.
  *
  * @see FunctionTransformer
  */

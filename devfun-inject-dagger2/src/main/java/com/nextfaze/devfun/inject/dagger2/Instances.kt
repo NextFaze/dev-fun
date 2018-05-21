@@ -25,12 +25,11 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import java.lang.RuntimeException
-import java.lang.reflect.AnnotatedElement
-import java.lang.reflect.Method
-import java.lang.reflect.ParameterizedType
+import java.lang.reflect.*
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
+import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.reflect.KClass
 
 private val log = logger("${BuildConfig.APPLICATION_ID}.Instances")
@@ -59,6 +58,13 @@ var useAutomaticDagger2Injector = true
         }
     }
 
+private data class ProviderField(val field: Field) {
+    val genericType: Type = field.genericType
+    val providerFieldName by lazy(NONE) { field.name.toLowerCase() }
+}
+
+private val providerFields = mutableMapOf<Field, ProviderField>()
+
 /**
  * Helper function to be used on Dagger 2.x [Component] implementations.
  *
@@ -81,10 +87,12 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
 
     // Get from Provider
     log.t { "Trying to get $clazz from $component providers..." }
+    val providerFieldName by lazy(NONE) { "${clazz.java.simpleName}Provider".toLowerCase() }
     component::class.java.declaredFields.forEach {
         if (it.type != Provider::class.java) return@forEach
 
-        val genericType = it.genericType
+        val providerField = providerFields.getOrPut(it) { ProviderField(it) }
+        val genericType = providerField.genericType
         if (genericType is ParameterizedType) {
             if (genericType.actualTypeArguments[0] == clazz.java) {
                 return it.apply { isAccessible = true }.get(component)?.let { (it as Provider<T>).get() }
@@ -93,7 +101,7 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
 
         // raw types (package private non-singleton types)
         // since we can't know the type until we get it, we at least check the name matches first
-        if (it.name.toLowerCase() == "${clazz.java.simpleName}Provider".toLowerCase()) {
+        if (providerFieldName == providerField.providerFieldName) {
             try {
                 val instance = it.apply { isAccessible = true }.get(component)?.let { (it as Provider<*>).get() }
                 if (instance?.javaClass == clazz.java) {
@@ -122,7 +130,7 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>): T? 
             log.t { "Checking module ${f.type.name}..." }
             f.type.declaredMethods
                 .firstOrNull {
-                    log.t { "it.returnType=${it.returnType} == clazz> ${it.returnType == clazz.java}, annotated=${it.hasAnnotation<Provides>()}" }
+                    log.t { "it.returnType=${it.returnType} == clazz (${it.returnType == clazz.java}), annotated=${it.hasAnnotation<Provides>()}" }
                     it.returnType == clazz.java && it.hasAnnotation<Provides>()
                 }
                 ?.let {
@@ -292,7 +300,7 @@ private class Dagger2AnnotatedInstanceProvider(
         val method: Method,
         val scope: Int
     ) {
-        override fun toString() =
+        private val toString by lazy { // render once for logging purposes
             """component {
                 |  resolvedScope: $scope
                 |  annotation {
@@ -301,6 +309,9 @@ private class Dagger2AnnotatedInstanceProvider(
                 |  }
                 |  method: $method
                  |}""".trimMargin()
+        }
+
+        override fun toString() = toString
     }
 
     private val components: List<ComponentReference>
@@ -373,18 +384,22 @@ private class Dagger2AnnotatedInstanceProvider(
     }
 
     override fun <T : Any> get(clazz: KClass<out T>): T? {
-        super.get(clazz)?.let { return it }
+        super.get(clazz)?.let {
+            log.t { "Returning instance of $clazz from deferred Android provider" }
+            return it
+        }
         if (components.isEmpty()) return null
 
         components.forEach {
-            log.t { "Check component reference $it for $clazz ..." }
+            log.t { "Check for $clazz from component reference $it" }
 
             val receiver = when {
                 it.method.isStatic -> null
                 else -> it.method.receiverInstance(devFun.instanceProviders)
             }
-
             val args = it.method.parameterInstances(devFun.instanceProviders)
+            log.t { "Component receiver instance: $receiver, args: $args" }
+
             val component = when {
                 args != null -> it.method.invoke(receiver, *args.toTypedArray())
                 else -> it.method.invoke(receiver)

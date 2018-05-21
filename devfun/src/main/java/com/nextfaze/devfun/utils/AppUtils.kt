@@ -136,8 +136,10 @@ internal object SharedPrefs {
     }
 }
 
-@Constructable
-internal class FetchPrefsTransformer(private val context: Context) : FunctionTransformer {
+@Constructable(singleton = true)
+internal class FetchPrefsTransformer(context: Context) : FunctionTransformer {
+    private val context = context.applicationContext
+
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
         val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
         if (!prefsDir.exists() || !prefsDir.isDirectory) return emptyList()

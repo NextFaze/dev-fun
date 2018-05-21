@@ -147,7 +147,7 @@ internal class OverlayLoggingImpl(
         override fun toString() = reflected.toString()
     }
 
-    @Constructable
+    @Constructable(singleton = true)
     private inner class LoggersTransformer : FunctionTransformer {
         override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
             return overlays.map { (ref, logger) ->

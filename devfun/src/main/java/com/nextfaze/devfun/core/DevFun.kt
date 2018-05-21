@@ -8,6 +8,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Debug
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.RestrictTo
@@ -21,6 +22,7 @@ import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.prop.*
 import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.*
@@ -28,6 +30,7 @@ import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.overlay.logger.OverlayLogging
 import com.nextfaze.devfun.overlay.logger.OverlayLoggingImpl
 import com.nextfaze.devfun.view.*
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
 /**
@@ -267,7 +270,6 @@ class DevFun {
 
             // Invocation and Errors
             this += singletonInstance<ErrorHandler> { get<DefaultErrorHandler>() }
-            this += singletonInstance { DefaultErrorHandler(get(), get()) }
             this += singletonInstance<Invoker> { get<DefaultInvoker>() }
 
             // View Factories
@@ -381,6 +383,9 @@ class DevFun {
         initializationCallbacks -= onInitialized
     }
 
+    @Suppress("ConstantConditionIf")
+    private val tracing by threadLocal { if (true) AtomicInteger(0) else null }
+
     /**
      * Processed list of [DevFunGenerated] definitions - transformed, filtered, sorted, etc.
      *
@@ -390,87 +395,100 @@ class DevFun {
      */
     val categories: List<CategoryItem>
         get() {
+            if (tracing?.getAndIncrement() == 0) {
+                Debug.startMethodTracing("DevFun.categories.${Thread.currentThread().id}")
+            }
             try {
-                val transformations = TRANSFORMERS.map { instanceOf(it) }
-
-                // generate missing categories
-                val classCategories = definitionsLoader.definitions
-                    .flatMap { it.categoryDefinitions }
-                    .toSet()
-                    .associateBy { it.clazz }
-                    .toMutableMap()
-                val functionCategories = mutableListOf<CategoryDefinition>()
-
-                // transform function items to menu items
-                val funItems = HashSet<FunctionItem>()
-                definitionsLoader.definitions
-                    .flatMap { it.functionDefinitions }
-                    .toSet()
-                    .forEach functionItems@{ func ->
-                        try {
-                            log.t { "Processing ${func.clazz.java.simpleName}::${func.name}" }
-                            transformations.forEach {
-                                if (it.accept(func)) {
-                                    val funcClass = try {
-                                        when {
-                                            func.clazz.isCompanion -> func.clazz.java.enclosingClass.kotlin
-                                            else -> func.clazz
-                                        }
-                                    } catch (ignore: UnsupportedOperationException) {
-                                        func.clazz // happens with top-level functions (reflection not supported for them yet)
-                                    }
-                                    val classCat = classCategories.getOrPut(funcClass) { SimpleCategoryDefinition(funcClass) }
-                                    val cat = func.category.let resolveCategory@{ funCat ->
-                                        when (funCat) {
-                                            null -> classCat
-                                            else -> InheritingCategoryDefinition(classCat, funCat).also {
-                                                functionCategories += it
-                                            }
-                                        }
-                                    }
-
-                                    val items = it.apply(func, cat)
-                                    log.t { "Transformer $it accepted item and returned ${items?.size} items: ${items?.joinToString { it.name }}" }
-                                    if (items != null) {
-                                        funItems.addAll(items)
-                                        return@functionItems
-                                    }
-                                } else {
-                                    log.t { "Transformer $it ignored item" }
-                                }
-                            }
-                        } catch (t: Throwable) {
-                            get<ErrorHandler>().onError(
-                                t,
-                                "Function Transformation",
-                                SpannableStringBuilder().apply {
-                                    this += u("Failed to transform function definition:\n")
-                                    this += pre(func.toString())
-                                    this += u("\nOn method:\n")
-                                    this += pre(func.method.toString())
-                                }
-                            )
-                        }
-                    }
-
-                // generate and sort menu categories/items
-                return funItems
-                    .groupBy {
-                        // determine category name for item
-                        it.category.name ?: it.category.clazz?.splitSimpleName ?: "Misc"
-                    }
-                    .mapKeys { (categoryName, functionItems) ->
-                        // create category object for items and determine order
-                        val order = functionItems.firstOrNull { it.category.order != null }?.category?.order ?: 0
-                        SimpleCategory(categoryName, functionItems, order)
-                    }
-                    .keys
-                    .sortedWith(compareBy<SimpleCategory> { it.order }.thenBy { it.name.toString() })
-            } catch (t: Throwable) {
-                get<ErrorHandler>().onError(t, "Generate Categories", "Exception while attempting to generate categories.")
-                return listOf(ExceptionCategoryItem(t.stackTraceAsString))
+                return generateCategories()
+            } finally {
+                if (tracing?.decrementAndGet() == 0) {
+                    Debug.stopMethodTracing()
+                }
             }
         }
+
+    private fun generateCategories(): List<CategoryItem> {
+        try {
+            val transformations = TRANSFORMERS.map { instanceOf(it) }
+
+            // generate missing categories
+            val classCategories = definitionsLoader.definitions
+                .flatMap { it.categoryDefinitions }
+                .toSet()
+                .associateBy { it.clazz }
+                .toMutableMap()
+            val functionCategories = mutableListOf<CategoryDefinition>()
+
+            // transform function items to menu items
+            val funItems = HashSet<FunctionItem>()
+            definitionsLoader.definitions
+                .flatMap { it.functionDefinitions }
+                .toSet()
+                .forEach functionItems@{ func ->
+                    try {
+                        log.t { "Processing ${func.clazz.java.simpleName}::${func.name}" }
+                        transformations.forEach {
+                            if (it.accept(func)) {
+                                val funcClass = try {
+                                    when {
+                                        func.clazz.isCompanion -> func.clazz.java.enclosingClass.kotlin
+                                        else -> func.clazz
+                                    }
+                                } catch (ignore: UnsupportedOperationException) {
+                                    func.clazz // happens with top-level functions (reflection not supported for them yet)
+                                }
+                                val classCat = classCategories.getOrPut(funcClass) { SimpleCategoryDefinition(funcClass) }
+                                val cat = func.category.let resolveCategory@{ funCat ->
+                                    when (funCat) {
+                                        null -> classCat
+                                        else -> InheritingCategoryDefinition(classCat, funCat).also {
+                                            functionCategories += it
+                                        }
+                                    }
+                                }
+
+                                val items = it.apply(func, cat)
+                                log.t { "Transformer $it accepted item and returned ${items?.size} items: ${items?.joinToString { it.name }}" }
+                                if (items != null) {
+                                    funItems.addAll(items)
+                                    return@functionItems
+                                }
+                            } else {
+                                log.t { "Transformer $it ignored item" }
+                            }
+                        }
+                    } catch (t: Throwable) {
+                        get<ErrorHandler>().onError(
+                            t,
+                            "Function Transformation",
+                            SpannableStringBuilder().apply {
+                                this += u("Failed to transform function definition:\n")
+                                this += pre(func.toString())
+                                this += u("\nOn method:\n")
+                                this += pre(func.method.toString())
+                            }
+                        )
+                    }
+                }
+
+            // generate and sort menu categories/items
+            return funItems
+                .groupBy {
+                    // determine category name for item
+                    it.category.name ?: it.category.clazz?.splitSimpleName ?: "Misc"
+                }
+                .mapKeys { (categoryName, functionItems) ->
+                    // create category object for items and determine order
+                    val order = functionItems.firstOrNull { it.category.order != null }?.category?.order ?: 0
+                    SimpleCategory(categoryName, functionItems, order)
+                }
+                .keys
+                .sortedWith(compareBy<SimpleCategory> { it.order }.thenBy { it.name.toString() })
+        } catch (t: Throwable) {
+            get<ErrorHandler>().onError(t, "Generate Categories", "Exception while attempting to generate categories.")
+            return listOf(ExceptionCategoryItem(t.stackTraceAsString))
+        }
+    }
 
     /**
      * Get references to annotations that are annotated by meta annotation [DeveloperAnnotation].

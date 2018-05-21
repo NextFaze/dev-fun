@@ -16,11 +16,10 @@ import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.prop.*
 import java.util.ArrayDeque
 import javax.inject.Singleton
-import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
 
 /**
@@ -49,8 +48,34 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
 
     private val errorHandler by lazy { get(ErrorHandler::class) }
     private val crumbs by threadLocal { mutableSetOf<Crumb>() }
+    private var loopProviderCache: MutableMap<KClass<*>, InstanceProvider>? by threadLocal { null }
 
     override fun <T : Any> get(clazz: KClass<out T>): T {
+        var knownProviders = loopProviderCache
+        val topLevel = knownProviders == null
+        if (knownProviders == null) {
+            knownProviders = mutableMapOf()
+            this.loopProviderCache = knownProviders
+        }
+
+        try {
+            knownProviders[clazz]?.let { provider ->
+                provider[clazz]?.let {
+                    log.t { "Hit for $clazz in $provider" }
+                    return it
+                }
+                log.t { "Miss for $clazz in $provider" }
+            }
+
+            return getInstance(clazz)
+        } finally {
+            if (topLevel) {
+                this.loopProviderCache = null
+            }
+        }
+    }
+
+    private fun <T : Any> getInstance(clazz: KClass<out T>): T {
         forEach { provider ->
             val crumb = Crumb(clazz, provider).also {
                 if (crumbs.contains(it)) {
@@ -65,6 +90,9 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
             try {
                 provider[clazz]?.let {
                     log.t { "> Got $it" }
+                    loopProviderCache?.apply {
+                        this[clazz] = provider
+                    }
                     crumbs -= crumb
                     return it
                 }
@@ -88,18 +116,6 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
         }
 
         throw ClassInstanceNotFoundException(clazz)
-    }
-
-    private fun <T> threadLocal(initializer: () -> T): ThreadLocalDelegate<T> = ThreadLocalDelegate(initializer)
-    private class ThreadLocalDelegate<T>(initializer: () -> T) : ReadWriteProperty<Any, T> {
-        private val threadLocal: ThreadLocal<T> = ThreadLocal()
-
-        init {
-            threadLocal.set(initializer())
-        }
-
-        override fun getValue(thisRef: Any, property: KProperty<*>): T = threadLocal.get()
-        override fun setValue(thisRef: Any, property: KProperty<*>, value: T) = threadLocal.set(value)
     }
 }
 

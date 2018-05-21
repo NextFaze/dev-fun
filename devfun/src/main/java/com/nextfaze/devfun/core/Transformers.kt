@@ -42,7 +42,7 @@ internal object RequiresApiTransformer : FunctionTransformer {
         }
 }
 
-@Constructable
+@Constructable(singleton = true)
 internal class CustomProviderTransformer(private val instanceProvider: RequiringInstanceProvider) : FunctionTransformer {
     override fun accept(functionDefinition: FunctionDefinition) =
         functionDefinition.transformer != SingleFunctionTransformer::class &&
@@ -65,9 +65,9 @@ internal data class ContextFunctionItem(private val functionItem: FunctionItem, 
     override val subGroup = if (functionItem is WithSubGroup) functionItem.subGroup else functionItem.group
 }
 
-@Constructable
+@Constructable(singleton = true)
 internal class ContextTransformer(
-    private val activity: Activity,
+    private val activityProvider: ActivityProvider,
     private val instanceProvider: RequiringInstanceProvider
 ) : FunctionTransformer {
     // if the method is static then we don't care about context
@@ -77,6 +77,8 @@ internal class ContextTransformer(
         !functionDefinition.method.isStatic || functionDefinition.method.isProperty
 
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
+        val activity = activityProvider() ?: return emptyList()
+
         if (Activity::class.java.isAssignableFrom(functionDefinition.clazz.java)) {
             return when {
                 activity::class.isSubclassOf(functionDefinition.clazz) -> transformItem(functionDefinition, categoryDefinition)

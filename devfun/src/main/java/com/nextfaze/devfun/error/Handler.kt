@@ -102,6 +102,7 @@ interface ErrorHandler {
 }
 
 @DeveloperCategory("DevFun")
+@Constructable(singleton = true)
 internal class DefaultErrorHandler(application: Application, private val activityProvider: ActivityProvider) : ErrorHandler {
     private val log = logger()
     private val handler = Handler(Looper.getMainLooper())
@@ -151,7 +152,7 @@ internal class DefaultErrorHandler(application: Application, private val activit
         }
     }
 
-    @Constructable
+    @Constructable(singleton = true)
     private inner class ShowErrorDialogVisibility : VisibilityTransformer() {
         override val predicate = { synchronized(errorLock) { errors.isNotEmpty() } }
     }
@@ -184,7 +185,7 @@ internal class DefaultErrorHandler(application: Application, private val activit
         }
     }
 
-    @Constructable
+    @Constructable(singleton = true)
     private inner class ShowErrorsTransformer : FunctionTransformer {
         override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): List<SimpleFunctionItem>? {
             val errorCount = synchronized(errorLock) { errors.size }.takeIf { it > 0 } ?: return emptyList()
