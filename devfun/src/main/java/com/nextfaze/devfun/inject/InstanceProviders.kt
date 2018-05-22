@@ -33,84 +33,26 @@ fun createDefaultCompositeInstanceProvider(): CompositeInstanceProvider = Defaul
 internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Composited<InstanceProvider>() {
     private val log = logger()
 
-    private enum class CacheLevel { AGGRESSIVE, TOP_LEVEL, NONE }
-    private data class Crumb(val clazz: KClass<*>, val provider: InstanceProvider)
+    private enum class CacheLevel { AGGRESSIVE, SINGLE_LOOP, NONE }
 
     private val errorHandler by lazy { get(ErrorHandler::class) }
 
     @DeveloperProperty(category = DeveloperCategory(group = "Instance Providers"))
     private var caching: CacheLevel = CacheLevel.AGGRESSIVE
 
-    private val aggressiveCachingProvider: RequiringInstanceProvider by lazy { AggressiveTypeCachingProvider() }
-    private val topLevelCachingProvider: RequiringInstanceProvider by lazy { TopLevelTypeCachingProvider() }
+    private val aggressiveCachingProvider by lazy { AggressiveTypeCachingProvider(this) }
+    private val singleLoopCachingProvider by lazy { SingleLoopTypeCachingProvider(this) }
 
     private val crumbs by threadLocal { mutableSetOf<Crumb>() }
 
-    private inner class AggressiveTypeCachingProvider : RequiringInstanceProvider {
-        private val typeCacheLock = Any()
-        private val typeCache = mutableMapOf<KClass<*>, InstanceProvider>()
-
-        override fun <T : Any> get(clazz: KClass<out T>): T {
-            typeCache[clazz]?.let { provider ->
-                provider[clazz]?.let {
-                    log.t { "Hit for $clazz in $provider" }
-                    return it
-                }
-                log.t { "Miss for $clazz in $provider" }
-            }
-
-            return getInstance(clazz, ::onFound)
-        }
-
-        fun onFound(clazz: KClass<*>, instanceProvider: InstanceProvider) {
-            synchronized(typeCacheLock) {
-                typeCache[clazz] = instanceProvider
-            }
-        }
-    }
-
-    private inner class TopLevelTypeCachingProvider : RequiringInstanceProvider {
-        private var loopProviderCache: MutableMap<KClass<*>, InstanceProvider>? by threadLocal { null }
-
-        override fun <T : Any> get(clazz: KClass<out T>): T {
-            var knownProviders = loopProviderCache
-            val topLevel = knownProviders == null
-            if (knownProviders == null) {
-                knownProviders = mutableMapOf()
-                this.loopProviderCache = knownProviders
-            }
-
-            try {
-                knownProviders[clazz]?.let { provider ->
-                    provider[clazz]?.let {
-                        log.t { "Hit for $clazz in $provider" }
-                        return it
-                    }
-                    log.t { "Miss for $clazz in $provider" }
-                }
-
-                return getInstance(clazz, ::onFound)
-            } finally {
-                if (topLevel) {
-                    this.loopProviderCache = null
-                }
-            }
-        }
-
-        fun onFound(clazz: KClass<*>, instanceProvider: InstanceProvider) {
-            loopProviderCache?.put(clazz, instanceProvider)
-        }
-    }
-
-    override fun <T : Any> get(clazz: KClass<out T>): T {
-        return when (caching) {
+    override fun <T : Any> get(clazz: KClass<out T>): T =
+        when (caching) {
             CacheLevel.AGGRESSIVE -> aggressiveCachingProvider[clazz]
-            CacheLevel.TOP_LEVEL -> topLevelCachingProvider[clazz]
+            CacheLevel.SINGLE_LOOP -> singleLoopCachingProvider[clazz]
             CacheLevel.NONE -> getInstance(clazz, null)
         }
-    }
 
-    private fun <T : Any> getInstance(clazz: KClass<out T>, onFound: ((clazz: KClass<*>, provider: InstanceProvider) -> Unit)?): T {
+    internal fun <T : Any> getInstance(clazz: KClass<out T>, onFound: ((clazz: KClass<*>, provider: InstanceProvider) -> Unit)?): T {
         forEach { provider ->
             val crumb = Crumb(clazz, provider).also {
                 if (crumbs.contains(it)) {
@@ -126,7 +68,6 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
                 provider[clazz]?.let {
                     log.t { "> Got $it" }
                     onFound?.invoke(clazz, provider)
-                    crumbs -= crumb
                     return it
                 }
             } catch (ignore: ClassInstanceNotFoundException) {
@@ -137,8 +78,9 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
                     "Instance Provider",
                     "The instance provider $provider threw an exception when trying to get type $clazz."
                 )
+            } finally {
+                crumbs -= crumb
             }
-            crumbs -= crumb
         }
 
         if (clazz.isSubclassOf<InstanceProvider>()) {
@@ -150,4 +92,95 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
 
         throw ClassInstanceNotFoundException(clazz)
     }
+
+    override fun onComponentsChanged() = aggressiveCachingProvider.onComponentsChanged()
 }
+
+private class AggressiveTypeCachingProvider(private val parent: DefaultCompositeInstanceProvider) : RequiringInstanceProvider {
+    private val log = logger()
+
+    private val typeCacheLock = Any()
+    private val typeCache = mutableMapOf<KClass<*>, InstanceProvider>()
+
+    private val crumbs by threadLocal { mutableSetOf<Crumb>() }
+
+    override fun <T : Any> get(clazz: KClass<out T>): T {
+        val topLevel = crumbs.isEmpty()
+
+        try {
+            typeCache[clazz]?.let { provider ->
+                val crumb = Crumb(clazz, provider).also {
+                    if (crumbs.contains(it)) {
+                        log.t { "NOT Try-get instanceOf $clazz from $provider as just tried that." }
+                        return@let
+                    } else {
+                        log.t { "Try-get instanceOf $clazz from $provider" }
+                    }
+                }
+                crumbs += crumb
+
+                try {
+                    provider[clazz]?.let {
+                        log.t { "Hit for $clazz in $provider" }
+                        return it
+                    }
+                    log.t { "Miss for $clazz in $provider" }
+                } finally {
+                    crumbs -= crumb
+                }
+            }
+        } finally {
+            if (topLevel) {
+                crumbs.clear()
+            }
+        }
+
+        return parent.getInstance(clazz, ::onFound)
+    }
+
+    fun onFound(clazz: KClass<*>, instanceProvider: InstanceProvider) {
+        synchronized(typeCacheLock) {
+            typeCache[clazz] = instanceProvider
+            log.t { "Found $clazz in $instanceProvider" }
+        }
+    }
+
+    fun onComponentsChanged() = synchronized(typeCacheLock) { typeCache.clear() }
+}
+
+private class SingleLoopTypeCachingProvider(private val parent: DefaultCompositeInstanceProvider) : RequiringInstanceProvider {
+    private val log = logger()
+
+    private var loopProviderCache: MutableMap<KClass<*>, InstanceProvider>? by threadLocal { null }
+
+    override fun <T : Any> get(clazz: KClass<out T>): T {
+        var knownProviders = loopProviderCache
+        val topLevel = knownProviders == null
+        if (knownProviders == null) {
+            knownProviders = mutableMapOf()
+            this.loopProviderCache = knownProviders
+        }
+
+        try {
+            knownProviders[clazz]?.let { provider ->
+                provider[clazz]?.let {
+                    log.t { "Hit for $clazz in $provider" }
+                    return it
+                }
+                log.t { "Miss for $clazz in $provider" }
+            }
+
+            return parent.getInstance(clazz, ::onFound)
+        } finally {
+            if (topLevel) {
+                this.loopProviderCache = null
+            }
+        }
+    }
+
+    fun onFound(clazz: KClass<*>, instanceProvider: InstanceProvider) {
+        loopProviderCache?.put(clazz, instanceProvider)
+    }
+}
+
+private data class Crumb(val clazz: KClass<*>, val provider: InstanceProvider)

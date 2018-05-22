@@ -20,19 +20,29 @@ interface Composite<T : Any> : Iterable<T> {
 internal abstract class Composited<T : Any> : Composite<T> {
     private var components = ArrayDeque<T>()
 
-    internal fun clear() = components.clear()
-
-    override fun iterator(): MutableIterator<T> = components.descendingIterator()
-
-    internal fun remove(other: T) {
-        components = components.clone().also { it.remove(other) }
+    internal fun clear() {
+        components = ArrayDeque()
     }
 
+    override fun iterator(): Iterator<T> = components.descendingIterator()
+
     override operator fun plusAssign(other: T) {
-        components.add(other)
+        if (components.peekLast() == other) return
+
+        components = components.clone().apply {
+            remove(other)
+            add(other)
+        }
+        onComponentsChanged()
     }
 
     override operator fun minusAssign(other: T) {
-        components.remove(other)
+        val mutated = components.clone()
+        if (mutated.remove(other)) {
+            components = mutated
+            onComponentsChanged()
+        }
     }
+
+    internal open fun onComponentsChanged() = Unit
 }
