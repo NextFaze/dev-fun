@@ -6,8 +6,10 @@ import android.widget.TextView
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.*
 import com.nextfaze.devfun.overlay.OverlayManager
+import com.nextfaze.devfun.overlay.VisibilityScope
 import kotlin.reflect.KClass
 
 typealias UpdateCallback = () -> CharSequence
@@ -20,6 +22,7 @@ class OverlayLogger(
     private val update: UpdateCallback,
     private val onClick: OnClick? = null
 ) {
+    private val log = logger()
     private val handler = Handler(Looper.getMainLooper())
     private val runnable = Runnable {
         update()
@@ -63,6 +66,14 @@ class OverlayLogger(
             field = value
         }
 
+    var visibilityScope: VisibilityScope
+        get() = overlay.visibilityScope
+        set(value) {
+            overlay.visibilityScope = value
+            handler.removeCallbacks(runnable)
+            postUpdate()
+        }
+
     var text: CharSequence
         get() = textView.text
         set(value) {
@@ -70,6 +81,7 @@ class OverlayLogger(
         }
 
     fun destroy() {
+        log.t { "destroy $this" }
         handler.removeCallbacks(runnable)
         overlayManager.destroyOverlay(overlay)
     }
@@ -109,7 +121,8 @@ class OverlayLogger(
         val params = listOf(
             Option("Enabled", overlay.enabled) { overlay.enabled = it },
             Option("Snap to Edges", overlay.snapToEdge) { overlay.snapToEdge = it },
-            Option("Refresh Rate (ms)", refreshRate) { refreshRate = it }
+            Option("Refresh Rate (ms)", refreshRate) { refreshRate = it },
+            Option("Visibility Scope", visibilityScope) { visibilityScope = it }
         )
 
         invoker.invoke(

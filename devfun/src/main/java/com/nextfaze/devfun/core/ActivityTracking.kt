@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.nextfaze.devfun.core
 
 import android.app.Activity
@@ -16,26 +18,26 @@ typealias ActivityProvider = () -> Activity?
 internal class ActivityTracker : ActivityProvider {
     override fun invoke() = activity
 
-    var activity by weak<Activity>()
-        private set
+    private var _activity by weak<Activity>()
+    val activity get() = if (isResumed) _activity else null
 
-    var resumed = false
-        private set
+    private var _resumed = false
+    val isResumed get() = _resumed
 
     private var callbacks: Application.ActivityLifecycleCallbacks? = null
 
     fun init(application: Application) {
         dispose(application)
         callbacks = application.registerActivityCallbacks(
-            onCreated = { it, _ -> activity = it },
-            onStarted = { activity = it },
-            onResumed = { activity = it; resumed = true },
+            onCreated = { it, _ -> _activity = it },
+            onStarted = { _activity = it },
+            onResumed = { _activity = it; _resumed = true },
             onDestroyed = {
-                if (it === activity) {
-                    activity = null
+                if (it === _activity) {
+                    _activity = null
                 }
             },
-            onPaused = { resumed = false }
+            onPaused = { _resumed = false }
         )
     }
 

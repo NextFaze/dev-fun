@@ -1,9 +1,9 @@
 package com.nextfaze.devfun.invoke
 
-import com.nextfaze.devfun.core.DebugException
-import com.nextfaze.devfun.core.DevFun
-import com.nextfaze.devfun.core.FunctionItem
-import com.nextfaze.devfun.core.InvokeResult
+import android.content.Context
+import android.support.v4.app.FragmentActivity
+import android.widget.Toast
+import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.ClassInstanceNotFoundException
 import com.nextfaze.devfun.inject.Constructable
@@ -38,8 +38,15 @@ interface Invoker {
 }
 
 @Constructable
-internal class DefaultInvoker(private val devFun: DevFun, private val errorHandler: ErrorHandler) : Invoker {
+internal class DefaultInvoker(
+    context: Context,
+    private val devFun: DevFun,
+    private val activityProvider: ActivityProvider,
+    private val errorHandler: ErrorHandler
+) : Invoker {
     private val log = logger()
+
+    private val application = context.applicationContext
 
     private data class SimpleInvokeResult(override val value: Any? = null, override val exception: Throwable? = null) : InvokeResult
 
@@ -71,7 +78,11 @@ internal class DefaultInvoker(private val devFun: DevFun, private val errorHandl
     }
 
     override fun invoke(function: UiFunction): InvokeResult? {
-        InvokingDialogFragment.show(devFun.get(), function)
+        val activity = activityProvider()
+        when (activity) {
+            is FragmentActivity -> InvokingDialogFragment.show(activity, function)
+            else -> Toast.makeText(application, "Cannot show UI dialog without an active FragmentActivity.", Toast.LENGTH_SHORT).show()
+        }
         return null
     }
 

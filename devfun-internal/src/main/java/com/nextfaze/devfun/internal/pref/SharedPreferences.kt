@@ -40,7 +40,8 @@ class KSharedPreferences(private val preferences: SharedPreferences) {
     operator fun get(key: String, default: Boolean, onChange: OnChange<Boolean>? = null): KPreference<Boolean> =
         KBooleanPref(preferences, key, default, onChange)
 
-    operator fun <E : Enum<E>> get(key: String, default: E): KPreference<E> = KEnumPref(preferences, key, default)
+    operator fun <E : Enum<E>> get(key: String, default: E, onChange: OnChange<E>? = null): KPreference<E> =
+        KEnumPref(preferences, key, default, onChange)
 
     operator fun get(key: String, default: Int? = null): KNullablePreference<Int> =
         KNullableIntPref(preferences, key, default)
@@ -128,17 +129,21 @@ private class KBooleanPref(preferences: SharedPreferences, key: String, default:
         }
 }
 
-private class KEnumPref<E : Enum<E>>(preferences: SharedPreferences, key: String, default: E) :
+private class KEnumPref<E : Enum<E>>(preferences: SharedPreferences, key: String, default: E, private val onChange: OnChange<E>?) :
     KPreferenceImpl<E>(preferences, key, default) {
 
     @Suppress("UNCHECKED_CAST")
     private val enumClass = default::class as KClass<E>
 
     override var value: E
-        get() {
-            return enumClass.enumValueOf(preferences.getString(key, default.name)) ?: default
+        get() = enumClass.enumValueOf(preferences.getString(key, default.name)) ?: default
+        set(value) {
+            val before = if (onChange != null) this.value else null
+            preferences.edit().putString(key, value.name).apply()
+            if (onChange != null && before != null && before != value) {
+                onChange.invoke(before, value)
+            }
         }
-        set(value) = preferences.edit().putString(key, value.name).apply()
 }
 
 private fun <E : Enum<E>> KClass<E>.enumValueOf(name: String): E? =

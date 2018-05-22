@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.Rect
 import android.support.annotation.LayoutRes
 import android.text.SpannableStringBuilder
-import android.view.View
 import android.view.WindowManager
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -72,7 +71,8 @@ class OverlayManager(
                     }
                 }
             },
-            onStopped = { updateVisibilities() }
+            onStopped = { updateVisibilities() },
+            onDestroyed = { updateVisibilities() }
         )
     }
 
@@ -130,7 +130,9 @@ class OverlayManager(
         reason: OverlayReason,
         onClick: ClickListener? = null,
         onLongClick: ClickListener? = null,
+        onVisibilityChanged: VisibilityChanged? = null,
         visibilityPredicate: VisibilityPredicate? = null,
+        visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
         initialDock: Dock = Dock.TOP_LEFT,
         initialDelta: Float = 0f,
         snapToEdge: Boolean = true,
@@ -151,7 +153,9 @@ class OverlayManager(
             reason,
             onClick,
             onLongClick,
+            onVisibilityChanged,
             visibilityPredicate,
+            visibilityScope,
             initialDock,
             initialDelta,
             snapToEdge,
@@ -174,19 +178,29 @@ class OverlayManager(
     internal fun updateVisibilities() {
         if (!permissions.canDrawOverlays) return
 
-        val shouldBeVisible = !fullScreenInUse && application.isRunningInForeground
+        val isRunningInForeground = application.isRunningInForeground
         synchronized(overlaysLock) {
             overlays.forEach {
                 it.value.addToWindow()
-                it.value.updateVisibility(shouldBeVisible)
+                it.value.updateVisibility(fullScreenInUse, isRunningInForeground)
             }
         }
     }
 
-    private fun OverlayWindow.updateVisibility(shouldBeVisible: Boolean = !fullScreenInUse && application.isRunningInForeground) {
+    private fun OverlayWindow.updateVisibility(
+        isFullScreenInUse: Boolean = fullScreenInUse,
+        isRunningInForeground: Boolean = application.isRunningInForeground
+    ) {
         val activity = activity
-        val isVisible = activity != null && shouldBeVisible && enabled && visibilityPredicate?.invoke(activity) != false
-        view.visibility = if (isVisible) View.VISIBLE else View.GONE
+        visible = !isFullScreenInUse && enabled && when (visibilityScope) {
+            VisibilityScope.FOREGROUND_ONLY -> {
+                when (activity) {
+                    null -> false
+                    else -> isRunningInForeground && visibilityPredicate?.invoke(activity) != false
+                }
+            }
+            VisibilityScope.ALWAYS -> visibilityPredicate?.invoke(activity ?: application) != false
+        }
     }
 }
 

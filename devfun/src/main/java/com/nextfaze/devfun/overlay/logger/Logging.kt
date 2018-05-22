@@ -158,7 +158,7 @@ internal class OverlayLoggingImpl(
                             this += "\n"
                             this += color(
                                 scale(
-                                    i("\t(enabled=${logger.enabled}, refresh=${logger.refreshRate})"),
+                                    i("\t(enabled=${logger.enabled}, refresh=${logger.refreshRate}, visibilityScope=${logger.visibilityScope})"),
                                     0.85f
                                 ), 0xFFAAAAAA.toInt()
                             )

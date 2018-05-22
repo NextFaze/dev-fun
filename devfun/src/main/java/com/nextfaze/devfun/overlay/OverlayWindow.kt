@@ -1,8 +1,8 @@
 package com.nextfaze.devfun.overlay
 
 import android.animation.ValueAnimator
-import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.PointF
 import android.graphics.Rect
@@ -23,9 +23,11 @@ private const val MAX_ANIMATION_MILLIS = 500L
 
 typealias ClickListener = (View) -> Unit
 typealias OverlayReason = () -> CharSequence
-typealias VisibilityPredicate = (Activity) -> Boolean
+typealias VisibilityPredicate = (Context) -> Boolean
+typealias VisibilityChanged = (Boolean) -> Unit
 
 enum class Dock { TOP, BOTTOM, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT }
+enum class VisibilityScope { FOREGROUND_ONLY, ALWAYS }
 
 class OverlayWindow(
     private val application: Application,
@@ -35,7 +37,9 @@ class OverlayWindow(
     internal val reason: OverlayReason,
     private val onClick: ClickListener? = null,
     private val onLongClick: ClickListener? = null,
+    private val onVisibilityChanged: VisibilityChanged? = null,
     internal val visibilityPredicate: VisibilityPredicate? = null,
+    visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
     initialDock: Dock = Dock.TOP_LEFT,
     initialDelta: Float = 0f,
     snapToEdge: Boolean = true,
@@ -53,6 +57,7 @@ class OverlayWindow(
     private var top by preferences["top", initialTop]
     var snapToEdge: Boolean by preferences["snapToEdge", snapToEdge, { _, _ -> updatePosition(false) }]
     var enabled by preferences["enabled", true, { _, _ -> overlays.updateVisibilities() }]
+    var visibilityScope by preferences["visibilityScope", visibilityScope, { _, _ -> overlays.updateVisibilities() }]
 
     var viewInset = Rect()
 
@@ -62,6 +67,18 @@ class OverlayWindow(
     private val params = createOverlayWindowParams()
     private val overlayBounds = Rect()
     private var moving = false
+
+    var visible: Boolean = true
+        set(value) {
+            field = value
+
+            val visibility = view.visibility
+            val newVisibility = if (value) View.VISIBLE else View.GONE
+            if (visibility != newVisibility) {
+                view.visibility = newVisibility
+                onVisibilityChanged?.invoke(value)
+            }
+        }
 
     fun updateOverlayBounds(bounds: Rect, postUpdate: Boolean = true) {
         overlayBounds.set(bounds)
