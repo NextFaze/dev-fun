@@ -4,6 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.TextView
 import com.nextfaze.devfun.core.R
+import com.nextfaze.devfun.core.devFun
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.invoke.*
 import com.nextfaze.devfun.overlay.OverlayManager
 import kotlin.reflect.KClass
@@ -30,14 +32,21 @@ class OverlayLogger(
         prefsName = prefsName,
         reason = { "Show overlay logger for $prefsName" },
         onClick = {
-            update()
-            onClick?.invoke()
+            if (errored) {
+                errored = false
+                runnable.run()
+            } else {
+                update()
+                onClick?.invoke()
+            }
         },
         onLongClick = { showConfigDialog() },
         snapToEdge = false
     )
 
     private val textView by lazy { overlay.view.findViewById<TextView>(R.id.loggerTextView) }
+
+    private var errored = false
 
     var enabled
         get() = overlay.enabled
@@ -66,9 +75,14 @@ class OverlayLogger(
     }
 
     private fun update() {
-        val newText = update.invoke()
-        if (text != newText) { // we do this so we don't constantly trigger view redraws etc.
-            text = newText
+        try {
+            val newText = update.invoke()
+            if (text != newText) { // we do this so we don't constantly trigger view redraws etc.
+                text = newText
+            }
+        } catch (t: Throwable) {
+            errored = true
+            devFun.get<ErrorHandler>().onError(t, "Overlay Logger", "Exception while updating overlay $this.\nTap overlay to re-enable.")
         }
     }
 
@@ -77,6 +91,7 @@ class OverlayLogger(
     }
 
     private fun postUpdate() {
+        if (errored) return
         val refreshRate = refreshRate
         if (refreshRate > 0) {
             handler.postDelayed(runnable, refreshRate)
