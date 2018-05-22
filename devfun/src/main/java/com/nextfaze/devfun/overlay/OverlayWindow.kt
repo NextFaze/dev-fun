@@ -61,6 +61,7 @@ class OverlayWindow(
     private val isAdded get() = view.parent != null
     private val params = createOverlayWindowParams()
     private val overlayBounds = Rect()
+    private var moving = false
 
     fun updateOverlayBounds(bounds: Rect, postUpdate: Boolean = true) {
         overlayBounds.set(bounds)
@@ -101,7 +102,6 @@ class OverlayWindow(
                 private var initialWindowPosition = PointF(0f, 0f)
 
                 private var actionDownTime = 0L
-                private var moved = false
                 private var longClickPerformed = false
 
                 override fun onTouch(v: View, event: MotionEvent): Boolean {
@@ -122,7 +122,7 @@ class OverlayWindow(
                                 y = params.y.toFloat()
                             }
 
-                            moved = false
+                            moving = false
 
                             true
                         }
@@ -136,9 +136,9 @@ class OverlayWindow(
                             val slop = ViewConfiguration.get(application).scaledTouchSlop
                             val sinceDown = System.currentTimeMillis() - actionDownTime
 
-                            if (moved || dx >= slop || dy >= slop || sinceDown > downTimeout) {
+                            if (moving || dx >= slop || dy >= slop || sinceDown > downTimeout) {
                                 removeOnLongClick()
-                                moved = true
+                                moving = true
                                 params.x = (rawX - initialPosition.x + initialWindowPosition.x).toInt()
                                 params.y = (rawY - initialPosition.y + initialWindowPosition.y).toInt()
 
@@ -153,7 +153,7 @@ class OverlayWindow(
                             true
                         }
                         MotionEvent.ACTION_UP -> {
-                            if (!moved) {
+                            if (!moving) {
                                 val sinceDown = System.currentTimeMillis() - actionDownTime
                                 if (sinceDown < longPressTimeout) {
                                     removeOnLongClick()
@@ -163,7 +163,7 @@ class OverlayWindow(
                                 updatePosition(true)
                             }
 
-                            moved = false
+                            moving = false
                             actionDownTime = 0
                             longClickPerformed = false
                             true
@@ -177,6 +177,8 @@ class OverlayWindow(
             setOnLongClickListener { onLongClick?.invoke(it); true }
 
             addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+                if (moving) return@addOnLayoutChangeListener
+
                 val prevWidth = oldRight - oldLeft
                 val newWidth = right - left
                 val prevHeight = oldBottom - oldTop
