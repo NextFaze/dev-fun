@@ -129,7 +129,7 @@ typealias OnInitialized = DevFun.() -> Unit
 @DeveloperCategory("DevFun", order = 100_000)
 class DevFun {
     init {
-        devFunVerbose = BuildConfig.VERSION_SNAPSHOT
+        devFunVerbose = false //BuildConfig.VERSION_SNAPSHOT
     }
 
     private val log = logger()
@@ -293,6 +293,8 @@ class DevFun {
 
         initializationCallbacks.forEach { it.invokeSafely() }
         initializationCallbacks.clear()
+
+        primeReflectionCache(this)
     }
 
     /**
@@ -384,7 +386,7 @@ class DevFun {
     }
 
     @Suppress("ConstantConditionIf")
-    private val tracing by threadLocal { if (true) AtomicInteger(0) else null }
+    private val tracing by threadLocal { if (false) AtomicInteger(0) else null }
 
     /**
      * Processed list of [DevFunGenerated] definitions - transformed, filtered, sorted, etc.
@@ -578,4 +580,20 @@ private data class InheritingCategoryDefinition(val parent: CategoryDefinition, 
     override val name get() = child.name ?: parent.name
     override val group get() = child.group ?: parent.group
     override val order get() = child.order ?: parent.order
+}
+
+/** Helps reduce load time of subsequent calls to devFun.categories */
+private fun primeReflectionCache(devFun: DevFun) {
+    Handler(Looper.getMainLooper()).post {
+        val log = logger("DevFun.ReflectionCachePrimer")
+        object : Thread("DevFun.ReflectionCachePrimer") {
+            override fun run() {
+                try {
+                    devFun.categories.forEach { it.items.forEach { it.hashCode() } }
+                } catch (t: Throwable) {
+                    log.d(t) { "Exception thrown in reflection cache primer - please report this!" }
+                }
+            }
+        }.start()
+    }
 }

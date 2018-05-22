@@ -4,13 +4,9 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 fun <T> threadLocal(initializer: () -> T): ThreadLocalDelegate<T> = ThreadLocalDelegate(initializer)
-class ThreadLocalDelegate<T>(initializer: () -> T) : ReadWriteProperty<Any, T> {
+class ThreadLocalDelegate<T>(private val initializer: () -> T) : ReadWriteProperty<Any, T> {
     private val threadLocal: ThreadLocal<T> = ThreadLocal()
 
-    init {
-        threadLocal.set(initializer())
-    }
-
-    override fun getValue(thisRef: Any, property: KProperty<*>): T = threadLocal.get()
+    override fun getValue(thisRef: Any, property: KProperty<*>): T = threadLocal.get() ?: initializer().also { threadLocal.set(it) }
     override fun setValue(thisRef: Any, property: KProperty<*>, value: T) = threadLocal.set(value)
 }
