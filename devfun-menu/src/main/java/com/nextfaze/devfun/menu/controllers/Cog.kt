@@ -51,7 +51,7 @@ import com.nextfaze.devfun.overlay.OverlayManager
 class CogOverlay constructor(
     context: Context,
     private val activityProvider: ActivityProvider,
-    private val overlayManager: OverlayManager
+    private val overlays: OverlayManager
 ) : MenuController {
     private val log = logger()
     private val application = context.applicationContext as Application
@@ -60,7 +60,7 @@ class CogOverlay constructor(
     private val fragmentActivity get() = activity as? FragmentActivity
 
     private val overlay =
-        overlayManager.createOverlay(
+        overlays.createOverlay(
             layoutId = R.layout.df_menu_cog_overlay,
             prefsName = "DevFunCog",
             reason = ::generateCogDescriptionState,
@@ -71,7 +71,8 @@ class CogOverlay constructor(
         ).apply {
             val padding = application.resources.getDimension(R.dimen.df_menu_cog_padding).toInt()
             val halfSize = ((padding * 2 + application.resources.getDimension(R.dimen.df_menu_cog_size)) / 2).toInt()
-            viewInset = Rect(halfSize, halfSize, halfSize, padding)
+            inset = Rect(halfSize, halfSize, halfSize, padding)
+            addToWindow()
         }
 
     private var listener: Application.ActivityLifecycleCallbacks? = null
@@ -90,7 +91,7 @@ class CogOverlay constructor(
     }
 
     override fun detach() {
-        overlayManager.destroyOverlay(overlay)
+        overlays.destroyOverlay(overlay)
         listener?.unregister(application).also { listener = null }
         developerMenu = null
     }
@@ -102,7 +103,7 @@ class CogOverlay constructor(
                 if (!overlay.enabled) {
                     this += R.string.df_menu_cog_overlay_hidden_by_user
                 }
-                if (!overlay.canDrawOverlays) {
+                if (!overlays.canDrawOverlays) {
                     this += R.string.df_menu_cog_overlay_no_permissions
                 }
                 if (isEmpty()) {

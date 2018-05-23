@@ -16,12 +16,10 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
-import com.nextfaze.devfun.BaseDialogFragment
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
+import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.obtain
-import com.nextfaze.devfun.show
 import kotlinx.android.synthetic.main.df_devfun_error_dialog_fragment.*
 import java.lang.Math.abs
 import java.text.SimpleDateFormat
@@ -39,11 +37,11 @@ internal interface RenderedError : Parcelable {
 internal class ErrorDialogFragment : BaseDialogFragment() {
     companion object {
         fun show(activity: FragmentActivity, errors: ArrayList<RenderedError>) =
-            activity.obtain {
+            showNow(activity) {
                 ErrorDialogFragment().apply {
                     arguments = Bundle().apply { putParcelableArrayList(ERRORS, errors) }
                 }
-            }.takeIf { !it.isAdded }?.show(activity.supportFragmentManager)
+            }
     }
 
     private val log = logger()

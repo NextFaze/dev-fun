@@ -13,9 +13,14 @@ import android.support.annotation.LayoutRes
 import android.support.v4.math.MathUtils.clamp
 import android.view.*
 import android.view.animation.OvershootInterpolator
+import com.nextfaze.devfun.annotations.DeveloperLogger
+import com.nextfaze.devfun.core.ActivityProvider
+import com.nextfaze.devfun.core.ForegroundTracker
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.pref.*
+import com.nextfaze.devfun.overlay.VisibilityScope.ALWAYS
+import com.nextfaze.devfun.overlay.VisibilityScope.FOREGROUND_ONLY
 import java.lang.Math.abs
 
 private const val MIN_ANIMATION_MILLIS = 250L
@@ -24,28 +29,131 @@ private const val MAX_ANIMATION_MILLIS = 500L
 typealias ClickListener = (View) -> Unit
 typealias OverlayReason = () -> CharSequence
 typealias VisibilityPredicate = (Context) -> Boolean
-typealias VisibilityChanged = (Boolean) -> Unit
+typealias VisibilityChangeListener = (Boolean) -> Unit
 
 enum class Dock { TOP, BOTTOM, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT }
-enum class VisibilityScope { FOREGROUND_ONLY, ALWAYS }
 
-class OverlayWindow(
+/**
+ * Determines when an overlay can be visible.
+ *
+ * - [FOREGROUND_ONLY]: Only visible when the app is in the foreground.
+ * - [ALWAYS]: Visible even if the app has no active activities. _App cannot be swipe-closed if you have one of these._
+ */
+enum class VisibilityScope {
+    /** Only visible when the app is in the foreground. */
+    FOREGROUND_ONLY,
+    /** Visible even if the app has no active activities. _App cannot be swipe-closed if you have one of these._ */
+    ALWAYS
+}
+
+/**
+ * Overlay windows are used by DevFun to display the loggers [DeveloperLogger] and DevMenu cog.
+ *
+ * @see OverlayManager
+ * @see OverlayPermissions
+ */
+interface OverlayWindow {
+    /** Preferences file name to store non-default state - must be unique. */
+    val prefsName: String
+
+    /** If the overlay is enabled. Setting to false will hide it (but not remove it from the window). */
+    var enabled: Boolean
+
+    /**
+     * If enabled the overlay will snap to the closest edge of the window. If disabled it can be moved anywhere and will only snap if it
+     * leaves the windows's display bounds.
+     */
+    var snapToEdge: Boolean
+
+    /**
+     * Determines when the overlay can be visible.
+     *
+     * - [FOREGROUND_ONLY]: Only visible when the app is in the foreground.
+     * - [ALWAYS]: Visible even if the app has no active activities. _App cannot be swipe-closed if you have one of these._
+     */
+    var visibilityScope: VisibilityScope
+
+    /**
+     * Insets the overlay window. For a docked window, a pos
+     *
+     * e.g. The DevMenu cog has an inset of half its width (and thus sits half way off the window).
+     *
+     * For non-docking overlays, this will affect how it sits if you try to drag it off window when it snaps back. _Be careful with this as
+     * it could result in the overlay sitting outside the window._
+     */
+    var inset: Rect
+
+    /** The overlay's view. */
+    val view: View
+
+    /** Flag indicating if the overlay is currently visible. */
+    val isVisible: Boolean
+
+    /**
+     * Rendered only if the user has not granted overlay permissions.
+     *
+     * @see OverlayPermissions
+     */
+    val reason: OverlayReason
+
+    /**
+     * Add this overlay to the window.
+     *
+     * @see removeFromWindow
+     * @see dispose
+     */
+    fun addToWindow()
+
+    /**
+     * Remove this overlay from the window.
+     *
+     * @see addToWindow
+     */
+    fun removeFromWindow()
+
+    /**
+     * Reset the position and state to its initial default values and clear its preferences.
+     *
+     * Please submit an issue if you needed to call this because it was out of bound or misbehaving our something.
+     */
+    fun resetPositionAndState()
+
+    /**
+     * Clean up listeners and callbacks of this window.
+     */
+    fun dispose()
+
+    /** Callback when user taps the overlay. */
+    var onClick: ClickListener?
+
+    /** Callback when user long-presses the overlay. */
+    var onLongClick: ClickListener?
+
+    /** Callback when overlay visibility changes. */
+    var onVisibilityChange: VisibilityChangeListener?
+}
+
+internal class OverlayWindowImpl(
     private val application: Application,
     private val overlays: OverlayManager,
+    private val permissions: OverlayPermissions,
+    private val activityProvider: ActivityProvider,
+    private val foregroundTracker: ForegroundTracker,
+    private val displayBoundsTracker: DisplayBoundsTracker,
     @LayoutRes layoutId: Int,
-    internal val prefsName: String,
-    internal val reason: OverlayReason,
-    private val onClick: ClickListener? = null,
-    private val onLongClick: ClickListener? = null,
-    private val onVisibilityChanged: VisibilityChanged? = null,
-    internal val visibilityPredicate: VisibilityPredicate? = null,
+    override val prefsName: String,
+    override val reason: OverlayReason,
+    override var onClick: ClickListener? = null,
+    override var onLongClick: ClickListener? = null,
+    override var onVisibilityChange: VisibilityChangeListener? = null,
+    private val visibilityPredicate: VisibilityPredicate? = null,
     visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
     initialDock: Dock = Dock.TOP_LEFT,
     initialDelta: Float = 0f,
     snapToEdge: Boolean = true,
     initialLeft: Float = 0f,
     initialTop: Float = 0f
-) {
+) : OverlayWindow {
     private val log = logger()
     private val windowManager = application.windowManager
     private val handler = Handler(Looper.getMainLooper())
@@ -55,20 +163,18 @@ class OverlayWindow(
     private var delta by preferences["delta", initialDelta]
     private var left by preferences["left", initialLeft]
     private var top by preferences["top", initialTop]
-    var snapToEdge: Boolean by preferences["snapToEdge", snapToEdge, { _, _ -> updatePosition(false) }]
-    var enabled by preferences["enabled", true, { _, _ -> overlays.updateVisibilities() }]
-    var visibilityScope by preferences["visibilityScope", visibilityScope, { _, _ -> overlays.updateVisibilities() }]
+    override var snapToEdge: Boolean by preferences["snapToEdge", snapToEdge, { _, _ -> updatePosition(false) }]
+    override var enabled: Boolean by preferences["enabled", true, { _, _ -> updateVisibility() }]
+    override var visibilityScope: VisibilityScope by preferences["visibilityScope", visibilityScope, { _, _ -> updateVisibility() }]
 
-    var viewInset = Rect()
-
-    val canDrawOverlays get() = overlays.canDrawOverlays
+    override var inset = Rect()
 
     private val isAdded get() = view.parent != null
     private val params = createOverlayWindowParams()
     private val overlayBounds = Rect()
     private var moving = false
 
-    var visible: Boolean = true
+    private var visible: Boolean = true
         set(value) {
             field = value
 
@@ -76,21 +182,51 @@ class OverlayWindow(
             val newVisibility = if (value) View.VISIBLE else View.GONE
             if (visibility != newVisibility) {
                 view.visibility = newVisibility
-                onVisibilityChanged?.invoke(value)
+                onVisibilityChange?.invoke(value)
             }
         }
+    override val isVisible get() = visible
 
-    fun updateOverlayBounds(bounds: Rect, postUpdate: Boolean = true) {
+    private val foregroundListener = foregroundTracker.addForegroundChangeListener { updateVisibility() }
+    private val boundsListener = displayBoundsTracker.addDisplayBoundsChangeListener { _, bounds -> updateOverlayBounds(bounds) }
+    private val fullScreenLockListener = overlays.addFullScreenLockChangeListener { updateVisibility() }
+
+    private var permissionsListener: OverlayPermissionChangeListener? = null
+    private var addToWindow = false
+
+    init {
+        if (permissionsListener == null) {
+            permissions += { if (addToWindow && it) addToWindow() }
+        }
+    }
+
+    private fun updateOverlayBounds(bounds: Rect, postUpdate: Boolean = true) {
         overlayBounds.set(bounds)
         loadSavedPosition(postUpdate)
     }
 
-    val view: View by lazy {
+    private fun updateVisibility() {
+        if (!isAdded) return
+
+        val activity = activityProvider()
+        visible = !overlays.isFullScreenLockInUse && enabled &&
+                when (visibilityScope) {
+                    VisibilityScope.FOREGROUND_ONLY -> {
+                        when (activity) {
+                            null -> false
+                            else -> foregroundTracker.isAppInForeground && visibilityPredicate?.invoke(activity) != false
+                        }
+                    }
+                    VisibilityScope.ALWAYS -> visibilityPredicate?.invoke(activity ?: application) != false
+                }
+    }
+
+    override val view: View by lazy {
         View.inflate(application, layoutId, null).apply {
             setOnTouchListener(object : View.OnTouchListener {
                 private val tapTimeout = ViewConfiguration.getTapTimeout().toLong()
                 private val longPressTimeout = ViewConfiguration.getLongPressTimeout().toLong()
-                private val downTimeout = if (onLongClick == null) tapTimeout else longPressTimeout
+                private val pressTimeout get() = if (onLongClick == null) tapTimeout else longPressTimeout
 
                 private val onLongClickRunnable = Runnable {
                     if (onLongClick != null) {
@@ -153,7 +289,7 @@ class OverlayWindow(
                             val slop = ViewConfiguration.get(application).scaledTouchSlop
                             val sinceDown = System.currentTimeMillis() - actionDownTime
 
-                            if (moving || dx >= slop || dy >= slop || sinceDown > downTimeout) {
+                            if (moving || dx >= slop || dy >= slop || sinceDown > pressTimeout) {
                                 removeOnLongClick()
                                 moving = true
                                 params.x = (rawX - initialPosition.x + initialWindowPosition.x).toInt()
@@ -240,13 +376,13 @@ class OverlayWindow(
 
         // adjust for view inset
         x -= when (side) {
-            Dock.LEFT, Dock.TOP_LEFT, Dock.BOTTOM_LEFT -> viewInset.left
-            Dock.RIGHT, Dock.TOP_RIGHT, Dock.BOTTOM_RIGHT -> -viewInset.right
+            Dock.LEFT, Dock.TOP_LEFT, Dock.BOTTOM_LEFT -> inset.left
+            Dock.RIGHT, Dock.TOP_RIGHT, Dock.BOTTOM_RIGHT -> -inset.right
             else -> 0
         }
         y -= when (side) {
-            Dock.TOP, Dock.TOP_LEFT, Dock.TOP_RIGHT -> viewInset.top
-            Dock.BOTTOM, Dock.BOTTOM_LEFT, Dock.BOTTOM_RIGHT -> -viewInset.bottom
+            Dock.TOP, Dock.TOP_LEFT, Dock.TOP_RIGHT -> inset.top
+            Dock.BOTTOM, Dock.BOTTOM_LEFT, Dock.BOTTOM_RIGHT -> -inset.bottom
             else -> 0
         }
 
@@ -258,14 +394,18 @@ class OverlayWindow(
         }
     }
 
-    fun resetPositionAndState() {
+    override fun resetPositionAndState() {
         preferences.clear()
         loadSavedPosition(true)
     }
 
-    fun addToWindow() {
-        if (isAdded) return
+    override fun addToWindow() {
+        addToWindow = true
+        if (isAdded || !overlays.canDrawOverlays) return
         windowManager.addView(view, params)
+        if (overlayBounds.isEmpty) {
+            overlayBounds.set(displayBoundsTracker.displayBounds)
+        }
         postUpdateOverlayBounds()
     }
 
@@ -278,12 +418,20 @@ class OverlayWindow(
         }
     }
 
-    fun removeFromWindow() = view.parent?.let {
+    override fun removeFromWindow() {
+        addToWindow = false
+        if (!isAdded) return
         try {
             windowManager.removeView(view)
         } catch (t: Throwable) {
-            log.w(t) { "Exception while removing window view :: view=$view" }
+            log.w(t) { "Exception while removing window view :: view=$view, this=$this" }
         }
+    }
+
+    override fun dispose() {
+        foregroundTracker -= foregroundListener
+        displayBoundsTracker -= boundsListener
+        overlays -= fullScreenLockListener
     }
 
     private val width get() = view.width
@@ -337,16 +485,16 @@ class OverlayWindow(
         // how far to move
         val distanceX = when {
             !toLeft && !toRight && !snapToEdge -> leftEdge - (left * overlayBounds.width()).toInt()
-            toLeft -> leftEdge + viewInset.left
-            toRight && rightEdge < 0 -> Math.min(-rightEdge, leftEdge) - viewInset.right // don't go over left of overlay bounds
-            toRight -> -rightEdge - viewInset.right
+            toLeft -> leftEdge + inset.left
+            toRight && rightEdge < 0 -> Math.min(-rightEdge, leftEdge) - inset.right // don't go over left of overlay bounds
+            toRight -> -rightEdge - inset.right
             else -> 0
         }
         val distanceY = when {
             !toTop && !toBottom && !snapToEdge -> topEdge - (top * overlayBounds.height()).toInt()
-            toTop -> topEdge + viewInset.top
-            toBottom && bottomEdge < 0 -> Math.min(-bottomEdge, topEdge) - viewInset.bottom // don't go over top of overlay bounds
-            toBottom -> -bottomEdge - viewInset.bottom
+            toTop -> topEdge + inset.top
+            toBottom && bottomEdge < 0 -> Math.min(-bottomEdge, topEdge) - inset.bottom // don't go over top of overlay bounds
+            toBottom -> -bottomEdge - inset.bottom
             else -> 0
         }
 
@@ -458,10 +606,10 @@ class OverlayWindow(
           |    height: $height
           |  },
           |  inset: {
-          |    left: ${viewInset.left},
-          |    right: ${viewInset.right},
-          |    top: ${viewInset.top},
-          |    bottom: ${viewInset.bottom}
+          |    left: ${inset.left},
+          |    right: ${inset.right},
+          |    top: ${inset.top},
+          |    bottom: ${inset.bottom}
           |  },
           |  edges: {
           |    left: $leftEdge,

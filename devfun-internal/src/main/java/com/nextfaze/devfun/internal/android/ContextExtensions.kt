@@ -2,6 +2,7 @@ package com.nextfaze.devfun.internal.android
 
 import android.app.ActivityManager
 import android.app.Application
+import android.app.KeyguardManager
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
@@ -18,6 +19,7 @@ internal fun Context.unregisterActivityCallbacks(callbacks: Application.Activity
 }
 
 val Context.activityManager: ActivityManager by lazier { applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager }
+val Context.keyguardManager: KeyguardManager by lazier { applicationContext.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager }
 val Context.wifiManager: WifiManager by lazier { applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager }
 val Context.windowManager: WindowManager by lazier { applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
 val Context.connectivityManager: ConnectivityManager by lazier {

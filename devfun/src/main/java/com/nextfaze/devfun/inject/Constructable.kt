@@ -75,7 +75,12 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
 
         log.t { "> Constructing new instance of $clazz" }
         val ctor = constructors.first().apply { isAccessible = true }
-        fun createInstance() = ctor.newInstance(*(ctor.parameterTypes.map { root[it.kotlin] }.toTypedArray())) as T
+        fun createInstance(): T =
+            try {
+                ctor.newInstance(*(ctor.parameterTypes.map { root[it.kotlin] }.toTypedArray())) as T
+            } catch (t: Throwable) {
+                throw ConstructableException(t)
+            }
 
         if (constructable?.singleton == true || annotations.any { it is Singleton }) {
             log.t { "> Create singleton instance of $clazz" }
@@ -89,3 +94,10 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
         }
     }
 }
+
+/**
+ * Thrown when [ConstructingInstanceProvider] fails to create a new instance of a class.
+ *
+ * @see ClassInstanceNotFoundException
+ */
+class ConstructableException(cause: Throwable) : Exception(cause)

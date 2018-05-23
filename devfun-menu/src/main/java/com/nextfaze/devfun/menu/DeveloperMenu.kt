@@ -14,6 +14,7 @@ import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.menu.controllers.CogOverlay
 import com.nextfaze.devfun.menu.controllers.GRAVE_KEY_SEQUENCE
@@ -22,7 +23,6 @@ import com.nextfaze.devfun.menu.controllers.VOLUME_KEY_SEQUENCE
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.view.ViewFactoryProvider
 import com.nextfaze.devfun.view.viewFactory
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
 interface DeveloperMenu : MenuController {
@@ -95,6 +95,7 @@ val DevFun.devMenu get() = get<DevMenu>()
 @DeveloperCategory("DevMenu", order = 90_000)
 class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     private val overlays by lazy { devFun.get<OverlayManager>() }
+    private val activityProvider by lazy { devFun.get<ActivityProvider>() }
 
     private val views = object : ViewFactoryProvider {
         override fun get(clazz: KClass<*>) = clazz.takeIf { it == MenuHeader::class }?.let { DefaultMenuHeaderViewFactory() }
@@ -125,9 +126,8 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     }
 
     private val controllers = hashSetOf<MenuController>()
-    private val showing = AtomicBoolean(false)
 
-    override val isVisible get() = showing.get()
+    override val isVisible: Boolean get() = (activityProvider() as? FragmentActivity?)?.supportFragmentManager?.find<DeveloperMenuDialogFragment>() != null
     override val title: String get() = context.getString(R.string.df_menu_developer_menu)
     override val actionDescription: CharSequence?
         get() = controllers
@@ -152,30 +152,29 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     }
 
     override fun show(activity: FragmentActivity) {
-        if (!showing.get() && overlays.takeFullScreenLock(this)) {
+        if (overlays.takeFullScreenLock(this)) {
             try {
-                showing.set(true)
                 DeveloperMenuDialogFragment.show(activity)
             } catch (t: Throwable) {
-                showing.set(false)
                 overlays.releaseFullScreenLock(this)
                 get<ErrorHandler>().onError(t, "Show Menu Failed", "Please report this error!")
             }
         }
     }
 
-    override fun hide(activity: FragmentActivity) = DeveloperMenuDialogFragment.hide(activity)
+    override fun hide(activity: FragmentActivity) {
+        DeveloperMenuDialogFragment.hide(activity)
+    }
+
     override fun attach(developerMenu: DeveloperMenu) = Unit
     override fun detach() = Unit
 
     override fun onShown() {
-        showing.set(true)
         overlays.takeFullScreenLock(this)
         controllers.forEach { it.onShown() }
     }
 
     override fun onDismissed() {
-        showing.set(false)
         overlays.releaseFullScreenLock(this)
         controllers.forEach { it.onDismissed() }
     }

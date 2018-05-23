@@ -21,4 +21,5 @@ dependencies {
 
     // Android Support Annotations
     implementation Config.supportAnnotations
+    implementation Config.supportAppCompat
 }

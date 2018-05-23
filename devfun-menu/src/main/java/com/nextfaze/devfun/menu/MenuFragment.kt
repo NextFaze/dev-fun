@@ -8,9 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper.getMainLooper
 import android.support.annotation.DrawableRes
-import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentActivity
-import android.support.v7.app.AppCompatDialogFragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.LinearLayoutManager.VERTICAL
 import android.support.v7.widget.RecyclerView
@@ -22,21 +20,16 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.internal.WithSubGroup
+import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.view.ViewFactory
 import kotlinx.android.synthetic.main.df_menu_dialog_fragment.*
 
-internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
+internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
     companion object {
-        fun show(activity: FragmentActivity) {
-            activity.obtain { DeveloperMenuDialogFragment() }
-                .apply { takeIf { !it.isAdded }?.show(activity.supportFragmentManager) }
-        }
-
-        fun hide(activity: FragmentActivity) {
-            (activity.supportFragmentManager.findFragmentByTag(DeveloperMenuDialogFragment::class.defaultTag) as? DialogFragment)?.dismiss()
-        }
+        fun show(activity: FragmentActivity) = showNow(activity) { DeveloperMenuDialogFragment() }
+        fun hide(activity: FragmentActivity) = dismiss<DeveloperMenuDialogFragment>(activity)
     }
 
     private val handler = Handler(getMainLooper())
@@ -72,7 +65,6 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        retainInstance = true
         setStyle(STYLE_NO_TITLE, R.style.Theme_AppCompat_Dialog)
     }
 
@@ -245,13 +237,6 @@ internal class DeveloperMenuDialogFragment : AppCompatDialogFragment() {
     override fun onDestroyView() {
         categoriesRecyclerView.adapter = null
         categoryItemsRecyclerView.adapter = null
-
-        // Fix bug https://code.google.com/p/android/issues/detail?id=17423
-        val dialog = dialog
-        if (dialog != null && retainInstance) {
-            dialog.setDismissMessage(null)
-        }
-
         super.onDestroyView()
     }
 

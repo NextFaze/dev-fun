@@ -1,86 +1,192 @@
 package com.nextfaze.devfun.overlay
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.graphics.Rect
 import android.support.annotation.LayoutRes
 import android.text.SpannableStringBuilder
-import android.view.WindowManager
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
+import com.nextfaze.devfun.core.ForegroundTracker
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.prop.*
+import java.util.concurrent.CopyOnWriteArrayList
+
+typealias FullScreenLockChangeListener = (Boolean) -> Unit
+
+/**
+ * Handles creation, destruction, and visibility of overlays.
+ *
+ * @see OverlayWindow
+ * @see OverlayPermissions
+ */
+interface OverlayManager {
+    /**
+     * Flag indicating if the user has granted Overlay Permissions.
+     *
+     * @see OverlayPermissions.canDrawOverlays
+     * @see OverlayPermissions.requestPermission
+     */
+    val canDrawOverlays: Boolean
+
+    /**
+     * Creates an overlay window.
+     *
+     * Add the overlay to the screen using [OverlayWindow.addToWindow].
+     *
+     * When you are done with the overlay by sure to destroy it with [destroyOverlay].
+     *
+     * @see OverlayWindow
+     * @param layoutId A layout resource ID to inflate.
+     * @param prefsName The name of the preferences file the window will use - __must be unique__!
+     * @param reason A function that generates the reason description. Will only be called when we need to request overlays permission.
+     * @param onClick Callback when the overlay is clicked.
+     * @param onLongClick Callback when the overlay is long-clicked.
+     * @param onVisibilityChanged Callback when the overlay's visibility is changed.
+     * @param visibilityPredicate Predicate that determines if/when the overlay should be visible (e.g. DevMenu uses `context is FragmentActivity`).
+     * @param visibilityScope The [VisibilityScope] defaults to `FOREGROUND_ONLY`. i.e. When the app is visible and resumed to the user.
+     * @param initialDock The initial edge of the screen to dock to (see [snapToEdge]).
+     * @param initialDelta The percentage down/across the screen (e.g. An [initialDock] of `RIGHT` and delta of 0.7 (DevMenu cog) puts it at 70% down the right-hand side of the screen).
+     * @param snapToEdge `true` to enable edge docking, `false` to allow it to sit/drag anywhere on the screen.
+     * @param initialLeft Used when [snapToEdge] is `true` - the initial left position (percentage of screen).
+     * @param initialTop Used when [snapToEdge] is `true` - the initial top position (percentage of screen).
+     */
+    fun createOverlay(
+        @LayoutRes layoutId: Int,
+        prefsName: String,
+        reason: OverlayReason,
+        onClick: ClickListener? = null,
+        onLongClick: ClickListener? = null,
+        onVisibilityChange: VisibilityChangeListener? = null,
+        visibilityPredicate: VisibilityPredicate? = null,
+        visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
+        initialDock: Dock = Dock.TOP_LEFT,
+        initialDelta: Float = 0f,
+        snapToEdge: Boolean = true,
+        initialLeft: Float = 0f,
+        initialTop: Float = 0f
+    ): OverlayWindow
+
+    /**
+     * Destroy an overlay instance (cleans up any listeners/callbacks/resources/etc).
+     *
+     * @see createOverlay
+     */
+    fun destroyOverlay(overlayWindow: OverlayWindow)
+
+    /**
+     * Flag indicating if the full-screen lock is in use.
+     *
+     * @see takeFullScreenLock
+     * @see addFullScreenLockChangeListener
+     */
+    val isFullScreenLockInUse: Boolean
+
+    /**
+     * Request to take full-screen use.
+     *
+     * Use when you want to tell the overlays that they should be hidden (such as when the DevMenu is shown).
+     *
+     * Be sure to release it when you're done with [releaseFullScreenLock].
+     *
+     * @param who A reference to the user of the lock (a weak reference will be held).
+     * @return `true` if the lock was taken successfully, or `false` if already in use.
+     *
+     * @see addFullScreenLockChangeListener
+     * @see removeFullScreenLockChangeListener
+     */
+    fun takeFullScreenLock(who: Any): Boolean
+
+    /**
+     * Release your full-screen lock.
+     *
+     * The lock will also be released if the previous "taker" has been garbage collected.
+     *
+     * @param who The same reference as passed in with [takeFullScreenLock].
+     */
+    fun releaseFullScreenLock(who: Any)
+
+    /**
+     * Add a listener for when the full-screen is being used by something else (e.g. DevMenu).
+     *
+     * @see plusAssign
+     */
+    fun addFullScreenLockChangeListener(listener: FullScreenLockChangeListener): FullScreenLockChangeListener
+
+    /**
+     * Add a listener for when the full-screen is being used by something else (e.g. DevMenu).
+     *
+     * @see addFullScreenLockChangeListener
+     */
+    operator fun plusAssign(listener: FullScreenLockChangeListener) {
+        addFullScreenLockChangeListener(listener)
+    }
+
+    /**
+     * Remove a listener for when the full-screen is being used by something else (e.g. DevMenu).
+     *
+     * @see minusAssign
+     */
+    fun removeFullScreenLockChangeListener(listener: FullScreenLockChangeListener): FullScreenLockChangeListener
+
+    /**
+     * Remove a listener for when the full-screen is being used by something else (e.g. DevMenu).
+     *
+     * @see removeFullScreenLockChangeListener
+     */
+    operator fun minusAssign(listener: FullScreenLockChangeListener) {
+        removeFullScreenLockChangeListener(listener)
+    }
+}
 
 @Constructable(singleton = true)
 @DeveloperCategory("DevFun", group = "Overlays")
-class OverlayManager(
+internal class OverlayManagerImpl(
     context: Context,
+    private val foregroundTracker: ForegroundTracker,
+    private val displayBoundsTracker: DisplayBoundsTracker,
     private val activityProvider: ActivityProvider,
-    private val permissions: OverlayPermissionsManager
-) {
+    private val permissions: OverlayPermissions
+) : OverlayManager {
     private val log = logger()
 
     private val application = context.applicationContext as Application
-    private val activity get() = activityProvider()
 
     private val overlaysLock = Any()
     private val overlays = mutableMapOf<String, OverlayWindow>()
 
-    private val displayBounds = Rect()
-
-    val canDrawOverlays get() = permissions.canDrawOverlays
+    override val isFullScreenLockInUse get() = fullScreenInUse
+    override val canDrawOverlays get() = permissions.canDrawOverlays
 
     init {
-        val displayBoundsTmp = Rect()
-
-        /**
-         * Using the activity like this ensures that rotation, status bar, and other system views are taken into account.
-         * Thus for multi-window use it should be properly bounded to the relevant app window area.
-         * i.e. This is the space available for the *app* now the *device*
-         */
-        fun updateDisplayBounds(activity: Activity): Rect? {
-            (activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay?.getRectSize(displayBoundsTmp)
-            return when {
-                displayBounds.isEmpty || displayBounds != displayBoundsTmp -> { // first time || changed
-                    displayBounds.set(displayBoundsTmp)
-                    displayBounds
+        fun requestPermission() {
+            if (permissions.shouldRequestPermission && overlays.isNotEmpty()) {
+                val reason = synchronized(overlaysLock) {
+                    overlays.values.joinTo(SpannableStringBuilder(), separator = "\n\n") { it.reason() }
                 }
-                else -> null // unchanged
+                permissions.requestPermission(reason)
             }
         }
 
-        application.registerActivityCallbacks(
-            onResumed = {
-                if (overlays.isNotEmpty()) {
-                    if (!canDrawOverlays) {
-                        val reason = synchronized(overlaysLock) {
-                            overlays.values.joinTo(SpannableStringBuilder(), separator = "\n\n") { it.reason() }
-                        }
-                        permissions.requestPermission(reason)
-                    } else {
-                        updateDisplayBounds(it)?.also { newBounds ->
-                            synchronized(overlaysLock) {
-                                overlays.forEach { it.value.updateOverlayBounds(newBounds) }
-                            }
-                        }
-                        updateVisibilities()
-                    }
-                }
-            },
-            onStopped = { updateVisibilities() },
-            onDestroyed = { updateVisibilities() }
+        permissions += { requestPermission() }
+        context.registerActivityCallbacks(
+            onResumed = { requestPermission() }
         )
     }
 
     private val fullScreenLock = Any()
     private var fullScreenOwner by weak<Any> { null }
     private var fullScreenInUse = false
+        private set(value) {
+            if (field != value) {
+                field = value
+                fullScreenLockChangeListeners.forEach { it(value) }
+            }
+        }
 
-    fun takeFullScreenLock(who: Any): Boolean {
+    override fun takeFullScreenLock(who: Any): Boolean {
         synchronized(fullScreenLock) {
             val isCurrentOwner = who === fullScreenOwner
             val canObtain = fullScreenOwner == null || isCurrentOwner
@@ -96,14 +202,13 @@ class OverlayManager(
             if (canObtain && !isCurrentOwner) {
                 fullScreenOwner = who
                 fullScreenInUse = true
-                updateVisibilities()
             }
             return canObtain
         }
     }
 
     @DeveloperFunction("Release Full Screen Lock\n(needed if DevFun bugged out - please report!)")
-    fun releaseFullScreenLock(who: Any) {
+    override fun releaseFullScreenLock(who: Any) {
         synchronized(fullScreenLock) {
             val isCurrentOwner = who === fullScreenOwner
             val canRelease = fullScreenOwner == null || isCurrentOwner
@@ -119,25 +224,24 @@ class OverlayManager(
             if (canRelease) {
                 fullScreenOwner = null
                 fullScreenInUse = false
-                updateVisibilities()
             }
         }
     }
 
-    fun createOverlay(
+    override fun createOverlay(
         @LayoutRes layoutId: Int,
         prefsName: String,
         reason: OverlayReason,
-        onClick: ClickListener? = null,
-        onLongClick: ClickListener? = null,
-        onVisibilityChanged: VisibilityChanged? = null,
-        visibilityPredicate: VisibilityPredicate? = null,
-        visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
-        initialDock: Dock = Dock.TOP_LEFT,
-        initialDelta: Float = 0f,
-        snapToEdge: Boolean = true,
-        initialLeft: Float = 0f,
-        initialTop: Float = 0f
+        onClick: ClickListener?,
+        onLongClick: ClickListener?,
+        onVisibilityChange: VisibilityChangeListener?,
+        visibilityPredicate: VisibilityPredicate?,
+        visibilityScope: VisibilityScope,
+        initialDock: Dock,
+        initialDelta: Float,
+        snapToEdge: Boolean,
+        initialLeft: Float,
+        initialTop: Float
     ): OverlayWindow {
         synchronized(overlaysLock) {
             if (overlays.containsKey(prefsName)) {
@@ -145,15 +249,19 @@ class OverlayManager(
             }
         }
 
-        return OverlayWindow(
+        return OverlayWindowImpl(
             application,
             this,
+            permissions,
+            activityProvider,
+            foregroundTracker,
+            displayBoundsTracker,
             layoutId,
             prefsName,
             reason,
             onClick,
             onLongClick,
-            onVisibilityChanged,
+            onVisibilityChange,
             visibilityPredicate,
             visibilityScope,
             initialDock,
@@ -161,56 +269,25 @@ class OverlayManager(
             snapToEdge,
             initialLeft,
             initialTop
-        ).apply {
-            synchronized(overlaysLock) { overlays[prefsName] = this }
-            if (permissions.canDrawOverlays) {
-                addToWindow()
-                updateOverlayBounds(displayBounds)
-                updateVisibility()
-            }
+        ).apply { synchronized(overlaysLock) { overlays[prefsName] = this } }
+    }
+
+    override fun destroyOverlay(overlayWindow: OverlayWindow) {
+        overlays.remove(overlayWindow.prefsName)?.also {
+            it.removeFromWindow()
+            it.dispose()
         }
     }
 
-    fun destroyOverlay(overlayWindow: OverlayWindow) {
-        overlays.remove(overlayWindow.prefsName)?.also { it.removeFromWindow() }
+    private val fullScreenLockChangeListeners = CopyOnWriteArrayList<FullScreenLockChangeListener>()
+
+    override fun addFullScreenLockChangeListener(listener: FullScreenLockChangeListener): FullScreenLockChangeListener {
+        fullScreenLockChangeListeners += listener
+        return listener
     }
 
-    internal fun updateVisibilities() {
-        if (!permissions.canDrawOverlays) return
-
-        val isRunningInForeground = application.isRunningInForeground
-        synchronized(overlaysLock) {
-            overlays.forEach {
-                it.value.addToWindow()
-                it.value.updateVisibility(fullScreenInUse, isRunningInForeground)
-            }
-        }
-    }
-
-    private fun OverlayWindow.updateVisibility(
-        isFullScreenInUse: Boolean = fullScreenInUse,
-        isRunningInForeground: Boolean = application.isRunningInForeground
-    ) {
-        val activity = activity
-        visible = !isFullScreenInUse && enabled && when (visibilityScope) {
-            VisibilityScope.FOREGROUND_ONLY -> {
-                when (activity) {
-                    null -> false
-                    else -> isRunningInForeground && visibilityPredicate?.invoke(activity) != false
-                }
-            }
-            VisibilityScope.ALWAYS -> visibilityPredicate?.invoke(activity ?: application) != false
-        }
+    override fun removeFullScreenLockChangeListener(listener: FullScreenLockChangeListener): FullScreenLockChangeListener {
+        fullScreenLockChangeListeners -= listener
+        return listener
     }
 }
-
-private val Context.isRunningInForeground: Boolean
-    get() {
-        @Suppress("DEPRECATION")
-        val tasks = activityManager.getRunningTasks(1)
-        if (tasks.isEmpty()) {
-            return false
-        }
-        val topActivityName = tasks[0].topActivity.packageName
-        return topActivityName.equals(packageName, ignoreCase = true)
-    }

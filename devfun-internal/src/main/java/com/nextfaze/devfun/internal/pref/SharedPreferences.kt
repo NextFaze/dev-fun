@@ -36,6 +36,9 @@ class KSharedPreferences(private val preferences: SharedPreferences) {
 
     operator fun get(key: String, default: String): KPreference<String> = KStringPref(preferences, key, default)
     operator fun get(key: String, default: Int): KPreference<Int> = KIntPref(preferences, key, default)
+    operator fun get(key: String, default: Long, onChange: OnChange<Long>? = null): KPreference<Long> =
+        KLongPref(preferences, key, default, onChange)
+
     operator fun get(key: String, default: Float): KPreference<Float> = KFloatPref(preferences, key, default)
     operator fun get(key: String, default: Boolean, onChange: OnChange<Boolean>? = null): KPreference<Boolean> =
         KBooleanPref(preferences, key, default, onChange)
@@ -106,6 +109,19 @@ private class KNullableIntPref(preferences: SharedPreferences, key: String, defa
                 else -> putInt(key, value)
             }
         }.apply()
+}
+
+private class KLongPref(preferences: SharedPreferences, key: String, default: Long, private val onChange: OnChange<Long>?) :
+    KPreferenceImpl<Long>(preferences, key, default) {
+    override var value: Long
+        get() = preferences.getLong(key, default)
+        set(value) {
+            val before = if (onChange != null) this.value else null
+            preferences.edit().putLong(key, value).apply()
+            if (onChange != null && before != null && before != value) {
+                onChange.invoke(before, value)
+            }
+        }
 }
 
 

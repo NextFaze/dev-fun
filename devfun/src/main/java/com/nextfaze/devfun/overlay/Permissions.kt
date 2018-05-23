@@ -8,6 +8,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.support.annotation.RequiresApi
 import android.support.v4.app.DialogFragment
@@ -30,52 +32,154 @@ import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.pref.*
 import com.nextfaze.devfun.internal.string.*
-import com.nextfaze.devfun.obtain
-import com.nextfaze.devfun.show
+import java.util.concurrent.CopyOnWriteArrayList
 
-internal enum class OverlayPermissions { NEVER_REQUESTED, DENIED, NEVER_ASK_AGAIN }
+typealias OverlayPermissionChangeListener = (Boolean) -> Unit
+
+/**
+ * Handles overlay permissions.
+ *
+ * @see OverlayManager
+ * @see OverlayWindow
+ */
+interface OverlayPermissions {
+    /**
+     * Flag indicating if the user has granted overlay permissions.
+     *
+     * @see requestPermission
+     */
+    val canDrawOverlays: Boolean
+
+    /**
+     * Flag indicating if we should request overlay permissions - i.e. we don't have them and the user has not denied them.
+     *
+     * Calling [requestPermission] will only show the request if the user has not denied them already. This flag is here to allow you to
+     * know if you should generate/render the reasoning string etc, and as to whether or not a resumed FragmentActivity is present.
+     * Calling [requestPermission] when this is false will do nothing.
+     *
+     * @see canDrawOverlays
+     * @see requestPermission
+     */
+    val shouldRequestPermission: Boolean
+
+    /**
+     * Signal a request to the user that we want permission for overlays.
+     *
+     * Calling this when permissions are already granted will do nothing.
+     *
+     * @param reason Optional reason to show the user.
+     * @see canDrawOverlays
+     */
+    fun requestPermission(reason: CharSequence? = null)
+
+    /**
+     * Add a listener for when overlay permissions have changed.
+     *
+     * @see plusAssign
+     */
+    fun addOverlayPermissionsChangedListener(listener: OverlayPermissionChangeListener): OverlayPermissionChangeListener
+
+    /**
+     * Add a listener for when overlay permissions have changed.
+     *
+     * @see addOverlayPermissionsChangedListener
+     */
+    operator fun plusAssign(listener: OverlayPermissionChangeListener) {
+        addOverlayPermissionsChangedListener(listener)
+    }
+
+    /**
+     * Remove a listener for when overlay permissions have changed.
+     *
+     * @see minusAssign
+     */
+    fun removeOverlayPermissionsChangedListener(listener: OverlayPermissionChangeListener): OverlayPermissionChangeListener
+
+    /**
+     * Remove a listener for when overlay permissions have changed.
+     *
+     * @see removeOverlayPermissionsChangedListener
+     */
+    operator fun minusAssign(listener: OverlayPermissionChangeListener) {
+        removeOverlayPermissionsChangedListener(listener)
+    }
+}
+
+internal enum class PermissionState { NEVER_REQUESTED, DENIED, NEVER_ASK_AGAIN }
 
 @Constructable(singleton = true)
 @DeveloperCategory("DevFun", group = "Overlays")
-class OverlayPermissionsManager(
+internal class OverlayPermissionsImpl(
     context: Context,
     private val activityProvider: ActivityProvider
-) {
+) : OverlayPermissions {
     private val log = logger()
 
     private val application = context.applicationContext as Application
     private val windowManager = application.windowManager
+    private val handler = Handler(Looper.getMainLooper())
 
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
 
     private val preferences = KSharedPreferences.named(application, "OverlayPermissions")
-    private var permissions by preferences["permissionsState", OverlayPermissions.NEVER_REQUESTED]
+    private var permissions by preferences["permissionState", PermissionState.NEVER_REQUESTED]
 
-    val canDrawOverlays: Boolean
+    private val listeners = CopyOnWriteArrayList<OverlayPermissionChangeListener>()
+
+    private var havePermission: Boolean? = null
+
+    init {
+        context.registerActivityCallbacks(
+            onResumed = {
+                val canDrawOverlays = canDrawOverlays
+                if (canDrawOverlays != havePermission) {
+                    havePermission = canDrawOverlays
+                    listeners.forEach { it(canDrawOverlays) }
+                }
+            }
+        )
+    }
+
+    override val canDrawOverlays: Boolean
         get() = when {
             Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(application) -> true
             Build.VERSION.SDK_INT == Build.VERSION_CODES.O -> forceCheckPermissionsEnabled()
             else -> false
         }
 
-    fun requestPermission(reason: CharSequence? = null) {
-        if (permissions != OverlayPermissions.NEVER_ASK_AGAIN && !isInstrumentationTest) {
+    override val shouldRequestPermission: Boolean get() = permissions != PermissionState.NEVER_ASK_AGAIN && fragmentActivity != null && !canDrawOverlays
+
+    override fun requestPermission(reason: CharSequence?) {
+        if (permissions != PermissionState.NEVER_ASK_AGAIN && !isInstrumentationTest && !canDrawOverlays) {
             showPermissionsDialog(reason)
         }
+    }
+
+    override fun addOverlayPermissionsChangedListener(listener: OverlayPermissionChangeListener): OverlayPermissionChangeListener {
+        listeners += listener
+        return listener
+    }
+
+    override fun removeOverlayPermissionsChangedListener(listener: OverlayPermissionChangeListener): OverlayPermissionChangeListener {
+        listeners -= listener
+        return listener
     }
 
     @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
     private fun managePermissions() = showPermissionsDialog()
 
-    private fun showPermissionsDialog(reason: CharSequence? = null) =
-        fragmentActivity?.let {
-            OverlayPermissionsDialogFragment.show(it, permissions, reason).apply {
-                deniedCallback = { neverAskAgain ->
-                    permissions = if (neverAskAgain) OverlayPermissions.NEVER_ASK_AGAIN else OverlayPermissions.DENIED
+    private fun showPermissionsDialog(reason: CharSequence? = null) {
+        handler.post {
+            fragmentActivity?.let {
+                OverlayPermissionsDialogFragment.show(it, permissions, reason).apply {
+                    deniedCallback = { neverAskAgain ->
+                        permissions = if (neverAskAgain) PermissionState.NEVER_ASK_AGAIN else PermissionState.DENIED
+                    }
                 }
             }
         }
+    }
 
     /**
      * Forcefully check if we have permissions on SDK 26
@@ -116,7 +220,7 @@ private const val REASON = "REASON"
 
 internal class OverlayPermissionsDialogFragment : DialogFragment() {
     companion object {
-        fun show(activity: FragmentActivity, permissions: OverlayPermissions, reason: CharSequence? = null) = activity
+        fun show(activity: FragmentActivity, permissions: PermissionState, reason: CharSequence? = null) = activity
             .obtain {
                 OverlayPermissionsDialogFragment().apply {
                     arguments = Bundle().apply {
@@ -125,14 +229,12 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
                     }
                 }
             }
-            .apply {
-                takeIf { !it.isAdded }?.show(activity.supportFragmentManager)
-            }
+            .apply { takeIf { !it.isAdded }?.showNow(activity.supportFragmentManager) }
     }
 
     var deniedCallback: ((neverAskAgain: Boolean) -> Unit)? = null
 
-    private val permissions by lazy { OverlayPermissions.valueOf(arguments!!.getString(PERMISSIONS)) }
+    private val permissions by lazy { PermissionState.valueOf(arguments!!.getString(PERMISSIONS)) }
     private val reason by lazy { arguments!!.getCharSequence(REASON) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -156,7 +258,7 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
             .run {
                 findViewById<TextView>(R.id.messageTextView).text = msg
                 findViewById<CheckBox>(R.id.neverAskAgainCheckBox).apply {
-                    isChecked = permissions != OverlayPermissions.NEVER_REQUESTED
+                    isChecked = permissions != PermissionState.NEVER_REQUESTED
                 } to this
             }
 

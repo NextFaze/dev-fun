@@ -27,6 +27,7 @@ import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.*
 import com.nextfaze.devfun.invoke.view.ColorPicker
+import com.nextfaze.devfun.overlay.*
 import com.nextfaze.devfun.overlay.logger.OverlayLogging
 import com.nextfaze.devfun.overlay.logger.OverlayLoggingImpl
 import com.nextfaze.devfun.view.*
@@ -133,7 +134,7 @@ class DevFun {
     }
 
     private val log = logger()
-    private val activityTracker = ActivityTracker()
+    private lateinit var appStateTracker: AppStateTracker
     private val moduleLoader = ModuleLoader(this)
     private val definitionsLoader = DefinitionsLoader()
     private val initializationCallbacks = mutableListOf<OnInitialized>()
@@ -254,7 +255,8 @@ class DevFun {
         _devFun = this
         _application = context.applicationContext as Application
 
-        activityTracker.init(_application as Application)
+        appStateTracker = AppStateTracker(context)
+        val displayBoundsTracker = DisplayBoundsTrackerImpl(context)
         rootInstanceProvider.apply {
             this += ConstructingInstanceProvider(this)
             this += KObjectInstanceProvider()
@@ -263,9 +265,10 @@ class DevFun {
             this += captureInstance<RequiringInstanceProvider> { this }
             this += captureInstance { this }
             this += captureInstance { definitionsLoader }
-            this += captureInstance { activityTracker }
-            this += captureInstance { { activityTracker.activity } }
-            this += AndroidInstanceProviderImpl(context.applicationContext, activityTracker::activity)
+            this += captureInstance<ActivityTracker> { appStateTracker }
+            this += captureInstance<ForegroundTracker> { appStateTracker }
+            this += captureInstance { { appStateTracker.activity } }
+            this += AndroidInstanceProviderImpl(context.applicationContext, appStateTracker::activity)
             this += moduleLoader
 
             // Invocation and Errors
@@ -283,7 +286,10 @@ class DevFun {
             // Custom Transformers
             this += singletonInstance<PropertyTransformer> { get<PropertyTransformerImpl>() }
 
-            // Overlay Loggers
+            // Overlays
+            this += singletonInstance<OverlayPermissions> { get<OverlayPermissionsImpl>() }
+            this += singletonInstance<OverlayManager> { get<OverlayManagerImpl>() }
+            this += singletonInstance<DisplayBoundsTracker> { displayBoundsTracker }
             val overlayLogging = get<OverlayLoggingImpl>().apply { init() }
             this += singletonInstance<OverlayLogging> { overlayLogging }
         }
@@ -326,7 +332,7 @@ class DevFun {
     fun dispose() { // todo test me
         moduleLoader.dispose()
         rootInstanceProvider.clear()
-        activityTracker.dispose(context)
+        appStateTracker.dispose()
         _devFun = null
         _application = null
     }

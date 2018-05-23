@@ -20,7 +20,16 @@ import com.nextfaze.devfun.internal.toReflected
 import com.nextfaze.devfun.invoke.Invoker
 import com.nextfaze.devfun.overlay.OverlayManager
 
+/** Handles the creation, maintenance, and permissions of [OverlayLogger] instances. */
 interface OverlayLogging {
+    /**
+     * Creates an over logger instance. Call [OverlayLogger.start] to add to window and start updating.
+     *
+     * Instances created from this will *not* be managed automatically.
+     * This function is used internally to create instances that *are* managed automatically however.
+     *
+     * @see OverlayLogger.stop
+     */
     fun createLogger(name: String, updateCallback: UpdateCallback, onClick: OnClick? = null): OverlayLogger
 }
 
@@ -37,7 +46,7 @@ internal class OverlayLoggingImpl(
     private val overlays = mutableMapOf<Logger, OverlayLogger>().apply {
         loggers.forEach { ref ->
             if (!ref.isContextual) {
-                this[ref] = createLogger(ref.prefsName, ref.updateCallback)
+                this[ref] = createLogger(ref.prefsName, ref.updateCallback).apply { start() }
             }
         }
     }
@@ -66,9 +75,14 @@ internal class OverlayLoggingImpl(
         loggers.forEach {
             if (it.isContextual) {
                 if (it.isInContext) {
-                    overlays.getOrPut(it) { createLogger(it.prefsName, it.updateCallback, it.onClick) }
+                    overlays.getOrPut(it) {
+                        createLogger(it.prefsName, it.updateCallback, it.onClick).apply { start() }
+                    }
                 } else {
-                    overlays.remove(it)?.also { it.destroy() }
+                    overlays.remove(it)?.apply {
+                        stop()
+                        overlayManager.destroyOverlay(overlay)
+                    }
                 }
             }
         }
@@ -123,7 +137,6 @@ internal class OverlayLoggingImpl(
         }
 
         val onClick: OnClick = onClick@{
-            if (true) return@onClick // TODO this is real slow (DevFun optimizations needed!)
             if (reflected is ReflectedProperty) {
                 devFun.categories.forEach {
                     it.items.forEach {
@@ -170,8 +183,16 @@ internal class OverlayLoggingImpl(
         }
     }
 
-    override fun createLogger(name: String, updateCallback: UpdateCallback, onClick: OnClick?) =
-        OverlayLogger(overlayManager, invoker, name, updateCallback, onClick)
+    override fun createLogger(name: String, updateCallback: UpdateCallback, onClick: OnClick?): OverlayLogger {
+        val prefsName = "OverlayLogger_$name"
+        val overlay = overlayManager.createOverlay(
+            layoutId = R.layout.df_devfun_logger_overlay,
+            prefsName = prefsName,
+            reason = { "Show overlay logger for $prefsName" },
+            snapToEdge = false
+        )
+        return OverlayLoggerImpl(application, overlay, invoker, name, updateCallback, onClick)
+    }
 
     @DeveloperFunction(transformer = LoggersTransformer::class)
     private fun configureLogger(logger: OverlayLogger) {

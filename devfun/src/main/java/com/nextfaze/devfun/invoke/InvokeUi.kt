@@ -12,10 +12,10 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.*
 import android.widget.Toast.LENGTH_LONG
-import com.nextfaze.devfun.BaseDialogFragment
 import com.nextfaze.devfun.core.DebugException
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.invoke.view.From
@@ -24,21 +24,18 @@ import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.invoke.view.simple.ErrorParameterView
 import com.nextfaze.devfun.invoke.view.simple.InjectedParameterView
 import com.nextfaze.devfun.invoke.view.types.getTypeOrNull
-import com.nextfaze.devfun.obtain
 import com.nextfaze.devfun.overlay.OverlayManager
-import com.nextfaze.devfun.show
 import kotlinx.android.synthetic.main.df_devfun_invoker_dialog_fragment.*
 import kotlin.reflect.KClass
 
 internal class InvokingDialogFragment : BaseDialogFragment() {
     companion object {
-        fun show(activity: FragmentActivity, function: UiFunction) = activity
-            .obtain {
+        fun show(activity: FragmentActivity, function: UiFunction) =
+            showNow(activity) {
                 InvokingDialogFragment().apply {
                     this.function = function
                 }
             }
-            .apply { takeIf { !it.isAdded }?.show(activity.supportFragmentManager) }
     }
 
     private val log = logger()

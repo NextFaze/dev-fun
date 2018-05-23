@@ -41,7 +41,7 @@ interface Invoker {
 internal class DefaultInvoker(
     context: Context,
     private val devFun: DevFun,
-    private val activityProvider: ActivityProvider,
+    private val activityTracker: ActivityTracker,
     private val errorHandler: ErrorHandler
 ) : Invoker {
     private val log = logger()
@@ -78,10 +78,10 @@ internal class DefaultInvoker(
     }
 
     override fun invoke(function: UiFunction): InvokeResult? {
-        val activity = activityProvider()
+        val activity = activityTracker.resumedActivity
         when (activity) {
             is FragmentActivity -> InvokingDialogFragment.show(activity, function)
-            else -> Toast.makeText(application, "Cannot show UI dialog without an active FragmentActivity.", Toast.LENGTH_SHORT).show()
+            else -> Toast.makeText(application, "Cannot show UI dialog without a resumed FragmentActivity.", Toast.LENGTH_SHORT).show()
         }
         return null
     }
@@ -137,7 +137,7 @@ internal class DefaultInvoker(
                 invoke = invoke
             )
 
-            InvokingDialogFragment.show(devFun.get(), description)
+            invoke(description)
         }
 
         return null
