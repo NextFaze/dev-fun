@@ -26,7 +26,7 @@ typealias UpdateCallback = () -> CharSequence
 typealias OnClick = () -> Unit
 
 /**
- * An overlay logger is a floating semi-transparent `TextView` that will display the `.toString()` of a function or property.
+ * An overlay logger is a floating semi-transparent `TextView` that will display the `.toString()` of a function, property, or class.
  *
  * They are contextually aware if created via @[DeveloperLogger] (managed by [OverlayLogging]) and will appear/disappear when in context (if
  * the annotation is within an Activity or Fragment).

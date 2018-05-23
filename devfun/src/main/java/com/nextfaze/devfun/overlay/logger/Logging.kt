@@ -10,8 +10,10 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.annotations.DeveloperLogger
 import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.isSubclassOf
+import com.nextfaze.devfun.internal.ReflectedMethod
 import com.nextfaze.devfun.internal.ReflectedProperty
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.splitCamelCase
@@ -19,6 +21,7 @@ import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.internal.toReflected
 import com.nextfaze.devfun.invoke.Invoker
 import com.nextfaze.devfun.overlay.OverlayManager
+import kotlin.reflect.KClass
 
 /** Handles the creation, maintenance, and permissions of [OverlayLogger] instances. */
 interface OverlayLogging {
@@ -41,7 +44,20 @@ internal class OverlayLoggingImpl(
     private val invoker: Invoker,
     private val activityProvider: ActivityProvider
 ) : OverlayLogging {
-    private val loggers = devFun.developerReferences<DeveloperLogger>().map { Logger(it) }
+    private val loggers =
+        devFun.developerReferences<DeveloperLogger>().mapNotNull {
+            when (it) {
+                is DeveloperMethodReference -> MethodLogger(it)
+                is DeveloperTypeReference -> TypeLogger(it)
+                else -> {
+                    devFun.get<ErrorHandler>().onWarn(
+                        "Overlay Logging",
+                        "Unexpected DeveloperReference type: ${it::class.java.interfaces.joinToString()}\nThis should not happen - please make an issue!"
+                    )
+                    null
+                }
+            }
+        }
 
     private val overlays = mutableMapOf<Logger, OverlayLogger>().apply {
         loggers.forEach { ref ->
@@ -88,29 +104,50 @@ internal class OverlayLoggingImpl(
         }
     }
 
-    private inner class Logger(ref: DeveloperReference) {
-        val reflected = ref.method!!.toReflected()
-        val prefsName = "${reflected.declaringClass.simpleName}.${reflected.name.substringBefore('$')}"
+    private abstract inner class Logger(val clazz: KClass<*>) {
+        abstract val displayName: CharSequence
+        abstract val prefsName: String
+        abstract val group: CharSequence
 
-        val isInActivity = Activity::class.java.isAssignableFrom(reflected.declaringClass)
-        val isInFragment = reflected.clazz.isSubclassOf<Fragment>()
+        abstract val updateCallback: UpdateCallback
+        abstract val onClick: OnClick?
+
+        val isInActivity = clazz.isSubclassOf<Activity>()
+        val isInFragment = clazz.isSubclassOf<Fragment>()
         val isContextual = isInActivity || isInFragment
         val isInContext
-            get() =
-                when {
-                    isInActivity -> activityProvider()?.let { it::class.isSubclassOf(reflected.clazz) } == true
-                    isInFragment -> activityProvider()?.let { it as? FragmentActivity }?.let {
-                        it.supportFragmentManager.fragments.orEmpty().any {
-                            // not sure how/why, but under some circumstances some of them are null
-                            it != null && it.isAdded && reflected.declaringClass.isAssignableFrom(it::class.java)
-                        }
-                    } == true
-                    else -> false
-                }
+            get() = when {
+                isInActivity -> activityProvider()?.let { it::class.isSubclassOf(clazz) } == true
+                isInFragment -> activityProvider()?.let { it as? FragmentActivity }?.let {
+                    it.supportFragmentManager.fragments.orEmpty().any {
+                        // not sure how/why, but under some circumstances some of them are null
+                        it != null && it.isAdded && clazz.java.isAssignableFrom(it::class.java)
+                    }
+                } == true
+                else -> false
+            }
+    }
 
-        val displayName by lazy { if (reflected is ReflectedProperty) reflected.desc else ".${reflected.name}()" }
+    private inner class TypeLogger(ref: DeveloperTypeReference) : Logger(ref.type) {
+        override val displayName: CharSequence = clazz.java.name
+        override val prefsName: String = clazz.java.simpleName
+        override val group = clazz.java.simpleName.splitCamelCase()
 
-        val updateCallback: UpdateCallback by lazy {
+        override val updateCallback: UpdateCallback by lazy { { devFun.instanceOf(clazz).toString() } }
+        override val onClick: OnClick? = null
+
+        override fun equals(other: Any?) = if (other is TypeLogger) clazz == other.clazz else false
+        override fun hashCode() = clazz.hashCode()
+        override fun toString() = clazz.toString()
+    }
+
+    private inner class MethodLogger(ref: DeveloperMethodReference, private val reflected: ReflectedMethod = ref.method.toReflected()) :
+        Logger(reflected.clazz) {
+        override val displayName by lazy { if (reflected is ReflectedProperty) reflected.desc else ".${reflected.name}()" }
+        override val prefsName = "${clazz.java.simpleName}.${reflected.name.substringBefore('$')}"
+        override val group = clazz.java.simpleName.splitCamelCase()
+
+        override val updateCallback: UpdateCallback by lazy {
             if (reflected is ReflectedProperty) {
                 return@lazy {
                     val isUninitialized by lazy { reflected.isUninitialized }
@@ -132,11 +169,11 @@ internal class OverlayLoggingImpl(
                     }
                 }
             } else {
-                return@lazy { reflected.invoke().toCharSequence() }
+                return@lazy { "${if (!isContextual) "${clazz.simpleName}." else ""}${reflected.name}()=${reflected.invoke().toCharSequence()}" }
             }
         }
 
-        val onClick: OnClick = onClick@{
+        override val onClick: OnClick = onClick@{
             if (reflected is ReflectedProperty) {
                 devFun.categories.forEach {
                     it.items.forEach {
@@ -155,7 +192,7 @@ internal class OverlayLoggingImpl(
                 else -> toString()
             }
 
-        override fun equals(other: Any?) = if (other is Logger) reflected == other.reflected else false
+        override fun equals(other: Any?) = if (other is MethodLogger) reflected == other.reflected else false
         override fun hashCode() = reflected.hashCode()
         override fun toString() = reflected.toString()
     }
@@ -176,7 +213,7 @@ internal class OverlayLoggingImpl(
                                 ), 0xFFAAAAAA.toInt()
                             )
                         }
-                    override val group = ref.reflected.declaringClass.simpleName.splitCamelCase()
+                    override val group = ref.group
                     override val args = listOf(logger)
                 }
             }

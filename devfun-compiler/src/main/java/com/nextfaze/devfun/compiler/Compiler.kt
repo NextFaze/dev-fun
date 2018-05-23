@@ -4,20 +4,15 @@ import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.CategoryDefinition
-import com.nextfaze.devfun.core.DeveloperReference
-import com.nextfaze.devfun.core.FunctionDefinition
-import com.nextfaze.devfun.core.FunctionTransformer
+import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.generated.DevFunGenerated
 import java.io.File
 import java.io.IOException
+import java.lang.reflect.Field
 import java.lang.reflect.Method
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
+import javax.lang.model.element.*
 import javax.lang.model.type.DeclaredType
 import javax.tools.StandardLocation.CLASS_OUTPUT
 import javax.tools.StandardLocation.SOURCE_OUTPUT
@@ -246,6 +241,15 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
     private val devFunElement by lazy { DevFunTypeElement(processingEnv.elementUtils.getTypeElement(DeveloperFunction::class.qualifiedName)) }
 
     private val TypeElement.isDevAnnotated get() = getAnnotation(DeveloperAnnotation::class.java) != null
+
+    private val typeImports = mutableSetOf<KClass<*>>().apply {
+        this += CategoryDefinition::class
+        this += DevFunGenerated::class
+        this += FunctionDefinition::class
+        this += DeveloperReference::class
+        this += Method::class
+        this += KClass::class
+    }
 
     override fun process(elements: Set<TypeElement>, env: RoundEnvironment): Boolean {
         try {
@@ -530,7 +534,69 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
         // DeveloperAnnotation
         //
 
-        fun generateDeveloperReferences(annotation: TypeElement, element: Element) {
+        fun generateDeveloperFieldReference(annotation: TypeElement, element: VariableElement) {
+            typeImports += DeveloperFieldReference::class
+            typeImports += Field::class
+
+            val clazz = element.enclosingElement as TypeElement
+            note { "Processing $clazz::$element for $annotation..." }
+
+            // The meta annotation class (e.g. Dagger2Component)
+            val annotationClass = annotation.toClass()
+
+            // Can we reference the field directly
+            val fieldIsPublic = element.isPublic
+            val classIsPublic = fieldIsPublic && clazz.isClassPublic
+
+            // If true the the field is top-level (file-level) declared (and thus we cant directly reference its enclosing class)
+            val isClassKtFile = clazz.isClassKtFile
+
+            // Generate field reference
+            val field = run {
+                val fieldName = element.simpleName.escapeDollar()
+                val setAccessible = if (!classIsPublic || !element.isPublic) ".apply { isAccessible = true }" else ""
+                """${clazz.toClass(false, isClassKtFile)}.getDeclaredField("$fieldName")$setAccessible"""
+            }
+
+            val developerAnnotation = "${element.enclosingElement}::$element"
+            var debugAnnotationInfo = ""
+            if (isDebugCommentsEnabled) {
+                debugAnnotationInfo = "\n#|// $developerAnnotation"
+            }
+
+            developerMethods[developerAnnotation] =
+                    """$debugAnnotationInfo
+                        #|object : ${DeveloperFieldReference::class.simpleName} {
+                        #|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> = $annotationClass
+                        #|    override val ${DeveloperFieldReference::field.name}: Field by lazy { $field }
+                        #|}"""
+        }
+
+        fun generateDeveloperTypeReference(annotation: TypeElement, element: TypeElement) {
+            typeImports += DeveloperTypeReference::class
+
+            note { "Processing $element for $annotation..." }
+
+            // The meta annotation class (e.g. Dagger2Component)
+            val annotationClass = annotation.toClass()
+
+            val developerAnnotation = "${element.enclosingElement}::$element"
+            var debugAnnotationInfo = ""
+            if (isDebugCommentsEnabled) {
+                debugAnnotationInfo = "\n#|// $developerAnnotation"
+            }
+
+            developerMethods[developerAnnotation] =
+                    """$debugAnnotationInfo
+                        #|object : ${DeveloperTypeReference::class.simpleName} {
+                        #|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> = $annotationClass
+                        #|    override val ${DeveloperTypeReference::type.name}: KClass<*> = ${element.toClass()}
+                        #|}"""
+        }
+
+        fun generateDeveloperExecutableReference(annotation: TypeElement, element: ExecutableElement) {
+            typeImports += DeveloperMethodReference::class
+
             val clazz = element.enclosingElement as TypeElement
             note { "Processing $clazz::$element for $annotation..." }
 
@@ -544,8 +610,8 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
             // If true the the function is top-level (file-level) declared (and thus we cant directly reference its enclosing class)
             val isClassKtFile = clazz.isClassKtFile
 
-            // If we are referencing a method
-            val method = (element as? ExecutableElement)?.let {
+            // Generate method reference
+            val method = run {
                 val funName = element.simpleName.escapeDollar()
                 val setAccessible = if (!classIsPublic || !element.isPublic) ".apply { isAccessible = true }" else ""
                 val methodArgTypes = element.parameters.joiner(prefix = ", ") { it.toClass(false) }
@@ -563,28 +629,37 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
 
             developerMethods[developerAnnotation] =
                     """$debugAnnotationInfo
-                        #|object : ${DeveloperReference::class.simpleName} {
-                        #|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> by lazy { $annotationClass }
-                        #|    override val ${DeveloperReference::method.name}: Method? by lazy { $method }
+                        #|object : ${DeveloperMethodReference::class.simpleName} {
+                        #|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> = $annotationClass
+                        #|    override val ${DeveloperMethodReference::method.name}: Method by lazy { $method }
                         #|}"""
         }
 
         devAnnotatedElements.forEach { devAnnotatedElement ->
             val handleAsDeveloperFunction = devAnnotatedElement.devAnnotation[DeveloperAnnotation::developerFunction] == true
             env.getElementsAnnotatedWith(devAnnotatedElement).forEach {
-                if (it !is ExecutableElement) {
-                    error(
-                        """Only executable elements are supported at the moment.
-                            |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin(),
-                        element = it
-                    )
-                } else {
-                    if (handleAsDeveloperFunction) {
+                if (handleAsDeveloperFunction) {
+                    if (it is ExecutableElement) {
                         val annotation =
                             it.annotationMirrors.first { it.annotationType.toString() == devAnnotatedElement.qualifiedName.toString() }
                         generateFunctionDefinition(DevFunAnnotation(processingEnv, annotation, devAnnotatedElement, devFunElement), it)
                     } else {
-                        generateDeveloperReferences(devAnnotatedElement, it)
+                        error(
+                            """Only executable elements are supported with developerFunction=true (elementType=${it::class}).
+                            |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin(),
+                            element = it
+                        )
+                    }
+                } else {
+                    when (it) {
+                        is ExecutableElement -> generateDeveloperExecutableReference(devAnnotatedElement, it)
+                        is TypeElement -> generateDeveloperTypeReference(devAnnotatedElement, it)
+                        is VariableElement -> generateDeveloperFieldReference(devAnnotatedElement, it)
+                        else -> error(
+                            """Only executable, type, and variable elements are supported at the moment (elementType=${it::class}).
+                                            |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin(),
+                            element = it
+                        )
                     }
                 }
             }
@@ -593,13 +668,8 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
 
     private fun generateKSource(): String {
         val imports = mutableSetOf<String?>().apply {
-            this += CategoryDefinition::class.qualifiedName
-            this += DevFunGenerated::class.qualifiedName
-            this += DeveloperReference::class.qualifiedName
-            this += FunctionDefinition::class.qualifiedName
+            typeImports.forEach { this += it.qualifiedName }
             this += functionInvokeQualified
-            this += Method::class.qualifiedName
-            this += KClass::class.qualifiedName
 
             if (useKotlinReflection) {
                 this += "kotlin.reflect.full.declaredFunctions"

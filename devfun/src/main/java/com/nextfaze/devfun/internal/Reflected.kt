@@ -39,7 +39,6 @@ private fun KProperty<*>.isUninitialized(receiver: Any?): Boolean {
 
 interface ReflectedMethod {
     val method: Method
-    val declaringClass: Class<*>
     val clazz: KClass<*>
     val name: String
     val isProperty: Boolean
@@ -82,7 +81,7 @@ private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod) : Refl
     ReflectedMethod by reflectedMethod {
     override val field by lazy {
         try {
-            declaringClass.getDeclaredField(fieldName).apply { isAccessible = true }
+            clazz.java.getDeclaredField(fieldName).apply { isAccessible = true }
         } catch (ignore: NoSuchFieldException) {
             null // is property without backing field (i.e. has custom getter/setter)
         }
@@ -153,8 +152,7 @@ private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod) : Refl
 }
 
 private data class ReflectedMethodImpl(override val method: Method) : ReflectedMethod {
-    override val declaringClass: Class<*> = method.declaringClass
-    override val clazz = declaringClass.kotlin
+    override val clazz = method.declaringClass.kotlin
     override val name: String = method.name
     override val isProperty = method.isProperty
 

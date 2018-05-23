@@ -59,6 +59,14 @@ data class SimpleError(
  */
 interface ErrorHandler {
     /**
+     * Log a simple warning message.
+     *
+     * @param title A title for the message/dialog.
+     * @param body A short description of how/why this exception was thrown.
+     */
+    fun onWarn(title: CharSequence, body: CharSequence)
+
+    /**
      * Call to log an error.
      *
      * This could be anything from reading/processing throughout DevFun, to more specific scenarios such as when
@@ -119,6 +127,9 @@ internal class DefaultErrorHandler(application: Application, private val activit
             onResumed = { showErrorDialogIfHaveUnseen() }
         )
     }
+
+    override fun onWarn(title: CharSequence, body: CharSequence) =
+        onError(SimpleError(RuntimeException("Warning: $title"), title, body))
 
     override fun onError(t: Throwable, title: CharSequence, body: CharSequence, functionItem: FunctionItem?) =
         onError(SimpleError(t, title, body, functionItem))
