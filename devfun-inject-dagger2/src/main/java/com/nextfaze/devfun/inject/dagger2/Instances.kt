@@ -337,7 +337,7 @@ private class Dagger2AnnotatedInstanceProvider(
 
         components = devFun.developerReferences<Dagger2Component>()
             .also { log.d { "Dagger2Component references: $it" } }
-            .filter { it.method != null }
+            .filterIsInstance<DeveloperMethodReference>()
             .map {
                 val origMethod = it.method!!
                 val method = if (origMethod.name.endsWith("\$annotations")) {

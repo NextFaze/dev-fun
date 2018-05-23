@@ -81,6 +81,17 @@ class ClassInstanceNotFoundException : Exception {
  *
  * Be aware of leaks! The lambda could implicitly hold a local `this` reference.
  *
+ * Be wary of using a `typealias` as a type - the resultant function "type" itself is used at compile time.
+ * e.g.
+ * ```kotlin
+ * typealias MyStringAlias = () -> String?
+ * val provider1 = captureInstance<MyStringAlias> { ... }
+ *
+ * typealias MyOtherAlias = () -> Type?
+ * // will be triggered for MyStringAlias and MyOtherAlias since behind the scenes they are both kotlin.Function0<T>
+ * val provider2 = captureInstance<MyOtherAlias> { ... }
+ * ```
+ *
  * @see captureInstance
  */
 class CapturingInstanceProvider<out T : Any>(private val instanceClass: KClass<T>, private val instance: () -> T?) : InstanceProvider {
@@ -106,6 +117,17 @@ class CapturingInstanceProvider<out T : Any>(private val instanceClass: KClass<T
  * val provider = captureInstance<BaseType> { someObject.someType } // triggers only for BaseType
  * ```
  *
+ * Be wary of using a `typealias` as a type - the resultant function "type" itself is used at compile time.
+ * e.g.
+ * ```kotlin
+ * typealias MyStringAlias = () -> String?
+ * val provider1 = captureInstance<MyStringAlias> { ... }
+ *
+ * typealias MyOtherAlias = () -> Type?
+ * // will be triggered for MyStringAlias and MyOtherAlias since behind the scenes they are both kotlin.Function0<T>
+ * val provider2 = captureInstance<MyOtherAlias> { ... }
+ * ```
+ *
  * @see singletonInstance
  * @see CapturingInstanceProvider
  */
@@ -124,6 +146,17 @@ inline fun <reified T : Any> captureInstance(noinline instance: () -> T?): Insta
  * If you want to reduce the type range then specify its base type manually:
  * ```kotlin
  * val provider = singletonInstance<BaseType> { SomeType() } // triggers only for BaseType (result of invocation is saved)
+ * ```
+ *
+ * Be wary of using a `typealias` as a type - the resultant function "type" itself is used at compile time.
+ * e.g.
+ * ```kotlin
+ * typealias MyStringAlias = () -> String?
+ * val provider1 = singletonInstance<MyStringAlias> { ... }
+ *
+ * typealias MyOtherAlias = () -> Type?
+ * // will be triggered for MyStringAlias and MyOtherAlias since behind the scenes they are both kotlin.Function0<T>
+ * val provider2 = singletonInstance<MyOtherAlias> { ... }
  * ```
  *
  * @see captureInstance

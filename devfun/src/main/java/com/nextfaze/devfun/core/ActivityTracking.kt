@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  *
  * @see ActivityTracker
  */
-typealias ActivityProvider = () -> Activity?
+interface ActivityProvider : kotlin.Function0<Activity?>
 
 /**
  * Activity tracker that provides the currently (resumed) activity if present.
