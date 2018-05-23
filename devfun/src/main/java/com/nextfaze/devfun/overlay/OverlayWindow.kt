@@ -367,7 +367,7 @@ internal class OverlayWindowImpl(
         var y = when (side) {
             null -> (top * overlayBounds.height()).toInt()
             Dock.TOP, Dock.TOP_LEFT, Dock.TOP_RIGHT -> overlayBounds.top
-            Dock.BOTTOM, Dock.BOTTOM_LEFT, Dock.BOTTOM_RIGHT -> overlayBounds.bottom - height - statusBarHeight
+            Dock.BOTTOM, Dock.BOTTOM_LEFT, Dock.BOTTOM_RIGHT -> overlayBounds.bottom - height
             else -> {
                 val yOffset = (displacement * overlayBounds.height()).toInt()
                 clamp(overlayBounds.top + yOffset, overlayBounds.top, overlayBounds.bottom)
@@ -444,14 +444,7 @@ internal class OverlayWindowImpl(
     private val leftEdge get() = windowLeft
     private val rightEdge get() = overlayBounds.width() - leftEdge - width
     private val topEdge get() = windowTop
-    private val bottomEdge get() = overlayBounds.height() - topEdge - height - statusBarHeight
-
-    private val statusBarHeight: Int
-        get() = application.resources.let { res ->
-            val resourceId = res.getIdentifier("status_bar_height", "dimen", "android")
-            // If manufacturer has broken this for some reason, it's not the end of the world to assume 0
-            return if (resourceId > 0) res.getDimensionPixelSize(resourceId) else 0
-        }
+    private val bottomEdge get() = overlayBounds.height() - topEdge - height
 
     private fun adjustPosition(updatePrefs: Boolean) {
         // find nearest edge

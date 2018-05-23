@@ -80,7 +80,10 @@ interface OverlayLogger {
     fun showConfigDialog()
 }
 
-class OverlayLoggerImpl(
+/*
+TODO resize overlay when text changes
+ */
+internal class OverlayLoggerImpl(
     context: Context,
     override val overlay: OverlayWindow,
     private val invoker: Invoker,

@@ -80,6 +80,9 @@ internal class DisplayBoundsTrackerImpl(context: Context) : DisplayBoundsTracker
     private fun updateBounds(activity: Activity) {
         val tmp = Rect()
         activity.defaultDisplay.getRectSize(tmp)
+        if (!tmp.isEmpty) {
+            tmp.bottom = tmp.bottom - statusBarHeight
+        }
         if (displayBounds.isEmpty || displayBounds != tmp) {
             val old = Rect(displayBounds)
             displayBounds.set(tmp)
