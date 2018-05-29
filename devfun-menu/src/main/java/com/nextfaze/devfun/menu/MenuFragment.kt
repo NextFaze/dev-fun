@@ -213,10 +213,21 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
         categoryItemsRecyclerView.adapter.notifyDataSetChanged()
     }
 
-    private fun onCategoryItemClick(functionItem: FunctionItem) {
+    private var dismissPerformed = false
+    private var functionItemClicked: FunctionItem? = null
+
+    private fun performDismiss() {
+        if (dismissPerformed) return
+        dismissPerformed = true
+        devMenu.onDismissed()
+        val functionItemClicked = functionItemClicked ?: return
         handler.post {
-            functionItem.call()
+            functionItemClicked.call()
         }
+    }
+
+    private fun onCategoryItemClick(functionItem: FunctionItem) {
+        functionItemClicked = functionItem
         dismiss()
     }
 
@@ -227,12 +238,12 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
 
     // we will not get an onDismiss callback if a dialog fragment is opened on an activity that is then finished while the dialog is open
     override fun onDestroy() {
-        devMenu.onDismissed()
+        performDismiss()
         super.onDestroy()
     }
 
     override fun onDismiss(dialog: DialogInterface) {
-        devMenu.onDismissed()
+        performDismiss()
         super.onDismiss(dialog)
     }
 
