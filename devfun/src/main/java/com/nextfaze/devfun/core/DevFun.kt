@@ -21,6 +21,8 @@ import com.nextfaze.devfun.error.DefaultErrorHandler
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
+import com.nextfaze.devfun.internal.exception.ExceptionCategoryItem
+import com.nextfaze.devfun.internal.exception.stackTraceAsString
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.prop.*
 import com.nextfaze.devfun.internal.splitSimpleName

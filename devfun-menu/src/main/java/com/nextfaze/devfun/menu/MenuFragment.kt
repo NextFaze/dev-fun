@@ -19,8 +19,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.WithSubGroup
 import com.nextfaze.devfun.internal.android.*
+import com.nextfaze.devfun.internal.exception.ExceptionFunctionItem
 import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.view.ViewFactory
@@ -157,6 +159,16 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
     }
 
     private fun onCategoryClick(category: CategoryItem, index: Int) {
+        try {
+            performOnCategoryClick(category, index)
+        } catch (t: Throwable) {
+            devFun.get<ErrorHandler>().onError(t, "Category Generation", "Failed to generate category '${category.name}' items.")
+            categoryItems = listOf(FunctionListItem(ExceptionFunctionItem(t.toString())))
+            categoryItemsRecyclerView.adapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun performOnCategoryClick(category: CategoryItem, index: Int) {
         if (selectedCategoryIdx == index) return
 
         val prevSelected = selectedCategoryIdx
