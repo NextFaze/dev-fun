@@ -53,6 +53,18 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
         }
 
     internal fun <T : Any> getInstance(clazz: KClass<out T>, onFound: ((clazz: KClass<*>, provider: InstanceProvider) -> Unit)?): T {
+        fun tryGetInstanceOfInstanceProvider(): T? {
+            if (clazz.isSubclassOf<InstanceProvider>()) {
+                forEach {
+                    if (it::class.isSubclassOf(clazz)) {
+                        @Suppress("UNCHECKED_CAST")
+                        return it as T
+                    }
+                }
+            }
+            return null
+        }
+
         forEach { provider ->
             val crumb = Crumb(clazz, provider).also {
                 if (crumbs.contains(it)) {
@@ -74,7 +86,7 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
                 // we ignore these and just check others
             } catch (t: ConstructableException) {
                 // we got to the lowest provider (ConstructingInstanceProvider) and still couldn't get it
-                throw ClassInstanceNotFoundException(t)
+                return tryGetInstanceOfInstanceProvider() ?: throw ClassInstanceNotFoundException(t)
             } catch (t: Throwable) {
                 errorHandler.onError(
                     t,
@@ -86,14 +98,7 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
             }
         }
 
-        if (clazz.isSubclassOf<InstanceProvider>()) {
-            iterator().asSequence().firstOrNull { it::class.isSubclassOf(clazz) }?.let {
-                @Suppress("UNCHECKED_CAST")
-                return it as T
-            }
-        }
-
-        throw ClassInstanceNotFoundException(clazz)
+        return tryGetInstanceOfInstanceProvider() ?: throw ClassInstanceNotFoundException(clazz)
     }
 
     override fun onComponentsChanged() = aggressiveCachingProvider.onComponentsChanged()
