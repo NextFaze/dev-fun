@@ -14,6 +14,7 @@ import com.nextfaze.devfun.internal.exception.stackTraceAsString
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.string.*
 import kotlinx.android.parcel.Parcelize
+import java.util.Date
 
 /**
  * Details/information of an error.
@@ -136,7 +137,15 @@ internal class DefaultErrorHandler(application: Application, private val activit
         onError(SimpleError(t, title, body, functionItem))
 
     override fun onError(error: ErrorDetails) {
-        log.e(error.t) { "DevFun Error:\n${error.toString().replace(", ", "\n")}" }
+        log.e(error.t) {
+            """DevFun Error
+                |title: ${error.title}
+                |body: ${error.body}
+                |when: ${Date(error.time)}
+                |functionItem: ${if (error.functionItem == null) "NA" else "${error.functionItem}"}
+                |exception:
+                |""".trimMargin()
+        }
 
         val renderedError = error.render()
         synchronized(errorLock) {

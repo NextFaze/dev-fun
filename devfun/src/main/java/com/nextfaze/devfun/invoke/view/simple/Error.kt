@@ -2,7 +2,9 @@ package com.nextfaze.devfun.invoke.view.simple
 
 import android.content.Context
 import android.support.v7.widget.AppCompatTextView
+import android.text.SpannableStringBuilder
 import android.util.AttributeSet
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.view.WithValue
 import kotlin.reflect.KClass
 
@@ -17,7 +19,11 @@ internal class ErrorView @JvmOverloads constructor(
 
     override var value: KClass<*> = Unit::class
         set(value) {
-            this.text = value.qualifiedName
+            this.text = SpannableStringBuilder().apply {
+                this += value.qualifiedName.toString()
+                this += "\n"
+                this += scale(i("\t(tap for error details)"), 0.8f)
+            }
             field = value
         }
 }

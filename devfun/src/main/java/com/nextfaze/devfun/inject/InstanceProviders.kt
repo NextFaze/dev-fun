@@ -72,6 +72,9 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
                 }
             } catch (ignore: ClassInstanceNotFoundException) {
                 // we ignore these and just check others
+            } catch (t: ConstructableException) {
+                // we got to the lowest provider (ConstructingInstanceProvider) and still couldn't get it
+                throw ClassInstanceNotFoundException(t)
             } catch (t: Throwable) {
                 errorHandler.onError(
                     t,

@@ -2,6 +2,7 @@ package com.nextfaze.devfun.inject
 
 import android.support.annotation.RestrictTo
 import com.nextfaze.devfun.internal.log.*
+import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.reflect.KClass
@@ -45,8 +46,7 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
         // Can we already create it?
         synchronized(constructablesLock) {
             constructables[clazz]?.also {
-                if (requireConstructable && !it.isConstructable) return null
-                else return it.factory() as T
+                return if (requireConstructable && !it.isConstructable) null else it.factory() as T
             }
         }
 
@@ -54,22 +54,60 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
         val annotations by lazy(NONE) { clazz.java.annotations }
         val constructable by lazy(NONE) { annotations.firstOrNull { it is Constructable } as Constructable? }
         if (requireConstructable && constructable == null) {
-            return null
+            if (clazz.java.declaredConstructors.any { it.annotations.any { it is Inject } }) {
+                throw ConstructableException(
+                    """
+                        |
+                        |> Could not construct instance of:
+                        |>   ${clazz.qualifiedName}
+                        |
+                        |> Class is not @Constructable and requireConstructable=true
+                        |>   An @Inject annotation is present, but was not resolved by inject providers.
+                        |>   Ensure you have an inject provider (such as devfun-inject-dagger2 etc).
+                        |
+                        |> Also note: For Dagger 2.x to generate a getter/provider for DevFun to use, it must be injected into the
+                        |> relevant scope (otherwise it is effectively ignored by Dagger and DevFun wont have anything to pull it from).
+                        |
+                        |> Alternatively add @Constructable to the type to allow DevFun to construct it normally.
+                        |> The args will be resolved using your inject system et al. as normal.
+                        |""".trimMargin()
+                )
+            } else {
+                throw ConstructableException(
+                    """
+                        |
+                        |> Could not construct instance of
+                        |>   ${clazz.qualifiedName}
+                        |
+                        |> Class is not @Constructable and requireConstructable=true
+                        |""".trimMargin()
+                )
+            }
         }
 
         // must have a single constructor
-        val constructors = clazz.java.constructors
+        val constructors = clazz.java.declaredConstructors
         if (constructors.isEmpty()) {
-            throw ClassInstanceNotFoundException(
-                """Could not get instance of @Constructable $clazz
-                    |> No constructors found (is it an interface?)""".trimMargin()
+            throw ConstructableException(
+                """
+                    |
+                    |> Could not construct instance of @Constructable
+                    |>   ${clazz.qualifiedName}
+                    |
+                    |> No constructors found (is it an interface?)
+                    |""".trimMargin()
             )
         }
         if (constructors.size != 1) {
-            throw ClassInstanceNotFoundException(
-                """Could not get instance of @Constructable $clazz
+            throw ConstructableException(
+                """
+                    |
+                    |> Could not construct instance of @Constructable
+                    |>   ${clazz.qualifiedName}
+                    |
                     |> Multiple constructors found:
-                    |${constructors.joinToString("\n") { "- $it" }}""".trimMargin()
+                    |${constructors.joinToString("\n") { "- $it" }}
+                    |""".trimMargin()
             )
         }
 
@@ -93,6 +131,8 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
             }
         }
     }
+
+    override fun toString(): String = "ConstructingInstanceProvider(requireConstructable=$requireConstructable, root=$root)"
 }
 
 /**
@@ -100,4 +140,9 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
  *
  * @see ClassInstanceNotFoundException
  */
-class ConstructableException(cause: Throwable) : Exception(cause)
+@Suppress("unused")
+class ConstructableException : Exception {
+    constructor(cause: Throwable) : super(cause)
+    constructor(message: String) : super(message)
+    constructor(message: String, cause: Throwable) : super(message, cause)
+}

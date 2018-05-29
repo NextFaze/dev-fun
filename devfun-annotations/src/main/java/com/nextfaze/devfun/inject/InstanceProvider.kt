@@ -61,9 +61,8 @@ interface RequiringInstanceProvider : InstanceProvider {
     override operator fun <T : Any> get(clazz: KClass<out T>): T
 }
 
-/**
- * Exception thrown when attempting to provide a type that was not found from any [InstanceProvider].
- */
+/** Exception thrown when attempting to provide a type that was not found from any [InstanceProvider]. */
+@Suppress("unused")
 class ClassInstanceNotFoundException : Exception {
     constructor(clazz: KClass<*>) : super(
         """
@@ -74,6 +73,8 @@ class ClassInstanceNotFoundException : Exception {
     )
 
     constructor(msg: String) : super(msg)
+
+    constructor(cause: Exception) : super(cause)
 }
 
 /**

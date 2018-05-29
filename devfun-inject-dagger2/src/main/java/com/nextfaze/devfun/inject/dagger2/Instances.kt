@@ -80,7 +80,7 @@ private val providerFields = mutableMapOf<Field, ProviderField>()
 fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>, cacheResolvedTypes: Boolean = true): T? {
     // Special case - a non-singleton no-args injected type will not have a provider or getter
     if (!clazz.java.isAnnotationPresent(Singleton::class.java) &&
-        clazz.java.constructors.singleOrNull()?.isAnnotationPresent(Inject::class.java) == true) {
+        clazz.java.declaredConstructors.singleOrNull()?.let { it.parameterTypes.isEmpty() && it.isAnnotationPresent(Inject::class.java) } == true) {
         log.t { "$clazz is non-singleton no-args @Inject - creating new instance..." }
         return clazz.java.newInstance()
     }
@@ -339,7 +339,7 @@ private class Dagger2AnnotatedInstanceProvider(
             .also { log.d { "Dagger2Component references: $it" } }
             .filterIsInstance<DeveloperMethodReference>()
             .map {
-                val origMethod = it.method!!
+                val origMethod = it.method
                 val method = if (origMethod.name.endsWith("\$annotations")) {
                     // user has annotated a property
                     val getterName = "get${origMethod.name.substringBeforeLast('$').capitalize()}"

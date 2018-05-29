@@ -43,7 +43,7 @@ annotation class Dagger2Component(
      *
      * If [scope] and [priority] are unset then a best-guess will be made based on where the component is.
      * i.e. If its in an Application class then it'll be assumed to be application level etc.
-     * If it's an extension function then the receiver will be used.
+     * If it's an extension function then the receiver type will be used as to "where".
      */
     val scope: Dagger2Scope = Dagger2Scope.UNDEFINED,
 

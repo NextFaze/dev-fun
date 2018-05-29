@@ -26,7 +26,6 @@ import com.nextfaze.devfun.invoke.view.simple.InjectedParameterView
 import com.nextfaze.devfun.invoke.view.types.getTypeOrNull
 import com.nextfaze.devfun.overlay.OverlayManager
 import kotlinx.android.synthetic.main.df_devfun_invoker_dialog_fragment.*
-import kotlin.reflect.KClass
 
 internal class InvokingDialogFragment : BaseDialogFragment() {
     companion object {
@@ -134,7 +133,14 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
 
         if (!canExecute) {
             (0 until inputsList.childCount).forEach {
-                inputsList.getChildAt(it).isEnabled = false
+                inputsList.getChildAt(it).also { view ->
+                    view as InvokeParameterView
+                    val paramView = view.view
+                    // we want to leave these enabled so we can click to show error details
+                    if (paramView !is ErrorParameterView) {
+                        view.isEnabled = false
+                    }
+                }
             }
             errorMessageText.visibility = View.VISIBLE
         }
@@ -176,7 +182,14 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
         paramView.label = parameter.displayName
         paramView.nullable = if (parameter is WithNullability) parameter.isNullable else false
 
-        if (parameter.type.isInjectable) {
+        val injectException =
+            try {
+                devFun.instanceOf(parameter.type).let { null }
+            } catch (t: Throwable) {
+                t
+            }
+
+        if (injectException == null) {
             paramView.view = devFun.viewFactories[InjectedParameterView::class]?.inflate(layoutInflater, inputsList)?.apply {
                 if (this is InjectedParameterView) {
                     value = parameter.type
@@ -205,15 +218,17 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
                 canExecute = false
                 devFun.viewFactories[ErrorParameterView::class]?.inflate(layoutInflater, inputsList)?.apply {
                     this as ErrorParameterView
-                    this.value = parameter.type
+                    value = parameter.type
                     paramView.attributes = getText(R.string.df_devfun_missing)
                     paramView.view = this
+                    paramView.setOnClickListener {
+                        devFun.get<ErrorHandler>()
+                            .onError(injectException, "Instance Not Found", getString(R.string.df_devfun_cannot_execute))
+                    }
                 }
             }
         }
 
         inputsList.addView(paramView)
     }
-
-    private val <T : Any> KClass<T>.isInjectable get() = devFun.tryGetInstanceOf(this) != null
 }

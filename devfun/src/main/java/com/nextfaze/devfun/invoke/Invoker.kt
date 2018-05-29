@@ -5,7 +5,6 @@ import android.support.v4.app.FragmentActivity
 import android.widget.Toast
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.error.ErrorHandler
-import com.nextfaze.devfun.inject.ClassInstanceNotFoundException
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.log.*
@@ -90,14 +89,16 @@ internal class DefaultInvoker(
         var haveAllInstances = true
 
         class Checker : InstanceProvider {
-            override fun <T : Any> get(clazz: KClass<out T>) =
+            override fun <T : Any> get(clazz: KClass<out T>): T? =
                 when {
                     !haveAllInstances -> null
-                    else -> devFun.tryGetInstanceOf(clazz).also {
-                        if (it == null) {
+                    else ->
+                        try {
+                            devFun.instanceOf(clazz)
+                        } catch (t: Throwable) {
                             haveAllInstances = false
+                            null
                         }
-                    }
                 }
         }
 
@@ -143,13 +144,6 @@ internal class DefaultInvoker(
         return null
     }
 }
-
-internal fun <T : Any> DevFun.tryGetInstanceOf(clazz: KClass<T>) =
-    try {
-        instanceOf(clazz)
-    } catch (ignore: ClassInstanceNotFoundException) {
-        null
-    }
 
 private class NativeParameter(
     override val kParameter: KParameter
