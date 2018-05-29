@@ -162,8 +162,8 @@ internal class OverlayLoggerImpl(
             }
         } catch (t: Throwable) {
             errored = true
-            devFun.get<ErrorHandler>()
-                .onError(t, "Overlay Logger", "Exception while updating overlay $this.\nTap overlay to re-enable.")
+            text = "Exception while updating overlay $this.\nTap overlay to re-enable/try again.\n\nException: $t"
+            devFun.get<ErrorHandler>().onError(t, "Overlay Logger", "Exception while updating overlay $this.")
         }
     }
 
