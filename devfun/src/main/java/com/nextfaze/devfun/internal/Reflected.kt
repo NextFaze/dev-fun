@@ -56,7 +56,10 @@ interface ReflectedProperty {
     val property: KProperty<*>
     val getter: Method?
     val setter: Method?
+
     val desc: String
+    val descWithDeclaringClass: String
+    fun getDesc(withDeclaringClass: Boolean = false): String
 
     val isLateinit: Boolean
     val type: KClass<*>
@@ -100,10 +103,13 @@ private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod) : Refl
         if (property is KMutableProperty<*>) property.setter.javaMethod?.apply { isAccessible = true } else null
     }
 
-    override val desc by lazy {
+    override val desc by lazy { getDesc(false) }
+    override val descWithDeclaringClass by lazy { getDesc(true) }
+    override fun getDesc(withDeclaringClass: Boolean): String {
         val lateInit = if (property.isLateinit) "lateinit " else ""
         val varType = if (property is KMutableProperty<*>) "var" else "val"
-        "$lateInit$varType $fieldName: ${property.simpleName}"
+        val declaringClass = if (withDeclaringClass) clazz.simpleName?.let { "$it." } ?: "" else ""
+        return "$lateInit$varType $declaringClass$fieldName: ${property.simpleName}"
     }
 
     override val isLateinit by lazy { property.isLateinit }

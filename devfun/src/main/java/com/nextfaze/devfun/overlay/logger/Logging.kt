@@ -154,7 +154,7 @@ internal class OverlayLoggingImpl(
                     val value = reflected.value
 
                     SpannableStringBuilder().apply {
-                        this += reflected.desc
+                        this += reflected.getDesc(!isContextual)
                         this += " = "
                         when {
                             reflected.isLateinit && value == null -> this += i("undefined")
