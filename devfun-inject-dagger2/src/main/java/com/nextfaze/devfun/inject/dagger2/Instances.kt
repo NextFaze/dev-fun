@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.app.Application
 import android.app.Fragment
 import android.content.Context
+import android.support.v4.app.FragmentActivity
 import android.text.SpannableStringBuilder
 import android.view.View
 import com.google.auto.service.AutoService
@@ -282,8 +283,9 @@ class InjectFromDagger2 : AbstractDevFunModule() {
 }
 
 abstract class Dagger2InstanceProvider(
-    private val androidInstances: AndroidInstanceProviderInternal
+    val androidInstances: AndroidInstanceProviderInternal
 ) : InstanceProvider {
+    @Suppress("MemberVisibilityCanBePrivate")
     var deferToAndroidInstanceProvider: Boolean = true
 
     override fun <T : Any> get(clazz: KClass<out T>) =
@@ -304,18 +306,26 @@ private class Dagger2AnnotatedInstanceProvider(
     private data class ComponentReference(
         val annotation: Dagger2Component,
         val method: Method,
-        val scope: Int
+        val scope: Int,
+        val isActivityRequired: Boolean,
+        val isFragmentActivityRequired: Boolean
     ) {
         private val toString by lazy {
             // render once for logging purposes
             """component {
-                |  resolvedScope: $scope
+                |  method: $method,
                 |  annotation {
-                |    scope: ${annotation.scope}
-                |    priority: ${annotation.priority}
+                |    scope: ${annotation.scope},
+                |    priority: ${annotation.priority},
+                |    isActivityRequired: ${annotation.isActivityRequired},
+                |    isFragmentActivityRequired: ${annotation.isFragmentActivityRequired}
+                |  },
+                |  resolved {
+                |    scope: $scope,
+                |    isActivityRequired: $isActivityRequired,
+                |    isFragmentActivityRequired: $isFragmentActivityRequired
                 |  }
-                |  method: $method
-                 |}""".trimMargin()
+                |}""".trimMargin()
         }
 
         override fun toString() = toString
@@ -348,35 +358,42 @@ private class Dagger2AnnotatedInstanceProvider(
                     origMethod
                 }
                 val annotation = origMethod.getAnnotation(Dagger2Component::class.java) ?: return@map null
-                val priority =
-                    when {
-                        annotation.scope != Dagger2Scope.UNDEFINED -> {
-                            log.t { "@Dagger2Component $method has scope of: ${annotation.scope}(${annotation.scope.ordinal})" }
-                            annotation.scope.ordinal
-                        }
-                        annotation.priority != 0 -> {
-                            log.t { "@Dagger2Component $method has priority of: ${annotation.priority}" }
-                            annotation.priority
-                        }
-                        else -> bestGuess@ {
-                            if (method.isStatic) {
-                                val receiverType = method.parameterTypes.firstOrNull()
-                                when (receiverType) {
-                                    null -> Dagger2Scope.APPLICATION
-                                    else -> receiverType.kotlin.toScope()
-                                }.also {
-                                    log.t { "Assuming scope of $it for static $method as receiver type is $receiverType" }
-                                }
-                            } else {
-                                val declaringClass = method.declaringClass.kotlin
-                                declaringClass.toScope().also {
-                                    log.t { "Assuming scope of $it for $method as receiver type is declaringClass is $declaringClass" }
-                                }
-                            }.ordinal
+
+                fun Dagger2Scope.toComponentReference() =
+                    ComponentReference(annotation, method, ordinal, isActivityRequired, isFragmentActivityRequired)
+
+                when {
+                    annotation.scope != Dagger2Scope.UNDEFINED -> {
+                        log.t { "@Dagger2Component $method has defined scope: $annotation" }
+                        annotation.scope.toComponentReference()
+                    }
+                    annotation.priority != 0 -> {
+                        log.t { "@Dagger2Component $method has custom scope: $annotation" }
+                        ComponentReference(
+                            annotation,
+                            method,
+                            annotation.priority,
+                            annotation.isActivityRequired,
+                            annotation.isFragmentActivityRequired
+                        )
+                    }
+                    else -> bestGuess@ { // scope is UNDEFINED and priority is 0
+                        if (method.isStatic) {
+                            val receiverType = method.parameterTypes.firstOrNull()
+                            when (receiverType) {
+                                null -> Dagger2Scope.APPLICATION.toComponentReference()
+                                else -> receiverType.kotlin.toScope().toComponentReference()
+                            }.also {
+                                log.t { "Assuming scope of $it for static $method as receiver type is $receiverType" }
+                            }
+                        } else {
+                            val declaringClass = method.declaringClass.kotlin
+                            declaringClass.toScope().toComponentReference().also {
+                                log.t { "Assuming scope of $it for $method as receiver type is declaringClass is $declaringClass" }
+                            }
                         }
                     }
-
-                ComponentReference(annotation, method, priority).also {
+                }.also {
                     log.t { "Found @Dagger2Component annotated reference:\n$it" }
                 }
             }
@@ -398,21 +415,34 @@ private class Dagger2AnnotatedInstanceProvider(
         if (components.isEmpty()) return null
 
         components.forEach {
-            log.t { "Check for $clazz from component reference $it" }
-
-            val receiver = when {
-                it.method.isStatic -> null
-                else -> it.method.receiverInstance(devFun.instanceProviders)
+            if (it.isFragmentActivityRequired && androidInstances.activity !is FragmentActivity) {
+                log.t { "Component out of scope - FragmentActivity required but not present: $it" }
+                return@forEach
             }
-            val args = it.method.parameterInstances(devFun.instanceProviders)
-            log.t { "Component receiver instance: $receiver, args: $args" }
+            if (it.isActivityRequired && androidInstances.activity == null) {
+                log.t { "Component out of scope - Activity required but not present: $it" }
+                return@forEach
+            }
 
-            val component = when {
-                args != null -> it.method.invoke(receiver, *args.toTypedArray())
-                else -> it.method.invoke(receiver)
-            } ?: return@forEach
+            try {
+                log.t { "Check for $clazz from component reference $it" }
 
-            tryGetInstanceFromComponent(component, clazz)?.let { return it }
+                val receiver = when {
+                    it.method.isStatic -> null
+                    else -> it.method.receiverInstance(devFun.instanceProviders)
+                }
+                val args = it.method.parameterInstances(devFun.instanceProviders)
+                log.t { "Component receiver instance: $receiver, args: $args" }
+
+                val component = when {
+                    args != null -> it.method.invoke(receiver, *args.toTypedArray())
+                    else -> it.method.invoke(receiver)
+                } ?: return@forEach
+
+                tryGetInstanceFromComponent(component, clazz)?.let { return it }
+            } catch (t: Throwable) {
+                log.w(t) { "Component $it threw $t (may be out of scope - check your configuration) - trying other providers." }
+            }
         }
 
         return null

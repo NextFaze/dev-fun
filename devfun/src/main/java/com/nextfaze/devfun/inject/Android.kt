@@ -14,10 +14,14 @@ import com.nextfaze.devfun.internal.android.*
 import java.util.ArrayDeque
 import kotlin.reflect.KClass
 
-interface AndroidInstanceProvider : AndroidInstanceProviderInternal
+interface AndroidInstanceProvider : AndroidInstanceProviderInternal {
+    override val activity: Activity?
+}
 
 internal class AndroidInstanceProviderImpl(context: Context, private val activityProvider: ActivityProvider) : AndroidInstanceProvider {
     private val applicationContext = context.applicationContext
+
+    override val activity: Activity? get() = activityProvider()
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(clazz: KClass<out T>): T? {

@@ -1,5 +1,6 @@
 package com.nextfaze.devfun.annotations
 
+import com.nextfaze.devfun.annotations.Dagger2Scope.UNDEFINED
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.*
 
@@ -8,16 +9,16 @@ import kotlin.annotation.AnnotationTarget.*
  *
  * If for whatever reason you want more control or don't want named like this then you can manually set [Dagger2Component.priority].
  */
-enum class Dagger2Scope {
+enum class Dagger2Scope(val isFragmentActivityRequired: Boolean = false, val isActivityRequired: Boolean = isFragmentActivityRequired) {
     UNDEFINED,
-    LOWEST,
-    VIEW,
-    LOWER,
-    FRAGMENT,
-    LOW,
-    ACTIVITY,
-    HIGH,
-    RETAINED_FRAGMENT,
+    LOWEST(isActivityRequired = true),
+    VIEW(isActivityRequired = true),
+    LOWER(isActivityRequired = true),
+    FRAGMENT(isFragmentActivityRequired = true),
+    LOW(isActivityRequired = true),
+    ACTIVITY(isActivityRequired = true),
+    HIGH(isActivityRequired = true),
+    RETAINED_FRAGMENT(isFragmentActivityRequired = true),
     HIGHER,
     APPLICATION,
     HIGHEST
@@ -41,18 +42,36 @@ annotation class Dagger2Component(
     /**
      * The scope of this component.
      *
-     * If [scope] and [priority] are unset then a best-guess will be made based on where the component is.
+     * If [scope] is [UNDEFINED] and [priority] is `0` then a best-guess will be made based on where the component is.
      * i.e. If its in an Application class then it'll be assumed to be application level etc.
      * If it's an extension function then the receiver type will be used as to "where".
      */
-    val scope: Dagger2Scope = Dagger2Scope.UNDEFINED,
+    val scope: Dagger2Scope = UNDEFINED,
 
     /**
-     * Here if for whatever reason you don't want to use [scope].
+     * Here if for whatever reason you can't/don't want to use [scope] - will only be used if [scope] is [UNDEFINED].
+     *
+     * If [scope] is [UNDEFINED] and [priority] is `0` then a best-guess will be made based on where the component is.
+     * i.e. If its in an Application class then it'll be assumed to be application level etc.
+     * If it's an extension function then the receiver type will be used as to "where".
      *
      * If [scope] is set it takes priority (which is just the enum ordinal value).
      *
      * @see Dagger2Scope
      */
-    val priority: Int = 0
+    val priority: Int = 0,
+
+    /**
+     * Here if for whatever reason you can't/don't want to use [scope] - will only be used if [scope] is [UNDEFINED] and [priority] is non-zero.
+     *
+     * @see Dagger2Scope
+     */
+    val isActivityRequired: Boolean = false,
+
+    /**
+     * Here if for whatever reason you can't/don't want to use [scope] - will only be used if [scope] is [UNDEFINED] and [priority] is non-zero.
+     *
+     * @see Dagger2Scope
+     */
+    val isFragmentActivityRequired: Boolean = false
 )
