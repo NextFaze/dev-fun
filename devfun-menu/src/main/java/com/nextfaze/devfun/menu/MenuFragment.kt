@@ -1,7 +1,6 @@
 package com.nextfaze.devfun.menu
 
 import android.app.Activity
-import android.content.DialogInterface
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -213,38 +212,21 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
         categoryItemsRecyclerView.adapter.notifyDataSetChanged()
     }
 
-    private var dismissPerformed = false
-    private var functionItemClicked: FunctionItem? = null
-
-    private fun performDismiss() {
-        if (dismissPerformed) return
-        dismissPerformed = true
-        devMenu.onDismissed()
-        val functionItemClicked = functionItemClicked ?: return
-        handler.post {
-            functionItemClicked.call()
-        }
-    }
-
     private fun onCategoryItemClick(functionItem: FunctionItem) {
         functionItemClicked = functionItem
         dismiss()
     }
 
+    private var functionItemClicked: FunctionItem? = null
+
+    override fun onPerformDismiss() {
+        functionItemClicked?.let { handler.post { it.call() } }
+        devMenu.onDismissed()
+    }
+
     override fun onStart() {
-        devMenu.onShown()
         super.onStart()
-    }
-
-    // we will not get an onDismiss callback if a dialog fragment is opened on an activity that is then finished while the dialog is open
-    override fun onDestroy() {
-        performDismiss()
-        super.onDestroy()
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        performDismiss()
-        super.onDismiss(dialog)
+        devMenu.onShown()
     }
 
     override fun onResume() {

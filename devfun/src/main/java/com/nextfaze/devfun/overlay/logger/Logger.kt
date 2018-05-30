@@ -187,7 +187,8 @@ internal class OverlayLoggerImpl(
             Option("Enabled", overlay.enabled) { overlay.enabled = it },
             Option("Snap to Edges", overlay.snapToEdge) { overlay.snapToEdge = it },
             Option("Refresh Rate (ms)", refreshRate) { refreshRate = it },
-            Option("Visibility Scope", visibilityScope) { visibilityScope = it }
+            Option("Visibility Scope", visibilityScope) { visibilityScope = it },
+            Option("Hide when Dialogs Present", overlay.hideWhenDialogsPresent) { overlay.hideWhenDialogsPresent = it }
         )
 
         invoker.invoke(

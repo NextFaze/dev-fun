@@ -3,7 +3,6 @@ package com.nextfaze.devfun.error
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Parcelable
@@ -124,8 +123,7 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
         }
     }
 
-    override fun onDismiss(dialog: DialogInterface?) {
-        super.onDismiss(dialog)
+    override fun onPerformDismiss() {
         errors.forEach {
             errorHandler.markSeen(it.nanoTime)
         }

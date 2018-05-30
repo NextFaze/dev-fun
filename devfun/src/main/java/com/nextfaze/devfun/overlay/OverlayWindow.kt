@@ -73,6 +73,9 @@ interface OverlayWindow {
      */
     var visibilityScope: VisibilityScope
 
+    /** If disabled this overlay will be visible when dialogs are visible (i.e. when DevMenu opens if `true` (default) this overlay will be hidden). */
+    var hideWhenDialogsPresent: Boolean
+
     /**
      * Insets the overlay window. For a docked window, a pos
      *
@@ -166,6 +169,7 @@ internal class OverlayWindowImpl(
     override var snapToEdge: Boolean by preferences["snapToEdge", snapToEdge, { _, _ -> updatePosition(false) }]
     override var enabled: Boolean by preferences["enabled", true, { _, _ -> updateVisibility() }]
     override var visibilityScope: VisibilityScope by preferences["visibilityScope", visibilityScope, { _, _ -> updateVisibility() }]
+    override var hideWhenDialogsPresent: Boolean by preferences["hideWhenDialogsPresent", true, { _, _ -> updateVisibility() }]
 
     override var inset = Rect()
 
@@ -189,7 +193,7 @@ internal class OverlayWindowImpl(
 
     private val foregroundListener = foregroundTracker.addForegroundChangeListener { updateVisibility() }
     private val boundsListener = displayBoundsTracker.addDisplayBoundsChangeListener { _, bounds -> updateOverlayBounds(bounds) }
-    private val fullScreenLockListener = overlays.addFullScreenLockChangeListener { updateVisibility() }
+    private val fullScreenLockListener = overlays.addFullScreenUsageStateListener { updateVisibility() }
 
     private var permissionsListener: OverlayPermissionChangeListener? = null
     private var addToWindow = false
@@ -209,7 +213,7 @@ internal class OverlayWindowImpl(
         if (!isAdded) return
 
         val activity = activityProvider()
-        visible = !overlays.isFullScreenLockInUse && enabled &&
+        visible = !(hideWhenDialogsPresent && overlays.isFullScreenInUse) && enabled &&
                 when (visibilityScope) {
                     VisibilityScope.FOREGROUND_ONLY -> {
                         when (activity) {

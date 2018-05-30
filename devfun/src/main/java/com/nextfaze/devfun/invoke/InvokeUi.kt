@@ -1,7 +1,6 @@
 package com.nextfaze.devfun.invoke
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.TextInputLayout
@@ -86,17 +85,15 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
     override fun onResume() {
         super.onResume()
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        overlays.takeFullScreenLock(this)
     }
 
-    override fun onDestroy() {
-        overlays.releaseFullScreenLock(this)
-        super.onDestroy()
+    override fun onStart() {
+        super.onStart()
+        overlays.notifyUsingFullScreen(this)
     }
 
-    override fun onDismiss(dialog: DialogInterface) {
-        overlays.releaseFullScreenLock(this)
-        super.onDismiss(dialog)
+    override fun onPerformDismiss() {
+        overlays.notifyFinishUsingFullScreen(this)
     }
 
     private fun performOnViewCreated() {

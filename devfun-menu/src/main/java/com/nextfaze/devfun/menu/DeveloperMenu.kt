@@ -122,7 +122,7 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
         controllers.forEach(MenuController::detach)
         devFun.instanceProviders -= instances
         devFun.viewFactories -= views
-        overlays.releaseFullScreenLock(this)
+        overlays.notifyFinishUsingFullScreen(this)
     }
 
     private val controllers = hashSetOf<MenuController>()
@@ -152,13 +152,11 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     }
 
     override fun show(activity: FragmentActivity) {
-        if (overlays.takeFullScreenLock(this)) {
-            try {
-                DeveloperMenuDialogFragment.show(activity)
-            } catch (t: Throwable) {
-                overlays.releaseFullScreenLock(this)
-                get<ErrorHandler>().onError(t, "Show Menu Failed", "Please report this error!")
-            }
+        try {
+            DeveloperMenuDialogFragment.show(activity)
+        } catch (t: Throwable) {
+            overlays.notifyFinishUsingFullScreen(this)
+            get<ErrorHandler>().onError(t, "Show Menu Failed", "Please report this error!")
         }
     }
 
@@ -170,12 +168,12 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     override fun detach() = Unit
 
     override fun onShown() {
-        overlays.takeFullScreenLock(this)
+        overlays.notifyUsingFullScreen(this)
         controllers.forEach { it.onShown() }
     }
 
     override fun onDismissed() {
-        overlays.releaseFullScreenLock(this)
+        overlays.notifyFinishUsingFullScreen(this)
         controllers.forEach { it.onDismissed() }
     }
 
