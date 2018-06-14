@@ -24,6 +24,7 @@ import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.pref.*
 import com.nextfaze.devfun.internal.string.*
+import com.nextfaze.devfun.invoke.uiField
 import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.Ranged
@@ -34,6 +35,7 @@ import com.nextfaze.devfun.menu.R
 import com.nextfaze.devfun.menu.devMenu
 import com.nextfaze.devfun.overlay.Dock
 import com.nextfaze.devfun.overlay.OverlayManager
+import com.nextfaze.devfun.overlay.OverlayWindow
 
 /**
  * Controls the floating cog overlay.
@@ -59,12 +61,26 @@ class CogOverlay constructor(
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
 
+    // TODO gross - want annotation instance for config UI but can't create anonymous instances in Kotlin
+    @Suppress("unused")
+    @field:ColorPicker
+    private val dummyField = Any()
+    private val colorPickerAnnotation by lazy { CogOverlay::class.java.getDeclaredField("dummyField").annotations.toList() }
+
     private val overlay =
         overlays.createOverlay(
             layoutId = R.layout.df_menu_cog_overlay,
-            prefsName = "DevFunCog",
+            name = "DevMenu Cog",
+            prefsName = "DevMenuCog",
             reason = ::generateCogDescriptionState,
             onClick = ::onOverlayClick,
+            onLongClick = {
+                overlays.configureOverlay(
+                    overlayWindow = it,
+                    additionalOptions = listOf(uiField("Color", cogColor, colorPickerAnnotation) { setColor(it) }),
+                    onResetClick = { activity?.let { resetPositionAndState(it) } }
+                )
+            },
             visibilityPredicate = { it is FragmentActivity },
             initialDock = Dock.RIGHT,
             initialDelta = 0.7f
@@ -138,7 +154,7 @@ class CogOverlay constructor(
      * (bug has been reported - the onClick lambda is incorrectly generated)
      * https://youtrack.jetbrains.com/issue/KT-23881
      */
-    private fun onOverlayClick(@Suppress("UNUSED_PARAMETER") view: View) {
+    private fun onOverlayClick(@Suppress("UNUSED_PARAMETER") overlayWindow: OverlayWindow) {
         developerMenu?.also { menu ->
             fragmentActivity?.also { activity ->
                 menu.show(activity)

@@ -10,14 +10,14 @@ import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.pref.*
-import com.nextfaze.devfun.invoke.*
+import com.nextfaze.devfun.invoke.UiField
+import com.nextfaze.devfun.invoke.uiField
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.overlay.OverlayPermissions
 import com.nextfaze.devfun.overlay.OverlayWindow
 import com.nextfaze.devfun.overlay.VisibilityScope
 import com.nextfaze.devfun.overlay.VisibilityScope.ALWAYS
 import com.nextfaze.devfun.overlay.VisibilityScope.FOREGROUND_ONLY
-import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
@@ -76,18 +76,23 @@ interface OverlayLogger {
      */
     fun stop()
 
-    /** Show the config dialog for this logger. */
-    fun showConfigDialog()
+    /** Additional configuration options for this overlay. */
+    val configurationOptions: List<UiField<*>>
+
+    /**
+     * Reset the position and state to its initial default values and clear its preferences.
+     *
+     * Please submit an issue if you needed to call this because it was out of bound or misbehaving our something.
+     */
+    fun resetPositionAndState()
 }
 
 /*
 TODO resize overlay when text changes
  */
 internal class OverlayLoggerImpl(
-    context: Context,
+    private val context: Context,
     override val overlay: OverlayWindow,
-    private val invoker: Invoker,
-    private val name: String,
     private val update: UpdateCallback,
     private val onLoggerClick: OnClick? = null
 ) : OverlayLogger {
@@ -108,7 +113,6 @@ internal class OverlayLoggerImpl(
                     onLoggerClick?.invoke()
                 }
             }
-            onLongClick = { showConfigDialog() }
             onVisibilityChange = {
                 handler.removeCallbacks(runnable)
                 if (it) runnable.run()
@@ -127,14 +131,7 @@ internal class OverlayLoggerImpl(
     }]
 
     override var enabled by overlay::enabled
-
-    override var visibilityScope: VisibilityScope
-        get() = overlay.visibilityScope
-        set(value) {
-            overlay.visibilityScope = value
-            handler.removeCallbacks(runnable)
-            postUpdate()
-        }
+    override var visibilityScope by overlay::visibilityScope
 
     private val textView by lazy { overlay.view.findViewById<TextView>(R.id.loggerTextView) }
     var text: CharSequence
@@ -152,6 +149,13 @@ internal class OverlayLoggerImpl(
         handler.removeCallbacks(runnable)
         overlay.removeFromWindow()
     }
+
+    override val configurationOptions: List<UiField<*>>
+        get() = listOf(
+            uiField(context.getString(R.string.df_devfun_refresh_rate), refreshRate) { refreshRate = it }
+        )
+
+    override fun resetPositionAndState() = overlay.resetPositionAndState()
 
     private fun update() {
         if (errored || !overlay.isVisible) return
@@ -173,38 +177,6 @@ internal class OverlayLoggerImpl(
         if (refreshRate > 0) {
             handler.postDelayed(runnable, refreshRate)
         }
-    }
-
-    private class Option<T : Any>(
-        override val name: String,
-        override var value: T,
-        override val type: KClass<out T> = value::class,
-        val setValue: (T) -> Unit
-    ) : Parameter, WithInitialValue<T>
-
-    override fun showConfigDialog() {
-        val params = listOf(
-            Option("Enabled", overlay.enabled) { overlay.enabled = it },
-            Option("Snap to Edges", overlay.snapToEdge) { overlay.snapToEdge = it },
-            Option("Refresh Rate (ms)", refreshRate) { refreshRate = it },
-            Option("Visibility Scope", visibilityScope) { visibilityScope = it },
-            Option("Hide when Dialogs Present", overlay.hideWhenDialogsPresent) { overlay.hideWhenDialogsPresent = it }
-        )
-
-        invoker.invoke(
-            uiFunction(
-                title = "Overlay Options",
-                subtitle = "Logger Overlay $name",
-                parameters = params,
-                neutralButton = uiButton(textId = R.string.df_devfun_reset, onClick = { overlay.resetPositionAndState() }),
-                invoke = {
-                    params.asSequence().zip(it.asSequence()).forEach { (param, arg) ->
-                        @Suppress("UNCHECKED_CAST")
-                        (param as Option<Any>).setValue(arg!!)
-                    }
-                }
-            )
-        )
     }
 
     override fun toString() = "OverlayLogger(prefsName='${overlay.prefsName}', enabled=$enabled, refreshRate=$refreshRate)"

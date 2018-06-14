@@ -224,15 +224,17 @@ internal class OverlayLoggingImpl(
         val prefsName = "OverlayLogger_$name"
         val overlay = overlayManager.createOverlay(
             layoutId = R.layout.df_devfun_logger_overlay,
+            name = "Overlay Logger $name",
             prefsName = prefsName,
             reason = { "Show overlay logger for $prefsName" },
             snapToEdge = false
         )
-        return OverlayLoggerImpl(application, overlay, invoker, name, updateCallback, onClick)
+
+        return OverlayLoggerImpl(application, overlay, updateCallback, onClick)
+            .also { logger -> overlay.onLongClick = { configureLogger(logger) } }
     }
 
     @DeveloperFunction(transformer = LoggersTransformer::class)
-    private fun configureLogger(logger: OverlayLogger) {
-        logger.showConfigDialog()
-    }
+    private fun configureLogger(logger: OverlayLogger) =
+        overlayManager.configureOverlay(logger.overlay, logger.configurationOptions) { logger.resetPositionAndState() }
 }

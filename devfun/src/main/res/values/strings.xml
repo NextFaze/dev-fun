@@ -58,4 +58,11 @@ Requesting permission to allow overlay views (such as DevMenu cog overlay)."</st
     <string name="df_devfun_allow">Allow</string>
     <string name="df_devfun_deny">Deny</string>
 
+    <string name="df_devfun_overlay_options">Overlay Options</string>
+    <string name="df_devfun_enabled">Enabled</string>
+    <string name="df_devfun_snap_to_edges">Snap to Edges</string>
+    <string name="df_devfun_refresh_rate">Refresh Rate (ms)</string>
+    <string name="df_devfun_visibility_scope">Visibility Scope</string>
+    <string name="df_devfun_hide_when_dialogs">Hide when Dialogs Present</string>
+
 </resources>

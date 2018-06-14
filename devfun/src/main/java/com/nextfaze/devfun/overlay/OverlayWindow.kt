@@ -16,9 +16,14 @@ import android.view.animation.OvershootInterpolator
 import com.nextfaze.devfun.annotations.DeveloperLogger
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.ForegroundTracker
+import com.nextfaze.devfun.core.R
+import com.nextfaze.devfun.core.devFun
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.pref.*
+import com.nextfaze.devfun.invoke.UiField
+import com.nextfaze.devfun.invoke.uiField
 import com.nextfaze.devfun.overlay.VisibilityScope.ALWAYS
 import com.nextfaze.devfun.overlay.VisibilityScope.FOREGROUND_ONLY
 import java.lang.Math.abs
@@ -26,7 +31,7 @@ import java.lang.Math.abs
 private const val MIN_ANIMATION_MILLIS = 250L
 private const val MAX_ANIMATION_MILLIS = 500L
 
-typealias ClickListener = (View) -> Unit
+typealias ClickListener = (OverlayWindow) -> Unit
 typealias OverlayReason = () -> CharSequence
 typealias VisibilityPredicate = (Context) -> Boolean
 typealias VisibilityChangeListener = (Boolean) -> Unit
@@ -53,6 +58,9 @@ enum class VisibilityScope {
  * @see OverlayPermissions
  */
 interface OverlayWindow {
+    /** User-friendly name. */
+    val name: String
+
     /** Preferences file name to store non-default state - must be unique. */
     val prefsName: String
 
@@ -121,15 +129,20 @@ interface OverlayWindow {
      */
     fun resetPositionAndState()
 
-    /**
-     * Clean up listeners and callbacks of this window.
-     */
+    /** Clean up listeners and callbacks of this window. */
     fun dispose()
+
+    /** Configuration options for this overlay. */
+    val configurationOptions: List<UiField<*>>
 
     /** Callback when user taps the overlay. */
     var onClick: ClickListener?
 
-    /** Callback when user long-presses the overlay. */
+    /**
+     * Callback when user long-presses the overlay (defaults to showing overlay config dialog).
+     *
+     * If set then the user must go via the menu (or other DevFun modules) to show the config dialog.
+     */
     var onLongClick: ClickListener?
 
     /** Callback when overlay visibility changes. */
@@ -144,6 +157,7 @@ internal class OverlayWindowImpl(
     private val foregroundTracker: ForegroundTracker,
     private val displayBoundsTracker: DisplayBoundsTracker,
     @LayoutRes layoutId: Int,
+    name: String,
     override val prefsName: String,
     override val reason: OverlayReason,
     override var onClick: ClickListener? = null,
@@ -162,6 +176,7 @@ internal class OverlayWindowImpl(
     private val handler = Handler(Looper.getMainLooper())
 
     private val preferences = KSharedPreferences.named(application, prefsName)
+    override val name by preferences["name", name]
     private var dock by preferences["dock", initialDock]
     private var delta by preferences["delta", initialDelta]
     private var left by preferences["left", initialLeft]
@@ -330,8 +345,21 @@ internal class OverlayWindowImpl(
                 }
             })
 
-            setOnClickListener { onClick?.invoke(it) }
-            setOnLongClickListener { onLongClick?.invoke(it); true }
+            setOnClickListener {
+                try {
+                    onClick?.invoke(this@OverlayWindowImpl)
+                } catch (t: Throwable) {
+                    devFun.get<ErrorHandler>().onError(t, name, "OnClick invoke exception.")
+                }
+            }
+            setOnLongClickListener {
+                try {
+                    onLongClick?.invoke(this@OverlayWindowImpl)
+                } catch (t: Throwable) {
+                    devFun.get<ErrorHandler>().onError(t, name, "OnLongClick invoke exception.")
+                }
+                true
+            }
 
             addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
                 if (moving) return@addOnLayoutChangeListener
@@ -437,6 +465,14 @@ internal class OverlayWindowImpl(
         displayBoundsTracker -= boundsListener
         overlays -= fullScreenLockListener
     }
+
+    override val configurationOptions: List<UiField<*>>
+        get() = listOf(
+            uiField(application.getString(R.string.df_devfun_enabled), enabled) { enabled = it },
+            uiField(application.getString(R.string.df_devfun_snap_to_edges), snapToEdge) { snapToEdge = it },
+            uiField(application.getString(R.string.df_devfun_visibility_scope), visibilityScope) { visibilityScope = it },
+            uiField(application.getString(R.string.df_devfun_hide_when_dialogs), hideWhenDialogsPresent) { hideWhenDialogsPresent = it }
+        )
 
     private val width get() = view.width
     private val height get() = view.height

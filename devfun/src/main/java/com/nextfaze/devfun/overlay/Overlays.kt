@@ -12,10 +12,13 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.ForegroundTracker
+import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.string.*
+import com.nextfaze.devfun.invoke.*
 import java.util.Collections
 import java.util.WeakHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -54,6 +57,7 @@ interface OverlayManager {
      *
      * @see OverlayWindow
      * @param layoutId A layout resource ID to inflate.
+     * @param name A user-friendly name.
      * @param prefsName The name of the preferences file the window will use - __must be unique__!
      * @param reason A function that generates the reason description. Will only be called when we need to request overlays permission.
      * @param onClick Callback when the overlay is clicked.
@@ -69,6 +73,7 @@ interface OverlayManager {
      */
     fun createOverlay(
         @LayoutRes layoutId: Int,
+        name: String,
         prefsName: String,
         reason: OverlayReason,
         onClick: ClickListener? = null,
@@ -89,6 +94,19 @@ interface OverlayManager {
      * @see createOverlay
      */
     fun destroyOverlay(overlayWindow: OverlayWindow)
+
+    /**
+     * Show a configuration dialog for an overlay.
+     *
+     * @param overlayWindow The overlay to configure.
+     * @param additionalOptions Additional options to show in the configuration dialog.
+     * @param onResetClick Callback when reset clicked. By default calls the overlay's [OverlayWindow.resetPositionAndState].
+     */
+    fun configureOverlay(
+        overlayWindow: OverlayWindow,
+        additionalOptions: List<UiField<*>> = emptyList(),
+        onResetClick: OnClick = { overlayWindow.resetPositionAndState() }
+    )
 
     /**
      * Flag indicating if the full-screen is in use for the current display.
@@ -184,7 +202,8 @@ internal class OverlayManagerImpl(
     private val foregroundTracker: ForegroundTracker,
     private val displayBoundsTracker: DisplayBoundsTracker,
     private val activityProvider: ActivityProvider,
-    private val permissions: OverlayPermissions
+    private val permissions: OverlayPermissions,
+    private val invoker: Invoker
 ) : OverlayManager {
     private val application = context.applicationContext as Application
     private val handler = Handler(Looper.getMainLooper())
@@ -216,6 +235,7 @@ internal class OverlayManagerImpl(
 
     override fun createOverlay(
         @LayoutRes layoutId: Int,
+        name: String,
         prefsName: String,
         reason: OverlayReason,
         onClick: ClickListener?,
@@ -243,6 +263,7 @@ internal class OverlayManagerImpl(
             foregroundTracker,
             displayBoundsTracker,
             layoutId,
+            name,
             prefsName,
             reason,
             onClick,
@@ -255,7 +276,12 @@ internal class OverlayManagerImpl(
             snapToEdge,
             initialLeft,
             initialTop
-        ).apply { synchronized(overlaysLock) { overlays[prefsName] = this } }
+        ).apply {
+            if (onLongClick == null) {
+                this.onLongClick = { configureOverlay(this) }
+            }
+            synchronized(overlaysLock) { overlays[prefsName] = this }
+        }
     }
 
     override fun destroyOverlay(overlayWindow: OverlayWindow) {
@@ -263,6 +289,24 @@ internal class OverlayManagerImpl(
             it.removeFromWindow()
             it.dispose()
         }
+    }
+
+    override fun configureOverlay(overlayWindow: OverlayWindow, additionalOptions: List<UiField<*>>, onResetClick: OnClick) {
+        val params = overlayWindow.configurationOptions + additionalOptions
+        invoker.invoke(
+            uiFunction(
+                title = application.getString(R.string.df_devfun_overlay_options),
+                subtitle = overlayWindow.name,
+                parameters = params,
+                neutralButton = uiButton(textId = R.string.df_devfun_reset, onClick = onResetClick),
+                invoke = {
+                    params.asSequence().zip(it.asSequence()).forEach { (param, arg) ->
+                        @Suppress("UNCHECKED_CAST")
+                        (param as UiField<Any>).setValue(arg!!)
+                    }
+                }
+            )
+        )
     }
 
     private val fullScreenUsage = devFun.get<FullScreenUsageTracker>()
