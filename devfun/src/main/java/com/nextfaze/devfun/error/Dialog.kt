@@ -55,6 +55,7 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
         super.onCreate(savedInstanceState)
         errors = arguments!!.getParcelableArrayList<RenderedError>(ERRORS).apply { sortBy { it.nanoTime } }
         currentErrorIdx = errors.indexOfFirst { !it.seen }.takeIf { it >= 0 } ?: errors.size - 1
+        setStyle(STYLE_NO_TITLE, 0)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =

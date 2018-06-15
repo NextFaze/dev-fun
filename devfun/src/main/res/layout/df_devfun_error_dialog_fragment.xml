@@ -5,8 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/errorRootConstraintLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:theme="@style/AlertDialog.AppCompat">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/titleTextView"

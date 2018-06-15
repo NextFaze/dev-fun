@@ -52,6 +52,7 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
             Toast.makeText(context, "Invocation dialog does not support recreation from a saved state at this time.", LENGTH_LONG).show()
             dismissAllowingStateLoss()
         }
+        setStyle(STYLE_NO_TITLE, 0)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
