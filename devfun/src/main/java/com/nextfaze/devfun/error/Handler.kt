@@ -115,7 +115,7 @@ interface ErrorHandler {
 @Constructable(singleton = true)
 internal class DefaultErrorHandler(application: Application, private val activityProvider: ActivityProvider) : ErrorHandler {
     private val log = logger()
-    private val handler = Handler(Looper.getMainLooper())
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
     private val activity get() = activityProvider() as? FragmentActivity
 
     private val errorLock = Any()

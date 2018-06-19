@@ -6,6 +6,7 @@ import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.inject.CacheLevel.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.prop.*
 import kotlin.reflect.KClass
@@ -27,18 +28,35 @@ interface CompositeInstanceProvider : RequiringInstanceProvider, Composite<Insta
  * @internal Visible for testing - use at your own risk.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun createDefaultCompositeInstanceProvider(): CompositeInstanceProvider = DefaultCompositeInstanceProvider()
+fun createDefaultCompositeInstanceProvider(cacheLevel: CacheLevel = CacheLevel.AGGRESSIVE): CompositeInstanceProvider =
+    DefaultCompositeInstanceProvider(cacheLevel)
+
+/**
+ * Controls how aggressively the [CompositeInstanceProvider] caches the sources of class instances.
+ *
+ * - [AGGRESSIVE] Once a type has been found from a provider, that provider will checked before others.
+ *   If it returns `null` the next time then the lookup will continue be as if [NONE].
+ *   Can result in a significant performance improvement.
+ *
+ * - [SINGLE_LOOP] Behaves the same as [AGGRESSIVE], but is thread-local and caching is only present once per top-level call.
+ *   i.e. If something calls `devFun.get<Type>()` - for that one "top-level" call (and thus present for recursion).
+ *   This will likely resolve any issues you have with [AGGRESSIVE] while still providing a small improvement - please report any issues!
+ *
+ * - [NONE] No caching - all providers are checked in reverse order they are added as normal.
+ *   Can be quite slow for complex hierarchies (e.g. large Dagger graphs).
+ *
+ * The cache level can be changed on the fly via DevFun.
+ */
+enum class CacheLevel { AGGRESSIVE, SINGLE_LOOP, NONE }
 
 @DeveloperCategory("DevFun", group = "Instance Providers")
-internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Composited<InstanceProvider>() {
+internal class DefaultCompositeInstanceProvider(cacheLevel: CacheLevel) : CompositeInstanceProvider, Composited<InstanceProvider>() {
     private val log = logger()
-
-    private enum class CacheLevel { AGGRESSIVE, SINGLE_LOOP, NONE }
 
     private val errorHandler by lazy { get(ErrorHandler::class) }
 
     @DeveloperProperty(category = DeveloperCategory(group = "Instance Providers"))
-    private var caching: CacheLevel = CacheLevel.AGGRESSIVE
+    private var caching: CacheLevel = cacheLevel
 
     private val aggressiveCachingProvider by lazy { AggressiveTypeCachingProvider(this) }
     private val singleLoopCachingProvider by lazy { SingleLoopTypeCachingProvider(this) }
@@ -55,6 +73,10 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
     internal fun <T : Any> getInstance(clazz: KClass<out T>, onFound: ((clazz: KClass<*>, provider: InstanceProvider) -> Unit)?): T {
         fun tryGetInstanceOfInstanceProvider(): T? {
             if (clazz.isSubclassOf<InstanceProvider>()) {
+                if (clazz.isSubclassOf<DefaultCompositeInstanceProvider>()) {
+                    @Suppress("UNCHECKED_CAST")
+                    return this as T
+                }
                 forEach {
                     if (it::class.isSubclassOf(clazz)) {
                         @Suppress("UNCHECKED_CAST")
@@ -86,7 +108,7 @@ internal class DefaultCompositeInstanceProvider : CompositeInstanceProvider, Com
                 // we ignore these and just check others
             } catch (t: ConstructableException) {
                 // we got to the lowest provider (ConstructingInstanceProvider) and still couldn't get it
-                return tryGetInstanceOfInstanceProvider() ?: throw ClassInstanceNotFoundException(t)
+                return tryGetInstanceOfInstanceProvider() ?: throw t
             } catch (t: Throwable) {
                 errorHandler.onError(
                     t,

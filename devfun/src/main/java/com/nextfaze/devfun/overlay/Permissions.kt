@@ -117,7 +117,7 @@ internal class OverlayPermissionsImpl(
 
     private val application = context.applicationContext as Application
     private val windowManager = application.windowManager
-    private val handler = Handler(Looper.getMainLooper())
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     private val activity get() = activityProvider()
     private val fragmentActivity get() = activity as? FragmentActivity
@@ -206,7 +206,10 @@ internal class OverlayPermissionsImpl(
     private val isInstrumentationTest by lazy {
         when {
             Thread.currentThread().contextClassLoader?.toString().orEmpty().contains("android.test.runner.jar") -> true
-            else -> Log.getStackTraceString(Throwable()).contains("android.support.test.runner.MonitoringInstrumentation")
+            else -> Log.getStackTraceString(Throwable()).let {
+                it.contains("android.support.test.runner.MonitoringInstrumentation") ||
+                        it.contains("androidx.test.runner.MonitoringInstrumentation")
+            }
         }.also {
             if (it) {
                 log.d { "Instance detected as instrumentation test - debug cog overlay disabled." }

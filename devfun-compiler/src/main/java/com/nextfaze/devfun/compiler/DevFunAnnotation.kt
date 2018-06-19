@@ -30,7 +30,6 @@ internal class DevFunAnnotation(
         val metaCategory = when {
             annotationTypeElement != devFunTypeElement.element ->
                 annotationTypeElement.getDefaultValueFor(DeveloperFunction::category)?.takeIf {
-                    warn("it=$it")
                     !it.isEqualTo(devFunTypeElement.category)
                 }
             else -> null

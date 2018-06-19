@@ -206,7 +206,7 @@ internal class OverlayManagerImpl(
     private val invoker: Invoker
 ) : OverlayManager {
     private val application = context.applicationContext as Application
-    private val handler = Handler(Looper.getMainLooper())
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     private val overlaysLock = Any()
     private val overlays = mutableMapOf<String, OverlayWindow>()

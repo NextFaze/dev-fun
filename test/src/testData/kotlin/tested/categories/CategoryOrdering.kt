@@ -4,7 +4,7 @@ package tested.categories
 
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.internal.string.*
+import com.nextfaze.devfun.internal.splitSimpleName
 
 annotation class CategoryOrdering
 

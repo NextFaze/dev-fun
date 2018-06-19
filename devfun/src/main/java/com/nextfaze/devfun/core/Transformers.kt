@@ -71,15 +71,14 @@ internal class ContextTransformer(
     private val instanceProvider: RequiringInstanceProvider
 ) : FunctionTransformer {
     // if the method is static then we don't care about context
-    // however we also need to check ifthe method is a "property" (Kotlin creates a synthetic static method to hold annotations)
+    // however we also need to check if the method is a "property" (Kotlin creates a synthetic static method to hold annotations)
     // we don't check for Activity/Fragment subclass here though since we'll just need to do it again in apply (to remove it if not in context)
     override fun accept(functionDefinition: FunctionDefinition) =
         !functionDefinition.method.isStatic || functionDefinition.method.isProperty
 
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
-        val activity = activityProvider() ?: return emptyList()
-
         if (Activity::class.java.isAssignableFrom(functionDefinition.clazz.java)) {
+            val activity = activityProvider() ?: return emptyList()
             return when {
                 activity::class.isSubclassOf(functionDefinition.clazz) -> transformItem(functionDefinition, categoryDefinition)
                 else -> emptyList() // remove this item if it's not related to the current activity
@@ -87,6 +86,7 @@ internal class ContextTransformer(
         }
 
         if (functionDefinition.clazz.isSubclassOf<Fragment>()) {
+            val activity = activityProvider() ?: return emptyList()
             return if (activity is FragmentActivity) {
                 if (activity.supportFragmentManager.fragments.orEmpty().any {
                         // not sure how/why, but under some circumstances some of them are null

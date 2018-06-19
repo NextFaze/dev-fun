@@ -1,32 +1,27 @@
 package com.nextfaze.devfun.test.tests
 
 import com.nextfaze.devfun.core.FunctionItem
+import com.nextfaze.devfun.core.devFunVerbose
 import com.nextfaze.devfun.error.ErrorDetails
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.*
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.test.PrimitivesInstanceProvider
 import com.nextfaze.devfun.test.SimpleTypesInstanceProvider
 import org.testng.annotations.Test
-import tested.instance_providers.internalObject
-import tested.instance_providers.privateObject
-import tested.instance_providers.publicObject
+import tested.instance_providers.classes
 import kotlin.reflect.KClass
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 @Test(groups = ["instanceProvider", "supported"])
 class TestInstanceProviders {
+    private val log = logger()
+
     fun testKObjectVisibilities() {
         val kObjectProvider = KObjectInstanceProvider()
-
-        val publicObjInst = kObjectProvider[publicObject]
-        assertNotNull(publicObjInst) { "Public KObject was null!" }
-
-        val internalObjInst = kObjectProvider[internalObject]
-        assertNotNull(internalObjInst) { "Internal KObject was null!" }
-
-        val privateObjInst = kObjectProvider[privateObject]
-        assertNotNull(privateObjInst) { "Private KObject was null!" }
+        classes.forEach {
+            assertNotNull(kObjectProvider[it]) { "$it was null!" }
+        }
     }
 
     @Suppress("unused", "UNCHECKED_CAST")
@@ -60,6 +55,9 @@ class TestInstanceProviders {
 
     @Suppress("unused", "UNCHECKED_CAST")
     fun testExceptionRemovesProvider() {
+        val wasVerbose = devFunVerbose
+        devFunVerbose = true
+
         class ClassProvidedByHigherLevelProvider
         class SomethingOnlyProvidedByBadProvider
 
@@ -79,6 +77,7 @@ class TestInstanceProviders {
          * trying to fetch/log the error handler.
          */
         class ErrorHandlerImpl(private val classProvidedByHigherLevelProvider: ClassProvidedByHigherLevelProvider) : ErrorHandler {
+            override fun onWarn(title: CharSequence, body: CharSequence) = Unit
             override fun onError(t: Throwable, title: CharSequence, body: CharSequence, functionItem: FunctionItem?) = Unit
             override fun onError(error: ErrorDetails) = Unit
             override fun markSeen(key: Any) = Unit
@@ -98,15 +97,18 @@ class TestInstanceProviders {
             this += BadInstanceProvider()
         }
 
-        // works first time
+        // get from bad provider works fine
+        log.i { "Get SomethingOnlyProvidedByBadProvider" }
         assertNotNull(instanceProviders[SomethingOnlyProvidedByBadProvider::class]) { "SomethingOnlyProvidedByBadProvider was null!" }
 
-        // provider is behaving badly and is removed
+        // get something from bad provider - fails - continues up provider tree
+        log.i { "Get ClassProvidedByHigherLevelProvider" }
         assertNotNull(instanceProviders[ClassProvidedByHigherLevelProvider::class]) { "ClassProvidedByHigherLevelProvider was null!" }
 
-        // fails next time
-        assertFailsWith<ClassInstanceNotFoundException>("Type should be not found!") {
-            instanceProviders[SomethingOnlyProvidedByBadProvider::class]
-        }
+        // get from bad provider again - works fine still
+        log.i { "Get SomethingOnlyProvidedByBadProvider again" }
+        assertNotNull(instanceProviders[SomethingOnlyProvidedByBadProvider::class]) { "ClassProvidedByHigherLevelProvider was null!" }
+
+        devFunVerbose = wasVerbose
     }
 }

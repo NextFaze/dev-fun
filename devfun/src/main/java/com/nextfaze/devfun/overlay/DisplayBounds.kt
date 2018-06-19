@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.view.Display
 import android.view.WindowManager
+import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -57,14 +58,15 @@ interface DisplayBoundsTracker {
     }
 }
 
+@Constructable(singleton = true)
 internal class DisplayBoundsTrackerImpl(context: Context) : DisplayBoundsTracker {
     private val listeners = CopyOnWriteArrayList<DisplayBoundsChangeListener>()
 
     private val application = context.applicationContext
     override val displayBounds = Rect()
 
-    init {
-        context.registerActivityCallbacks(onResumed = { updateBounds(it) })
+    fun init() {
+        application.registerActivityCallbacks(onResumed = { updateBounds(it) })
     }
 
     override fun addDisplayBoundsChangeListener(listener: DisplayBoundsChangeListener): DisplayBoundsChangeListener {

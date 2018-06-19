@@ -109,7 +109,7 @@ internal class AppStateTracker(context: Context) : ActivityTracker, ActivityProv
     override val isResumed: Boolean get() = _resumed
 
     private val foregroundChangeListeners = CopyOnWriteArrayList<ForegroundChangeListener>()
-    private val myPid = Process.myPid()
+    private val myPid by lazy { Process.myPid() }
     private var _appInForeground = false
         set(value) {
             if (field != value) {

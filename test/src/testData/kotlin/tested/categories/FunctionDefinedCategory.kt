@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package tested.categories
 
 import com.nextfaze.devfun.annotations.DeveloperCategory

@@ -8,42 +8,33 @@ import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 import tested.developer_annotation.ExecutableReferences
 import tested.developer_annotation.MetaDevFunAnnotation
-import tested.developer_annotation.UnsupportedElements
+import tested.developer_annotation.TypeReferences
+import tested.developer_annotation.VarReferences
 import java.lang.reflect.Method
-import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 
 @Test(groups = ["kapt", "compile", "compiler", "developerAnnotation"])
 class TestDeveloperAnnotation : AbstractKotlinKapt3Tester() {
     private val log = logger()
 
     @DataProvider(name = "testDeveloperAnnotationsData")
-    fun testDeveloperAnnotationsData(testMethod: Method) = singleFileTests(testMethod, ExecutableReferences::class)
+    fun testDeveloperAnnotationsData(testMethod: Method) =
+        singleFileTests(
+            testMethod,
+            ExecutableReferences::class,
+            TypeReferences::class,
+            VarReferences::class
+        )
 
     @Test(dataProvider = "testDeveloperAnnotationsData")
-    fun testDeveloperAnnotations(test: TestContext) = test.testInvocations(log)
+    fun testDeveloperAnnotations(test: TestContext) {
+        assertFalse(test.devRefs.isEmpty(), "Expected devRefs but was empty!")
+        test.testInvocations(log)
+    }
 
     @DataProvider(name = "testDeveloperAnnotationPropertiesData")
     fun testDeveloperAnnotationPropertiesData(testMethod: Method) = singleFileTests(testMethod, MetaDevFunAnnotation::class)
 
     @Test(dataProvider = "testDeveloperAnnotationPropertiesData")
     fun testDeveloperAnnotationProperties(test: TestContext) = test.testInvocations(log)
-
-    //
-    // Currently we only support ExecutableElement types
-    //
-
-    @DataProvider(name = "testDeveloperAnnotationsUnsupportedData")
-    fun testDeveloperAnnotationsUnsupportedData(testMethod: Method) =
-        singleFileTests(
-            testMethod,
-            UnsupportedElements::class,
-            autoKaptAndCompile = false
-        )
-
-    @Test(dataProvider = "testDeveloperAnnotationsUnsupportedData", groups = ["unsupported"])
-    fun testDeveloperAnnotationsUnsupported(test: TestContext) {
-        assertFailsWith<IllegalStateException> {
-            test.runKapt(compileClasspath, processors)
-        }
-    }
 }

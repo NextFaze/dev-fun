@@ -12,6 +12,7 @@ import android.os.Debug
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.RestrictTo
+import android.support.annotation.VisibleForTesting
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
 import com.nextfaze.devfun.annotations.*
@@ -132,7 +133,7 @@ typealias OnInitialized = DevFun.() -> Unit
 @DeveloperCategory("DevFun", order = 100_000)
 class DevFun {
     init {
-        devFunVerbose = false //BuildConfig.VERSION_SNAPSHOT
+        devFunVerbose = BuildConfig.VERSION_SNAPSHOT
     }
 
     private val log = logger()
@@ -140,9 +141,17 @@ class DevFun {
     private val moduleLoader = ModuleLoader(this)
     private val definitionsLoader = DefinitionsLoader()
     private val initializationCallbacks = mutableListOf<OnInitialized>()
-    private val rootInstanceProvider = DefaultCompositeInstanceProvider()
+    private val rootInstanceProvider = DefaultCompositeInstanceProvider(CacheLevel.AGGRESSIVE)
 
     private var _application: Application? = null
+
+    /**
+     * Flag indicating if DevFun should "prime" the reflection cache by pre-generating initial module supplied definitions and functions.
+     *
+     * If you need to disable this please post an issue.
+     */
+    @VisibleForTesting
+    var shouldPrimeReflectionCache: Boolean = true
 
     /**
      * Composite list of all [InstanceProvider]s.
@@ -258,14 +267,12 @@ class DevFun {
         _application = context.applicationContext as Application
 
         appStateTracker = AppStateTracker(context)
-        val displayBoundsTracker = DisplayBoundsTrackerImpl(context)
         rootInstanceProvider.apply {
             this += ConstructingInstanceProvider(this)
             this += KObjectInstanceProvider()
             this += captureInstance { this@DevFun }
             this += captureInstance<InstanceProvider> { this }
             this += captureInstance<RequiringInstanceProvider> { this }
-            this += captureInstance { this }
             this += captureInstance { definitionsLoader }
             this += captureInstance<ActivityTracker> { appStateTracker }
             this += captureInstance<ForegroundTracker> { appStateTracker }
@@ -291,10 +298,12 @@ class DevFun {
             // Overlays
             this += singletonInstance<OverlayPermissions> { get<OverlayPermissionsImpl>() }
             this += singletonInstance<OverlayManager> { get<OverlayManagerImpl>() }
-            this += singletonInstance<DisplayBoundsTracker> { displayBoundsTracker }
-            val overlayLogging = get<OverlayLoggingImpl>().apply { init() }
-            this += singletonInstance<OverlayLogging> { overlayLogging }
+            this += singletonInstance<DisplayBoundsTracker> { get<DisplayBoundsTrackerImpl>() }
+            this += singletonInstance<OverlayLogging> { get<OverlayLoggingImpl>() }
         }
+
+        (get<DisplayBoundsTracker>() as? DisplayBoundsTrackerImpl)?.init()
+        (get<OverlayLogging>() as? OverlayLoggingImpl)?.init()
 
         moduleLoader.init(modules.toList(), useServiceLoader)
         tryInitModules()
@@ -302,7 +311,9 @@ class DevFun {
         initializationCallbacks.forEach { it.invokeSafely() }
         initializationCallbacks.clear()
 
-        primeReflectionCache(this)
+        if (shouldPrimeReflectionCache) {
+            primeReflectionCache(this)
+        }
     }
 
     /**
@@ -592,7 +603,7 @@ private data class InheritingCategoryDefinition(val parent: CategoryDefinition, 
 
 /** Helps reduce load time of subsequent calls to devFun.categories */
 private fun primeReflectionCache(devFun: DevFun) {
-    Handler(Looper.getMainLooper()).post {
+    Handler(Looper.getMainLooper()).postDelayed({
         val log = logger("DevFun.ReflectionCachePrimer")
         object : Thread("DevFun.ReflectionCachePrimer") {
             override fun run() {
@@ -603,5 +614,5 @@ private fun primeReflectionCache(devFun: DevFun) {
                 }
             }
         }.start()
-    }
+    }, 500)
 }

@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.test.tests
 
 import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.internal.string.*
+import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.test.AbstractKotlinKapt3Tester
 import com.nextfaze.devfun.test.TestContext
 import com.nextfaze.devfun.test.combine
@@ -14,7 +14,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.test.expect
 
-@Test(groups = arrayOf("kapt", "compile", "supported", "category"))
+@Test(groups = ["kapt", "compile", "supported", "category"])
 class TestCategories : AbstractKotlinKapt3Tester() {
     private val log = logger()
 
@@ -25,7 +25,7 @@ class TestCategories : AbstractKotlinKapt3Tester() {
     @DataProvider(name = "testCategoriesIgnoreEmptyData")
     fun testCategoriesIgnoreEmptyData(testMethod: Method) = singleFileTests(testMethod, IgnoreEmptyCategories::class, useSdkInt = 10)
 
-    @Test(dataProvider = "testCategoriesIgnoreEmptyData", enabled = false, groups = arrayOf("requiresApi"))
+    @Test(dataProvider = "testCategoriesIgnoreEmptyData", enabled = false, groups = ["requiresApi"])
     fun testCategoriesIgnoreEmpty(test: TestContext) {
         test.testInvocations(log)
 
@@ -103,7 +103,7 @@ class TestCategories : AbstractKotlinKapt3Tester() {
             autoKaptAndCompile = false
         )
 
-    @Test(dataProvider = "testMetaCategoriesData", groups = arrayOf("unsupported"))
+    @Test(dataProvider = "testMetaCategoriesData", groups = ["unsupported"])
     fun testMetaCategories(test: TestContext) {
         assertFailsWith<IllegalStateException> {
             test.runKapt(compileClasspath, processors)

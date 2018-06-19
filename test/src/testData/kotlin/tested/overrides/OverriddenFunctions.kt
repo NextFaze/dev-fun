@@ -1,3 +1,5 @@
+@file:Suppress("ClassName")
+
 package tested.overrides
 
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -29,7 +31,7 @@ open class of_BaseClass {
     open fun overriddenFunction(): Any? = NeverRun()
 
     @DeveloperFunction
-    open protected fun protectedOverriddenFunction(): Any? = NeverRun()
+    protected open fun protectedOverriddenFunction(): Any? = NeverRun()
 }
 
 class of_SubClass : of_BaseClass() {
@@ -43,7 +45,7 @@ internal open class of_InternalBaseClass {
     open fun overriddenFunction(): Any? = NeverRun()
 
     @DeveloperFunction
-    open protected fun protectedOverriddenFunction(): Any? = NeverRun()
+    protected open fun protectedOverriddenFunction(): Any? = NeverRun()
 }
 
 internal class of_InternalSubClass : of_InternalBaseClass() {
@@ -57,7 +59,7 @@ private open class of_PrivateBaseClass {
     open fun overriddenFunction(): Any? = NeverRun()
 
     @DeveloperFunction
-    open protected fun protectedOverriddenFunction(): Any? = NeverRun()
+    protected open fun protectedOverriddenFunction(): Any? = NeverRun()
 }
 
 private class of_PrivateSubClass : of_PrivateBaseClass() {

@@ -16,11 +16,10 @@ interface MainInjector : ApplicationInjector
 // Retained Scope
 //
 
-interface FragmentInjector {
+interface FragmentInjector : BuildTypeFragmentInjector {
     fun inject(welcomeFragment: WelcomeFragment)
     fun inject(registerFragment: RegisterFragment)
     fun inject(authenticateFragment: AuthenticateFragment)
-    fun inject(kotlinBugFragment: KotlinBugFragment)
 }
 
 interface DialogFragmentInjector

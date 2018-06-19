@@ -20,6 +20,6 @@ class TestOverrides : AbstractKotlinKapt3Tester() {
         AbstractFunctions::class
     )
 
-    @Test(dataProvider = "testOverridesData", groups = arrayOf("kapt", "compile", "supported"))
+    @Test(dataProvider = "testOverridesData", groups = ["kapt", "compile", "supported"])
     fun testOverrides(test: TestContext) = test.testInvocations(log)
 }

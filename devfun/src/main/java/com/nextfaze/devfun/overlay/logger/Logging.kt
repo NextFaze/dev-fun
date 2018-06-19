@@ -19,7 +19,6 @@ import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.internal.toReflected
-import com.nextfaze.devfun.invoke.Invoker
 import com.nextfaze.devfun.overlay.OverlayManager
 import kotlin.reflect.KClass
 
@@ -41,7 +40,6 @@ interface OverlayLogging {
 internal class OverlayLoggingImpl(
     private val application: Application,
     private val overlayManager: OverlayManager,
-    private val invoker: Invoker,
     private val activityProvider: ActivityProvider
 ) : OverlayLogging {
     private val loggers =

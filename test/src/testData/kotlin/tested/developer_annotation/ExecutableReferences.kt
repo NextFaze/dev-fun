@@ -15,41 +15,41 @@ annotation class ExecutableReferences
 annotation class ExecutableElementTagging
 
 class SomeClass {
-    @ExecutableElementTagging fun someFunction() = Unit
-    @ExecutableElementTagging private fun somePrivateFunction(str: String) = Unit
+    @ExecutableElementTagging fun someFunction() = true
+    @ExecutableElementTagging private fun somePrivateFunction(str: String) = true
 }
 
 private class SomePrivateClass {
-    @ExecutableElementTagging fun someFunction() = Unit
-    @ExecutableElementTagging private fun somePrivateFunction(str: String) = Unit
+    @ExecutableElementTagging fun someFunction() = true
+    @ExecutableElementTagging private fun somePrivateFunction(str: String) = true
 }
 
 object SomeObject {
-    @ExecutableElementTagging fun someFunction() = Unit
-    @ExecutableElementTagging private fun somePrivateFunction(str: String) = Unit
+    @ExecutableElementTagging fun someFunction() = true
+    @ExecutableElementTagging private fun somePrivateFunction(str: String) = true
 }
 
 private object SomePrivateObject {
-    @ExecutableElementTagging fun someFunction() = Unit
-    @ExecutableElementTagging private fun somePrivateFunction(str: String) = Unit
+    @ExecutableElementTagging fun someFunction() = true
+    @ExecutableElementTagging private fun somePrivateFunction(str: String) = true
 }
 
 class SomeClassWithCompanionObject {
     companion object {
-        @ExecutableElementTagging fun someFunction() = Unit
-        @ExecutableElementTagging private fun somePrivateFunction(str: String) = Unit
+        @ExecutableElementTagging fun someFunction() = true
+        @ExecutableElementTagging private fun somePrivateFunction(str: String) = true
     }
 }
 
 private class SomePrivateClassWithCompanionObject {
-    companion object {
-        @ExecutableElementTagging fun someFunction() = Unit
-        @ExecutableElementTagging private fun somePrivateFunction(str: String) = Unit
+    companion object SomeName {
+        @ExecutableElementTagging fun someFunction() = true
+        @ExecutableElementTagging private fun somePrivateFunction(str: String) = true
     }
 }
 
-@ExecutableElementTagging fun someTopLevelFunction() = Unit
-@ExecutableElementTagging private fun somePrivateTopLevelFunction() = Unit
+@ExecutableElementTagging fun someTopLevelFunction() = true
+@ExecutableElementTagging private fun somePrivateTopLevelFunction() = true
 
-@ExecutableElementTagging fun String.someTopLevelExtensionFunction() = Unit
-@ExecutableElementTagging private fun String.somePrivateTopLevelExtensionFunction() = Unit
+@ExecutableElementTagging fun String.someTopLevelExtensionFunction() = true
+@ExecutableElementTagging private fun String.somePrivateTopLevelExtensionFunction() = true

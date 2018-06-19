@@ -4,7 +4,7 @@ import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
-import com.nextfaze.devfun.invoke.parameterInstances
+import com.nextfaze.devfun.invoke.doInvoke
 import com.nextfaze.devfun.invoke.receiverInstance
 import java.lang.reflect.Field
 import java.lang.reflect.Method
@@ -167,13 +167,6 @@ private data class ReflectedMethodImpl(override val method: Method) : ReflectedM
     override fun receiverInstance(instanceProvider: InstanceProvider) = method.receiverInstance(instanceProvider)
     override val receiver get() = receiverInstance(devFun.instanceProviders)
 
-    override fun invoke(instanceProvider: InstanceProvider): Any? {
-        val args = method.parameterInstances(instanceProvider)
-        return when (args) {
-            null -> method.invoke(method.receiverInstance(instanceProvider))
-            else -> method.invoke(method.receiverInstance(instanceProvider), args)
-        }
-    }
-
+    override fun invoke(instanceProvider: InstanceProvider) = method.doInvoke(instanceProvider)
     override fun invoke() = invoke(devFun.instanceProviders)
 }

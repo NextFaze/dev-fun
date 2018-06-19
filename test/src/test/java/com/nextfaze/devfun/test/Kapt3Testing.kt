@@ -1,15 +1,15 @@
 package com.nextfaze.devfun.test
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.Application
+import android.app.KeyguardManager
 import android.content.Context
 import android.os.Build
+import android.view.WindowManager
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.compiler.*
-import com.nextfaze.devfun.core.ActivityProvider
-import com.nextfaze.devfun.core.DevFun
-import com.nextfaze.devfun.core.FunctionDefinition
-import com.nextfaze.devfun.core.FunctionItem
+import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.error.ErrorDetails
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
@@ -17,8 +17,9 @@ import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.inject.singletonInstance
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.invoke.doInvoke
 import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
 import com.nhaarman.mockito_kotlin.KStubbing
@@ -55,6 +56,7 @@ import org.jetbrains.org.objectweb.asm.MethodVisitor
 import org.jetbrains.org.objectweb.asm.tree.ClassNode
 import org.jetbrains.org.objectweb.asm.tree.FieldNode
 import org.jetbrains.org.objectweb.asm.tree.MethodNode
+import org.mockito.Mockito
 import org.slf4j.Logger
 import org.testng.ITestResult
 import org.testng.annotations.AfterMethod
@@ -78,6 +80,8 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinProperty
 import kotlin.test.Asserter
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import com.sun.tools.javac.util.List as JCList
 
@@ -117,9 +121,11 @@ abstract class AbstractKotlinKapt3Tester {
     private val kotlinTestLib = PathUtil.getResourcePathForClass(Asserter::class.java)
     private val annotationsJar = PathUtil.getResourcePathForClass(DeveloperCategory::class.java)
     private val internalJar = PathUtil.getResourcePathForClass(AbstractActivityLifecycleCallbacks::class.java)
+    private val devFunJar = PathUtil.getResourcePathForClass(DevFun::class.java)
     private val androidJar = PathUtil.getResourcePathForClass(Build::class.java)
 
-    protected val compileClasspath = listOf(kotlinStdLib, kotlinReflectLib, kotlinTestLib, annotationsJar, internalJar, androidJar)
+    protected val compileClasspath =
+        listOf(kotlinStdLib, kotlinReflectLib, kotlinTestLib, annotationsJar, internalJar, devFunJar, androidJar)
 
     @BeforeMethod(alwaysRun = true)
     fun beforeMethod(args: Array<Any>) {
@@ -136,8 +142,8 @@ abstract class AbstractKotlinKapt3Tester {
     private var origLoader: ClassLoader? = null
 
     fun runTest(test: TestContext) {
+        log.i { "Test: $test" }
         log.d(predicate = KEEP_TEST_OUTPUTS) { "testDir: ${test.testDir}" }
-        log.d { "test=$test" }
 
         if (!test.autoKaptAndCompile) {
             return
@@ -335,8 +341,13 @@ data class TestContext(
     }
 
     val devFun: DevFun by lazy {
-        val application = mock<Application>()
-        KStubbing(application).on { applicationContext } doReturn application
+        val application = mock<Application>(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
+        KStubbing(application).apply {
+            on { applicationContext } doReturn application
+            on { getSystemService(Context.ACTIVITY_SERVICE) } doReturn mock<ActivityManager>()
+            on { getSystemService(Context.KEYGUARD_SERVICE) } doReturn mock<KeyguardManager>()
+            on { getSystemService(Context.WINDOW_SERVICE) } doReturn mock<WindowManager>()
+        }
 
         val context = mock<Context> {
             on { applicationContext } doReturn application
@@ -349,6 +360,8 @@ data class TestContext(
         }
 
         DevFun().apply {
+            devFunVerbose = false
+            shouldPrimeReflectionCache = false
             initialize(context)
             instanceProviders.apply {
                 this[ConstructingInstanceProvider::class].requireConstructable = false
@@ -357,6 +370,7 @@ data class TestContext(
                 this += SimpleTypesInstanceProvider()
                 this += singletonInstance<ErrorHandler> {
                     object : ErrorHandler {
+                        override fun onWarn(title: CharSequence, body: CharSequence) = Unit
                         override fun onError(t: Throwable, title: CharSequence, body: CharSequence, functionItem: FunctionItem?) = throw t
                         override fun onError(error: ErrorDetails) = throw error.t
                         override fun markSeen(key: Any) = Unit
@@ -373,7 +387,7 @@ data class TestContext(
 
     val funDefs by lazy { devFun.definitions.flatMap { it.functionDefinitions }.toSet() }
     val catDefs by lazy { devFun.definitions.flatMap { it.categoryDefinitions }.toSet() }
-    private val devRefs by lazy { devFun.definitions.flatMap { it.developerReferences }.toSet() }
+    val devRefs by lazy { devFun.definitions.flatMap { it.developerReferences }.toSet() }
 
     private val allItems by lazy { devFun.categories.flatMap { it.items }.toSet().groupBy { it.function } }
 
@@ -426,9 +440,20 @@ data class TestContext(
         }
 
         devRefs.forEach { ref ->
-            log.d { "Invoke developer reference $ref ..." }
-            ref.method!!.let {
-                it.invoke(it.receiverInstance(devFun.instanceProviders))
+            when (ref) {
+                is DeveloperMethodReference -> {
+                    log.d { "Invoke developer reference ${ref.method} ..." }
+                    assertEquals(true, ref.method.doInvoke(devFun.instanceProviders), "Unexpected return value for dev method reference.")
+                }
+                is DeveloperTypeReference -> {
+                    log.d { "Get instance of developer type reference ${ref.type} ..." }
+                    assertNotNull(devFun.instanceOf(ref.type), "Failed to get instance of referenced type: ${ref.type}")
+                }
+                is DeveloperFieldReference -> {
+                    log.d { "Get value of developer field reference ${ref.field} ..." }
+                    assertEquals(true, ref.field.get(devFun.instanceOf(ref.field.declaringClass.kotlin)), "Referenced field did not match.")
+                }
+                else -> throw RuntimeException("Unexpected ref type $ref (${ref::class})")
             }
         }
     }

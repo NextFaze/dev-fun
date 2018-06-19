@@ -2,10 +2,9 @@ package com.nextfaze.devfun.inject
 
 import android.support.annotation.RestrictTo
 import kotlin.reflect.KClass
-import kotlin.reflect.KVisibility
 
 /**
- * Handles Kotlin `object` types.
+ * Handles Kotlin `object` and `companion object` types.
  *
  * Automatically handles `internal` or `private` types.
  *
@@ -18,16 +17,24 @@ class KObjectInstanceProvider : InstanceProvider {
      *
      * Automatically handles `internal` or `private` types.
      */
-    override fun <T : Any> get(clazz: KClass<out T>): T? {
-        if (clazz.visibility != KVisibility.PRIVATE) {
-            return clazz.objectInstance?.let { return it }
-        } else {
-            try {
-                @Suppress("UNCHECKED_CAST")
-                return clazz.java.getDeclaredField("INSTANCE").apply { isAccessible = true }.get(null) as T
-            } catch (ignore: NoSuchFieldException) {
-                return null
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(clazz: KClass<out T>): T? =
+        try {
+            clazz.objectInstance?.let { return it }
+        } catch (t: IllegalAccessException) {
+            if (clazz.isCompanion) { // the companion object is "public" but the outer class is private
+                val outerClass = clazz.java.declaringClass
+                try {
+                    outerClass.getDeclaredField(clazz.simpleName).apply { isAccessible = true }.get(null) as T
+                } catch (t: NoSuchFieldException) {
+                    throw RuntimeException(
+                        "Failed to get companion class $clazz instance field from outer class $outerClass - please report this!",
+                        t
+                    )
+                }
+            } else {
+                // non-public KObject - get by reflection
+                clazz.java.getDeclaredField("INSTANCE").apply { isAccessible = true }.get(null) as T
             }
         }
-    }
 }

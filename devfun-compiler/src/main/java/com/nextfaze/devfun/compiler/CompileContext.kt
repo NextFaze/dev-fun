@@ -56,7 +56,6 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
         val applicationVariant = applicationVariant
         if (applicationPackage != null && applicationVariant != null) {
             val variantPkg = applicationVariant.splitCamelCaseToPackage()
-            note { "variantPkg=$variantPkg" }
             return@pkg "$applicationPackage.$variantPkg.$PACKAGE_SUFFIX_DEFAULT".also { note { "DevFun package from application options is '$it'" } }
         }
 

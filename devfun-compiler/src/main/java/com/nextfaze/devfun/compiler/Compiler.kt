@@ -236,7 +236,7 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
 
     private val categoryDefinitions = HashMap<String, String>()
     private val functionDefinitions = HashMap<String, String>()
-    private val developerMethods = HashMap<String, String>()
+    private val developerReferences = HashMap<String, String>()
 
     private val devFunElement by lazy { DevFunTypeElement(processingEnv.elementUtils.getTypeElement(DeveloperFunction::class.qualifiedName)) }
 
@@ -267,7 +267,7 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
 
     private fun doProcess(devAnnotatedElements: List<TypeElement>, env: RoundEnvironment) {
         if (env.processingOver()) {
-            if (categoryDefinitions.isNotEmpty() || functionDefinitions.isNotEmpty()) {
+            if (categoryDefinitions.isNotEmpty() || functionDefinitions.isNotEmpty() || developerReferences.isNotEmpty()) {
                 writeServiceFile()
                 writeSourceFile(generateKSource())
             }
@@ -564,7 +564,7 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
                 debugAnnotationInfo = "\n#|// $developerAnnotation"
             }
 
-            developerMethods[developerAnnotation] =
+            developerReferences[developerAnnotation] =
                     """$debugAnnotationInfo
                         #|object : ${DeveloperFieldReference::class.simpleName} {
                         #|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> = $annotationClass
@@ -586,7 +586,7 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
                 debugAnnotationInfo = "\n#|// $developerAnnotation"
             }
 
-            developerMethods[developerAnnotation] =
+            developerReferences[developerAnnotation] =
                     """$debugAnnotationInfo
                         #|object : ${DeveloperTypeReference::class.simpleName} {
                         #|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> = $annotationClass
@@ -627,7 +627,7 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
                 debugAnnotationInfo = "\n#|// $developerAnnotation"
             }
 
-            developerMethods[developerAnnotation] =
+            developerReferences[developerAnnotation] =
                     """$debugAnnotationInfo
                         #|object : ${DeveloperMethodReference::class.simpleName} {
                         #|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> = $annotationClass
@@ -717,7 +717,7 @@ ${categoryDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
 ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )
     override val ${DevFunGenerated::developerReferences.name} = listOf<${DeveloperReference::class.simpleName}>(
-${developerMethods.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
+${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )
 }
 """

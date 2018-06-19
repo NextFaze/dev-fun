@@ -1,13 +1,19 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test [SupportedOptions]" type="TestNG" factoryName="TestNG">
+  <configuration default="false" name="Test [dagger]" type="TestNG" factoryName="TestNG">
     <module name="test" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.nextfaze.devfun.test.tests.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="SUITE_NAME" value="" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
-    <option name="GROUP_NAME" value="SupportedOptions" />
+    <option name="GROUP_NAME" value="dagger" />
     <option name="TEST_OBJECT" value="GROUP" />
     <option name="VM_PARAMETERS" value="-ea" />
     <option name="PARAMETERS" value="" />

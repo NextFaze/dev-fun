@@ -127,16 +127,44 @@ fun Method.receiverInstance(instanceProvider: InstanceProvider = devFun.instance
  * Get the parameter instances for this method for invocation.
  *
  * Be aware; this is intended for working with the method directly, a `null` value means no arguments.
- * The [FunctionItem.invoke] and [FunctionDefinition.invoke] handle 0 or more arguments automatically.
- * i.e. An empty list is no arguments, however this is not the same when invoking a `Method` object directly (it will see an empty list/array as an argument)
+ *
+ * The [FunctionItem.invoke] and [FunctionDefinition.invoke] handle 0 or more arguments automatically - i.e. they return an empty list to
+ * signify no arguments. However when invoking using [Method] directly, passing an empty list/array will be seen as an argument instead.
+ *
+ * Thus a return of `null` from here means no arguments, which requires calling `method.invoke(receiver)` rather than `method.invoke(receiver, args)`.
+ *
+ * If you just want to invoke the method then use the [doInvoke] extension function.
+ *
+ * @param instanceProvider The instance provider to use for parameters instances. _(default=`devFun.instanceProviders`)_
+ * @param suppliedArgs User-provided arguments (source-defined order). Elements that are `null` or out of bounds will fallback to [instanceProvider].
  *
  * @see FunctionDefinition.parameterInstances
  * @see FunctionItem.parameterInstances
  */
-fun Method.parameterInstances(instanceProvider: InstanceProvider = devFun.instanceProviders, args: FunctionArgs = null) =
+fun Method.parameterInstances(instanceProvider: InstanceProvider = devFun.instanceProviders, suppliedArgs: FunctionArgs = null) =
     parameterTypes.takeIf { it.isNotEmpty() }?.mapIndexed { index: Int, clazz: Class<*> ->
-        args.getNonNullOrElse(index) { instanceProvider[clazz.kotlin] }
+        val inst = instanceProvider[clazz.kotlin]
+        suppliedArgs.getNonNullOrElse(index) { instanceProvider[clazz.kotlin] }
     }
 
 private inline fun <reified T : Any?> List<Any?>?.getNonNullOrElse(i: Int, defaultValue: (Int) -> T) =
     this?.getOrElse(i, defaultValue).takeUnless { it === Unit } as? T ?: defaultValue(i)
+
+/**
+ * Invokes a Method using DevFun to source instances.
+ *
+ * Automatically handles static and args etc.
+ *
+ * @param instanceProvider The instance provider to use for parameters instances. _(default=`devFun.instanceProviders`)_
+ * @param suppliedArgs User-provided arguments (source-defined order). Elements that are `null` or out of bounds will fallback to [instanceProvider].
+ *
+ * @see Method.receiverInstance
+ * @see Method.parameterInstances
+ */
+fun Method.doInvoke(instanceProvider: InstanceProvider = devFun.instanceProviders, suppliedArgs: FunctionArgs = null): Any? {
+    val args = parameterInstances(instanceProvider, suppliedArgs)
+    return when (args) {
+        null -> invoke(receiverInstance(instanceProvider))
+        else -> invoke(receiverInstance(instanceProvider), *args.toTypedArray())
+    }
+}

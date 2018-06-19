@@ -4,3 +4,5 @@ import dagger.Module
 
 @Module
 class BuildTypeModule
+
+interface BuildTypeFragmentInjector

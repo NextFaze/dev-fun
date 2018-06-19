@@ -14,10 +14,11 @@ import android.view.ViewGroup
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.core.devFunVerbose
+import com.nextfaze.devfun.demo.inject.BuildTypeFragmentInjector
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.*
 import com.nextfaze.devfun.error.ErrorHandler
-import kotlinx.android.synthetic.main.kotlin_bug_fragment.*
+import kotlinx.android.synthetic.debug.kotlin_bug_fragment.*
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.reflect.Method
@@ -64,7 +65,7 @@ class KotlinBugFragment : BaseFragment() {
     private var testRunning = false
     private var successCount = 0
 
-    override fun inject(injector: FragmentInjector) = injector.inject(this)
+    override fun inject(injector: FragmentInjector) = (injector as BuildTypeFragmentInjector).inject(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true

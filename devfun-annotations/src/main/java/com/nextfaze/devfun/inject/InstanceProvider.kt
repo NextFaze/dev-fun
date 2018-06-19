@@ -164,8 +164,8 @@ inline fun <reified T : Any> captureInstance(noinline instance: () -> T?): Insta
  * @see CapturingInstanceProvider
  */
 inline fun <reified T : Any> singletonInstance(noinline instance: () -> T?): InstanceProvider {
-    val singleton by lazy { instance.invoke() }
-    return CapturingInstanceProvider(T::class, { singleton })
+    val singleton: T? by lazy { instance() }
+    return CapturingInstanceProvider(T::class) { singleton }
 }
 
 /**
