@@ -34,7 +34,10 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
     private val constructables = mutableMapOf<KClass<*>, ConstructableType>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> get(clazz: KClass<out T>): T? {
+    override fun <T : Any> get(clazz: KClass<out T>): T? = get(clazz, requireConstructable)
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> get(clazz: KClass<out T>, requireConstructable: Boolean): T? {
         // Do we already have it?
         synchronized(singletonsLock) {
             singletons[clazz]?.also {

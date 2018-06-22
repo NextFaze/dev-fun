@@ -14,6 +14,7 @@ import com.nextfaze.devfun.annotations.Dagger2Scope
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.internal.android.*
@@ -132,9 +133,20 @@ fun <T : Any> tryGetInstanceFromComponentReflection(component: Any, clazz: KClas
     // Special case - a non-scoped no-args @Inject type will not have a provider or getter
     if (!clazz.isScoped) {
         val ctor = clazz.java.declaredConstructors.singleOrNull()
-        if (ctor != null && ctor.parameterTypes.isEmpty() && ctor.isAnnotationPresent(Inject::class.java)) {
-            log.t { "$clazz is non-scoped no-args @Inject - creating new instance..." }
-            return ctor.apply { isAccessible = true }.newInstance() as T
+        if (ctor != null && ctor.isAnnotationPresent(Inject::class.java)) {
+            if (ctor.parameterTypes.isEmpty()) {
+                log.t { "$clazz is non-scoped no-args @Inject - creating new instance..." }
+                return ctor.apply { isAccessible = true }.newInstance() as T
+            } else if (isDagger212) {
+                // Dagger 2.12 inlined types that didn't need a provider (non-scoped/single-instance types)
+                // This was reversed/changed again in 2.13+
+                //
+                // So here we're making an assumption that an @Inject non-scoped *should* be constructed - this is not a valid assumption
+                // for scopes that are not @Retention(RUNTIME). i.e. this would be the incorrect behaviour. However there's not much
+                // else we can do about it (2.12 is getting old anyway and this is quite the edge case so meh.)
+                log.d { "$clazz is non-scoped @Inject - Dagger version 2.12 detected - creating new instance..." }
+                return devFun.get<ConstructingInstanceProvider>().get(clazz, false)
+            }
         }
     }
 
