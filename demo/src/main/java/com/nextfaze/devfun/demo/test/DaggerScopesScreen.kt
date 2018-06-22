@@ -69,28 +69,4 @@ class DaggerScopesFragment : BaseFragment() {
     override fun inject(injector: FragmentInjector) = injector.inject(this)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         inflater.inflate(R.layout.dagger_scopes_fragment, container, false)
-
-//    @DeveloperFunction
-//    private fun testInjectPackagePrivate(
-//        packagePrivateInstance: PackagePrivateInstance,
-//        packagePrivateSingletonInstance: PackagePrivateSingletonInstance,
-//        packagePrivateConstructor: PackagePrivateConstructor
-//    ) {
-//        Toast.makeText(
-//            context,
-//            """packagePrivateInstance=${packagePrivateInstance.helloWorld()}
-//            |packagePrivateSingletonInstance=${packagePrivateSingletonInstance.helloWorld()}
-//        """.trimMargin(),
-//            Toast.LENGTH_SHORT
-//        ).show()
-//    }
-//
-//    @DeveloperFunction
-//    private fun multipleConstructors(withMultipleConstructors: WithMultipleConstructors) = Unit
-//
-//    @DeveloperFunction
-//    private fun stuff(injectedWithZeroArgsConstructor: InjectedWithZeroArgsConstructor, withArgsConstructor: WithArgsConstructor) {
-//        injectedWithZeroArgsConstructor.doStuff()
-//        withArgsConstructor.doStuff()
-//    }
 }

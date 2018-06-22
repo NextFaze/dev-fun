@@ -83,8 +83,9 @@ dependencies {
     }
 
     // Dagger 2 - https://github.com/google/dagger
-    kapt(Config.daggerCompiler)
-    implementation(Config.dagger)
+    val daggerVersion = getStringProperty("testDaggerVersion", Config.daggerVersion)
+    kapt(Config.daggerCompiler(daggerVersion))
+    implementation(Config.dagger(daggerVersion))
     compileOnly(Config.daggerAnnotations)
 
     // OkHttp - https://github.com/square/okhttp
@@ -127,4 +128,15 @@ dependencies {
     androidTestImplementation("androidx.test:rules:1.1.0-alpha3")
     androidTestImplementation("androidx.test:runner:1.1.0-alpha3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.1.0-alpha3")
+}
+
+project.afterEvaluate {
+    getTasksByName("connectedDebugAndroidTest", false).single().apply {
+        doFirst {
+            val testDaggerVersion = getStringProperty("testDaggerVersion", "")
+            if (testDaggerVersion.isNotEmpty()) {
+                println("testDaggerVersion=$testDaggerVersion")
+            }
+        }
+    }
 }

@@ -59,8 +59,10 @@ object Config {
     const val javaxInject = "javax.inject:javax.inject:1"
 
     const val daggerVersion = "2.16"
-    const val daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
-    const val dagger = "com.google.dagger:dagger:$daggerVersion"
+    fun dagger(version: String = daggerVersion) = "com.google.dagger:dagger:$version"
+    fun daggerCompiler(version: String = daggerVersion) = "com.google.dagger:dagger-compiler:$version"
+    val dagger = dagger()
+    val daggerCompiler = daggerCompiler()
     const val daggerAnnotations = "org.glassfish:javax.annotation:10.0-b28"
 
     const val slf4jApi = "org.slf4j:slf4j-api:1.7.25"

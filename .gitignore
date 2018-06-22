@@ -29,6 +29,8 @@ _working/
 # Symlink to gh-pages branch
 gh-pages
 
-
 # System files
 .directory
+
+# Dagger test results
+_dagger-test-results

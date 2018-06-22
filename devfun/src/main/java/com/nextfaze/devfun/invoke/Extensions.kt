@@ -143,7 +143,6 @@ fun Method.receiverInstance(instanceProvider: InstanceProvider = devFun.instance
  */
 fun Method.parameterInstances(instanceProvider: InstanceProvider = devFun.instanceProviders, suppliedArgs: FunctionArgs = null) =
     parameterTypes.takeIf { it.isNotEmpty() }?.mapIndexed { index: Int, clazz: Class<*> ->
-        val inst = instanceProvider[clazz.kotlin]
         suppliedArgs.getNonNullOrElse(index) { instanceProvider[clazz.kotlin] }
     }
 
