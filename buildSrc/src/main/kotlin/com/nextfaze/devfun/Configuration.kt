@@ -43,6 +43,7 @@ object Config {
     const val kotlinPluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
 
     const val kotlinCoroutinesVersion = "0.22.5"
     const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
@@ -57,7 +58,7 @@ object Config {
 
     const val javaxInject = "javax.inject:javax.inject:1"
 
-    const val daggerVersion = "2.15"
+    const val daggerVersion = "2.16"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
     const val dagger = "com.google.dagger:dagger:$daggerVersion"
     const val daggerAnnotations = "org.glassfish:javax.annotation:10.0-b28"

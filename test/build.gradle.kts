@@ -73,7 +73,7 @@ dependencies {
 project.afterEvaluate {
     val tests = project.getTasksByName("testDebugUnitTest", false) + project.getTasksByName("testReleaseUnitTest", false)
     tests.forEach {
-        it.doFirst {
+        it.apply {
             this as Test
             useTestNG()
             testLogging.showStandardStreams = true

@@ -29,6 +29,7 @@ import com.nextfaze.devfun.core.BuildConfig
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
+import com.nextfaze.devfun.internal.isInstrumentationTest
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.pref.*
 import com.nextfaze.devfun.internal.string.*
@@ -202,20 +203,6 @@ internal class OverlayPermissionsImpl(
             log.d(ignore) { "Overlay permissions check hack for SDK 26 failed!" }
             false
         }
-
-    private val isInstrumentationTest by lazy {
-        when {
-            Thread.currentThread().contextClassLoader?.toString().orEmpty().contains("android.test.runner.jar") -> true
-            else -> Log.getStackTraceString(Throwable()).let {
-                it.contains("android.support.test.runner.MonitoringInstrumentation") ||
-                        it.contains("androidx.test.runner.MonitoringInstrumentation")
-            }
-        }.also {
-            if (it) {
-                log.d { "Instance detected as instrumentation test - debug cog overlay disabled." }
-            }
-        }
-    }
 }
 
 private const val PERMISSIONS = "PERMISSIONS"

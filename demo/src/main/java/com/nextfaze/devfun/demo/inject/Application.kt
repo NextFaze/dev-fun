@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.os.Process
 import com.nextfaze.devfun.annotations.Dagger2Component
+import com.nextfaze.devfun.demo.test.SingletonScopedTestModule
 import dagger.Component
 import dagger.Lazy
 import dagger.Module
@@ -24,7 +25,7 @@ interface ApplicationComponent : MainInjector {
 
 typealias Initializer = (application: Application) -> Unit
 
-@Module(includes = [AndroidModule::class, MainModule::class, BuildTypeModule::class])
+@Module(includes = [AndroidModule::class, MainModule::class, BuildTypeModule::class, SingletonScopedTestModule::class])
 class ApplicationModule {
     @Provides @ElementsIntoSet internal fun defaultInitializers() = emptySet<Initializer>()
     @Provides @ElementsIntoSet @Early internal fun defaultEarlyInitializers() = emptySet<Initializer>()

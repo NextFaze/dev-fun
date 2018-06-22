@@ -1,5 +1,6 @@
 package com.nextfaze.devfun.demo.inject
 
+import com.nextfaze.devfun.demo.test.RetainedScopedTestModule
 import dagger.Module
 import dagger.Subcomponent
 import javax.inject.Scope
@@ -12,11 +13,11 @@ import kotlin.annotation.AnnotationTarget.*
 @Target(FIELD, VALUE_PARAMETER, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER, CLASS, FILE)
 annotation class RetainedScope
 
-@Subcomponent(modules = arrayOf(RetainedModule::class))
+@Subcomponent(modules = [RetainedModule::class])
 @RetainedScope
 interface RetainedComponent : RetainedInjector {
     fun activityComponent(activityModule: ActivityModule): ActivityComponent
 }
 
-@Module
+@Module(includes = [RetainedScopedTestModule::class])
 class RetainedModule

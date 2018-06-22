@@ -1,6 +1,7 @@
 package com.nextfaze.devfun.demo
 
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperLogger
 import org.joda.time.DateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -9,6 +10,7 @@ import javax.inject.Singleton
 class Session @Inject constructor() {
     private val log = logger()
 
+    @DeveloperLogger
     var user: User? = null
 
     @DeveloperFunction

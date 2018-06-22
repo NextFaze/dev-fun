@@ -10,11 +10,11 @@ import java.lang.reflect.Type
 import javax.inject.Provider
 import kotlin.reflect.KClass
 
-private val log = logger("${BuildConfig.APPLICATION_ID}.Dagger2.Resolution")
+private val log = logger("${BuildConfig.APPLICATION_ID}.resolution")
 
 internal val resolvedComponents = mutableMapOf<KClass<*>, ResolvedComponent>()
 
-internal data class ResolvedComponent(val type: KClass<*>) {
+internal data class ResolvedComponent(val componentType: KClass<*>) {
     private val typedProviders: MutableMap<Field, Type> = mutableMapOf()
     private val untypedProviders: MutableMap<Field, String> = mutableMapOf()
     private val resolvedProviders: MutableMap<KClass<*>, Field> = mutableMapOf()
@@ -24,21 +24,24 @@ internal data class ResolvedComponent(val type: KClass<*>) {
     private val moduleProviders: MutableMap<KClass<*>, Pair<Field, Method>> = mutableMapOf()
 
     init {
-        type.java.declaredFields.forEach { field ->
-            if (field.type != Provider::class.java) return@forEach
+        log.d { "Resolving types for component $componentType ..." }
+        componentType.java.declaredFields.forEach { field ->
+            if (field.type == Provider::class.java) {
+                log.d { "Found provider: $field" }
+                field.isAccessible = true
 
-            field.isAccessible = true
+                val genericType = field.genericType
+                if (genericType is ParameterizedType) {
+                    typedProviders[field] = genericType.actualTypeArguments[0]
+                } else {
+                    // raw types (package private non-singleton types)
+                    // since we can't know the type until we get it, we at least check the name matches first
+                    untypedProviders[field] = field.name.removeSuffix("Provider").toLowerCase()
+                }
+            } else if (field.type.hasAnnotation<Module>()) {
+                log.d { "Found module: $field" }
+                field.isAccessible = true
 
-            val genericType = field.genericType
-            if (genericType is ParameterizedType) {
-                typedProviders[field] = genericType.actualTypeArguments[0]
-            } else {
-                // raw types (package private non-singleton types)
-                // since we can't know the type until we get it, we at least check the name matches first
-                untypedProviders[field] = field.name.removeSuffix("Provider").toLowerCase()
-            }
-
-            if (field.type.hasAnnotation<Module>()) {
                 field.type.declaredMethods.forEach {
                     if (it.hasAnnotation<Provides>()) {
                         it.isAccessible = true
@@ -50,9 +53,11 @@ internal data class ResolvedComponent(val type: KClass<*>) {
         }
 
         // Component getters (@Inject on constructor, but not @Singleton types)
-        type.java.declaredMethods.forEach {
+        componentType.java.declaredMethods.forEach {
             if (it.name.startsWith("get")) {
+                log.d { "Found getter: $it" }
                 it.isAccessible = true
+
                 if (it.returnType == Any::class.java) { // package private
                     unresolvedGetters[it] = it.name.removePrefix("get")
                 } else {

@@ -7,12 +7,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.annotations.DeveloperLogger
 import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.enabled
-import com.nextfaze.devfun.demo.kotlin.findOrCreate
 import com.nextfaze.devfun.demo.kotlin.startActivity
 import com.nextfaze.devfun.demo.util.value
 import com.nextfaze.devfun.inject.Constructable
@@ -34,7 +34,7 @@ class WelcomeActivity : BaseActivity() {
         setContentView(R.layout.fragment_activity)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.activity_fragment_view, findOrCreate { WelcomeFragment() }).commit()
+            setContentFragment { WelcomeFragment() }
         }
     }
 }
@@ -55,11 +55,6 @@ class WelcomeFragment : BaseFragment() {
         set(value) = run { createAccountButton.enabled = value }
 
     override fun inject(injector: FragmentInjector) = injector.inject(this)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         inflater.inflate(R.layout.welcome_layout, container, false)
 
@@ -96,6 +91,10 @@ class WelcomeFragment : BaseFragment() {
     private fun thrownExceptionsShowErrorDialog(): Unit = throw RuntimeException("Test")
 
     private enum class SomeEnum { OPTION_1, OPTION_2 }
+
+    @DeveloperFunction
+    private fun invokeUiForSimpleTypes(context: Context, anIntParam: Int, anEnumParam: SomeEnum, aStringParam: String) =
+        Toast.makeText(context, "You entered: $anIntParam, $anEnumParam, '$aStringParam'", Toast.LENGTH_LONG).show()
 
     @DeveloperFunction
     private fun invokeUiWithMissingType(context: Context, anIntParam: Int, anEnumParam: SomeEnum, someType: SomeType) = Unit

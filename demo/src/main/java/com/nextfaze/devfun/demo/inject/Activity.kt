@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.nextfaze.devfun.annotations.Dagger2Component
 import com.nextfaze.devfun.annotations.Dagger2Scope.RETAINED_FRAGMENT
+import com.nextfaze.devfun.demo.test.ActivityScopedTestModule
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
@@ -22,7 +23,7 @@ annotation class ActivityScope
 @ActivityScope
 interface ActivityComponent : Injector
 
-@Module
+@Module(includes = [ActivityScopedTestModule::class])
 class ActivityModule(private val activity: AppCompatActivity) {
     @Provides internal fun activity(): Activity = activity
 }

@@ -22,6 +22,7 @@ import javax.inject.Singleton
  */
 
 @Singleton
+@DeveloperLogger
 class Config @Inject constructor(context: Context) {
     private val prefs = KxSharedPreferences(context.getSharedPreferences("session", MODE_PRIVATE))
 
@@ -82,7 +83,6 @@ class Config @Inject constructor(context: Context) {
         welcomeString().delete()
     }
 
-    @DeveloperLogger
     override fun toString() = """Config {
         |  splashDuration: $splashDuration,
         |  signInEnabled: $signInEnabled,

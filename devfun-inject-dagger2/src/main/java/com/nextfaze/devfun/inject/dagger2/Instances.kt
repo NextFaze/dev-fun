@@ -29,11 +29,12 @@ import java.lang.RuntimeException
 import java.lang.reflect.*
 import javax.inject.Inject
 import javax.inject.Provider
+import javax.inject.Scope
 import javax.inject.Singleton
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.reflect.KClass
 
-private val log = logger("${BuildConfig.APPLICATION_ID}.Dagger2.Instances")
+private val log = logger("${BuildConfig.APPLICATION_ID}.instances")
 
 /**
  * Flag to indicate if the default heavy-reflection based Dagger 2 injector should be used.
@@ -71,6 +72,9 @@ private val providerFields = mutableMapOf<Field, ProviderField>()
  *
  * Will traverse the component providers and modules for an instance type matching [clazz] - scoping is not considered.
  *
+ * This function delegates to [tryGetInstanceFromComponentCache] and [tryGetInstanceFromComponentReflection]. If you are having issues with
+ * new instances being created when they shouldn't be, ensure your `@Scope` annotations are `@Retention(RUNTIME)`.
+ *
  * Alternatively use `@Dagger2Component` on your functions/properties (or `@get:Dagger2Component` for property getters)
  * that return components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class,
  * activity class, etc) - which will end up using this method anyway.
@@ -79,16 +83,59 @@ private val providerFields = mutableMapOf<Field, ProviderField>()
  */
 @Suppress("UNCHECKED_CAST")
 fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>, cacheResolvedTypes: Boolean = true): T? {
-    // Special case - a non-singleton no-args injected type will not have a provider or getter
-    if (!clazz.java.isAnnotationPresent(Singleton::class.java) &&
-        clazz.java.declaredConstructors.singleOrNull()?.let { it.parameterTypes.isEmpty() && it.isAnnotationPresent(Inject::class.java) } == true) {
-        log.t { "$clazz is non-singleton no-args @Inject - creating new instance..." }
-        return clazz.java.newInstance()
+    // We need to check component via resolve cache first as a scope may not be RUNTIME retained (in which case even though it's scoped, it
+    // will be seen as not scoped and could be incorrectly instantiated below)
+    if (cacheResolvedTypes) {
+        tryGetInstanceFromComponentCache(component, clazz)?.let { return it }
     }
 
-    if (cacheResolvedTypes) {
-        val resolvedComponent = resolvedComponents.getOrPut(component::class) { ResolvedComponent(component::class) }
-        return resolvedComponent.getInstance(component, clazz)
+    return tryGetInstanceFromComponentReflection(component, clazz)
+}
+
+/**
+ * Helper function to be used on Dagger 2.x [Component] implementations.
+ *
+ * Will traverse the component providers and modules for an instance type matching [clazz] - scoping is not considered.
+ *
+ * You should use this before [tryGetInstanceFromComponentReflection] as the reflection method may create new instances instead of reusing
+ * them due to scoping limitations. This can be avoided to some degree if your `@Scope` annotations are `@Retention(RUNTIME)`.
+ *
+ * Rather then using this function directly you can use [tryGetInstanceFromComponent] which tries this first then the reflection method.
+ *
+ * Alternatively use `@Dagger2Component` on your functions/properties (or `@get:Dagger2Component` for property getters)
+ * that return components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class,
+ * activity class, etc) - which will end up using this method anyway.
+ *
+ * @see Dagger2Component
+ */
+fun <T : Any> tryGetInstanceFromComponentCache(component: Any, clazz: KClass<T>): T? =
+    resolvedComponents.getOrPut(component::class) { ResolvedComponent(component::class) }.getInstance(component, clazz)
+
+/**
+ * Helper function to be used on Dagger 2.x [Component] implementations.
+ *
+ * Will traverse the component providers and modules for an instance type matching [clazz] - scoping is not considered.
+ *
+ * You should use [tryGetInstanceFromComponentCache] before this method may create new instances instead of reusing
+ * them due to scoping limitations. This can be avoided to some degree if your `@Scope` annotations are `@Retention(RUNTIME)`.
+ *
+ * Rather then using this function directly you can use [tryGetInstanceFromComponent] which tries this first then the reflection method.
+ *
+ * Alternatively use `@Dagger2Component` on your functions/properties (or `@get:Dagger2Component` for property getters)
+ * that return components to tell DevFun where to find them (they can be whatever/where ever; static, in your app class,
+ * activity class, etc) - which will end up using this method anyway.
+ *
+ * @see Dagger2Component
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> tryGetInstanceFromComponentReflection(component: Any, clazz: KClass<T>): T? {
+    // Special case - a non-scoped no-args @Inject type will not have a provider or getter
+    if (!clazz.isScoped) {
+        val ctor = clazz.java.declaredConstructors.singleOrNull()
+        if (ctor != null && ctor.parameterTypes.isEmpty() && ctor.isAnnotationPresent(Inject::class.java)) {
+            log.t { "$clazz is non-scoped no-args @Inject - creating new instance..." }
+            return ctor.apply { isAccessible = true }.newInstance() as T
+        }
     }
 
     // Get from Provider
@@ -150,24 +197,8 @@ fun <T : Any> tryGetInstanceFromComponent(component: Any, clazz: KClass<T>, cach
     return null
 }
 
-/*
- * private class DemoInstanceProvider(private val application: Application, private val activityProvider: ActivityProvider) : InstanceProvider {
- *     private val applicationComponent by lazy { application.applicationComponent!! }
- * 
- *     override fun <T : Any> get(clazz: KClass<out T>): T? {
- *         tryGetInstanceFromComponent(applicationComponent, clazz)?.let { return it }
- * 
- *         activityProvider()?.let { activity ->
- *             if (activity is DaggerActivity) {
- *                 tryGetInstanceFromComponent(activity.retainedComponent, clazz)?.let { return it }
- *                 tryGetInstanceFromComponent(activity.activityComponent, clazz)?.let { return it }
- *             }
- *         }
- * 
- *         return null
- *     }
- * }
- */
+private val KClass<*>.isScoped get() = java.annotations.any { it.annotationClass.java.isAnnotationPresent(Scope::class.java) }
+
 /**
  * This module adds rudimentary support for searching Dagger 2.x component graphs for object instances.
  *
@@ -414,6 +445,10 @@ private class Dagger2AnnotatedInstanceProvider(
         }
         if (components.isEmpty()) return null
 
+        val componentInstances = mutableListOf<Any>()
+
+        // We need to check component via resolve cache first as a scope may not be RUNTIME retained (in which case even though it's scoped, it
+        // will be seen as not scoped and could be incorrectly instantiated when using reflection)
         components.forEach {
             if (it.isFragmentActivityRequired && androidInstances.activity !is FragmentActivity) {
                 log.t { "Component out of scope - FragmentActivity required but not present: $it" }
@@ -439,7 +474,17 @@ private class Dagger2AnnotatedInstanceProvider(
                     else -> it.method.invoke(receiver)
                 } ?: return@forEach
 
-                tryGetInstanceFromComponent(component, clazz)?.let { return it }
+                tryGetInstanceFromComponentCache(component, clazz)?.let { return it }
+                componentInstances += component
+            } catch (t: Throwable) {
+                log.w(t) { "Component $it threw $t (may be out of scope - check your configuration) - trying other providers." }
+            }
+        }
+
+        // Now we try using on-the-fly introspection via reflection - much slower but can sometimes succeed for weird typing issues
+        componentInstances.forEach {
+            try {
+                tryGetInstanceFromComponentReflection(it, clazz)?.let { return it }
             } catch (t: Throwable) {
                 log.w(t) { "Component $it threw $t (may be out of scope - check your configuration) - trying other providers." }
             }
