@@ -13,6 +13,7 @@ import tested.kapt_and_compile.functions_with_complex_types.FunctionsWithComplex
 import tested.kapt_and_compile.functions_with_primitive_args.FunctionsWithPrimitiveArgs
 import tested.kapt_and_compile.interfaces.InterfacesWithDefaults
 import tested.kapt_and_compile.interfaces.SimpleInterfaces
+import tested.kapt_and_compile.package_private.PackagePrivate
 import tested.kapt_and_compile.simple_functions_in_classes.SimpleFunctionsInClasses
 import tested.kapt_and_compile.simple_functions_in_nested_classes.SimpleFunctionsInNestedClasses
 import tested.kapt_and_compile.simple_functions_in_nested_objects.SimpleFunctionsInNestedObjects
@@ -46,7 +47,8 @@ class TestKaptAndCompile : AbstractKotlinKapt3Tester() {
         FunctionsWithArgs::class,
         SimpleTypedFunctions::class,
         FunctionsWithComplexTypes::class,
-        TopLevelFunctions::class
+        TopLevelFunctions::class,
+        PackagePrivate::class
     )
 
     @Test(dataProvider = "testKaptAndCompileData", groups = ["kapt", "compile", "supported"])

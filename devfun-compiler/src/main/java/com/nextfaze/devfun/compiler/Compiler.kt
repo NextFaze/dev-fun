@@ -425,7 +425,8 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
             // Can we call the function directly
             val funIsPublic = element.isPublic
             val classIsPublic = funIsPublic && clazz.isClassPublic
-            val callFunDirectly = classIsPublic && element.typeParameters.all { it.bounds.all { it.isClassPublic } }
+            val allArgTypesPublic = element.parameters.all { it.asType().isPublic }
+            val callFunDirectly = classIsPublic && allArgTypesPublic && element.typeParameters.all { it.bounds.all { it.isClassPublic } }
 
             // If true the the function is top-level (file-level) declared (and thus we cant directly reference its enclosing class)
             val isClassKtFile = clazz.isClassKtFile
@@ -507,9 +508,9 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
                     "${it.simpleName}=${(it.asType() as? DeclaredType)?.asElement()?.modifiers?.joinToString(",")}"
                 }}
                 #|        // params: ${element.parameters.joiner {
-                    "${it.simpleName}=@[${it.annotationMirrors}] ${it.asType()}"
+                    "${it.simpleName}=@[${it.annotationMirrors}] isTypePublic=${it.asType().isPublic} ${it.asType()}"
                 }}
-                #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction, isProperty=$isProperty"""
+                #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, allArgTypesPublic=$allArgTypesPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction, isProperty=$isProperty"""
             }
 
             // Generate definition

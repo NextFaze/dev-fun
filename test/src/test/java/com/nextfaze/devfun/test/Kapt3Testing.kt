@@ -25,6 +25,7 @@ import com.nextfaze.devfun.invoke.receiverInstance
 import com.nhaarman.mockito_kotlin.KStubbing
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.common.messages.*
@@ -40,6 +41,7 @@ import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.kapt3.AbstractKapt3Extension
 import org.jetbrains.kotlin.kapt3.AptMode
@@ -274,6 +276,12 @@ data class TestContext(
     private val testDataFiles = testFiles.map { File(TEST_DATA_DIR, "${it.qualifiedName!!.replace('.', File.separatorChar)}.kt") }
     val files = testDataFiles + providedFiles
 
+    private val testJavaFiles by lazy {
+        testDataFiles.flatMap {
+            it.parentFile.walkTopDown().filter { it.extension == "java" }.toList()
+        }
+    }
+
     val testInstanceProviders = testFiles
         .filter { it.isSubclassOf(TestInstanceProviders::class) }
         .map { it.objectInstance as TestInstanceProviders }
@@ -291,12 +299,23 @@ data class TestContext(
             put(CommonConfigurationKeys.MODULE_NAME, moduleName)
             addJvmClasspathRoots(PathUtil.getJdkClassesRootsFromCurrentJre())
             addJvmClasspathRoots(compileClasspath)
+            if (testJavaFiles.isNotEmpty()) {
+                put(JVMConfigurationKeys.USE_JAVAC, true)
+                put(JVMConfigurationKeys.COMPILE_JAVA, true)
+                put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, ThrowingPrintingMessageCollector(true))
+            }
         }
         val env = KotlinCoreEnvironment.createForTests(createDisposable(testDir.name) {}, config, EnvironmentConfigFiles.JVM_CONFIG_FILES)
-        val ktFiles = files.map { createFile(it.name, it.readText(), env.project) }
+
+        if (testJavaFiles.isNotEmpty()) {
+            log.d { "Using Javac - found Java files: $testJavaFiles" }
+            env.registerJavac()
+        }
+        val javaSourceRoots = testJavaFiles.map { it.parentFile }.toSet().toList()
 
         val kapt3Extension = Kapt3ExtensionForTests(
             processors = processors,
+            javaSourceRoots = javaSourceRoots,
             compileClasspath = compileClasspath,
             sourcesOutputDir = sourcesOutputDir,
             classFilesOutputDir = classesOutputDir,
@@ -308,6 +327,7 @@ data class TestContext(
         try {
             AnalysisHandlerExtension.registerExtension(env.project, kapt3Extension)
 
+            val ktFiles = files.map { createFile(it.name, it.readText(), env.project) }
             GenerationUtils.compileFiles(ktFiles, env, Kapt3BuilderFactory())
 
             kapt3Extension.savedStubs ?: error("Stubs were not saved")
@@ -330,8 +350,8 @@ data class TestContext(
             noStdlib = true
             moduleName = this@TestContext.moduleName
 
-            // test sources + kapt generated sources
-            freeArgs = files.map { it.canonicalPath } + sourcesOutputDir.canonicalPath
+            // test sources + kapt generated sources + test java files
+            freeArgs = files.map { it.canonicalPath } + sourcesOutputDir.canonicalPath + testJavaFiles.map { it.toString() }
         }
 
         val collector = ThrowingPrintingMessageCollector(compilerArgs.verbose)

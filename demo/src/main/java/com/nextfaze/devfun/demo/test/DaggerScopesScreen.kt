@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.BaseActivity
 import com.nextfaze.devfun.demo.BaseFragment
 import com.nextfaze.devfun.demo.R
@@ -45,6 +46,26 @@ class DaggerScopesActivity : BaseActivity() {
             setContentFragment { DaggerScopesFragment() }
         }
     }
+
+    @DeveloperFunction
+    fun testInjectableNotScopedWithZeroArgsConstructor(instance: InjectableNotScopedWithZeroArgsConstructor) =
+        assertEquals(injectableNotScopedWithZeroArgsConstructor, instance, "injectableNotScopedWithZeroArgsConstructor")
+
+    @DeveloperFunction
+    fun testInjectableNotScopedWithMultipleArgsConstructor(instance: InjectableNotScopedWithMultipleArgsConstructor) =
+        assertEquals(injectableNotScopedWithMultipleArgsConstructor, instance, "injectableNotScopedWithMultipleArgsConstructor")
+
+    @DeveloperFunction
+    internal fun testInjectablePackagePrivateNotScoped(instance: InjectablePackagePrivateNotScoped) =
+        assertEquals(injectablePackagePrivateNotScoped, instance, "injectablePackagePrivateNotScoped")
+
+    @DeveloperFunction
+    internal fun testInjectablePackagePrivateNotScopedWithArgs(instance: InjectablePackagePrivateNotScopedWithArgs) =
+        assertEquals(injectablePackagePrivateNotScopedWithArgs, instance, "injectablePackagePrivateNotScopedWithArgs")
+
+    @DeveloperFunction
+    internal fun testInjectablePackagePrivateRetainedViaAnnotation(instance: InjectablePackagePrivateRetainedViaAnnotation) =
+        assertEquals(injectablePackagePrivateRetainedViaAnnotation, instance, "injectablePackagePrivateRetainedViaAnnotation")
 }
 
 class DaggerScopesFragment : BaseFragment() {
@@ -69,4 +90,30 @@ class DaggerScopesFragment : BaseFragment() {
     override fun inject(injector: FragmentInjector) = injector.inject(this)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         inflater.inflate(R.layout.dagger_scopes_fragment, container, false)
+
+    @DeveloperFunction
+    fun testInjectableNotScopedWithZeroArgsConstructor(instance: InjectableNotScopedWithZeroArgsConstructor) =
+        assertEquals(injectableNotScopedWithZeroArgsConstructor, instance, "injectableNotScopedWithZeroArgsConstructor")
+
+    @DeveloperFunction
+    fun testInjectableNotScopedWithMultipleArgsConstructor(instance: InjectableNotScopedWithMultipleArgsConstructor) =
+        assertEquals(injectableNotScopedWithMultipleArgsConstructor, instance, "injectableNotScopedWithMultipleArgsConstructor")
+
+    @DeveloperFunction
+    internal fun testInjectablePackagePrivateNotScoped(instance: InjectablePackagePrivateNotScoped) =
+        assertEquals(injectablePackagePrivateNotScoped, instance, "injectablePackagePrivateNotScoped")
+
+    @DeveloperFunction
+    internal fun testInjectablePackagePrivateNotScopedWithArgs(instance: InjectablePackagePrivateNotScopedWithArgs) =
+        assertEquals(injectablePackagePrivateNotScopedWithArgs, instance, "injectablePackagePrivateNotScopedWithArgs")
+
+    @DeveloperFunction
+    internal fun testInjectablePackagePrivateRetainedViaAnnotation(instance: InjectablePackagePrivateRetainedViaAnnotation) =
+        assertEquals(injectablePackagePrivateRetainedViaAnnotation, instance, "injectablePackagePrivateRetainedViaAnnotation")
+}
+
+private fun <T : Any> assertEquals(expected: T, actual: T, name: String) {
+    if (expected !== actual) {
+        throw RuntimeException("$name\nexpected !== actual\nexpected=$expected\nactual=$actual")
+    }
 }

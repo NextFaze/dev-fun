@@ -75,7 +75,7 @@ private fun DeclaredType.toKType(): CharSequence {
     return JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(name.toString()))?.asSingleFqName()?.toString() ?: name
 }
 
-private val TypeMirror.isPublic: Boolean
+val TypeMirror.isPublic: Boolean
     get() = when (this) {
         is PrimitiveType -> true
         is ArrayType -> this.componentType.isPublic

@@ -4,6 +4,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.runner.AndroidJUnit4
+import com.nextfaze.devfun.core.call
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.demo.R
 import com.nextfaze.devfun.demo.fragmentActivityTestRule
@@ -12,6 +13,7 @@ import com.nextfaze.devfun.demo.orientationPortrait
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotSame
@@ -49,15 +51,14 @@ class DaggerInjectionTests {
         }
 
         fun testDevFunGet(activity: DaggerScopesActivity, fragment: DaggerScopesFragment) {
-            // Now check that DevFun can resolve them correctly
+            // Check that DevFun can resolve them correctly
             with(activity) {
                 assertFailsWith<AssertionError> {
-                    // TODO? Correct injection would get type from activity itself rather than searching components
                     // dagger does not hold a reference to fetch for non-scoped types
+                    // this should fail here, but succeed when injected in-context
                     assertEquals(injectableNotScopedWithZeroArgsConstructor, devFun.get())
                 }
                 assertFailsWith<AssertionError> {
-                    // TODO? Correct injection would get type from activity itself rather than searching components
                     // dagger does not hold a reference to fetch for non-scoped types
                     assertEquals(injectableNotScopedWithMultipleArgsConstructor, devFun.get())
                 }
@@ -78,12 +79,10 @@ class DaggerInjectionTests {
                 assertEquals(injectableSingletonScopedViaProvidesWithArgs, devFun.get())
 
                 assertFailsWith<AssertionError> {
-                    // TODO? Correct injection would get type from activity itself rather than searching components
                     // dagger does not hold a reference to fetch for non-scoped types
                     assertEquals(injectablePackagePrivateNotScoped, devFun.get())
                 }
                 assertFailsWith<AssertionError> {
-                    // TODO? Correct injection would get type from activity itself rather than searching components
                     // dagger does not hold a reference to fetch for non-scoped types
                     assertEquals(injectablePackagePrivateNotScopedWithArgs, devFun.get())
                 }
@@ -93,12 +92,10 @@ class DaggerInjectionTests {
             }
             with(fragment) {
                 assertFailsWith<AssertionError> {
-                    // TODO? Correct injection would get type from fragment itself rather than searching components
                     // dagger does not hold a reference to fetch for non-scoped types
                     assertEquals(injectableNotScopedWithZeroArgsConstructor, devFun.get())
                 }
                 assertFailsWith<AssertionError> {
-                    // TODO? Correct injection would get type from fragment itself rather than searching components
                     // dagger does not hold a reference to fetch for non-scoped types
                     assertEquals(injectableNotScopedWithMultipleArgsConstructor, devFun.get())
                 }
@@ -114,18 +111,41 @@ class DaggerInjectionTests {
                 assertEquals(injectableSingletonScopedViaProvidesWithArgs, devFun.get())
 
                 assertFailsWith<AssertionError> {
-                    // TODO? Correct injection would get type from fragment itself rather than searching components
                     // dagger does not hold a reference to fetch for non-scoped types
                     assertEquals(injectablePackagePrivateNotScoped, devFun.get())
                 }
                 assertFailsWith<AssertionError> {
-                    // TODO? Correct injection would get type from fragment itself rather than searching components
                     // dagger does not hold a reference to fetch for non-scoped types
                     assertEquals(injectablePackagePrivateNotScopedWithArgs, devFun.get())
                 }
                 assertEquals(injectablePackagePrivateRetainedViaAnnotation, devFun.get())
                 assertEquals(injectablePackagePrivateSingletonViaAnnotation, devFun.get())
             }
+
+            // TODO? Correct injection would get type from fragment itself rather than searching components
+            // Now check that call-aware injection can grab it based on where it's called.
+            // i.e. if we're calling a function in the Fragment then we should be able to inject the non-scoped instances to the call.
+            // We can't get the correct non-scoped instance when we don't know the context as there could be more than one instance etc.
+            val testDevFunctions = listOf(
+//                    DaggerScopesActivity::testInjectableNotScopedWithZeroArgsConstructor,
+//                    DaggerScopesActivity::testInjectableNotScopedWithMultipleArgsConstructor,
+//                    DaggerScopesActivity::testInjectablePackagePrivateNotScoped,
+//                    DaggerScopesActivity::testInjectablePackagePrivateNotScopedWithArgs,
+                DaggerScopesActivity::testInjectablePackagePrivateRetainedViaAnnotation,
+//                    DaggerScopesFragment::testInjectableNotScopedWithZeroArgsConstructor,
+//                    DaggerScopesFragment::testInjectableNotScopedWithMultipleArgsConstructor,
+//                    DaggerScopesFragment::testInjectablePackagePrivateNotScoped,
+//                    DaggerScopesFragment::testInjectablePackagePrivateNotScopedWithArgs,
+                DaggerScopesFragment::testInjectablePackagePrivateRetainedViaAnnotation
+            )
+            val items = devFun.categories.flatMap { it.items }
+            testDevFunctions.forEach { devFunFunc ->
+                val clazz = devFunFunc.parameters.first().type.classifier as KClass<*>
+                val name = devFunFunc.name
+                val item = items.single { it.function.clazz == clazz && it.function.method.name.startsWith(name) }
+                item.call()!!.exception?.run { throw this }
+            }
+
         }
 
         val activity = activityRule.activity

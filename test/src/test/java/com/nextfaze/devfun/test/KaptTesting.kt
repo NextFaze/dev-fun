@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.resolve.jvm.extensions.AnalysisHandlerExtension
 internal fun createFile(name: String, text: String, project: Project): KtFile {
     val shortName = name.substring(name.lastIndexOf('/') + 1).let { it.substring(it.lastIndexOf('\\') + 1) }
     val virtualFile = object : LightVirtualFile(shortName, KotlinLanguage.INSTANCE, text) {
-        override fun getPath() = "/" + name
+        override fun getPath() = "/$name"
     }.apply { charset = CharsetToolkit.UTF8_CHARSET }
     val factory = PsiFileFactory.getInstance(project) as PsiFileFactoryImpl
     return factory.trySetupPsiForFile(virtualFile, KotlinLanguage.INSTANCE, true, false) as KtFile
