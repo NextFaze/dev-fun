@@ -204,7 +204,7 @@ internal class OverlayWindowImpl(
                 onVisibilityChange?.invoke(value)
             }
         }
-    override val isVisible get() = visible
+    override val isVisible get() = visible && isAdded
 
     private val foregroundListener = foregroundTracker.addForegroundChangeListener { updateVisibility() }
     private val boundsListener = displayBoundsTracker.addDisplayBoundsChangeListener { _, bounds -> updateOverlayBounds(bounds) }
