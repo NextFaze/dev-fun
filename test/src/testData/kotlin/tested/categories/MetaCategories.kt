@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "ClassName")
 
 package tested.categories
 
@@ -25,19 +25,25 @@ class ma_SimpleClass {
 class ma_ContextClass {
     @DeveloperFunction
     fun functionInContextCat() = listOf(
-            ExpectedCategoryName("Context"),
-            ExpectedCategoryOrder(-10_1000)
+        ExpectedCategoryName("Context"),
+        ExpectedCategoryOrder(-10_000)
     )
 
     @DeveloperFunction(category = DeveloperCategory("Different Category"))
-    fun functionInContextCatClassWithCustomCat() = listOf(
+    fun functionInContextCatClassWithCustomCat() =
+        listOf( // the function definition itself will not have the fully composed category
+            ExpectedCategoryName("Different Category")
+        ) to listOf(
             ExpectedCategoryName("Different Category"),
             ExpectedCategoryOrder(null)
-    )
+        )
 
     @DeveloperFunction(category = DeveloperCategory("My Custom Category"))
-    fun functionInContextCatClassWithAnotherCat() = listOf(
+    fun functionInContextCatClassWithAnotherCat() =
+        listOf( // the function definition itself will not have the fully composed category
+            ExpectedCategoryName("My Custom Category")
+        ) to listOf(
             ExpectedCategoryName("My Custom Category"),
             ExpectedCategoryOrder(5_000)
-    )
+        )
 }

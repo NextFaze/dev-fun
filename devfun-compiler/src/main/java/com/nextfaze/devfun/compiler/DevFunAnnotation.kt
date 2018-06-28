@@ -15,7 +15,8 @@ internal class DevFunAnnotation(
     override val processingEnvironment: ProcessingEnvironment,
     private val annotation: AnnotationMirror,
     private val annotationTypeElement: TypeElement,
-    private val devFunTypeElement: DevFunTypeElement
+    private val devFunTypeElement: DevFunTypeElement,
+    private val devCatTypeElement: DevCatTypeElement
 ) : WithProcessingEnvironment {
     val value by lazy {
         annotation[DeveloperFunction::value] ?: when {
@@ -25,7 +26,7 @@ internal class DevFunAnnotation(
         }
     }
 
-    val category: DevCategory? by lazy {
+    val category: DevFunCategory? by lazy {
         val localCategory = annotation[DeveloperFunction::category]
         val metaCategory = when {
             annotationTypeElement != devFunTypeElement.element ->
@@ -35,8 +36,8 @@ internal class DevFunAnnotation(
             else -> null
         }
         when (localCategory) {
-            null -> metaCategory?.let { DevCategory(it) }
-            else -> DevCategory(localCategory, metaCategory)
+            null -> metaCategory?.let { DevFunCategory(processingEnvironment, it, devCatTypeElement.element, devCatTypeElement) }
+            else -> DevFunCategory(processingEnvironment, localCategory, devCatTypeElement.element, devCatTypeElement, metaCategory)
         }
     }
 
@@ -57,10 +58,38 @@ internal class DevFunAnnotation(
     }]
 }
 
-internal data class DevCategory(private val annotation: AnnotationMirror, private val superCat: AnnotationMirror? = null) {
-    val value: String? get() = annotation[DeveloperCategory::value] ?: superCat?.let { it[DeveloperCategory::value] }
-    val group: String? get() = annotation[DeveloperCategory::group] ?: superCat?.let { it[DeveloperCategory::group] }
-    val order: Int? get() = annotation[DeveloperCategory::order] ?: superCat?.let { it[DeveloperCategory::order] }
+internal data class DevFunCategory(
+    override val processingEnvironment: ProcessingEnvironment,
+    private val annotation: AnnotationMirror,
+    private val annotationTypeElement: TypeElement,
+    private val devCatTypeElement: DevCatTypeElement,
+    private val superCat: AnnotationMirror? = null
+) : WithProcessingEnvironment {
+    val value by lazy {
+        annotation[DeveloperCategory::value] ?: superCat?.let { it[DeveloperCategory::value] } ?: when {
+            annotationTypeElement != devCatTypeElement.element ->
+                annotationTypeElement.getDefaultValueFor(DeveloperCategory::value)?.takeIf { it != devCatTypeElement.value }
+            else -> null
+        }
+    }
+
+    val group by lazy {
+        annotation[DeveloperCategory::group] ?: superCat?.let { it[DeveloperCategory::group] } ?: when {
+            annotationTypeElement != devCatTypeElement.element ->
+                annotationTypeElement.getDefaultValueFor(DeveloperCategory::group)?.takeIf { it != devCatTypeElement.group }
+            else -> null
+        }
+    }
+
+    val order by lazy {
+        annotation[DeveloperCategory::order] ?: superCat?.let { it[DeveloperCategory::order] } ?: when {
+            annotationTypeElement != devCatTypeElement.element ->
+                annotationTypeElement.getDefaultValueFor(DeveloperCategory::order)?.takeIf { it != devCatTypeElement.order }
+            else -> null
+        }
+    }
+
+    val targetElement: TypeElement get() = annotationTypeElement
 }
 
 internal class DevFunTypeElement(val element: TypeElement) {
@@ -68,6 +97,12 @@ internal class DevFunTypeElement(val element: TypeElement) {
     val category = element.getDefaultValueFor(DeveloperFunction::category)!!
     val requiresApi = element.getDefaultValueFor(DeveloperFunction::requiresApi)!!
     val transformer = element.getDefaultValueFor(DeveloperFunction::transformer)!!
+}
+
+internal class DevCatTypeElement(val element: TypeElement) {
+    val value = element.getDefaultValueFor(DeveloperCategory::value)!!
+    val group = element.getDefaultValueFor(DeveloperCategory::group)!!
+    val order = element.getDefaultValueFor(DeveloperCategory::order)!!
 }
 
 private inline fun <reified T : Any> Element.getDefaultValueFor(callable: KCallable<T>) =

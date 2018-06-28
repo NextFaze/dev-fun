@@ -17,6 +17,7 @@ import com.nextfaze.devfun.core.devFunVerbose
 import com.nextfaze.devfun.demo.inject.BuildTypeFragmentInjector
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.*
+import com.nextfaze.devfun.demo.test.TestCat
 import com.nextfaze.devfun.error.ErrorHandler
 import kotlinx.android.synthetic.debug.kotlin_bug_fragment.*
 import java.io.PrintWriter
@@ -29,6 +30,7 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinProperty
 
+@TestCat
 class KotlinBugActivity : BaseActivity() {
     companion object {
         @DeveloperFunction

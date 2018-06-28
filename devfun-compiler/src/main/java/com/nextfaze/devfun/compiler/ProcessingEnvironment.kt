@@ -13,13 +13,23 @@ internal interface WithProcessingEnvironment {
     val isDebugVerbose: Boolean get() = false
 
     fun note(condition: Boolean = isDebugVerbose, body: () -> String) =
-        runIf(condition) { processingEnvironment.messager.printMessage(Diagnostic.Kind.NOTE, body()) }
+        runIf(condition) { processingEnvironment.messager.printMessage(Diagnostic.Kind.NOTE, "${this::class.qualifiedName}: ${body()}") }
 
     fun warn(message: String, element: Element? = null, annotationMirror: AnnotationMirror? = null) =
-        processingEnvironment.messager.printMessage(Diagnostic.Kind.MANDATORY_WARNING, message, element, annotationMirror)
+        processingEnvironment.messager.printMessage(
+            Diagnostic.Kind.MANDATORY_WARNING,
+            "${this::class.qualifiedName}: $message",
+            element,
+            annotationMirror
+        )
 
     fun error(message: String, element: Element? = null, annotationMirror: AnnotationMirror? = null) =
-        processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR, message, element, annotationMirror)
+        processingEnvironment.messager.printMessage(
+            Diagnostic.Kind.ERROR,
+            "${this::class.qualifiedName}: $message",
+            element,
+            annotationMirror
+        )
 
     fun String.optionOf(): String? = processingEnvironment.options[this]?.trim()?.takeIf { it.isNotBlank() }
 }

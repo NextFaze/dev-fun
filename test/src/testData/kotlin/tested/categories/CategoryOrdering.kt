@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "ClassName")
 
 package tested.categories
 

@@ -90,7 +90,7 @@ interface FunctionDefinition {
  */
 interface CategoryDefinition {
     /**
-     * [DeveloperFunction] uses in [clazz] will use this category.
+     * [DeveloperFunction] usages in [clazz] will use this category.
      */
     val clazz: KClass<*>? get() = null
 

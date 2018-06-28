@@ -206,6 +206,8 @@ internal const val META_INF_SERVICES = "META-INF/services"
 private const val DEFINITIONS_FILE_NAME = "DevFunDefinitions.kt"
 private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
 
+private typealias ProcessingVar = String.(TypeElement) -> String
+
 /**
  * Annotation processor for [DeveloperFunction] and [DeveloperCategory].
  */
@@ -239,6 +241,7 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
     private val developerReferences = HashMap<String, String>()
 
     private val devFunElement by lazy { DevFunTypeElement(processingEnv.elementUtils.getTypeElement(DeveloperFunction::class.qualifiedName)) }
+    private val devCatElement by lazy { DevCatTypeElement(processingEnv.elementUtils.getTypeElement(DeveloperCategory::class.qualifiedName)) }
 
     private val TypeElement.isDevAnnotated get() = getAnnotation(DeveloperAnnotation::class.java) != null
 
@@ -298,6 +301,19 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
             types = *types
         )
 
+    private val processingVars = listOf<ProcessingVar>(
+        { it -> replace("%CLASS_QN%", it.qualifiedName.toString()) },
+        { it -> replace("%CLASS_SN%", it.simpleName.toString()) }
+    )
+
+    private fun replaceProcessingVars(input: String, typeElement: TypeElement): String {
+        var str = input
+        processingVars.forEach { replace ->
+            str = replace(str, typeElement)
+        }
+        return str
+    }
+
     private fun processAnnotations(devAnnotatedElements: List<TypeElement>, env: RoundEnvironment) {
         fun Element.toInstance(from: String, forStaticUse: Boolean = false, isClassKtFile: Boolean = false): String = when {
             this is TypeElement && (forStaticUse || isKObject) -> when {
@@ -316,14 +332,14 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
         // DeveloperCategory
         //
 
-        fun generateCatDef(clazz: String, devCat: DevCategory) = mutableMapOf<KCallable<*>, Any>().apply {
-            this += CategoryDefinition::clazz to clazz
-            devCat.value?.let { this += CategoryDefinition::name to it.toKString() }
-            devCat.group?.let { this += CategoryDefinition::group to it.toKString() }
-            devCat.order?.let { this += CategoryDefinition::order to it }
+        fun generateCatDef(devFunCat: DevFunCategory, ref: String, element: TypeElement) = mutableMapOf<KCallable<*>, Any>().apply {
+            this += CategoryDefinition::clazz to ref
+            devFunCat.value?.let { this += CategoryDefinition::name to replaceProcessingVars(it.toKString(), element) }
+            devFunCat.group?.let { this += CategoryDefinition::group to replaceProcessingVars(it.toKString(), element) }
+            devFunCat.order?.let { this += CategoryDefinition::order to it }
         }.let { "SimpleCategoryDefinition(${it.entries.joinToString { "${it.key.name} = ${it.value}" }})" }
 
-        fun addCategoryDefinition(element: TypeElement, devCat: DevCategory) {
+        fun addCategoryDefinition(devFunCat: DevFunCategory, element: TypeElement) {
             // Debugging
             val categoryDefinition = "${element.enclosingElement}::$element"
             var debugAnnotationInfo = ""
@@ -334,26 +350,24 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
             // Generate definition
             categoryDefinitions[element.asType().toString()] =
                     """$debugAnnotationInfo
-                     #|${generateCatDef(element.toClass(), devCat)}"""
+                     #|${generateCatDef(devFunCat, element.toClass(), element)}"""
         }
 
         env.getElementsAnnotatedWith(DeveloperCategory::class.java).forEach { element ->
             element as TypeElement
             note { "Processing ${element.enclosingElement}::$element..." }
 
-            if (element.kind == ElementKind.ANNOTATION_TYPE) {
-                error("MetaCategories are not supported yet.", element)
-                return
-            }
-
-            val devCat =
-                DevCategory(element.annotationMirrors.single { it.annotationType.toString() == DeveloperCategory::class.qualifiedName })
-            addCategoryDefinition(element, devCat)
-
-            if (element.kind == ElementKind.ANNOTATION_TYPE) {
+            val annotation = element.annotationMirrors.single { it.annotationType.toString() == DeveloperCategory::class.qualifiedName }
+            if (element.kind == ElementKind.ANNOTATION_TYPE) { // meta categories
                 env.getElementsAnnotatedWith(element).forEach {
-                    addCategoryDefinition(it as TypeElement, devCat)
+                    val useSiteAnnotation = it.annotationMirrors.first { it.annotationType.toString() == element.qualifiedName.toString() }
+                    addCategoryDefinition(
+                        DevFunCategory(processingEnvironment, annotation, element, devCatElement, useSiteAnnotation),
+                        it as TypeElement
+                    )
                 }
+            } else {
+                addCategoryDefinition(DevFunCategory(processingEnvironment, annotation, devCatElement.element, devCatElement), element)
             }
         }
 
@@ -401,12 +415,12 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
             // Annotation values
             // Name
             val name = annotation.value?.let {
-                "\n#|    override val ${FunctionDefinition::name.name} = ${it.toKString()}"
+                "\n#|    override val ${FunctionDefinition::name.name} = ${replaceProcessingVars(it.toKString(), clazz)}"
             } ?: ""
 
             // Category
             val category = annotation.category?.let {
-                "\n#|    override val ${FunctionDefinition::category.name} = ${generateCatDef(FunctionDefinition::clazz.name, it)}"
+                "\n#|    override val ${FunctionDefinition::category.name} = ${generateCatDef(it, FunctionDefinition::clazz.name, clazz)}"
             } ?: ""
 
             // Requires API
@@ -526,7 +540,7 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
 
         env.getElementsAnnotatedWith(DeveloperFunction::class.java).forEach {
             generateFunctionDefinition(
-                DevFunAnnotation(processingEnv, it.devFunAnnotation, devFunElement.element, devFunElement),
+                DevFunAnnotation(processingEnv, it.devFunAnnotation, devFunElement.element, devFunElement, devCatElement),
                 it as ExecutableElement
             )
         }
@@ -643,7 +657,15 @@ class DevFunProcessor : AbstractProcessor(), WithProcessingEnvironment {
                     if (it is ExecutableElement) {
                         val annotation =
                             it.annotationMirrors.first { it.annotationType.toString() == devAnnotatedElement.qualifiedName.toString() }
-                        generateFunctionDefinition(DevFunAnnotation(processingEnv, annotation, devAnnotatedElement, devFunElement), it)
+                        generateFunctionDefinition(
+                            DevFunAnnotation(
+                                processingEnv,
+                                annotation,
+                                devAnnotatedElement,
+                                devFunElement,
+                                devCatElement
+                            ), it
+                        )
                     } else {
                         error(
                             """Only executable elements are supported with developerFunction=true (elementType=${it::class}).

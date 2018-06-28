@@ -1,6 +1,8 @@
 package com.nextfaze.devfun.demo.test
 
+import android.app.Activity
 import android.content.Context
+import android.support.v7.app.AlertDialog
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import dagger.Module
 import dagger.Provides
@@ -18,40 +20,56 @@ class SingletonScopedTestModule {
     fun scopedWithArgs(context: Context) = InjectableSingletonScopedViaProvidesWithArgs(context)
 }
 
+@TestCat
 class InjectableSingletonScopedViaProvides {
     @DeveloperFunction
-    fun validateSelf(self: InjectableSingletonScopedViaProvides) {
-        println("this=$this")
-        println("self=$self")
-        println("this===self: ${this === self}")
-    }
+    fun validateSelf(activity: Activity, self: InjectableSingletonScopedViaProvides): AlertDialog =
+        AlertDialog.Builder(activity)
+            .setMessage(
+                """this=$this($activity)
+                    |self=$self
+                    |this===self: ${this === self}""".trimMargin()
+            )
+            .show()
 }
 
+@TestCat
 class InjectableSingletonScopedViaProvidesWithArgs @Inject constructor(private val context: Context) {
     @DeveloperFunction
-    fun validateSelf(self: InjectableSingletonScopedViaProvidesWithArgs) {
-        println("this=$this($context)")
-        println("self=$self")
-        println("this===self: ${this === self}")
-    }
+    fun validateSelf(activity: Activity, self: InjectableSingletonScopedViaProvidesWithArgs): AlertDialog =
+        AlertDialog.Builder(activity)
+            .setMessage(
+                """this=$this($context)
+                    |self=$self
+                    |this===self: ${this === self}""".trimMargin()
+            )
+            .show()
 }
 
 @Singleton
+@TestCat
 class InjectableSingletonScopedViaAnnotation @Inject constructor() {
     @DeveloperFunction
-    fun validateSelf(self: InjectableSingletonScopedViaAnnotation) {
-        println("this=$this")
-        println("self=$self")
-        println("this===self: ${this === self}")
-    }
+    fun validateSelf(activity: Activity, self: InjectableSingletonScopedViaAnnotation): AlertDialog =
+        AlertDialog.Builder(activity)
+            .setMessage(
+                """this=$this($activity)
+                    |self=$self
+                    |this===self: ${this === self}""".trimMargin()
+            )
+            .show()
 }
 
 @Singleton
+@TestCat
 class InjectableSingletonScopedViaAnnotationWithArgs @Inject constructor(private val context: Context) {
     @DeveloperFunction
-    fun validateSelf(self: InjectableSingletonScopedViaAnnotationWithArgs) {
-        println("this=$this($context)")
-        println("self=$self")
-        println("this===self: ${this === self}")
-    }
+    fun validateSelf(activity: Activity, self: InjectableSingletonScopedViaAnnotationWithArgs): AlertDialog =
+        AlertDialog.Builder(activity)
+            .setMessage(
+                """this=$this($context)
+                    |self=$self
+                    |this===self: ${this === self}""".trimMargin()
+            )
+            .show()
 }

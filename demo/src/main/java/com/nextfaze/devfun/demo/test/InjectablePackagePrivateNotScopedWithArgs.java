@@ -1,10 +1,13 @@
 package com.nextfaze.devfun.demo.test;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v7.app.AlertDialog;
 import com.nextfaze.devfun.annotations.DeveloperFunction;
 
 import javax.inject.Inject;
 
+@TestCat
 class InjectablePackagePrivateNotScopedWithArgs {
 
     private Context context;
@@ -15,9 +18,9 @@ class InjectablePackagePrivateNotScopedWithArgs {
     }
 
     @DeveloperFunction
-    public void validateSelf(InjectablePackagePrivateNotScopedWithArgs self) {
-        System.out.println("this=" + this + "(" + context + ")");
-        System.out.println("self=" + self);
-        System.out.println("this===self: " + (this == self));
+    public void validateSelf(Activity activity, InjectablePackagePrivateNotScopedWithArgs self) {
+        new AlertDialog.Builder(activity)
+                .setMessage("this=" + this + "(" + context + ")\nself=" + self + "\nthis===self: " + (this == self))
+                .show();
     }
 }

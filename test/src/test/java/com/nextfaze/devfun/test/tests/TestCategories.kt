@@ -10,7 +10,7 @@ import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 import tested.categories.*
 import java.lang.reflect.Method
-import kotlin.test.assertFailsWith
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.expect
 
@@ -85,9 +85,20 @@ class TestCategories : AbstractKotlinKapt3Tester() {
     @Test(dataProvider = "testCategoryOrderOverloadingData")
     fun testCategoryOrderOverloading(test: TestContext) {
         val actualCats = test.devFun.categories.map { it.name }
+        val actualCatsAsStrList = actualCats.joinToString("\n")
+        val expectedCatsAsStrList = coo_ExpectedCategoryOrdering.order.joinToString("\n")
+
+        assertEquals(
+            actualCats.size,
+            coo_ExpectedCategoryOrdering.order.size,
+            "actualCats:\n$actualCatsAsStrList\n=== vs ===\ncoo_ExpectedCategoryOrdering.order:\n$expectedCatsAsStrList"
+        )
+
         actualCats.combine(coo_ExpectedCategoryOrdering.order).forEach {
-            expect(it.second, "Ordering inconsistent") { it.first }
+            expect(it.second, "Ordering inconsistent:\n$actualCatsAsStrList\n=== vs ===\n$expectedCatsAsStrList") { it.first }
         }
+
+        test.testInvocations(log)
     }
 
     //
@@ -99,16 +110,11 @@ class TestCategories : AbstractKotlinKapt3Tester() {
         singleFileTests(
             testMethod,
             MetaCategories::class,
-            MetaGroupingCategory::class,
-            autoKaptAndCompile = false
+            MetaGroupingCategory::class
         )
 
-    @Test(dataProvider = "testMetaCategoriesData", groups = ["unsupported"])
-    fun testMetaCategories(test: TestContext) {
-        assertFailsWith<IllegalStateException> {
-            test.runKapt(compileClasspath, processors)
-        }
-    }
+    @Test(dataProvider = "testMetaCategoriesData")
+    fun testMetaCategories(test: TestContext) = test.testInvocations(log)
 
     //
     // Functions with Category

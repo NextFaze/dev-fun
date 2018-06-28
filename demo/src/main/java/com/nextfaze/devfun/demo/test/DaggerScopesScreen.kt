@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.BaseActivity
 import com.nextfaze.devfun.demo.BaseFragment
@@ -117,3 +118,6 @@ private fun <T : Any> assertEquals(expected: T, actual: T, name: String) {
         throw RuntimeException("$name\nexpected !== actual\nexpected=$expected\nactual=$actual")
     }
 }
+
+@DeveloperCategory("Testing & Debugging", group = "%CLASS_SN%", order = 200_000)
+annotation class TestCat
