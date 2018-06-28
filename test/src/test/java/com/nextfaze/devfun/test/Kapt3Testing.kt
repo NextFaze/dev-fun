@@ -381,7 +381,6 @@ data class TestContext(
 
         DevFun().apply {
             devFunVerbose = false
-            shouldPrimeReflectionCache = false
             initialize(context)
             instanceProviders.apply {
                 this[ConstructingInstanceProvider::class].requireConstructable = false

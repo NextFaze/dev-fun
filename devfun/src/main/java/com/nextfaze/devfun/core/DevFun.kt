@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.RestrictTo
-import android.support.annotation.VisibleForTesting
 import android.support.v7.app.AlertDialog
 import com.nextfaze.devfun.annotations.*
 import com.nextfaze.devfun.core.loader.DefinitionsLoader
@@ -20,7 +19,6 @@ import com.nextfaze.devfun.error.DefaultErrorHandler
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
-import com.nextfaze.devfun.internal.isInstrumentationTest
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.*
@@ -138,14 +136,6 @@ class DevFun {
     private val definitionsProcessor = DefinitionsProcessor(this)
 
     private var _application: Application? = null
-
-    /**
-     * Flag indicating if DevFun should "prime" the reflection cache by pre-generating initial module supplied definitions and functions.
-     *
-     * If you need to disable this please post an issue.
-     */
-    @VisibleForTesting
-    var shouldPrimeReflectionCache: Boolean = true
 
     /**
      * Composite list of all [InstanceProvider]s.
@@ -304,10 +294,6 @@ class DevFun {
 
         initializationCallbacks.forEach { it.invokeSafely() }
         initializationCallbacks.clear()
-
-        if (shouldPrimeReflectionCache && !isInstrumentationTest) {
-            primeReflectionCache(this)
-        }
     }
 
     /**
@@ -476,19 +462,3 @@ var devFunVerbose
     set(value) {
         allowTraceLogs = value
     }
-
-/** Helps reduce load time of subsequent calls to devFun.categories */
-private fun primeReflectionCache(devFun: DevFun) {
-    Handler(Looper.getMainLooper()).postDelayed({
-        val log = logger("DevFun.ReflectionCachePrimer")
-        object : Thread("DevFun.ReflectionCachePrimer") {
-            override fun run() {
-                try {
-                    devFun.categories.forEach { it.items.forEach { it.hashCode() } }
-                } catch (t: Throwable) {
-                    log.w(t) { "Exception thrown in reflection cache primer - please report this!" }
-                }
-            }
-        }.start()
-    }, 500)
-}
