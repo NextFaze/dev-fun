@@ -3,7 +3,7 @@ skinparam componentStyle uml2
 
 title Component Dependencies
 
-package "compile" {
+package "implementation" {
     [devfun-annotations] as Annotations [[https://nextfaze.github.io/dev-fun/]]
 }
 
@@ -12,7 +12,7 @@ package "kaptDebug" {
     Annotations <-- Compiler
 }
 
-package "debugCompile" {
+package "debugImplementation" {
     node "Core Modules" {
         [devfun] as DevFun [[https://nextfaze.github.io/dev-fun/]]
         Annotations <-- DevFun
