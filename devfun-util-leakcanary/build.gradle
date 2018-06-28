@@ -7,7 +7,7 @@ apply plugin: 'com.nextfaze.devfun'
 
 description = "Module that provides some utility functions when using Leak Canary.\n" +
         "\n" +
-        "Does not do anything without Leak Canary. Should be on your debug configuration 'debugCompile'.\""
+        "Does not do anything without Leak Canary. Should be on your debug configuration 'debugImplementation'.\""
 
 project.configureAndroidLibrary(this)
 

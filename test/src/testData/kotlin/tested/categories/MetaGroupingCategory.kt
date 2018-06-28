@@ -66,3 +66,13 @@ class mgc_DefaultGroupingClassGrouped {
             ExpectedItemGroup("Grouped")
         )
 }
+
+@CustomDefaultGroupingCategory("Grouped")
+class mgc_DefaultGroupingClassGroupAndFunctionGrouped {
+    @DeveloperFunction(category = DeveloperCategory(group = "YAG"))
+    fun simpleFunction() =
+        listOf(
+            ExpectedCategoryName("My Custom Default Grouping Category"),
+            ExpectedItemGroup("YAG")
+        )
+}

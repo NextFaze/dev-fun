@@ -8,7 +8,7 @@ apply plugin: 'com.nextfaze.devfun'
 description = "Module that adds a local HTTP server (uses NanoHttpD).\n" +
         "\n" +
         "Provides a single 'POST' method 'invoke' with one parameter 'hashCode' - expecting FunctionItem.hashCode()\n" +
-        "Use with 'devfun-httpd-frontend'. Should be on your debug configuration 'debugCompile'."
+        "Use with 'devfun-httpd-frontend'. Should be on your debug configuration 'debugImplementation'."
 
 project.configureAndroidLibrary(this)
 

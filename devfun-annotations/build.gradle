@@ -5,7 +5,7 @@ apply plugin: 'kotlin'
 description = "Contains the annotations @DeveloperFunction and @DeveloperCategory, and various interface definitions.\n" +
         "\n" +
         "As this library is primarily interface definitions and inline functions, it will have a" +
-        "negligible impact on your method count and dex sizes. Apply to your main 'compile' configuration."
+        "negligible impact on your method count and dex sizes. Apply to your main 'implementation' configuration."
 
 dependencies {
     // Kotlin

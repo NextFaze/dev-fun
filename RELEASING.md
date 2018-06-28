@@ -62,7 +62,7 @@ doctoc *.md --github --notitle
 ```
 
 It is also used in the Wiki (currently only `Components.kt`), however the Dokka task will handle that automatically (see
- `dokka/build.gradle.kts#L123`), but if need be can be run manually (due to issues with Dokka generation we need to adjust the output with
+ `dokka/build.gradle.kts#L126`), but if need be can be run manually (due to issues with Dokka generation we need to adjust the output with
   `sed` as well):
 ```bash
 doctoc dokka/src/main/java/wiki/Components.kt --github --notitle && sed '/<!-- START doctoc generated TOC/,/<!-- END doctoc generated TOC/s/^( *)/ * \1\1/' -ri dokka/src/main/java/wiki/Components.kt

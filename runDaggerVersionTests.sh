@@ -3,6 +3,7 @@
 ./gradlew --stop
 ./gradlew clean assemble
 
+# We don't test 2.14 as it wont compile without dependency changes (https://github.com/google/dagger/issues/994)
 versions=(
     "2.4"
     "2.5"
@@ -15,7 +16,6 @@ versions=(
     "2.11"
     "2.12"
     "2.13"
-    "2.14"
     "2.14.1"
     "2.15"
     "2.16"
@@ -28,7 +28,7 @@ test_version() {
     ./gradlew :demo:clean :demo:connectedDebugAndroidTest -PtestDaggerVersion=$1
     if [ $? -ne 0 ]
     then
-        failed+=$1
+        failed+=($1)
         resultsDir="$outDir/$1"
         mkdir -p ${resultsDir}
         cp -r ./demo/build/outputs/androidTest-results ${resultsDir}

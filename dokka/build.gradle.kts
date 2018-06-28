@@ -151,7 +151,7 @@ project.afterEvaluate {
     )
 
     // Dokka doesn't have HTML support (it strips all HTML tags)
-    // Thus to include image elements we wrap them in a code black and after Dokka we strip the code black elements
+    // Thus to include image elements we wrap them in a code block and after Dokka we strip the code black elements
     mainDokkaTask.finalizedBy(
         getOrCreateTask("dokkaImageHack") {
             doLast {

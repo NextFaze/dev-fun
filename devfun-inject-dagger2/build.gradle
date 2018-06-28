@@ -7,7 +7,7 @@ apply plugin: 'com.nextfaze.devfun'
 
 description = "Adds an instance provider (and/or user helper functions) to reflectively locate instances from Dagger 2.x Compoenents.\n" +
         "\n" +
-        "Should only be used if you are using Dagger 2.x. Should be on your debug configuration 'debugCompile'."
+        "Should only be used if you are using Dagger 2.x. Should be on your debug configuration 'debugImplementation'."
 
 project.configureAndroidLibrary(this)
 

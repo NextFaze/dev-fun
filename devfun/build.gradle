@@ -7,8 +7,8 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.nextfaze.devfun'
 
 description = "Core DevFun library that initializes and manages DevFun modules.\n" +
-        "\n"
-        "On its own does not provide any functionality. Use with 'devfun-menu' or 'devfun-httpd', etc. Should be in your 'debugCompile' configuration."
+        "\n" +
+        "On its own does not provide any functionality. Use with 'devfun-menu' or 'devfun-httpd', etc. Should be in your 'debugImplementation' configuration."
 
 project.configureAndroidLibrary(this)
 
