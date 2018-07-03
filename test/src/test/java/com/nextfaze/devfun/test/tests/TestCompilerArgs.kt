@@ -4,11 +4,9 @@ import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.test.AbstractKotlinKapt3Tester
 import com.nextfaze.devfun.test.TestContext
-import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 import tested.kapt_and_compile.simple_functions_in_classes.SimpleFunctionsInClasses
-import java.io.File
 import java.lang.reflect.Method
 import java.util.ServiceLoader
 import kotlin.test.assertFailsWith
@@ -129,7 +127,7 @@ class TestCompilerArgs : AbstractKotlinKapt3Tester() {
 }
 
 private fun TestContext.createGenerated() {
-    run buildConfigFile@ {
+    run buildConfigFile@{
         //language=JAVA
         val buildConfig = """ // We're using %ARG% just so we can use IntelliJ Language injection (can't escape $ args in raw strings)
 /*
@@ -146,25 +144,23 @@ public final class BuildConfig {
   public static final String VERSION_NAME = "0.0.0-SNAPSHOT";
 }
 """
-        File(compileDir, "generated/source/buildConfig/BuildConfig.java").apply {
-            parentFile.mkdirsOrFail()
-            writeText(
-                buildConfig
-                    .substringAfter("\n") // skip first blank line
-                    .replace("com.my.pkg", applicationId)
-                    .replace("%TEST_APPLICATION_ID%", applicationId)
-                    .replace("%TEST_BUILD_TYPE%", buildType)
-                    .replace("%TEST_FLAVOR%", flavor)
-            )
-        }
+        writeGeneratedFile(
+            path = "generated/source/buildConfig/BuildConfig.java",
+            contents = buildConfig
+                .substringAfter("\n") // skip first blank line
+                .replace("com.my.pkg", applicationId)
+                .replace("%TEST_APPLICATION_ID%", applicationId)
+                .replace("%TEST_BUILD_TYPE%", buildType)
+                .replace("%TEST_FLAVOR%", flavor)
+        )
     }
 
-    run resourceIdsFile@ {
+    run resourceIdsFile@{
         // It will be considered a "library project" if it does not encounter static fields
         // i.e. blank file = lib project
-        File(compileDir, "generated/source/r/$variantDir/${applicationId.replace('.', '/')}/R.java").apply {
-            parentFile.mkdirsOrFail()
-            createNewFile()
-        }
+        writeGeneratedFile(
+            path = "generated/source/r/$variantDir/${applicationId.replace('.', '/')}/R.java",
+            contents = ""
+        )
     }
 }

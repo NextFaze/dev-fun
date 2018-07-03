@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.utils.PathUtil
 import java.net.URL
 import kotlin.reflect.KClass
 
-private val log = logger("TestUtil")
+private val log = logger("com.nextfaze.devfun.test.Util")
 
 private fun dumpKotlinPaths() {
     log.i { "jdkClassesRoots=\n${PathUtil.getJdkClassesRootsFromCurrentJre().joinToString("\n") { it.canonicalPath }}" }

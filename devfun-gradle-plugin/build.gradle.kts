@@ -33,7 +33,7 @@ dependencies {
     }
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
-    kapt(Config.autoService)
+    kapt_(Config.autoService)
     compileOnly(Config.autoService)
 }
 

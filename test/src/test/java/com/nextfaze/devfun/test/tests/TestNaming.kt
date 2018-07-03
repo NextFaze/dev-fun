@@ -20,6 +20,6 @@ class TestNaming : AbstractKotlinKapt3Tester() {
         CategoryNaming::class
     ).last().let { arrayOf(it) }
 
-    @Test(dataProvider = "testNamingData", groups = arrayOf("kapt", "compile", "supported", "naming", "function", "category"))
+    @Test(dataProvider = "testNamingData", groups = ["kapt", "compile", "supported", "naming", "function", "category"])
     fun testNaming(test: TestContext) = test.testInvocations(log)
 }

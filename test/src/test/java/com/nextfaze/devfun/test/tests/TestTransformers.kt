@@ -12,7 +12,7 @@ import tested.functions_with_transformers.FunctionsWithTransformersAndProvidedAr
 import java.lang.reflect.Method
 import kotlin.test.assertFailsWith
 
-@Test(groups = arrayOf("kapt", "compile", "transformer"))
+@Test(groups = ["kapt", "compile", "transformer"])
 class TestTransformers : AbstractKotlinKapt3Tester() {
     private val log = logger()
 
@@ -23,7 +23,7 @@ class TestTransformers : AbstractKotlinKapt3Tester() {
         FunctionsWithTransformersAndProvidedArgs::class
     )
 
-    @Test(dataProvider = "testFunctionTransformersData", groups = arrayOf("supported"))
+    @Test(dataProvider = "testFunctionTransformersData", groups = ["supported"])
     fun testFunctionTransformers(test: TestContext) = test.testInvocations(log)
 
 
@@ -35,7 +35,7 @@ class TestTransformers : AbstractKotlinKapt3Tester() {
         FunctionsWithTransformersAndNullableProvidedArgs::class
     )
 
-    @Test(dataProvider = "testFunctionTransformersUnsupportedData", groups = arrayOf("unsupported"))
+    @Test(dataProvider = "testFunctionTransformersUnsupportedData", groups = ["unsupported"])
     fun testFunctionTransformersUnsupported(test: TestContext) {
         assertFailsWith<AssertionError> {
             test.testInvocations(log)

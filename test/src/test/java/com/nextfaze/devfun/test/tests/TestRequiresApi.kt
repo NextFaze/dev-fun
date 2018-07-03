@@ -9,7 +9,7 @@ import org.testng.annotations.Test
 import tested.requires_api.FunctionsWithRequiresApi
 import java.lang.reflect.Method
 
-@Test(groups = arrayOf("kapt", "compile", "supported", "function", "requiresApi"))
+@Test(groups = ["kapt", "compile", "supported", "function", "requiresApi"])
 class TestRequiresApi : AbstractKotlinKapt3Tester() {
     private val log = logger()
 

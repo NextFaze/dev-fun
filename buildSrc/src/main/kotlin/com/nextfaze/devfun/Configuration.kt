@@ -23,7 +23,6 @@ object Library {
 
 object Android {
     const val compileSdkVersion = 27
-    const val buildToolsVersion = "27.0.3"
 
     const val minSdkVersion = 15
     const val targetSdkVersion = 27
@@ -35,17 +34,17 @@ object Android {
 
 object Config {
     const val bintrayPlugin = "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
-    const val androidPlugin = "com.android.tools.build:gradle:3.1.1"
+    const val androidPlugin = "com.android.tools.build:gradle:3.3.0-alpha01"
     const val androidMavenGradlePlugin = "com.github.dcendents:android-maven-gradle-plugin:2.1"
 
-    const val kotlinVersion = "1.2.31"
+    const val kotlinVersion = "1.2.50"
     const val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     const val kotlinPluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
 
-    const val kotlinCoroutinesVersion = "0.22.5"
+    const val kotlinCoroutinesVersion = "0.23.3"
     const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     const val kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
@@ -73,11 +72,11 @@ object Config {
     const val stetho = "com.facebook.stetho:stetho:$stethoVersion"
     const val stethoJsRhino = "com.facebook.stetho:stetho-js-rhino:$stethoVersion"
 
-    const val glide = "com.github.bumptech.glide:glide:4.6.1"
+    const val glide = "com.github.bumptech.glide:glide:4.7.1"
 
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.5.4"
 
-    const val dokkaVersion = "0.9.16"
+    const val dokkaVersion = "0.9.17"
     const val dokkaPlugin = "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
     const val dokkaAndroidPlugin = "org.jetbrains.dokka:dokka-android-gradle-plugin:$dokkaVersion"
     const val dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:$dokkaVersion"

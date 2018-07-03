@@ -19,7 +19,6 @@ androidExtensions {
 
 android {
     compileSdkVersion(Android.compileSdkVersion)
-    buildToolsVersion = Android.buildToolsVersion
 
     defaultConfig {
         applicationId = "com.nextfaze.devfun.demo"

@@ -10,7 +10,6 @@ description = "Provides a ColorPicker to be rendered by the invoke UI for annota
 
 android {
     compileSdkVersion(Android.compileSdkVersion)
-    buildToolsVersion = Android.buildToolsVersion
 
     defaultConfig {
         minSdkVersion(Android.minSdkVersion)

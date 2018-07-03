@@ -9,14 +9,16 @@ if (!isAndroid) {
     apply plugin: 'java-library' // https://github.com/gradle/gradle/issues/1118
 }
 
-task sourceJar(type: Jar) {
-    classifier 'sources'
+if (tasks.findByName("sourceJar") == null) {
+    task sourceJar(type: Jar) {
+        classifier 'sources'
 
-    if (isAndroid) {
-        dependsOn 'assemble'
-        from android.sourceSets.main.java.srcDirs
-    } else {
-        from sourceSets.main.allSource
+        if (isAndroid) {
+            dependsOn 'assemble'
+            from android.sourceSets.main.java.srcDirs
+        } else {
+            from sourceSets.main.allSource
+        }
     }
 }
 

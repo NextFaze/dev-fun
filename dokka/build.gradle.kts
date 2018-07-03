@@ -17,7 +17,6 @@ registerRenderPlantUmlTask()
 
 android {
     compileSdkVersion(Android.compileSdkVersion)
-    buildToolsVersion = Android.buildToolsVersion
 
     defaultConfig {
         minSdkVersion(Android.minSdkVersion)
