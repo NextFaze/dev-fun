@@ -19,7 +19,7 @@ import com.nextfaze.devfun.core.SimpleFunctionItem
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.*
 import com.nextfaze.devfun.inject.Constructable
-import kotlinx.android.synthetic.main.authenticate_layout.*
+import kotlinx.android.synthetic.main.authenticate_fragment.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
 import org.joda.time.DateTime
@@ -67,13 +67,13 @@ class AuthenticateFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        inflater.inflate(R.layout.authenticate_layout, container, false)
+        inflater.inflate(R.layout.authenticate_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         passwordEditText.apply {
             setOnEditorActionListener { _, id, _ ->
                 when (id) {
-                    R.id.login, EditorInfo.IME_NULL -> {
+                    resources.getInteger(R.integer.login), EditorInfo.IME_NULL -> {
                         attemptLogin()
                         true
                     }

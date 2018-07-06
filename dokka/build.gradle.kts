@@ -1,4 +1,3 @@
-import com.nextfaze.devfun.*
 import java.io.FileNotFoundException
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.DokkaAndroidTask
@@ -12,44 +11,18 @@ plugins {
     id("org.jetbrains.dokka-android")
 }
 
-registerCleanPlantUmlTask()
-registerRenderPlantUmlTask()
-
-android {
-    compileSdkVersion(Android.compileSdkVersion)
-
-    defaultConfig {
-        minSdkVersion(Android.minSdkVersion)
-        targetSdkVersion(Android.targetSdkVersion)
-        versionCode = Android.versionCode
-        versionName = Android.versionName(project)
-
-        consumerProguardFile("../proguard-rules-common.pro")
-        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                // We're using KAPT so ignore annotationProcessor configuration dependencies
-                includeCompileClasspath = false
-                if (project.isSnapshot) {
-                    argument("devfun.debug.verbose", "true")
-                }
-            }
-        }
-    }
-
-    resourcePrefix("df_${project.name.replace("devfun-", "")}_".replace('-', '_'))
-}
+configurePlantUml()
+configureAndroidLib()
 
 dependencies {
     // Kotlin
-    implementation(Config.kotlinStdLib)
+    implementation(Dependency.kotlinStdLib)
 
     // Support libs
-    implementation(Config.supportAppCompat)
+    implementation(Dependency.supportAppCompat)
 
     // Dagger
-    implementation(Config.dagger)
+    implementation(Dependency.dagger)
 
     // DevFun
     implementation(project(":devfun"))
@@ -67,7 +40,7 @@ dependencies {
 //    compile fileTree(new File("${rootProject.project(':demo').buildDir}/libs/jarForDokka.jar"))
 }
 
-getOrCreateTask<DokkaAndroidTask>("dokka") {
+task<DokkaAndroidTask> {
     if (file("Module.md").exists()) {
         includes = listOf("Module.md")
     }
@@ -75,7 +48,7 @@ getOrCreateTask<DokkaAndroidTask>("dokka") {
     moduleName = "gh-pages"
     outputFormat = "gfm"
     outputDirectory = "."
-    dokkaFatJar = Config.dokkaFatJar
+    dokkaFatJar = Dependency.dokkaFatJar
 }
 
 project.afterEvaluate {
@@ -109,7 +82,9 @@ project.afterEvaluate {
     // cLear previously generated Dokka files -  we need to do this as Dokka doesn't remove old files
     val dokkaOutputDir = "${rootDir.absolutePath}/gh-pages"
     mainDokkaTask.dependsOn(
-        getOrCreateTask<Delete>("cleanDokka") {
+        task<Delete>("cleanDokka") {
+            description = "CLear previously generated Dokka files."
+            group = "documentation"
             setDelete(
                 fileTree(
                     mapOf(
@@ -123,7 +98,9 @@ project.afterEvaluate {
 
     // update Components table of contents (doctoc)
     project.getTasksByName("assemble", false).first().dependsOn(
-        getOrCreateTask("doctocForWiki") {
+        task<Task>("doctocForWiki") {
+            description = "Updates the Components table of contents (doctoc)."
+            group = "documentation"
             doLast {
                 try {
                     println("Running doctoc...")
@@ -152,7 +129,9 @@ project.afterEvaluate {
     // Dokka doesn't have HTML support (it strips all HTML tags)
     // Thus to include image elements we wrap them in a code block and after Dokka we strip the code black elements
     mainDokkaTask.finalizedBy(
-        getOrCreateTask("dokkaImageHack") {
+        task<Task>("dokkaImageHack") {
+            description = "Apply Dokka image hack."
+            group = "documentation"
             doLast {
                 file(dokkaOutputDir).walkTopDown()
                     .filter { it.extension == "md" }
@@ -168,20 +147,21 @@ project.afterEvaluate {
     )
 }
 
-fun String.execute(vararg args: String) {
-    val process = ProcessBuilder(listOf(this) + args)
+fun String.execute(vararg args: String) =
+    ProcessBuilder(listOf(this) + args)
         .directory(rootDir)
         .redirectOutput(ProcessBuilder.Redirect.PIPE)
         .redirectError(ProcessBuilder.Redirect.PIPE)
         .start()
+        .apply {
+            waitFor(1, TimeUnit.MINUTES)
 
-    process.waitFor(1, TimeUnit.MINUTES)
-    System.out.print(process.inputStream.bufferedReader().readText())
+            println(inputStream.bufferedReader().readText())
 
-    process.errorStream.bufferedReader().readText().let {
-        if (it.isNotBlank()) {
-            System.err.print(it)
-            throw RuntimeException("Command execution error: $this")
+            errorStream.bufferedReader().readText().let {
+                if (it.isNotBlank()) {
+                    System.err.print(it)
+                    throw RuntimeException("Command execution error: $this")
+                }
+            }
         }
-    }
-}

@@ -1,32 +1,34 @@
-package com.nextfaze.devfun
-
 import net.sourceforge.plantuml.FileFormat
 import net.sourceforge.plantuml.FileFormatOption
 import net.sourceforge.plantuml.SourceStringReader
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Delete
+import org.gradle.kotlin.dsl.*
 import java.io.File
 
 private val Project.plantUmlDir get() = "${rootDir.absolutePath}/gh-pages/assets/uml"
 
-fun Project.registerCleanPlantUmlTask() =
-    getOrCreateTask<Delete>("cleanPlantUml") {
-        setDelete(
-            fileTree(
-                mapOf(
-                    "dir" to plantUmlDir,
-                    "exclude" to listOf("**/*.puml")
+@Suppress("unused")
+fun Project.configurePlantUml() {
+    val deleteTask =
+        task<Delete>("cleanPlantUml") {
+            description = "Deletes rendered Plant UML diagrams."
+            group = "documentation"
+            setDelete(
+                fileTree(
+                    mapOf(
+                        "dir" to plantUmlDir,
+                        "exclude" to listOf("**/*.puml")
+                    )
                 )
             )
-        )
-    }
+        }
 
-fun Project.registerRenderPlantUmlTask() =
-    getOrCreateTask<Task>("renderPlantUml") {
+    task<Task>("renderPlantUml") {
         description = "Render Plant UML diagrams."
         group = "documentation"
-        dependsOn("cleanPlantUml")
+        dependsOn(deleteTask)
 
         doLast {
             fileTree(plantUmlDir).filter { it.extension == "puml" }.forEach {
@@ -42,3 +44,4 @@ fun Project.registerRenderPlantUmlTask() =
             }
         }
     }
+}

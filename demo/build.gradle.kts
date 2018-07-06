@@ -1,4 +1,3 @@
-import com.nextfaze.devfun.*
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
@@ -26,14 +25,16 @@ android {
         minSdkVersion(Android.minSdkVersion)
         targetSdkVersion(Android.targetSdkVersion)
         versionCode = Android.versionCode
-        versionName = Android.versionName(project)
+        versionName = project.versionName
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        if (project.isSnapshot) {
-            javaCompileOptions {
-                annotationProcessorOptions {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                // We're using KAPT so ignore annotationProcessor configuration dependencies
+                includeCompileClasspath = false
+                if (project.isSnapshot) {
                     argument("devfun.debug.verbose", "true")
                 }
             }
@@ -63,29 +64,29 @@ dependencies {
     debugImplementation(project(":devfun-httpd-frontend"))
 
     // Kotlin
-    implementation(Config.kotlinStdLib)
-    implementation(Config.kotlinReflect)
-    implementation(Config.kotlinCoroutines)
-    implementation(Config.kotlinCoroutinesAndroid)
+    implementation(Dependency.kotlinStdLib)
+    implementation(Dependency.kotlinReflect)
+    implementation(Dependency.kotlinCoroutines)
+    implementation(Dependency.kotlinCoroutinesAndroid)
 
     // Support libs
-    implementation(Config.supportAppCompat)
-    implementation(Config.supportDesign)
-    implementation(Config.supportConstraintLayout)
+    implementation(Dependency.supportAppCompat)
+    implementation(Dependency.supportDesign)
+    implementation(Dependency.supportConstraintLayout)
     implementation("com.android.support:multidex:1.0.3")
 
     // Logging - https://github.com/tony19/logback-android
-    implementation(Config.slf4jApi)
+    implementation(Dependency.slf4jApi)
     implementation("com.github.tony19:logback-android-core:1.1.1-6")
     implementation("com.github.tony19:logback-android-classic:1.1.1-6") {
         exclude(group = "com.google.android", module = "android")
     }
 
     // Dagger 2 - https://github.com/google/dagger
-    val daggerVersion = getStringProperty("testDaggerVersion", Config.daggerVersion)
-    kapt(Config.daggerCompiler(daggerVersion))
-    implementation(Config.dagger(daggerVersion))
-    compileOnly(Config.daggerAnnotations)
+    val daggerVersion = getStringProperty("testDaggerVersion", Dependency.daggerVersion)
+    kapt(Dependency.daggerCompiler(daggerVersion))
+    implementation(Dependency.dagger(daggerVersion))
+    compileOnly(Dependency.daggerAnnotations)
 
     // OkHttp - https://github.com/square/okhttp
     implementation("com.squareup.okhttp3:okhttp:3.10.0")
@@ -94,17 +95,17 @@ dependencies {
     implementation("net.danlew:android.joda:2.9.9")
 
     // Stetho - https://github.com/facebook/stetho
-    debugImplementation(Config.stetho)
-    debugImplementation(Config.stethoJsRhino)
+    debugImplementation(Dependency.stetho)
+    debugImplementation(Dependency.stethoJsRhino)
     debugImplementation(project(":devfun-stetho"))
 
     // Glide - https://github.com/bumptech/glide
-    implementation(Config.glide)
+    implementation(Dependency.glide)
     implementation("com.github.bumptech.glide:okhttp3-integration:4.6.1@aar")
     debugImplementation(project(":devfun-util-glide"))
 
     // Leak Canary - https://github.com/square/leakcanary
-    debugImplementation(Config.leakCanary)
+    debugImplementation(Dependency.leakCanary)
     debugImplementation(project(":devfun-util-leakcanary"))
 
     // RxJava: Reactive Extensions for the JVM - https://github.com/ReactiveX/RxJava
@@ -122,7 +123,7 @@ dependencies {
     implementation("com.uber.autodispose:autodispose-android-archcomponents-kotlin:0.8.0")
 
     // Instrumentation tests
-    androidTestImplementation(Config.kotlinTest)
+    androidTestImplementation(Dependency.kotlinTest)
 
     androidTestImplementation("androidx.test:rules:1.1.0-alpha3")
     androidTestImplementation("androidx.test:runner:1.1.0-alpha3")

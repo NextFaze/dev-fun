@@ -21,7 +21,7 @@ import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.ValueSource
 import com.uber.autodispose.android.lifecycle.scope
 import com.uber.autodispose.kotlin.autoDisposable
-import kotlinx.android.synthetic.main.welcome_layout.*
+import kotlinx.android.synthetic.main.welcome_fragment.*
 import javax.inject.Inject
 
 class WelcomeActivity : BaseActivity() {
@@ -56,7 +56,7 @@ class WelcomeFragment : BaseFragment() {
 
     override fun inject(injector: FragmentInjector) = injector.inject(this)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        inflater.inflate(R.layout.welcome_layout, container, false)
+        inflater.inflate(R.layout.welcome_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         signInButton.apply {

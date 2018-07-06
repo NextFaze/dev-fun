@@ -1,59 +1,44 @@
-import com.nextfaze.devfun.*
 import groovy.lang.Closure
 import org.gradle.kotlin.dsl.get
 import kotlin.reflect.KCallable
 import kotlin.reflect.KFunction
 
 plugins {
+    id("kotlin")
+    kotlin("kapt")
+    id("maven-publish")
     id("com.gradle.plugin-publish") version "0.9.10"
-}
-
-apply {
-    plugin("kotlin")
-    plugin("kotlin-kapt")
-    plugin("maven-publish")
 }
 
 description = "Gradle plugin that facilitates DevFun annotation processor configuration."
 
 dependencies {
-    compileOnly(project(":devfun-compiler"))
+    compile(project(":devfun-compiler"))
 
     // Gradle
     compileOnly(gradleApi())
 
     // Kotlin
-    compileOnly(Config.kotlinStdLib)
-    compileOnly(Config.kotlinPlugin)
-    compileOnly(Config.kotlinPluginApi)
+    compile(Dependency.kotlinStdLib)
+    compile(Dependency.kotlinPlugin)
+    compile(Dependency.kotlinPluginApi)
 
     // Android
-    compileOnly(Config.androidPlugin) {
+    compileOnly(Dependency.androidPlugin) {
         exclude(group = "org.jetbrains.kotlin")
     }
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
-    kapt_(Config.autoService)
-    compileOnly(Config.autoService)
+    kapt(Dependency.autoService)
+    compileOnly(Dependency.autoService)
 }
 
-sourcesJar()
 configureDokka()
-
-configure<PublishingExtension> {
-    publications {
-        create("mavenJava", MavenPublication::class.java) {
-            from(components["java"])
-            artifact(tasks["sourcesJar"]) {
-                classifier = "sources"
-            }
-        }
-    }
-}
+configurePublishing()
 
 pluginBundle {
-    website = Publishing.Vcs.URL // use GitHub URL so that the Gradle plugin page points to repo rather than just the NextFaze site
-    vcsUrl = Publishing.Vcs.URL
+    website = VCS_URL // use GitHub URL so that the Gradle plugin page points to repo rather than just the NextFaze site
+    vcsUrl = VCS_URL
 
     description = project.description
     tags = listOf("kotlin", "android", "developer", "kapt", "NextFaze", "tool", "debugging")

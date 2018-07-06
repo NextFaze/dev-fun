@@ -43,9 +43,12 @@ DevFun is designed to be modular, in terms of both its dependencies (limiting im
  *     - [Menu](#menu)
  * - [Inject Modules](#inject-modules)
  *     - [Dagger 2](#dagger-2)
- *         - [Reflection Based](#reflection-based)
- *         - [Annotation Based](#annotation-based)
- *         - [Custom Instance Provider](#custom-instance-provider)
+ *         - [Supported Versions](#supported-versions)
+ *         - [Limitations](#limitations)
+ *         - [Instance and Component Resolution](#instance-and-component-resolution)
+ *             - [Reflection Based](#reflection-based)
+ *             - [Annotation Based](#annotation-based)
+ *             - [Custom Instance Provider](#custom-instance-provider)
  * - [Util Modules](#util-modules)
  *     - [Glide](#glide)
  *     - [Leak Canary](#leak-canary)
@@ -189,14 +192,14 @@ Modules to facilitate dependency injection for function invocation.
 
 
 ### Dagger 2
-Adds module [InjectFromDagger2] which adds an [InstanceProvider] that can reflectively locate Dagger 2 components or (if used) resolve
-[Dagger2Component] uses.
+Adds module [InjectFromDagger2] which adds an [InstanceProvider] that can reflectively locate components or (if used) resolve
+[Dagger2Component] uses. Tested from Dagger 2.4 to 2.16.
 ```gradle
 debugImplementation 'com.nextfaze.devfun:devfun-inject-dagger2:1.2.0'
 ```
 
-It only really supports simple graphs by finding provides methods/fields that match (or are a super type) of the requested type (scoping is
-not well handled).
+Simply graphs should be well supported. More complex graphs _should_ work (it has been working well in-house). Please report any issues you
+encounter.
 
 The module also provides a variety of utility functions for manually providing your own instance provider using your components. See below
 for more details.
@@ -204,8 +207,34 @@ for more details.
 _I'm always looking into better ways to support this, comments/suggestions are welcome._
 - Currently kapt doesn't support multi-staged processing of generated Kotlin code.
 - Possibly consider generating Java `Component` interfaces for some types?
+- Likely will investigate the new SPI functionality in Dagger 2.16+ once it becomes more stable.
 
-#### Reflection Based
+#### Supported Versions
+Dagger has been tested on the demo app from versions 2.4 to 2.16, and various in-house apps on more recent versions, and should function
+correctly for most simple scopes/graphs.
+
+For reference the demo app uses three scopes; Singleton, Retained (fragments), and an Activity scope. It uses both type-annotated scoping
+and provides scoping. It keeps component instances in the activity and obtains the singleton scope via an extension function. In general
+this should cover most use cases - if you encounter any problems please create an issue.
+
+#### Limitations
+DevFun uses a number of methods iteratively to introspect the generated components/modules, however depending on scoping, visibility, and
+instantiation of a type it can be difficult to determine the source/scope in initial (but faster) introspection methods.
+
+When all else fails DevFun will use a form of heavy reflection to introspect the generated code - types with a custom scope and no
+constructor arguments are not necessarily obtainable from Dagger (depends on the version) by any other means. To help with this ensure your
+scope is `@Retention(RUNTIME)` so that DevFun wont unintentionally create a new instance when it can't find it right away.
+
+Due to the way Dagger generates/injects it is not possible to obtain the instance of non-scoped types from the generated component/module
+as its instance is created/injected once (effectively inlined) at the inject site. It is intended to allow finding instances based on the
+context of the dev. function in the future (i.e. if the dev. function is in a fragment then check for the injected instance in the fragment
+etc.) - if this is desirable sooner make a comment in the issue [#26](https://github.com/NextFaze/dev-fun/issues/26).
+
+#### Instance and Component Resolution
+Unless you specify [Dagger2Component] annotations, DevFun will use a heavy-reflection based provider. Where possible DevFun will cache
+the locations of where it found various types - this is somewhat loose in that the provider cache still attempts to be aware of scoping.
+
+##### Reflection Based
 By default simply including the module will use the reflection-based component locator.
 
 It will attempt to locate your component objects in your application class and/or your activity classes and use aforementioned utility
@@ -213,7 +242,7 @@ functions.
 
 If you place one or more [Dagger2Component] annotations (see below), then the reflective locator wont be used.
 
-#### Annotation Based
+##### Annotation Based
 For more control, or if the above method doesn't (such as if you use top-level extension functions to retrieve your components, or you put
 them in weird places, or for whatever reason), then you can annotate the functions/getters with [Dagger2Component].
 The scope/broadness/priority can be set on the annotation either via [Dagger2Component.scope] or [Dagger2Component.priority].
@@ -246,7 +275,7 @@ Example usage:
  *     private set
  * ```
 
-#### Custom Instance Provider
+##### Custom Instance Provider
 Since the reflection locator and annotation based still make assumptions and are bit inefficient because of it, sometimes you may need to
 implement your own instance provider.
 

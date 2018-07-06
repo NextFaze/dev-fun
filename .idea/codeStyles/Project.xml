@@ -6,6 +6,7 @@
       <option name="PACKAGES_TO_USE_STAR_IMPORTS">
         <value>
           <package name="kotlinx.android.synthetic" withSubpackages="true" static="false" />
+          <package name="org.gradle.kotlin.dsl" withSubpackages="true" static="false" />
           <package name="com.nextfaze.devfun.internal.prop" withSubpackages="true" static="false" />
           <package name="com.nextfaze.devfun.internal.pref" withSubpackages="true" static="false" />
           <package name="com.nextfaze.devfun.internal.reflect" withSubpackages="true" static="false" />

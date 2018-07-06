@@ -12,7 +12,7 @@ number of means - such as an automatically generated "Developer Menu".
   - [Quick Start](#quick-start)
       - [Project Setup](#project-setup)
       - [Build File `build.gradle`](#build-file-buildgradle)
-      - [Dependencies](#dependencies)
+      - [Modules](#modules)
   - [Key Features](#key-features)
       - [Zero-configuration Setup](#zero-configuration-setup)
       - [Context Aware](#context-aware)
@@ -22,10 +22,14 @@ number of means - such as an automatically generated "Developer Menu".
   - [Showcase](#showcase)
       - [Developer Menu](#developer-menu)
       - [Invocation UI](#invocation-ui-1)
-      - [Local HTTP Server](#local-http-server)
-      - [Stetho Integration](#stetho-integration)
+      - [Overlay Loggers](#overlay-loggers)
+      - [Local HTTP Server (experimental)](#local-http-server-experimental)
+      - [Stetho Integration (experimental)](#stetho-integration-experimental)
 - [Dependency Injection](#dependency-injection)
   - [Dagger 2.x Support](#dagger-2x-support)
+    - [Supported Versions](#supported-versions)
+    - [Limitations](#limitations)
+    - [Module Dependencies](#module-dependencies)
 - [Troubleshooting](#troubleshooting)
   - [Java Compatibility](#java-compatibility)
   - [Documentation](#documentation)
@@ -33,7 +37,7 @@ number of means - such as an automatically generated "Developer Menu".
   - [Kotlin `stdlib` Conflict](#kotlin-stdlib-conflict)
   - [Gradle Plugin and APT Options](#gradle-plugin-and-apt-options)
   - [Proguard](#proguard)
-    - [Transformers](#transformers)
+    - [Function Transformers](#function-transformers)
   - [Getting `ClassInstanceNotFoundException`](#getting-classinstancenotfoundexception)
   - [Missing Items](#missing-items)
 - [Build](#build)
@@ -64,7 +68,7 @@ See the documentation for advanced usage, including custom names, custom argumen
 ## Quick Start
 #### Project Setup
 - **REQUIRED** Android Gradle 3.0.0+ (due to [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589))
-- Recommended to use Kotlin 1.2.31, though should work down to 1.1.1 _(somewhat untested)_
+- Recommended to use Kotlin 1.2.51, though should work down to 1.1.1 _(somewhat untested)_
 - Recommended to use KAPT3 (`apply plugin: 'kotlin-kapt'`), though KAPT1 also works
 - Compiled with `minSdkVersion` >= 15
 - Built against Android Support libraries 27.1.1
@@ -266,7 +270,7 @@ When all else fails DevFun will use a form of heavy reflection to introspect the
 Due to the way Dagger generates/injects it is not possible to obtain the instance of non-scoped types from the generated component/module
  as its instance is created/injected once (effectively inlined) at the inject site. It is intended to allow finding instances based on the
  context of the dev. function in the future (i.e. if the dev. function is in a fragment then check for the injected instance in the fragment
- etc.) - if this is desirable sooner make a comment in the issue (TODO).
+ etc.) - if this is desirable sooner make a comment in the issue #26.
 
 ### Module Dependencies
 Though the inject module uses Dagger, it does not export it as a dependency (declared `compileOnly`). This is to stop DevFun from
@@ -297,7 +301,7 @@ This can also be toggled at any time via [devFunVerbose](https://nextfaze.github
 
 
 ## Kotlin `stdlib` Conflict 
-DevFun was compiled using Kotlin 1.2.31.  
+DevFun was compiled using Kotlin 1.2.51.  
 *Earlier versions of Kotlin are largely untested and unsupported (this is unlikely to change unless explicitly requested).*  
 
 Thus if you receive a dependency conflict error such as:  

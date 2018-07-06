@@ -12,7 +12,7 @@ import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.*
-import kotlinx.android.synthetic.main.register_layout.*
+import kotlinx.android.synthetic.main.register_fragment.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
 import org.joda.time.DateTime
@@ -48,7 +48,7 @@ class RegisterFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        inflater.inflate(R.layout.register_layout, container, false)
+        inflater.inflate(R.layout.register_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         registerButton.apply {

@@ -1,5 +1,3 @@
-import com.nextfaze.devfun.*
-
 plugins {
     id("com.android.library")
     kotlin("android")
@@ -12,7 +10,7 @@ android {
         minSdkVersion(Android.minSdkVersion)
         targetSdkVersion(Android.targetSdkVersion)
         versionCode = Android.versionCode
-        versionName = Android.versionName(project)
+        versionName = project.versionName
 
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
 
@@ -46,11 +44,11 @@ dependencies {
     testImplementation("ch.qos.logback:logback-classic:1.2.3")
 
     // Kotlin
-    testImplementation("org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:${Config.kotlinVersion}")
-    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:${Config.kotlinVersion}")
-    testImplementation("org.jetbrains.kotlin:kotlin-compiler:${Config.kotlinVersion}:sources") // because sources aren't auto-linking
-    testImplementation("org.jetbrains.kotlin:kotlin-test:${Config.kotlinVersion}")
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:${Config.kotlinVersion}")
+    testImplementation("org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:${Dependency.kotlinVersion}")
+    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:${Dependency.kotlinVersion}")
+    testImplementation("org.jetbrains.kotlin:kotlin-compiler:${Dependency.kotlinVersion}:sources") // because sources aren't auto-linking
+    testImplementation("org.jetbrains.kotlin:kotlin-test:${Dependency.kotlinVersion}")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:${Dependency.kotlinVersion}")
 
     // Mockito - http://mockito.org/
     testImplementation("org.mockito:mockito-inline:2.13.0")

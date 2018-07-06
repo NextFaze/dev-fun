@@ -133,7 +133,7 @@ This should be done after the artifacts are updated.
 - On local copy merge in release to master, and if needed, run doctoc, uml generation, etc.
 - Add git tag for release
 - Turn off snapshot flag `VERSION_SNAPSHOT=false` in `gradle.properties`
-- Turn off dryRun flag `dryRun = false` in `publishing.gradle`
+- Turn off dryRun flag `DEVFUN_BINTRAY_DRY_RUN=false` in `gradle.properties`
 - Ensure gradle parallel is turned off (`org.gradle.parallel=false`)
 - Run commands:
     ```bash

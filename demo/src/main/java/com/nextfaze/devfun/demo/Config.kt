@@ -41,7 +41,17 @@ class Config @Inject constructor(context: Context) {
     var registrationEnabled by registrationEnabled()
         private set
 
-    fun welcomeString() = prefs["welcomeString", "Welcome!\n\nSet my value via\nDevFun > Config > Set Welcome Message".toOptional()]
+    fun welcomeString() = prefs["welcomeString", """Welcome!
+
+• Set my value via:
+  DevFun > Config > Set Welcome Message
+
+• Modify local properties of welcome screen
+  by tapping on respective overlays.
+
+• Long-press on overlays to configure
+  visibility and update options.""".toOptional()]
+
     @DeveloperProperty
     var welcomeString by welcomeString()
         private set
