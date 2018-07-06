@@ -229,7 +229,7 @@ internal class OverlayLoggingImpl(
         )
 
         return OverlayLoggerImpl(application, overlay, updateCallback, onClick)
-            .also { logger -> overlay.onLongClick = { configureLogger(logger) } }
+            .also { logger -> overlay.onLongClickListener = { configureLogger(logger) } }
     }
 
     @DeveloperFunction(transformer = LoggersTransformer::class)

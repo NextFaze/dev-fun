@@ -63,6 +63,7 @@ interface OverlayManager {
      * @param onClick Callback when the overlay is clicked.
      * @param onLongClick Callback when the overlay is long-clicked.
      * @param onVisibilityChange Callback when the overlay's visibility is changed.
+     * @param onAttachChange Callback when overlay is added/removed to the window.
      * @param visibilityPredicate Predicate that determines if/when the overlay should be visible (e.g. DevMenu uses `context is FragmentActivity`).
      * @param visibilityScope The [VisibilityScope] defaults to `FOREGROUND_ONLY`. i.e. When the app is visible and resumed to the user.
      * @param initialDock The initial edge of the screen to dock to (see [snapToEdge]).
@@ -78,7 +79,8 @@ interface OverlayManager {
         reason: OverlayReason,
         onClick: ClickListener? = null,
         onLongClick: ClickListener? = null,
-        onVisibilityChange: VisibilityChangeListener? = null,
+        onVisibilityChange: VisibilityListener? = null,
+        onAttachChange: AttachListener? = null,
         visibilityPredicate: VisibilityPredicate? = null,
         visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
         initialDock: Dock = Dock.TOP_LEFT,
@@ -240,7 +242,8 @@ internal class OverlayManagerImpl(
         reason: OverlayReason,
         onClick: ClickListener?,
         onLongClick: ClickListener?,
-        onVisibilityChange: VisibilityChangeListener?,
+        onVisibilityChange: VisibilityListener?,
+        onAttachChange: AttachListener?,
         visibilityPredicate: VisibilityPredicate?,
         visibilityScope: VisibilityScope,
         initialDock: Dock,
@@ -269,6 +272,7 @@ internal class OverlayManagerImpl(
             onClick,
             onLongClick,
             onVisibilityChange,
+            onAttachChange,
             visibilityPredicate,
             visibilityScope,
             initialDock,
@@ -278,7 +282,7 @@ internal class OverlayManagerImpl(
             initialTop
         ).apply {
             if (onLongClick == null) {
-                this.onLongClick = { configureOverlay(this) }
+                this.onLongClickListener = { configureOverlay(this) }
             }
             synchronized(overlaysLock) { overlays[prefsName] = this }
         }

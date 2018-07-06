@@ -12,7 +12,7 @@ import com.nextfaze.devfun.internal.string.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
-class DefinitionsProcessor(private val devFun: DevFun) {
+internal class DefinitionsProcessor(private val devFun: DevFun) {
     private val log = logger()
 
     private val transformers by lazy { TRANSFORMERS.map { devFun.instanceOf(it) } }

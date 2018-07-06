@@ -34,7 +34,8 @@ private const val MAX_ANIMATION_MILLIS = 500L
 typealias ClickListener = (OverlayWindow) -> Unit
 typealias OverlayReason = () -> CharSequence
 typealias VisibilityPredicate = (Context) -> Boolean
-typealias VisibilityChangeListener = (Boolean) -> Unit
+typealias VisibilityListener = (visible: Boolean) -> Unit
+typealias AttachListener = (attached: Boolean) -> Unit
 
 enum class Dock { TOP, BOTTOM, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT }
 
@@ -136,17 +137,20 @@ interface OverlayWindow {
     val configurationOptions: List<UiField<*>>
 
     /** Callback when user taps the overlay. */
-    var onClick: ClickListener?
+    var onClickListener: ClickListener?
 
     /**
      * Callback when user long-presses the overlay (defaults to showing overlay config dialog).
      *
      * If set then the user must go via the menu (or other DevFun modules) to show the config dialog.
      */
-    var onLongClick: ClickListener?
+    var onLongClickListener: ClickListener?
 
     /** Callback when overlay visibility changes. */
-    var onVisibilityChange: VisibilityChangeListener?
+    var onVisibilityListener: VisibilityListener?
+
+    /** Callback when overlay is added/removed to the window. */
+    var onAttachListener: AttachListener?
 }
 
 internal class OverlayWindowImpl(
@@ -160,9 +164,10 @@ internal class OverlayWindowImpl(
     name: String,
     override val prefsName: String,
     override val reason: OverlayReason,
-    override var onClick: ClickListener? = null,
-    override var onLongClick: ClickListener? = null,
-    override var onVisibilityChange: VisibilityChangeListener? = null,
+    override var onClickListener: ClickListener? = null,
+    override var onLongClickListener: ClickListener? = null,
+    override var onVisibilityListener: VisibilityListener? = null,
+    override var onAttachListener: AttachListener? = null,
     private val visibilityPredicate: VisibilityPredicate? = null,
     visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
     initialDock: Dock = Dock.TOP_LEFT,
@@ -201,7 +206,7 @@ internal class OverlayWindowImpl(
             val newVisibility = if (value) View.VISIBLE else View.GONE
             if (visibility != newVisibility) {
                 view.visibility = newVisibility
-                onVisibilityChange?.invoke(value)
+                onVisibilityListener?.invoke(value)
             }
         }
     override val isVisible get() = visible && isAdded
@@ -210,7 +215,7 @@ internal class OverlayWindowImpl(
     private val boundsListener = displayBoundsTracker.addDisplayBoundsChangeListener { _, bounds -> updateOverlayBounds(bounds) }
     private val fullScreenLockListener = overlays.addFullScreenUsageStateListener { updateVisibility() }
 
-    private var permissionsListener: OverlayPermissionChangeListener? = null
+    private var permissionsListener: OverlayPermissionListener? = null
     private var addToWindow = false
 
     init {
@@ -245,10 +250,10 @@ internal class OverlayWindowImpl(
             setOnTouchListener(object : View.OnTouchListener {
                 private val tapTimeout = ViewConfiguration.getTapTimeout().toLong()
                 private val longPressTimeout = ViewConfiguration.getLongPressTimeout().toLong()
-                private val pressTimeout get() = if (onLongClick == null) tapTimeout else longPressTimeout
+                private val pressTimeout get() = if (onLongClickListener == null) tapTimeout else longPressTimeout
 
                 private val onLongClickRunnable = Runnable {
-                    if (onLongClick != null) {
+                    if (onLongClickListener != null) {
                         longClickPerformed = true
                         performLongClick()
                     }
@@ -256,14 +261,14 @@ internal class OverlayWindowImpl(
                 private var postedOnLongClickRunnable: Runnable? = null
 
                 private fun postOnLongClick() {
-                    if (onLongClick != null) {
+                    if (onLongClickListener != null) {
                         postedOnLongClickRunnable = onLongClickRunnable
                         handler.postDelayed(postedOnLongClickRunnable, longPressTimeout)
                     }
                 }
 
                 private fun removeOnLongClick() {
-                    if (onLongClick != null && postedOnLongClickRunnable != null) {
+                    if (onLongClickListener != null && postedOnLongClickRunnable != null) {
                         handler.removeCallbacks(postedOnLongClickRunnable)
                         postedOnLongClickRunnable = null
                     }
@@ -347,14 +352,14 @@ internal class OverlayWindowImpl(
 
             setOnClickListener {
                 try {
-                    onClick?.invoke(this@OverlayWindowImpl)
+                    onClickListener?.invoke(this@OverlayWindowImpl)
                 } catch (t: Throwable) {
                     devFun.get<ErrorHandler>().onError(t, name, "OnClick invoke exception.")
                 }
             }
             setOnLongClickListener {
                 try {
-                    onLongClick?.invoke(this@OverlayWindowImpl)
+                    onLongClickListener?.invoke(this@OverlayWindowImpl)
                 } catch (t: Throwable) {
                     devFun.get<ErrorHandler>().onError(t, name, "OnLongClick invoke exception.")
                 }
@@ -439,6 +444,7 @@ internal class OverlayWindowImpl(
             overlayBounds.set(displayBoundsTracker.displayBounds)
         }
         postUpdateOverlayBounds()
+        postAttachChangeCallback()
     }
 
     private fun postUpdateOverlayBounds() {
@@ -455,8 +461,16 @@ internal class OverlayWindowImpl(
         if (!isAdded) return
         try {
             windowManager.removeView(view)
+            postAttachChangeCallback()
         } catch (t: Throwable) {
             log.w(t) { "Exception while removing window view :: view=$view, this=$this" }
+        }
+    }
+
+    private fun postAttachChangeCallback() {
+        if (onAttachListener == null) return
+        handler.post {
+            onAttachListener?.invoke(isAdded)
         }
     }
 

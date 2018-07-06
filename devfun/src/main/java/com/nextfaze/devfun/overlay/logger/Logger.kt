@@ -104,7 +104,7 @@ internal class OverlayLoggerImpl(
 
     init {
         overlay.apply {
-            onClick = {
+            onClickListener = {
                 if (errored) {
                     errored = false
                     runnable.run()
@@ -113,7 +113,11 @@ internal class OverlayLoggerImpl(
                     onLoggerClick?.invoke()
                 }
             }
-            onVisibilityChange = {
+            onVisibilityListener = {
+                handler.removeCallbacks(runnable)
+                if (it) runnable.run()
+            }
+            onAttachListener = {
                 handler.removeCallbacks(runnable)
                 if (it) runnable.run()
             }

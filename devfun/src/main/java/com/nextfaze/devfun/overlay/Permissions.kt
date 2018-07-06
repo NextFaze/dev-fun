@@ -16,7 +16,6 @@ import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentActivity
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +34,7 @@ import com.nextfaze.devfun.internal.pref.*
 import com.nextfaze.devfun.internal.string.*
 import java.util.concurrent.CopyOnWriteArrayList
 
-typealias OverlayPermissionChangeListener = (Boolean) -> Unit
+typealias OverlayPermissionListener = (havePermission: Boolean) -> Unit
 
 /**
  * Handles overlay permissions.
@@ -78,15 +77,15 @@ interface OverlayPermissions {
      *
      * @see plusAssign
      */
-    fun addOverlayPermissionsChangedListener(listener: OverlayPermissionChangeListener): OverlayPermissionChangeListener
+    fun addOverlayPermissionListener(listener: OverlayPermissionListener): OverlayPermissionListener
 
     /**
      * Add a listener for when overlay permissions have changed.
      *
-     * @see addOverlayPermissionsChangedListener
+     * @see addOverlayPermissionListener
      */
-    operator fun plusAssign(listener: OverlayPermissionChangeListener) {
-        addOverlayPermissionsChangedListener(listener)
+    operator fun plusAssign(listener: OverlayPermissionListener) {
+        addOverlayPermissionListener(listener)
     }
 
     /**
@@ -94,15 +93,15 @@ interface OverlayPermissions {
      *
      * @see minusAssign
      */
-    fun removeOverlayPermissionsChangedListener(listener: OverlayPermissionChangeListener): OverlayPermissionChangeListener
+    fun removeOverlayPermissionListener(listener: OverlayPermissionListener): OverlayPermissionListener
 
     /**
      * Remove a listener for when overlay permissions have changed.
      *
-     * @see removeOverlayPermissionsChangedListener
+     * @see removeOverlayPermissionListener
      */
-    operator fun minusAssign(listener: OverlayPermissionChangeListener) {
-        removeOverlayPermissionsChangedListener(listener)
+    operator fun minusAssign(listener: OverlayPermissionListener) {
+        removeOverlayPermissionListener(listener)
     }
 }
 
@@ -124,9 +123,9 @@ internal class OverlayPermissionsImpl(
     private val fragmentActivity get() = activity as? FragmentActivity
 
     private val preferences = KSharedPreferences.named(application, "OverlayPermissions")
-    private var permissions by preferences["permissionState", PermissionState.NEVER_REQUESTED]
+    private var permission by preferences["permissionState", PermissionState.NEVER_REQUESTED]
 
-    private val listeners = CopyOnWriteArrayList<OverlayPermissionChangeListener>()
+    private val listeners = CopyOnWriteArrayList<OverlayPermissionListener>()
 
     private var havePermission: Boolean? = null
 
@@ -149,20 +148,20 @@ internal class OverlayPermissionsImpl(
             else -> false
         }
 
-    override val shouldRequestPermission: Boolean get() = permissions != PermissionState.NEVER_ASK_AGAIN && fragmentActivity != null && !canDrawOverlays
+    override val shouldRequestPermission: Boolean get() = permission != PermissionState.NEVER_ASK_AGAIN && fragmentActivity != null && !canDrawOverlays
 
     override fun requestPermission(reason: CharSequence?) {
-        if (permissions != PermissionState.NEVER_ASK_AGAIN && !isInstrumentationTest && !canDrawOverlays) {
+        if (permission != PermissionState.NEVER_ASK_AGAIN && !isInstrumentationTest && !canDrawOverlays) {
             showPermissionsDialog(reason)
         }
     }
 
-    override fun addOverlayPermissionsChangedListener(listener: OverlayPermissionChangeListener): OverlayPermissionChangeListener {
+    override fun addOverlayPermissionListener(listener: OverlayPermissionListener): OverlayPermissionListener {
         listeners += listener
         return listener
     }
 
-    override fun removeOverlayPermissionsChangedListener(listener: OverlayPermissionChangeListener): OverlayPermissionChangeListener {
+    override fun removeOverlayPermissionListener(listener: OverlayPermissionListener): OverlayPermissionListener {
         listeners -= listener
         return listener
     }
@@ -173,9 +172,9 @@ internal class OverlayPermissionsImpl(
     private fun showPermissionsDialog(reason: CharSequence? = null) {
         handler.post {
             fragmentActivity?.let {
-                OverlayPermissionsDialogFragment.show(it, permissions, reason).apply {
+                OverlayPermissionsDialogFragment.show(it, permission, reason).apply {
                     deniedCallback = { neverAskAgain ->
-                        permissions = if (neverAskAgain) PermissionState.NEVER_ASK_AGAIN else PermissionState.DENIED
+                        permission = if (neverAskAgain) PermissionState.NEVER_ASK_AGAIN else PermissionState.DENIED
                     }
                 }
             }
@@ -255,15 +254,15 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
         return AlertDialog.Builder(activity)
             .setTitle(R.string.df_devfun_overlay_request)
             .setView(dialogView)
-            .setPositiveButton(R.string.df_devfun_allow, { dialog, _ ->
+            .setPositiveButton(R.string.df_devfun_allow) { dialog, _ ->
                 val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${activity.packageName}".toUri())
                 activity.startActivityForResult(intent, 1234)
                 dialog.dismiss()
-            })
-            .setNegativeButton(R.string.df_devfun_deny, { dialog, _ ->
+            }
+            .setNegativeButton(R.string.df_devfun_deny) { dialog, _ ->
                 deniedCallback?.invoke(neverAskAgainCheckBox.isChecked)
                 dialog.dismiss()
-            })
+            }
             .show()
     }
 
