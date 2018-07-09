@@ -2,9 +2,9 @@
 
 # KObjectInstanceProvider
 
-`class KObjectInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L112)
+`class KObjectInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/Kotlin.kt#L14)
 
-Handles Kotlin `object` types.
+Handles Kotlin `object` and `companion object` types.
 
 Automatically handles `internal` or `private` types.
 
@@ -15,7 +15,7 @@ Visible for testing - use at your own risk.
 
 | Name | Summary |
 |---|---|
-| [&lt;init&gt;](-init-.md) | `KObjectInstanceProvider()`<br>Handles Kotlin `object` types. |
+| [&lt;init&gt;](-init-.md) | `KObjectInstanceProvider()`<br>Handles Kotlin `object` and `companion object` types. |
 
 ### Functions
 

@@ -2,7 +2,7 @@
 
 # definitions
 
-`val definitions: `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`DevFunGenerated`](../../com.nextfaze.devfun.generated/-dev-fun-generated/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L508)
+`val definitions: `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`DevFunGenerated`](../../com.nextfaze.devfun.generated/-dev-fun-generated/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L437)
 
 List of raw [DevFunGenerated](../../com.nextfaze.devfun.generated/-dev-fun-generated/index.md) definitions.
 

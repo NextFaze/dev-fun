@@ -2,7 +2,7 @@
 
 # SimpleError
 
-`data class SimpleError : `[`ErrorDetails`](../-error-details/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/error/Handler.kt#L42)
+`data class SimpleError : `[`ErrorDetails`](../-error-details/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/error/Handler.kt#L46)
 
 Convenience class that implements [ErrorDetails](../-error-details/index.md) and automatically time stamps it.
 

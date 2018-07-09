@@ -2,14 +2,14 @@
 
 # WithValue
 
-`interface WithValue<T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/view/ParameterView.kt#L18)
+`interface WithValue<T>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/view/ParameterView.kt#L18)
 
 Views used with the Invoke UI should implement this to ensure the correct value is obtainable upon invocation.
 
 If absent, DevFun will attempt to grab the value based on the view type (e.g. if TextView it will use `.text`)
 
-Currently `null` types are not supported due to limitations/complications of KAPT and reflection. It is intended to
-be permissible in the future.
+Currently `null` types are not well supported due to limitations/complications of KAPT and reflection. It is intended
+to be better supported in the future - use at your own risk.
 
 ### Properties
 

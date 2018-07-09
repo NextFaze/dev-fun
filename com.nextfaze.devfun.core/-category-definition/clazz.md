@@ -2,7 +2,7 @@
 
 # clazz
 
-`open val clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Definitions.kt#L94)
+`open val clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Definitions.kt#L95)
 
-[DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md) uses in [clazz](./clazz.md) will use this category.
+[DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md) usages in [clazz](./clazz.md) will use this category.
 

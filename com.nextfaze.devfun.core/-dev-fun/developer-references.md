@@ -2,7 +2,7 @@
 
 # developerReferences
 
-`inline fun <reified T : `[`Annotation`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-annotation/index.html)`> developerReferences(): `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`DeveloperReference`](../-developer-reference/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L478)
+`inline fun <reified T : `[`Annotation`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-annotation/index.html)`> developerReferences(): `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`DeveloperReference`](../-developer-reference/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L407)
 
 Get references to annotations that are annotated by meta annotation [DeveloperAnnotation](../../com.nextfaze.devfun.annotations/-developer-annotation/index.md).
 

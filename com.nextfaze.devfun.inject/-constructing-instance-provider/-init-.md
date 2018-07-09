@@ -6,7 +6,9 @@
 
 Provides objects via instance construction. Type must be annotated with [Constructable](../-constructable/index.md).
 
-Only supports objects with a single constructor. Constructor arguments will fetched using [root](#).
+Only supports objects with a single constructor. Constructor arguments will fetched using param `rootInstanceProvider`.
+
+If [Constructable.singleton](../-constructable/singleton.md) is `true` or type is annotated @[Singleton](#) then only one instance will be created and shared.
 
 ### Parameters
 

@@ -2,11 +2,23 @@
 
 # CapturingInstanceProvider
 
-`class CapturingInstanceProvider<out T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L85)
+`class CapturingInstanceProvider<out T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L98)
 
 An instance provider that requests an instance of a class from a captured lambda.
 
 Be aware of leaks! The lambda could implicitly hold a local `this` reference.
+
+Be wary of using a `typealias` as a type - the resultant function "type" itself is used at compile time.
+e.g.
+
+``` kotlin
+typealias MyStringAlias = () -> String?
+val provider1 = captureInstance<MyStringAlias> { ... }
+
+typealias MyOtherAlias = () -> Type?
+// will be triggered for MyStringAlias and MyOtherAlias since behind the scenes they are both kotlin.Function0<T>
+val provider2 = captureInstance<MyOtherAlias> { ... }
+```
 
 **See Also**
 
@@ -22,4 +34,4 @@ Be aware of leaks! The lambda could implicitly hold a local `this` reference.
 
 | Name | Summary |
 |---|---|
-| [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](get.md#T)`>): `[`T`](get.md#T)`?`<br>Try to get an instance of some [clazz](get.md#com.nextfaze.devfun.inject.CapturingInstanceProvider$get(kotlin.reflect.KClass((com.nextfaze.devfun.inject.CapturingInstanceProvider.get.T)))/clazz). |
+| [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](get.md#T)`>): `[`T`](get.md#T)`?`<br>Try to get an instance of some [clazz](../-instance-provider/get.md#com.nextfaze.devfun.inject.InstanceProvider$get(kotlin.reflect.KClass((com.nextfaze.devfun.inject.InstanceProvider.get.T)))/clazz). |

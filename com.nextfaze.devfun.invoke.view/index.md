@@ -9,7 +9,7 @@
 | [InvokeParameterView](-invoke-parameter-view/index.md) | `interface InvokeParameterView : `[`WithLabel`](-with-label/index.md)<br>Parameter views rendered for the Invoke UI will be wrapped with this type (to provide a label etc.). |
 | [ValueSource](-value-source/index.md) | `interface ValueSource<out V : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`>`<br>Used in conjunction with [From](-from/index.md) to allow the Invoke UI to provide an initial value. |
 | [WithLabel](-with-label/index.md) | `interface WithLabel`<br>View used with the Invoke UI will automatically be wrapped and be given a label unless they provide their own with this interface. |
-| [WithValue](-with-value/index.md) | `interface WithValue<T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`>`<br>Views used with the Invoke UI should implement this to ensure the correct value is obtainable upon invocation. |
+| [WithValue](-with-value/index.md) | `interface WithValue<T>`<br>Views used with the Invoke UI should implement this to ensure the correct value is obtainable upon invocation. |
 
 ### Annotations
 

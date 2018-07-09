@@ -2,7 +2,7 @@
 
 # KeySequence
 
-`class KeySequence : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L48)
+`class KeySequence : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L49)
 
 Allows toggling the Developer Menu using button/key sequences.
 

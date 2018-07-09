@@ -2,7 +2,7 @@
 
 # CogOverlay
 
-`class CogOverlay : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Cog.kt#L63)
+`class CogOverlay : `[`MenuController`](../../com.nextfaze.devfun.menu/-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Cog.kt#L53)
 
 Controls the floating cog overlay.
 
@@ -20,7 +20,7 @@ e.g.
 
 | Name | Summary |
 |---|---|
-| [&lt;init&gt;](-init-.md) | `CogOverlay(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.core/-activity-provider.md)`)`<br>Controls the floating cog overlay. |
+| [&lt;init&gt;](-init-.md) | `CogOverlay(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.core/-activity-provider.md)`, overlays: `[`OverlayManager`](../../com.nextfaze.devfun.overlay/-overlay-manager/index.md)`)`<br>Controls the floating cog overlay. |
 
 ### Properties
 

@@ -2,7 +2,7 @@
 
 # FunctionDefinition
 
-`interface FunctionDefinition` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Definitions.kt#L39)
+`interface FunctionDefinition` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/core/Definitions.kt#L40)
 
 Functions/methods annotated with [DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md) will be defined using this interface at compile time.
 
@@ -37,3 +37,9 @@ Definitions will be convert to items via [FunctionTransformer](../-function-tran
 |---|---|
 | [parameterInstances](../../com.nextfaze.devfun.invoke/parameter-instances.md) | `fun `[`FunctionDefinition`](./index.md)`.parameterInstances(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders, args: `[`FunctionArgs`](../-function-args.md)`): `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?>`<br>Get the parameter instances for this function definition for invocation. |
 | [receiverInstance](../../com.nextfaze.devfun.invoke/receiver-instance.md) | `fun `[`FunctionDefinition`](./index.md)`.receiverInstance(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders): `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?`<br>Get the receiver instance for this function definition to be used for invocation. |
+
+### Inheritors
+
+| Name | Summary |
+|---|---|
+| [ExceptionFunctionDefinition](../../com.nextfaze.devfun.internal.exception/-exception-function-definition/index.md) | `object ExceptionFunctionDefinition : `[`FunctionDefinition`](./index.md) |

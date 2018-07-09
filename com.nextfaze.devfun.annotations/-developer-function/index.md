@@ -2,7 +2,7 @@
 
 # DeveloperFunction
 
-`@Target([AnnotationTarget.FUNCTION]) annotation class DeveloperFunction` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Annotations.kt#L259)
+`@Target([AnnotationTarget.FUNCTION]) annotation class DeveloperFunction` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Annotations.kt#L345)
 
 Functions/methods annotated with this will be shown on the Developer Menu (and other modules).
 
@@ -15,12 +15,23 @@ At compile time, a [FunctionDefinition](../../com.nextfaze.devfun.core/-function
 
 At runtime the [FunctionDefinition](../../com.nextfaze.devfun.core/-function-definition/index.md) will be transformed to one or more [FunctionItem](../../com.nextfaze.devfun.core/-function-item/index.md) via [FunctionTransformer](../../com.nextfaze.devfun.core/-function-transformer/index.md).
 
+* [Properties](#properties)
+  * [Name](#name)
+  * [Category](#category)
+  * [Requires API](#requires-api)
+  * [Transformer](#transformer)
+* [Contextual Vars](#contextual-vars)
+* [Limitations](#limitations)
+
+# Properties
+
+All properties are optional.
+
 ## Name
 
 When [value](value.md) is undefined, the name is derived from the function name split by camel case. (e.g. "myFunction" → "My Function").
 
-### Examples
-
+e.g.
 Change the name of a function to "A Slightly Better Name":
 
 ``` kotlin
@@ -34,18 +45,15 @@ class MyClass {
 
 ## Category
 
-Allows specifying and/or overloading the category details for this function *(see [DeveloperCategory](../-developer-category/index.md))*.
+The [category](category.md) property allows specifying and/or overloading the category details for this function *(see [DeveloperCategory](../-developer-category/index.md))*.
 
-### Examples
-
+e.g.
 Specify a different category:
 
 ``` kotlin
 class MyClass {
     @DeveloperFunction(category = DeveloperCategory("My Class (Animation Utils)"))
-    fun startAnimation() {
-        ...
-    }
+    fun startAnimation() = Unit // category="My Class (Animation Utils)"
 }
 ```
 
@@ -54,33 +62,27 @@ Specify a group for a function:
 ``` kotlin
 class MyClass {
     @DeveloperFunction(category = DeveloperCategory(group = "Special Snow Flake"))
-    fun someFunction() {
-        ...
-    }
+    fun someFunction() = Unit // category="My Class", group="Special Snow Flake"
 
-    // This will be in the "Misc" group since (one or more) groups will be defined for this category
     @DeveloperFunction
-    fun anotherFunction() {
-        ...
-    }
+    fun anotherFunction() = Unit // category="My Class", group="Misc" (as one or more groups are present)
 }
 ```
 
-*(todo: add "group" value to DeveloperFunction annotation)*
+*(todo: add "group" value to DeveloperFunction annotation?)*
 
-## Require API
+## Requires API
 
-When specified, this function will only be visible if the device has this API.
+When [requiresApi](requires-api.md) is specified this function will only be visible/referenced if the device meets the requirements.
 
 *(todo: use/look for @RequiresApi instead/as well?)*
 
-### Examples
-
+e.g.
 Restrict `M` function:
 
 ``` kotlin
 class MyClass {
-    // Any device below M will not see this function
+    // Any device below M will not see this function and DevFun wont invoke any transformers upon it
     @RequiresApi(Build.VERSION_CODES.M)
     @DeveloperFunction(requiresApi = Build.VERSION_CODES.M)
     fun startAnimation() {
@@ -91,8 +93,9 @@ class MyClass {
 
 ## Transformer
 
-Allows overriding how this function will be transformed to a [FunctionItem](../../com.nextfaze.devfun.core/-function-item/index.md). Default transformer is the [SingleFunctionTransformer](../../com.nextfaze.devfun.core/-single-function-transformer/index.md),
-which simply converts (effectively just wraps) the [FunctionDefinition](../../com.nextfaze.devfun.core/-function-definition/index.md) to a [FunctionItem](../../com.nextfaze.devfun.core/-function-item/index.md) (1:1).
+The [transformer](transformer.md) tells DevFun how to generate one or more [FunctionItem](../../com.nextfaze.devfun.core/-function-item/index.md) from this function's [FunctionDefinition](../../com.nextfaze.devfun.core/-function-definition/index.md).
+
+The default transformer is [SingleFunctionTransformer](../../com.nextfaze.devfun.core/-single-function-transformer/index.md) which effectively just wraps the [FunctionDefinition](../../com.nextfaze.devfun.core/-function-definition/index.md) to a [FunctionItem](../../com.nextfaze.devfun.core/-function-item/index.md) (1:1).
 
 Item lifecycle:
 
@@ -100,8 +103,7 @@ Item lifecycle:
 
 For an in-depth explanation on transformers see [FunctionTransformer](../../com.nextfaze.devfun.core/-function-transformer/index.md).
 
-### Examples
-
+e.g.
 Provide a list of items to automatically fill in and log in as a test account:
 
 ``` kotlin
@@ -128,21 +130,47 @@ private class SignInFunctionTransformer : FunctionTransformer {
     }
 
     private val accounts = if (BuildConfig.DEBUG) { // BuildConfig.DEBUG for dead-code removal
-        listOf(TestAccount("foo@example.com", "hello"),
-                TestAccount("bar@example.com", "world"))
+        listOf(
+            TestAccount("foo@example.com", "hello"),
+            TestAccount("bar@example.com", "world")
+        )
     } else {
         emptyList()
     }
 
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): List<SimpleFunctionItem> =
-            accounts.map {
-                object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-                    override val name = it.title
-                    override val args = listOf(it.email, it.password) // arguments as expected from signInAs(...)
-                }
+        accounts.map {
+            object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
+                override val name = it.title
+                override val args = listOf(it.email, it.password) // arguments as expected from signInAs(...)
             }
+        }
 }
 ```
+
+# Contextual Vars
+
+*(experimental)* At compile time that follow vars are available for use in [value](value.md) (also [DeveloperCategory.value](../-developer-category/value.md) and [DeveloperCategory.group](../-developer-category/group.md)):
+
+* `%CLASS_QN%` → The fully qualified name of the class
+* `%CLASS_SN%` → The simple name of the class
+
+e.g. For a meta category:
+
+``` kotlin
+class MyClass {
+    @DeveloperFunction("I am in %CLASS_SN%")
+    fun someFun() = Unit // name="I am in MyClass"
+}
+```
+
+# Limitations
+
+* Annotations on functions in interfaces is not supported at the moment due to the way Kotlin/KAPT handles default functions/args. This is
+intended to be permissible in the future.
+
+* Unfortunately the [transformer](transformer.md) class must be in the same source tree as the declaration site. Looking into ways to change this but it
+may not be trivial/possible by the nature of Javac and annotation processing.
 
 ### Parameters
 

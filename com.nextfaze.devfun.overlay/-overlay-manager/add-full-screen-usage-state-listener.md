@@ -1,0 +1,21 @@
+[gh-pages](../../index.md) / [com.nextfaze.devfun.overlay](../index.md) / [OverlayManager](index.md) / [addFullScreenUsageStateListener](./add-full-screen-usage-state-listener.md)
+
+# addFullScreenUsageStateListener
+
+`abstract fun addFullScreenUsageStateListener(listener: `[`FullScreenUsageStateListener`](../-full-screen-usage-state-listener.md)`): `[`FullScreenUsageStateListener`](../-full-screen-usage-state-listener.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L164)
+
+Add a listener for the current full-screen status. This callback may be called multiple times with the same value.
+
+Will be called upon each Activity onResume and each time something notifies their usage.
+
+**Return**
+The listener you passed in for assigning/chaining purposes.
+
+**See Also**
+
+[removeFullScreenUsageStateListener](remove-full-screen-usage-state-listener.md)
+
+[notifyUsingFullScreen](notify-using-full-screen.md)
+
+[isFullScreenInUse](is-full-screen-in-use.md)
+

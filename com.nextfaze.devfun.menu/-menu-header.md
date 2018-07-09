@@ -2,7 +2,7 @@
 
 # MenuHeader
 
-`interface MenuHeader` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L87)
+`interface MenuHeader` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L90)
 
 The view type/key used by DevMenu to find/inflate the menu header view.
 

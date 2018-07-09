@@ -2,7 +2,7 @@
 
 # &lt;init&gt;
 
-`CogOverlay(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.core/-activity-provider.md)`)`
+`CogOverlay(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.core/-activity-provider.md)`, overlays: `[`OverlayManager`](../../com.nextfaze.devfun.overlay/-overlay-manager/index.md)`)`
 
 Controls the floating cog overlay.
 

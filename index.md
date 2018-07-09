@@ -22,11 +22,20 @@ For an overview of all the components and libraries see [wiki/components](wiki/-
 | [com.nextfaze.devfun.inject](com.nextfaze.devfun.inject/index.md) |  |
 | [com.nextfaze.devfun.inject.dagger2](com.nextfaze.devfun.inject.dagger2/index.md) | Provides default heavy-reflection based Dagger 2 injector and convenience functions for reflectively  locating object instances from Dagger 2.x `@Component` objects. |
 | [com.nextfaze.devfun.internal](com.nextfaze.devfun.internal/index.md) |  |
+| [com.nextfaze.devfun.internal.android](com.nextfaze.devfun.internal.android/index.md) |  |
+| [com.nextfaze.devfun.internal.exception](com.nextfaze.devfun.internal.exception/index.md) |  |
+| [com.nextfaze.devfun.internal.log](com.nextfaze.devfun.internal.log/index.md) |  |
+| [com.nextfaze.devfun.internal.pref](com.nextfaze.devfun.internal.pref/index.md) |  |
+| [com.nextfaze.devfun.internal.prop](com.nextfaze.devfun.internal.prop/index.md) |  |
+| [com.nextfaze.devfun.internal.reflect](com.nextfaze.devfun.internal.reflect/index.md) |  |
+| [com.nextfaze.devfun.internal.string](com.nextfaze.devfun.internal.string/index.md) |  |
 | [com.nextfaze.devfun.invoke](com.nextfaze.devfun.invoke/index.md) |  |
 | [com.nextfaze.devfun.invoke.view](com.nextfaze.devfun.invoke.view/index.md) |  |
 | [com.nextfaze.devfun.invoke.view.simple](com.nextfaze.devfun.invoke.view.simple/index.md) |  |
 | [com.nextfaze.devfun.menu](com.nextfaze.devfun.menu/index.md) | Adds a developer menu, accessible by a floating cog (long-press to drag) or device button sequence. |
 | [com.nextfaze.devfun.menu.controllers](com.nextfaze.devfun.menu.controllers/index.md) |  |
+| [com.nextfaze.devfun.overlay](com.nextfaze.devfun.overlay/index.md) |  |
+| [com.nextfaze.devfun.overlay.logger](com.nextfaze.devfun.overlay.logger/index.md) |  |
 | [com.nextfaze.devfun.stetho](com.nextfaze.devfun.stetho/index.md) | Allows generated methods to be invoked from Chrome's Dev Tools JavaScript console. |
 | [com.nextfaze.devfun.utils.glide](com.nextfaze.devfun.utils.glide/index.md) | Provides some utility functions when using Glide. |
 | [com.nextfaze.devfun.utils.leakcanary](com.nextfaze.devfun.utils.leakcanary/index.md) | Provides some utility functions when using Leak Canary. |

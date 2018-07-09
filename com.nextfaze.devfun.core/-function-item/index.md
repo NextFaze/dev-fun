@@ -47,4 +47,5 @@ Unless necessary, you should extend from convenience class [SimpleFunctionItem](
 
 | Name | Summary |
 |---|---|
+| [ExceptionFunctionItem](../../com.nextfaze.devfun.internal.exception/-exception-function-item/index.md) | `class ExceptionFunctionItem : `[`FunctionItem`](./index.md) |
 | [SimpleFunctionItem](../-simple-function-item/index.md) | `open class SimpleFunctionItem : `[`FunctionItem`](./index.md)<br>Convenience class for [FunctionItem](./index.md) to extend from, providing standard [equals](../-simple-function-item/equals.md) and [hashCode](../-simple-function-item/hash-code.md) implementations. |

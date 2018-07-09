@@ -8,7 +8,7 @@ Overrides [FunctionItem.category](../-function-item/category.md)
 
 The resolved category definition.
 
-This may be the same from [function](function.md), as declared on the class, or a combination of both.
+This may be the same from [function](../-function-item/function.md), as declared on the class, or a combination of both.
 
 **See Also**
 

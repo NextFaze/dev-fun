@@ -2,7 +2,7 @@
 
 # receiverClass
 
-`val `[`FunctionDefinition`](../com.nextfaze.devfun.core/-function-definition/index.md)`.receiverClass: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L21)
+`inline val `[`FunctionDefinition`](../com.nextfaze.devfun.core/-function-definition/index.md)`.receiverClass: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L21)
 
 Get the receiver class for this function definition.
 
@@ -14,7 +14,7 @@ Get the receiver class for this function definition.
 
 [FunctionDefinition.receiverClassForInvocation](receiver-class-for-invocation.md)
 
-`val `[`FunctionItem`](../com.nextfaze.devfun.core/-function-item/index.md)`.receiverClass: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L58)
+`inline val `[`FunctionItem`](../com.nextfaze.devfun.core/-function-item/index.md)`.receiverClass: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L63)
 
 Get the receiver class for this function item.
 

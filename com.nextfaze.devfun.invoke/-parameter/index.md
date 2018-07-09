@@ -16,3 +16,9 @@ In the future (ideally) the need for the reflect lib will be removed without the
 | [annotations](annotations.md) | `open val annotations: `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`Annotation`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-annotation/index.html)`>`<br>The annotations on the parameter. |
 | [name](name.md) | `abstract val name: `[`CharSequence`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char-sequence/index.html)`?`<br>The name of the parameter. |
 | [type](type.md) | `abstract val type: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>`<br>The parameter's type/class. |
+
+### Inheritors
+
+| Name | Summary |
+|---|---|
+| [UiField](../-ui-field/index.md) | `interface UiField<T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> : `[`Parameter`](./index.md)`, `[`WithInitialValue`](../-with-initial-value/index.md)`<`[`T`](../-ui-field/index.md#T)`>`<br>Utility interface to easily generate an invoke UI/dialog. *(experimental)* |

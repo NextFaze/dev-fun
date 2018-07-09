@@ -2,7 +2,7 @@
 
 # AbstractUriHandler
 
-`abstract class AbstractUriHandler : UriResponder` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L260)
+`abstract class AbstractUriHandler : UriResponder` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L261)
 
 ### Constructors
 

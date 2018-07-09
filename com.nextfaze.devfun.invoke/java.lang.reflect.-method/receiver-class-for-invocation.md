@@ -2,7 +2,7 @@
 
 # receiverClassForInvocation
 
-`val `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html)`.receiverClassForInvocation: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L105)
+`inline val `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html)`.receiverClassForInvocation: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L110)
 
 Get the receiver class for this function definition if you intend to invoke it. That is, it will return `null` if the type isn't needed.
 

@@ -1,0 +1,13 @@
+[gh-pages](../../index.md) / [com.nextfaze.devfun.internal.android](../index.md) / [android.content.Context](./index.md)
+
+### Extensions for android.content.Context
+
+| Name | Summary |
+|---|---|
+| [activityManager](activity-manager.md) | `val `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.activityManager: `[`ActivityManager`](https://developer.android.com/reference/android/app/ActivityManager.html) |
+| [connectivityManager](connectivity-manager.md) | `val `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.connectivityManager: `[`ConnectivityManager`](https://developer.android.com/reference/android/net/ConnectivityManager.html) |
+| [keyguardManager](keyguard-manager.md) | `val `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.keyguardManager: `[`KeyguardManager`](https://developer.android.com/reference/android/app/KeyguardManager.html) |
+| [registerActivityCallbacks](register-activity-callbacks.md) | `fun `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.registerActivityCallbacks(onCreated: `[`OnActivityCreated`](../-on-activity-created.md)` = { _, _ -> }, onStarted: `[`OnActivityStarted`](../-on-activity-started.md)` = {}, onResumed: `[`OnActivityResumed`](../-on-activity-resumed.md)` = {}, onPaused: `[`OnActivityPaused`](../-on-activity-paused.md)` = {}, onStopped: `[`OnActivityStopped`](../-on-activity-stopped.md)` = {}, onSave: `[`OnActivitySave`](../-on-activity-save.md)` = { _, _ -> }, onDestroyed: `[`OnActivityDestroyed`](../-on-activity-destroyed.md)` = {}): `[`ActivityLifecycleCallbacks`](https://developer.android.com/reference/android/app/Application/ActivityLifecycleCallbacks.html) |
+| [registerActivityLifecycleCallbacks](register-activity-lifecycle-callbacks.md) | `fun `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.registerActivityLifecycleCallbacks(activityLifecycleCallbacks: `[`ActivityLifecycleCallbacks`](https://developer.android.com/reference/android/app/Application/ActivityLifecycleCallbacks.html)`): `[`ActivityLifecycleCallbacks`](https://developer.android.com/reference/android/app/Application/ActivityLifecycleCallbacks.html) |
+| [wifiManager](wifi-manager.md) | `val `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.wifiManager: `[`WifiManager`](https://developer.android.com/reference/android/net/wifi/WifiManager.html) |
+| [windowManager](window-manager.md) | `val `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.windowManager: `[`WindowManager`](https://developer.android.com/reference/android/view/WindowManager.html) |

@@ -9,7 +9,13 @@ Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io
 
 | Name | Summary |
 |---|---|
-| [DevFunProcessor](-dev-fun-processor/index.md) | `class DevFunProcessor : `[`AbstractProcessor`](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/AbstractProcessor.html)<br>Annotation processor for [DeveloperFunction](../com.nextfaze.devfun.annotations/-developer-function/index.md) and [DeveloperCategory](../com.nextfaze.devfun.annotations/-developer-category/index.md). |
+| [DevFunProcessor](-dev-fun-processor/index.md) | `class DevFunProcessor : `[`AbstractProcessor`](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/AbstractProcessor.html)`, WithProcessingEnvironment`<br>Annotation processor for [DeveloperFunction](../com.nextfaze.devfun.annotations/-developer-function/index.md) and [DeveloperCategory](../com.nextfaze.devfun.annotations/-developer-category/index.md). |
+
+### Extensions for External Classes
+
+| Name | Summary |
+|---|---|
+| [javax.lang.model.type.TypeMirror](javax.lang.model.type.-type-mirror/index.md) |  |
 
 ### Properties
 

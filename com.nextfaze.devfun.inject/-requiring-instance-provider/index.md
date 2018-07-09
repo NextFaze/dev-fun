@@ -2,7 +2,7 @@
 
 # RequiringInstanceProvider
 
-`interface RequiringInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L52)
+`interface RequiringInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L53)
 
 Same as [InstanceProvider](../-instance-provider/index.md), but throws [ClassInstanceNotFoundException](../-class-instance-not-found-exception/index.md) instead of returning `null`.
 

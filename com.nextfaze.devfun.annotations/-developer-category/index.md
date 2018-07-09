@@ -2,114 +2,192 @@
 
 # DeveloperCategory
 
-`@Target([AnnotationTarget.CLASS]) annotation class DeveloperCategory` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Annotations.kt#L114)
+`@Target([AnnotationTarget.CLASS]) annotation class DeveloperCategory` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Annotations.kt#L175)
 
 This annotation is optional, and is used to change the category's name/order or the group of the functions defined in this class.
 
 At compile time, a [CategoryDefinition](../../com.nextfaze.devfun.core/-category-definition/index.md) will be generated referencing the class with this annotation.
 
+* [Inheritance](#inheritance)
+* [Meta Annotations](#meta-annotations)
+* [Properties](#properties)
+  * [Name](#name)
+  * [Group](#group)
+  * [Order](#order)
+* [Contextual Vars](#contextual-vars)
+* [Limitations](#limitations)
+
+# Inheritance
+
+Categories can be specified at the class level and the function-level. Unset properties at the function level will use the class-level
+values.
+
+However categories are "keyed" based on their name. Thus if a function declares a category with a different name, it will be considered
+a different category and will inherit values based on that one instead.
+
+Note: Due to the way APT orders elements (in that it doesn't) you may get non-deterministic inheritance if you redeclare values over
+multiple classes.
+
+i.e. The order of "My Category" will be whatever APT provides first.
+
+``` kotlin
+@DeveloperCategory("My Category", order = 10) class SomeClass
+@DeveloperCategory("My Category", order = 20) class AnotherClass
+```
+
+# Meta Annotations
+
+When placed on an annotation, said annotation will act as a category definition. It can be further configured at the use-site with
+values inheriting as normal.
+
+Properties declared on the meta annotation that match the declaration of a property of `CategoryDefinition` will be also be used.
+
+e.g.
+
+``` kotlin
+@DeveloperCategory("My Category")
+annotation class MyCategory {
+    val group: String = "Default Group" // custom group property will be used
+}
+
+@MyCategory
+class SomeClass {
+    @DeveloperFunction
+    fun fun1() = Unit // category="My Category", group="Default Group"
+
+    @DeveloperFunction(category = DeveloperCategory(group = "Another Group"))
+    fun fun2() = Unit // category="My Category", group="Another Group"
+}
+
+@MyCategory(group = "Some Group")
+class AnotherClass {
+    @DeveloperFunction
+    fun fun1() = Unit // category="My Category", group="Some Group"
+
+    @DeveloperFunction(category = DeveloperCategory(group = "YAG"))
+    fun fun2() = Unit // category="My Category", group="YAG"
+}
+```
+
+For an in-use example see demo annotation [TestCat](https://github.com/NextFaze/dev-fun/tree/master/demo/src/main/java/com/nextfaze/devfun/demo/test/DaggerScopesScreen.kt#L123)
+
+# Properties
+
+All properties are optional.
+
 ## Name
 
 When [value](value.md) is undefined, the name is derived from the class name split by camel case. (e.g. "MyClass" → "My Class").
 
-Categories are merged at runtime by name (see [Category Merging](#Category-Merging) below). They are *case-sensitive*
-(compared using standard equality checks). i.e. "MY CATEGORY" ≠ "My Category"
+Categories are merged at runtime by name (see below). They are *case-sensitive* (compared using standard equality checks).
+i.e. "MY CATEGORY" ≠ "My Category"
 
 Since they are merged at runtime, declaring a category with the same name on multiple classes will create a single
 category with all the functions from those classes.
 
-### Examples
-
+e.g.
 Change the name of a category to "Better Name":
 
 ``` kotlin
 @DeveloperCategory("Better Name")
 class MyClassWithAStupidName {
     @DeveloperFunction
-    fun someFunction() {
-        ...
-    }
+    fun someFunction() = Unit // category="Better Name"
 }
 ```
 
 Merge classes to a single category:
 
 ``` kotlin
-@DeveloperCategory("My Category", group = "In Stupid Name")
-class MyClassWithAStupidName {
-    // This will be put in the "My Category" > "In Stupid Name" group
+@DeveloperCategory("My Category")
+class SomeClass {
     @DeveloperFunction
-    fun someFunction() {
-        ...
-    }
+    fun someFunction() = Unit // category="My Category"
 }
 
-@DeveloperCategory("My Category", group = "Another Class")
+@DeveloperCategory("My Category")
 class AnotherClass {
-    // This will be put in the "My Category" > "Another Class" group
     @DeveloperFunction
-    fun anotherFunction() {
-        ...
-    }
-
-    // This will be put in the "My Category" > "Special" group
-    @DeveloperFunction(category = DeveloperCategory(group = "Special"))
-    fun snowFlake() {
-        ...
-    }
+    fun anotherFunction() = Unit // category="My Category"
 }
-
+```
 
 ## Group
-Items in a category can be grouped (will be put under the same "group" heading) - this will happen automatically for
-the context aware "Context" category. e.g. "Context" = ["Current Activity" = [...], "My Fragment" = [...], "Another Fragment" = [...]]
 
-A "Misc" group is used for functions without a group if a category has one or more groups.
+Items in a category can be grouped (will be put under the same "group" heading) - this will happen automatically for the context aware
+"Context" category.
+e.g. "Context" = ["Current Activity" = [...](#), "My Fragment" = [...](#), "Another Fragment" = [...](#)]
 
-### Examples
+A "Misc" group will be created for functions without a group if a category has one or more groups.
+
+e.g.
 Grouping functions and overloading parent (class-defined) category definition:
-```kotlin
-@DeveloperCategory("My Category", group = "In Stupid Name")
-class MyClassWithAStupidName {
-    // This will be put in the "My Category" > "In Stupid Name" group
-    @DeveloperFunction
-    fun someFunction() {
-        ...
-    }
 
-    // This will be put in the "My Category" > "Also In Stupid Name" group
-    @DeveloperFunction(category = DeveloperCategory(group = "Also In Stupid Name"))
-    fun anotherFunction() {
-        ...
-    }
+``` kotlin
+@DeveloperCategory("My Category", group = "Some Group")
+class SomeClass {
+    @DeveloperFunction
+    fun someFunction() = Unit // category="My Category", group="Some Group"
+
+    @DeveloperFunction(category = DeveloperCategory(group = "Another Group"))
+    fun anotherFunction() = Unit // category="My Category", group="Another Group"
 }
 
+@DeveloperCategory("My Category", group = "Another Group")
+class AnotherClass {
+    @DeveloperFunction
+    fun anotherFunction() = Unit // category="My Category", group="Another Group"
+
+    @DeveloperFunction(category = DeveloperCategory(group = "Special"))
+    fun snowFlake() = Unit // category="My Category", group="Special"
+}
+```
 
 ## Order
-By default the category list is ordered by name. The [order] value can be used to adjust this. Categories with the
-same order are then ordered by name. i.e. ordering is by `order` (-∞ → +∞) then by `name`
 
-This is used by DevFun for the "Context" category (`-10_1000`) and the "Dev Fun" category (`10_000`).
+By default the category list is ordered by name. The [order](order.md) value can be used to adjust this. Categories with the same order are then
+ordered by name. i.e. ordering is by `order` (-∞ → +∞) then by `name`.
 
-_If the order of a category is defined more than once, the first encountered non-null order value is used._
+This is used by DevFun for the "Context" category (`-10_1000`) and the "Dev Fun" category (`100_000`).
 
+*If the order of a category is defined more than once, the first encountered non-null order value is used.*
 
-## Limitations
-Some use-site restrictions are present due to the way KAPT handles annotations for functions in components and
-interfaces with default functions (non-trivial weird edge cases).
-- Not usable on interfaces
-- Not usable on annotations
+# Contextual Vars
 
-Additionally inheritance is not yet considered.
+*(experimental)* At compile time that follow vars are available for use in [value](value.md) or [group](group.md) (also [DeveloperFunction.value](../-developer-function/value.md)):
 
-These are intended to be handled in the future.
+* `%CLASS_QN%` → The fully qualified name of the class
+* `%CLASS_SN%` → The simple name of the class
 
-@see DeveloperFunction
+e.g. For a meta category:
 
-@param value The name that to be shown for this category. If undefined the class name will be split by camel case. (e.g. "MyClass" → "My Class")
-@param group Items in this class will be assigned this group.
-@param order Order of this category when listed. Ordering will be by [order] (-∞ → +∞) then by name ([value])
+``` kotlin
+@DeveloperCategory("Some Category", group = "Class: %CLASS_SN%")
+annotation class MyCategory
+
+@MyCategory
+class MyClass {
+    @DeveloperFunction
+    fun someFun() = Unit // category="Some Category", group="Class: MyClass"
+}
 ```
+
+# Limitations
+
+You cannot annotate interfaces at the moment due to the way Kotlin/KAPT handles annotations on functions in interfaces with default
+functions. This is intended to be handled in the future - feel free to post an issue or submit a PR.
+
+### Parameters
+
+`value` - The name that to be shown for this category. If undefined the class name will be split by camel case. (e.g. "MyClass" → "My Class")
+
+`group` - Items in this class will be assigned this group.
+
+`order` - Order of this category when listed. Ordering will be by [order](order.md) (-∞ → +∞) then by name ([value](value.md))
+
+**See Also**
+
+[DeveloperFunction](../-developer-function/index.md)
 
 ### Constructors
 
@@ -121,6 +199,6 @@ These are intended to be handled in the future.
 
 | Name | Summary |
 |---|---|
-| [group](group.md) | `val group: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |
-| [order](order.md) | `val order: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) |
-| [value](value.md) | `val value: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |
+| [group](group.md) | `val group: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>Items in this class will be assigned this group. |
+| [order](order.md) | `val order: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)<br>Order of this category when listed. Ordering will be by [order](order.md) (-∞ → +∞) then by name ([value](value.md)) |
+| [value](value.md) | `val value: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>The name that to be shown for this category. If undefined the class name will be split by camel case. (e.g. "MyClass" → "My Class") |

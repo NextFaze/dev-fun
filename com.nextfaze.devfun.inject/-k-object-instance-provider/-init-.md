@@ -4,7 +4,7 @@
 
 `KObjectInstanceProvider()`
 
-Handles Kotlin `object` types.
+Handles Kotlin `object` and `companion object` types.
 
 Automatically handles `internal` or `private` types.
 

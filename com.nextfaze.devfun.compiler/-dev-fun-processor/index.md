@@ -2,7 +2,7 @@
 
 # DevFunProcessor
 
-`@SupportedOptions(["devfun.kotlin.reflection", "devfun.debug.comments", "devfun.debug.verbose", "devfun.package.root", "devfun.package.suffix", "devfun.package.override", "devfun.application.package", "devfun.application.variant", "devfun.ext.package.suffix", "devfun.ext.package.root", "devfun.ext.package.override"]) class DevFunProcessor : `[`AbstractProcessor`](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/AbstractProcessor.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L232)
+`@SupportedOptions(["devfun.kotlin.reflection", "devfun.debug.comments", "devfun.debug.verbose", "devfun.package.root", "devfun.package.suffix", "devfun.package.override", "devfun.application.package", "devfun.application.variant", "devfun.ext.package.suffix", "devfun.ext.package.root", "devfun.ext.package.override"]) class DevFunProcessor : `[`AbstractProcessor`](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/AbstractProcessor.html)`, WithProcessingEnvironment` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L228)
 
 Annotation processor for [DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md) and [DeveloperCategory](../../com.nextfaze.devfun.annotations/-developer-category/index.md).
 
@@ -11,6 +11,13 @@ Annotation processor for [DeveloperFunction](../../com.nextfaze.devfun.annotatio
 | Name | Summary |
 |---|---|
 | [&lt;init&gt;](-init-.md) | `DevFunProcessor()`<br>Annotation processor for [DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md) and [DeveloperCategory](../../com.nextfaze.devfun.annotations/-developer-category/index.md). |
+
+### Properties
+
+| Name | Summary |
+|---|---|
+| [isDebugVerbose](is-debug-verbose.md) | `val isDebugVerbose: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
+| [processingEnvironment](processing-environment.md) | `val processingEnvironment: `[`ProcessingEnvironment`](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/ProcessingEnvironment.html) |
 
 ### Functions
 

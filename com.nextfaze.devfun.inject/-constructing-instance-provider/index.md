@@ -2,11 +2,13 @@
 
 # ConstructingInstanceProvider
 
-`class ConstructingInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L143)
+`class ConstructingInstanceProvider : `[`InstanceProvider`](../-instance-provider/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/Constructable.kt#L23)
 
 Provides objects via instance construction. Type must be annotated with [Constructable](../-constructable/index.md).
 
-Only supports objects with a single constructor. Constructor arguments will fetched using [root](#).
+Only supports objects with a single constructor. Constructor arguments will fetched using param `rootInstanceProvider`.
+
+If [Constructable.singleton](../-constructable/singleton.md) is `true` or type is annotated @[Singleton](#) then only one instance will be created and shared.
 
 ### Parameters
 
@@ -33,4 +35,5 @@ Visible for testing - use at your own risk.
 
 | Name | Summary |
 |---|---|
-| [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](get.md#T)`>): `[`T`](get.md#T)`?`<br>Try to get an instance of some [clazz](get.md#com.nextfaze.devfun.inject.ConstructingInstanceProvider$get(kotlin.reflect.KClass((com.nextfaze.devfun.inject.ConstructingInstanceProvider.get.T)))/clazz). |
+| [get](get.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](get.md#T)`>): `[`T`](get.md#T)`?`<br>Try to get an instance of some [clazz](../-instance-provider/get.md#com.nextfaze.devfun.inject.InstanceProvider$get(kotlin.reflect.KClass((com.nextfaze.devfun.inject.InstanceProvider.get.T)))/clazz).`fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](get.md#T)`>, requireConstructable: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)`): `[`T`](get.md#T)`?` |
+| [toString](to-string.md) | `fun toString(): `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |

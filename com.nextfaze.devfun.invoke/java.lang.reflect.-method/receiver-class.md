@@ -2,7 +2,7 @@
 
 # receiverClass
 
-`val `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html)`.receiverClass: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L95)
+`inline val `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html)`.receiverClass: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L100)
 
 Get the receiver class for this method.
 

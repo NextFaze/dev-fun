@@ -2,7 +2,7 @@
 
 # Dagger2Scope
 
-`enum class Dagger2Scope` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Dagger2.kt#L11)
+`enum class Dagger2Scope` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/annotations/Dagger2.kt#L12)
 
 Some range of scopes for use with [Dagger2Component](../-dagger2-component/index.md). Priority is based on their ordinal value (higher = broader scope).
 
@@ -24,3 +24,10 @@ If for whatever reason you want more control or don't want named like this then 
 | [HIGHER](-h-i-g-h-e-r.md) |  |
 | [APPLICATION](-a-p-p-l-i-c-a-t-i-o-n.md) |  |
 | [HIGHEST](-h-i-g-h-e-s-t.md) |  |
+
+### Properties
+
+| Name | Summary |
+|---|---|
+| [isActivityRequired](is-activity-required.md) | `val isActivityRequired: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
+| [isFragmentActivityRequired](is-fragment-activity-required.md) | `val isFragmentActivityRequired: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |

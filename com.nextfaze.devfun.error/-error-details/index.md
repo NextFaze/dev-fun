@@ -2,7 +2,7 @@
 
 # ErrorDetails
 
-`interface ErrorDetails` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/error/Handler.kt#L20)
+`interface ErrorDetails` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/error/Handler.kt#L24)
 
 Details/information of an error.
 

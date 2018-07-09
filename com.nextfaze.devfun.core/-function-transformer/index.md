@@ -71,4 +71,5 @@ Final/default transformer that effectively just wraps a [FunctionDefinition](../
 
 | Name | Summary |
 |---|---|
+| [PropertyTransformer](../../com.nextfaze.devfun.annotations/-property-transformer.md) | `interface PropertyTransformer : `[`FunctionTransformer`](./index.md)<br>A function transformer that tells DevFun how to render Kotlin properties. |
 | [SingleFunctionTransformer](../-single-function-transformer/index.md) | `object SingleFunctionTransformer : `[`FunctionTransformer`](./index.md)<br>The default transformer. Effectively just wraps the [FunctionDefinition](../-function-definition/index.md) to a [FunctionItem](../-function-item/index.md) (1:1). |

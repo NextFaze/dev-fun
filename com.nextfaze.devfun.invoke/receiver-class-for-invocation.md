@@ -2,7 +2,7 @@
 
 # receiverClassForInvocation
 
-`val `[`FunctionDefinition`](../com.nextfaze.devfun.core/-function-definition/index.md)`.receiverClassForInvocation: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L29)
+`inline val `[`FunctionDefinition`](../com.nextfaze.devfun.core/-function-definition/index.md)`.receiverClassForInvocation: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L29)
 
 Get the receiver class for this function definition if you intend to invoke it. That is, it will return `null` if the type isn't needed.
 
@@ -12,7 +12,7 @@ Get the receiver class for this function definition if you intend to invoke it. 
 
 [FunctionItem.receiverClassForInvocation](./receiver-class-for-invocation.md)
 
-`val `[`FunctionItem`](../com.nextfaze.devfun.core/-function-item/index.md)`.receiverClassForInvocation: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L66)
+`inline val `[`FunctionItem`](../com.nextfaze.devfun.core/-function-item/index.md)`.receiverClassForInvocation: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L71)
 
 Get the receiver class for this function item if you intend to invoke it. That is, it will return `null` if the type isn't needed.
 

@@ -10,4 +10,4 @@ Exception thrown when attempting to provide a type that was not found from any [
 
 | Name | Summary |
 |---|---|
-| [&lt;init&gt;](-init-.md) | `ClassInstanceNotFoundException(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>)`<br>`ClassInstanceNotFoundException(msg: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`)` |
+| [&lt;init&gt;](-init-.md) | `ClassInstanceNotFoundException(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<*>)`<br>`ClassInstanceNotFoundException(msg: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`)`<br>`ClassInstanceNotFoundException(cause: `[`Exception`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-exception/index.html)`)` |

@@ -2,7 +2,7 @@
 
 # ColorPicker
 
-`@Target([AnnotationTarget.VALUE_PARAMETER]) annotation class ColorPicker` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/invoke/view/ColorPicker.kt#L40)
+`@Target([AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY, AnnotationTarget.FIELD]) annotation class ColorPicker` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/invoke/view/ColorPicker.kt#L40)
 
 Annotated `Int` value parameters will render a color picker view rather than an input/edit for use with invoke UI.
 

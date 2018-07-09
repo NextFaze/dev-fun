@@ -2,7 +2,7 @@
 
 # InstanceProvider
 
-`interface InstanceProvider` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L36)
+`interface InstanceProvider` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L37)
 
 Provides object instances for one or more types.
 
@@ -47,7 +47,9 @@ val provider = captureInstance<BaseType> { someObject.someType } // triggers onl
 
 | Name | Summary |
 |---|---|
+| [AndroidInstanceProviderInternal](../../com.nextfaze.devfun.internal.android/-android-instance-provider-internal/index.md) | `interface AndroidInstanceProviderInternal : `[`InstanceProvider`](./index.md) |
 | [CapturingInstanceProvider](../-capturing-instance-provider/index.md) | `class CapturingInstanceProvider<out T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> : `[`InstanceProvider`](./index.md)<br>An instance provider that requests an instance of a class from a captured lambda. |
 | [ConstructingInstanceProvider](../-constructing-instance-provider/index.md) | `class ConstructingInstanceProvider : `[`InstanceProvider`](./index.md)<br>Provides objects via instance construction. Type must be annotated with [Constructable](../-constructable/index.md). |
-| [KObjectInstanceProvider](../-k-object-instance-provider/index.md) | `class KObjectInstanceProvider : `[`InstanceProvider`](./index.md)<br>Handles Kotlin `object` types. |
+| [Dagger2InstanceProvider](../../com.nextfaze.devfun.inject.dagger2/-dagger2-instance-provider/index.md) | `abstract class Dagger2InstanceProvider : `[`InstanceProvider`](./index.md) |
+| [KObjectInstanceProvider](../-k-object-instance-provider/index.md) | `class KObjectInstanceProvider : `[`InstanceProvider`](./index.md)<br>Handles Kotlin `object` and `companion object` types. |
 | [RequiringInstanceProvider](../-requiring-instance-provider/index.md) | `interface RequiringInstanceProvider : `[`InstanceProvider`](./index.md)<br>Same as [InstanceProvider](./index.md), but throws [ClassInstanceNotFoundException](../-class-instance-not-found-exception/index.md) instead of returning `null`. |

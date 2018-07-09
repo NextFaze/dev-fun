@@ -2,7 +2,7 @@
 
 # createDefaultCompositeInstanceProvider
 
-`fun createDefaultCompositeInstanceProvider(): `[`CompositeInstanceProvider`](-composite-instance-provider.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L41)
+`fun createDefaultCompositeInstanceProvider(cacheLevel: `[`CacheLevel`](-cache-level/index.md)` = CacheLevel.AGGRESSIVE): `[`CompositeInstanceProvider`](-composite-instance-provider.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L31)
 
 Creates an instance provider that delegates to other providers.
 

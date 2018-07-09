@@ -2,7 +2,7 @@
 
 # ViewFactoryProvider
 
-`interface ViewFactoryProvider` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/view/Factory.kt#L39)
+`interface ViewFactoryProvider` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/view/Factory.kt#L38)
 
 Provides [ViewFactory](../-view-factory/index.md) instances for some class type/key.
 
