@@ -59,7 +59,7 @@ dependencies {
     implementation("org.jetbrains.dokka:dokka-android-gradle-plugin:$dokkaVersion")
 
     // Bintray
-    implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0")
+    implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
 }
 
 samWithReceiver {

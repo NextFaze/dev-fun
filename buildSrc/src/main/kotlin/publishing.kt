@@ -1,5 +1,5 @@
 import com.jfrog.bintray.gradle.BintrayExtension
-import com.jfrog.bintray.gradle.BintrayUploadTask
+import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
 import groovy.util.Node
 import groovy.util.NodeList
 import org.gradle.api.Project
@@ -168,7 +168,7 @@ private fun Project.configureBintray() {
     }
 
     task<BintrayUploadTask> {
-        dependsOn("javadocJar", "sourceJar", "generatePomFileForMavenJavaPublication")
+        dependsOn("javadocJar", "sourcesJar", "generatePomFileForMavenJavaPublication")
     }
 }
 
@@ -177,19 +177,19 @@ private fun Project.publishing(configure: PublishingExtension.() -> Unit): Unit 
 private fun Project.bintray(configure: BintrayExtension.() -> Unit): Unit = extensions.configure("bintray", configure)
 
 private fun BintrayExtension.pkg(body: BintrayExtension.PackageConfig.() -> Unit) {
-    pkg = pkg.apply(body)
+    pkg.apply(body)
 }
 
 private fun BintrayExtension.PackageConfig.version(body: BintrayExtension.VersionConfig.() -> Unit) {
-    version = version.apply(body)
+    version.apply(body)
 }
 
 private fun BintrayExtension.VersionConfig.gpg(body: BintrayExtension.GpgConfig.() -> Unit) {
-    gpg = gpg.apply(body)
+    gpg.apply(body)
 }
 
 private fun BintrayExtension.VersionConfig.mavenCentralSync(body: BintrayExtension.MavenCentralSyncConfig.() -> Unit) {
-    mavenCentralSync = mavenCentralSync.apply(body)
+    mavenCentralSync.apply(body)
 }
 
 private val gitTagRef
