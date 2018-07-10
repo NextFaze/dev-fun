@@ -13,15 +13,16 @@ plugins {
 description = "Gradle plugin that facilitates DevFun annotation processor configuration."
 
 dependencies {
-    compile(project(":devfun-compiler"))
+    // DevFun
+    compileOnly(project(":devfun-compiler")) // we only reference constants (DevFunProcessor's supported options)
 
     // Gradle
     compileOnly(gradleApi())
 
     // Kotlin
     compile(Dependency.kotlinStdLib)
-    compile(Dependency.kotlinPlugin)
     compile(Dependency.kotlinPluginApi)
+    compileOnly(Dependency.kotlinPlugin)
 
     // Android
     compileOnly(Dependency.androidPlugin) {
