@@ -198,18 +198,7 @@ internal class OverlayWindowImpl(
     private val overlayBounds = Rect()
     private var moving = false
 
-    private var visible: Boolean = true
-        set(value) {
-            field = value
-
-            val visibility = view.visibility
-            val newVisibility = if (value) View.VISIBLE else View.GONE
-            if (visibility != newVisibility) {
-                view.visibility = newVisibility
-                onVisibilityListener?.invoke(value)
-            }
-        }
-    override val isVisible get() = visible && isAdded
+    override val isVisible get() = isAdded && view.visibility == View.VISIBLE
 
     private val foregroundListener = foregroundTracker.addForegroundChangeListener { updateVisibility() }
     private val boundsListener = displayBoundsTracker.addDisplayBoundsChangeListener { _, bounds -> updateOverlayBounds(bounds) }
@@ -232,18 +221,27 @@ internal class OverlayWindowImpl(
     private fun updateVisibility() {
         if (!isAdded) return
 
-        val activity = activityProvider()
-        visible = !(hideWhenDialogsPresent && overlays.isFullScreenInUse) && enabled &&
+        val visible = shouldBeVisible()
+        val visibility = view.visibility
+        val newVisibility = if (visible) View.VISIBLE else View.GONE
+        if (visibility != newVisibility) {
+            view.visibility = newVisibility
+            onVisibilityListener?.invoke(visible)
+        }
+    }
+
+    private fun shouldBeVisible() =
+        enabled && !(hideWhenDialogsPresent && overlays.isFullScreenInUse) && overlays.canDrawOverlays &&
                 when (visibilityScope) {
                     VisibilityScope.FOREGROUND_ONLY -> {
+                        val activity = activityProvider()
                         when (activity) {
                             null -> false
                             else -> foregroundTracker.isAppInForeground && visibilityPredicate?.invoke(activity) != false
                         }
                     }
-                    VisibilityScope.ALWAYS -> visibilityPredicate?.invoke(activity ?: application) != false
+                    VisibilityScope.ALWAYS -> visibilityPredicate?.invoke(activityProvider() ?: application) != false
                 }
-    }
 
     override val view: View by lazy {
         View.inflate(application, layoutId, null).apply {
@@ -438,7 +436,7 @@ internal class OverlayWindowImpl(
 
     override fun addToWindow() {
         addToWindow = true
-        if (isAdded || !overlays.canDrawOverlays) return
+        if (isAdded || !shouldBeVisible()) return
         windowManager.addView(view, params)
         if (overlayBounds.isEmpty) {
             overlayBounds.set(displayBoundsTracker.displayBounds)

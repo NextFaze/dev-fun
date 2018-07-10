@@ -1,8 +1,7 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package com.nextfaze.devfun.core
 
 import android.app.Activity
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
 import android.content.Context
 import android.os.Build
 import android.os.Process
@@ -167,7 +166,7 @@ internal class AppStateTracker(context: Context) : ActivityTracker, ActivityProv
             SystemClock.sleep(10L)
         }
 
-        return activityManager.runningAppProcesses?.any { it.pid == myPid && it.importance == 100 } == true
+        return activityManager.runningAppProcesses?.any { it.pid == myPid && it.importance == IMPORTANCE_FOREGROUND } == true
     }
 
     fun dispose() {
