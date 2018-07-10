@@ -79,7 +79,7 @@ Add the DevFun Gradle plugin to your build script.
 If you can use the Gradle `plugins` block (which you should be able to do - this locates and downloads it for you):
 ```groovy
 plugins {
-    id 'com.nextfaze.devfun' version '1.2.0'
+    id 'com.nextfaze.devfun' version '1.2.1'
 }
 ```
 
@@ -88,7 +88,7 @@ Add the plugin to your classpath (found in the `jcenter()` repository):
 ```groovy
 buildscript {
     dependencies {
-        classpath 'com.nextfaze.devfun:devfun-gradle-plugin:1.2.0'
+        classpath 'com.nextfaze.devfun:devfun-gradle-plugin:1.2.1'
     }
 }
 ```
@@ -116,35 +116,35 @@ repositories {
 Add dependencies to build.gradle:
 ```gradle
     // Annotations, Compiler, and Developer Menu
-    kaptDebug 'com.nextfaze.devfun:devfun-compiler:1.2.0'
-    implementation 'com.nextfaze.devfun:devfun-annotations:1.2.0'
-    debugImplementation 'com.nextfaze.devfun:devfun-menu:1.2.0'
+    kaptDebug 'com.nextfaze.devfun:devfun-compiler:1.2.1'
+    implementation 'com.nextfaze.devfun:devfun-annotations:1.2.1'
+    debugImplementation 'com.nextfaze.devfun:devfun-menu:1.2.1'
     
     // Dagger 2.x component inspector - only if using Dagger 2.x!
-    debugImplementation 'com.nextfaze.devfun:devfun-inject-dagger2:1.2.0'
+    debugImplementation 'com.nextfaze.devfun:devfun-inject-dagger2:1.2.1'
     
     // Chrome Dev Tools JavaScript console integration
-    debugImplementation 'com.nextfaze.devfun:devfun-stetho:1.2.0'
+    debugImplementation 'com.nextfaze.devfun:devfun-stetho:1.2.1'
         
     // HTTP server and simple index page
-    debugImplementation 'com.nextfaze.devfun:devfun-httpd:1.2.0'
-    debugImplementation 'com.nextfaze.devfun:devfun-httpd-frontend:1.2.0'
+    debugImplementation 'com.nextfaze.devfun:devfun-httpd:1.2.1'
+    debugImplementation 'com.nextfaze.devfun:devfun-httpd-frontend:1.2.1'
     
     // Glide util functions
-    debugImplementation 'com.nextfaze.devfun:devfun-util-glide:1.2.0'
+    debugImplementation 'com.nextfaze.devfun:devfun-util-glide:1.2.1'
     
     // Leak Canary util functions
-    debugImplementation 'com.nextfaze.devfun:devfun-util-leakcanary:1.2.0'
+    debugImplementation 'com.nextfaze.devfun:devfun-util-leakcanary:1.2.1'
     
     /*
      * Transitively included libs - in general you don't need to add these explicitly (except maybe for custom module libs).
      */
     
     // Adds view factory handler for @ColorPicker for invoke UI - transitively included via devfun-menu
-    // debugImplementation 'com.nextfaze.devfun:devfun-invoke-view-colorpicker:1.2.0'
+    // debugImplementation 'com.nextfaze.devfun:devfun-invoke-view-colorpicker:1.2.1'
     
     // DevFun core - transitive included from menu et al.
-    // debugImplementation 'com.nextfaze.devfun:devfun:1.2.0' 
+    // debugImplementation 'com.nextfaze.devfun:devfun:1.2.1' 
 ```
 
 That's it!
