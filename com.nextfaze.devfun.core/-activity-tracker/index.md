@@ -2,7 +2,7 @@
 
 # ActivityTracker
 
-`interface ActivityTracker` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/ActivityTracking.kt#L27)
+`interface ActivityTracker` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/ActivityTracking.kt#L26)
 
 Activity tracker that provides the currently (resumed) activity if present.
 

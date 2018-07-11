@@ -2,7 +2,7 @@
 
 # ForegroundTracker
 
-`interface ForegroundTracker` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/ActivityTracking.kt#L61)
+`interface ForegroundTracker` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/ActivityTracking.kt#L60)
 
 Application foreground state tracker.
 
