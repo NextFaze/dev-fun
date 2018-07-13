@@ -205,7 +205,7 @@ When DevFun can't inject a type it will attempt to render a UI for manual entry.
 View factories can be provided to allow DevFun to render a custom view for other types.
 
 An example of this is the [`@ColorPicker`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.invoke.view/-color-picker/) annotation used
- by the menu cog overlay (second right) the renders a color picker view for an int parameter.`
+ by the menu cog overlay (second right) the renders a color picker view for an int parameter.
 
 #### Overlay Loggers
 Adding [`@DeveloperLogger`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-logger/) to a property, type, or
@@ -297,7 +297,7 @@ Documentation (Dokka) can be accessed at [GitHub Pages](https://nextfaze.github.
 SLF4J is used for all logging.
 
 By default `trace` is disable unless library is a snapshot build (i.e. `BuildConfig.VERSION.endsWith("-SNAPSHOT")`).  
-This can also be toggled at any time via [devFunVerbose](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.internal/dev-fun-verbose.html)
+This can also be toggled at any time via [devFunVerbose](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.core/dev-fun-verbose.html)
 
 
 ## Kotlin `stdlib` Conflict 
@@ -384,7 +384,7 @@ When DevFun processes the generated code (such as when you try to open the DevMe
  class is referenced in the annotation.
 
 If for some reason you cannot use proguard but need sensitive code/values removed (e.g. auto-login items for test accounts à la
- [SignInFunctionTransformer](https://github.com/NextFaze/dev-fun/blob/master/demo/src/main/java/com/nextfaze/devfun/demo/AuthenticateScreen.kt#L179)),
+ [SignInFunctionTransformer](https://github.com/NextFaze/dev-fun/blob/master/demo/src/main/java/com/nextfaze/devfun/demo/AuthenticateScreen.kt#L185)),
  then surrounding the values in a `if (BuildConfig.DEBUG) { ... } else { .. }` block will allow the compiler to remove it as "dead code"
  during release builds - I'm looking into better ways to handle this (suggestions welcome).
 
