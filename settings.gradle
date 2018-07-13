@@ -1,3 +1,7 @@
+// TODO remove when using Gradle 5.0
+// https://docs.gradle.org/4.9-rc-1/userguide/publishing_maven.html#publishing_maven:deferred_configuration
+enableFeaturePreview("STABLE_PUBLISHING")
+
 include ':devfun',
         ':devfun-annotations',
         ':devfun-compiler',

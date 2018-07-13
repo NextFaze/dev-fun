@@ -38,7 +38,9 @@ fun Project.configureMavenPublishing() {
         publications {
             create(PUBLICATION_NAME, MavenPublication::class.java) {
                 if (isAndroid) {
-                    artifact(tasks["bundleReleaseAar"])
+                    afterEvaluate {
+                        artifact(tasks["bundleReleaseAar"])
+                    }
                 } else {
                     from(components["java"])
                 }
