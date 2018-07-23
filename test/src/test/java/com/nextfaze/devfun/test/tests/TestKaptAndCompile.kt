@@ -93,7 +93,8 @@ class TestKaptAndCompile : AbstractKotlinKapt3Tester() {
         testMethod,
         SimpleInterfaces::class,
         InterfacesWithDefaults::class,
-        autoKaptAndCompile = false
+        performKapt = false,
+        performCompile = false
     )
 
     @Test(dataProvider = "testKaptAndCompileUnsupportedData", groups = ["kapt", "unsupported"])

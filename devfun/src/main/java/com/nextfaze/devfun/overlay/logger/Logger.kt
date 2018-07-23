@@ -94,7 +94,8 @@ internal class OverlayLoggerImpl(
     private val context: Context,
     override val overlay: OverlayWindow,
     private val update: UpdateCallback,
-    private val onLoggerClick: OnClick? = null
+    private val onLoggerClick: OnClick? = null,
+    initialRefreshRate: Long = 1000L
 ) : OverlayLogger {
     private val handler = Handler(Looper.getMainLooper())
     private val runnable = Runnable {
@@ -127,7 +128,7 @@ internal class OverlayLoggerImpl(
     private var errored = false
 
     private val preferences = KSharedPreferences.named(context.applicationContext, overlay.prefsName)
-    override var refreshRate by preferences["refreshRate", 1000L, { _, value ->
+    override var refreshRate by preferences["refreshRate", initialRefreshRate, { _, value ->
         handler.removeCallbacks(runnable)
         if (value > 0) {
             runnable.run()

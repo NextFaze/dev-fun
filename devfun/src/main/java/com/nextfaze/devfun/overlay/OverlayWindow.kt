@@ -37,8 +37,6 @@ typealias VisibilityPredicate = (Context) -> Boolean
 typealias VisibilityListener = (visible: Boolean) -> Unit
 typealias AttachListener = (attached: Boolean) -> Unit
 
-enum class Dock { TOP, BOTTOM, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT }
-
 /**
  * Determines when an overlay can be visible.
  *

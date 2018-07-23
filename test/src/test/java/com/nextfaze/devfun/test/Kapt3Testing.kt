@@ -25,14 +25,21 @@ import com.sun.tools.javac.util.List as JCList
 
 const val TEST_PACKAGE_ROOT = "tested"
 
-fun singleFileTests(testMethod: Method, vararg classes: KClass<*>, useSdkInt: Int? = null, autoKaptAndCompile: Boolean = true) =
+fun singleFileTests(
+    testMethod: Method,
+    vararg classes: KClass<*>,
+    useSdkInt: Int? = null,
+    performKapt: Boolean = true,
+    performCompile: Boolean = true
+) =
     classes.map {
         arrayOf(
             TestContext(
                 testMethod.name,
                 listOf(it),
                 sdkInt = useSdkInt,
-                autoKaptAndCompile = autoKaptAndCompile
+                performKapt = performKapt,
+                performCompile = performCompile
             )
         )
     }.toTypedArray()
@@ -81,16 +88,20 @@ abstract class AbstractKotlinKapt3Tester {
     }
 
     fun beforeRunTest(test: TestContext) {
-        log.i { "Test: $test" }
+        test.beforeRunTest()
     }
 
     fun runKaptAndCompile(test: TestContext) {
-        if (!test.autoKaptAndCompile) return
+        if (!test.performKapt && !test.performCompile) return
 
         test.sdkInt?.also { setSdkInt(it) }
 
-        test.runKapt(compileClasspath, processors)
-        test.runCompile(compileClasspath)
+        if (test.performKapt) {
+            test.runKapt(compileClasspath, processors)
+        }
+        if (test.performCompile) {
+            test.runCompile(compileClasspath)
+        }
 
         origLoader = Thread.currentThread().contextClassLoader
         Thread.currentThread().contextClassLoader = test.classLoader

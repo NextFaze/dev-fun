@@ -85,6 +85,7 @@ class KotlinCore(
                 |""".trimMargin()
         }
 
+        val messageCollector = WarningsMessageCollector(COMPILER_VERBOSE)
         val config = CompilerConfiguration().apply {
             put(CommonConfigurationKeys.MODULE_NAME, moduleName)
             addJvmClasspathRoots(PathUtil.getJdkClassesRootsFromCurrentJre())
@@ -92,14 +93,14 @@ class KotlinCore(
             if (javaFiles.isNotEmpty()) {
                 put(JVMConfigurationKeys.USE_JAVAC, true)
                 put(JVMConfigurationKeys.COMPILE_JAVA, true)
-                put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, ThrowingPrintingMessageCollector(COMPILER_VERBOSE))
+                put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
             }
         }
         val env = KotlinCoreEnvironment.createForTests(createDisposable(testDir.name) {}, config, EnvironmentConfigFiles.JVM_CONFIG_FILES)
 
         if (javaFiles.isNotEmpty()) {
             log.d { "Using Javac - found Java files: $javaFiles" }
-            env.registerJavac()
+            env.registerJavac(javaFiles)
         }
         val javaSourceRoots = javaFiles.map { it.parentFile }.toSet().toList()
 
@@ -130,6 +131,7 @@ class KotlinCore(
             kapt3Extension.savedBindings ?: error("Bindings were not saved")
         } finally {
             AnalysisHandlerExtension.unregisterExtension(env.project, kapt3Extension)
+            messageCollector.throwOnWarnings()
         }
     }
 
@@ -166,13 +168,19 @@ class KotlinCore(
             noStdlib = true
             moduleName = this@KotlinCore.moduleName
 
-            // test sources + kapt generated sources + test java files
+            if (javaFiles.isNotEmpty()) {
+                compileJava = true
+                useJavac = true
+            }
+
+            // test kotlin sources + kapt generated sources + test java sources
             freeArgs = kotlinFiles.map { it.canonicalPath } + sourcesOutputDir.canonicalPath + javaFiles.map { it.toString() }
         }
 
-        val collector = ThrowingPrintingMessageCollector(compilerArgs.verbose)
+        val collector = WarningsMessageCollector(compilerArgs.verbose)
         val compiler = K2JVMCompiler()
         val exitCode = compiler.exec(collector, Services.EMPTY, compilerArgs)
+        collector.throwOnWarnings()
         assertTrue("Expected compiler exit code of ${ExitCode.OK}(${ExitCode.OK.code}) but got $exitCode(${exitCode.code})") { exitCode == ExitCode.OK }
     }
 
@@ -198,7 +206,7 @@ class KotlinCore(
                 |Classes Output: ${classesOutputDir.canonicalPath}
                 |
                 |Test Files:
-                |${(kotlinFiles + javaFiles).joinToString("\n") { "> ${it.canonicalPath}" }}
+                |${(kotlinFiles + javaFiles).joinToString("\n") { "    ${it.canonicalPath}" }}
                 |
                 |Generated File: ${generatedFile?.canonicalPath}
                 |""".trimMargin()
@@ -215,14 +223,30 @@ class KotlinCore(
     }
 }
 
-private class ThrowingPrintingMessageCollector(verbose: Boolean, private val throwOnWarnings: Boolean = true) :
-    PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, verbose) {
+private class WarningsMessageCollector(
+    verbose: Boolean,
+    private val throwOnWarnings: Boolean = true
+) : PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, verbose) {
+    private val warnings = mutableListOf<String>()
 
     override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
         super.report(severity, message, location)
 
-        if (throwOnWarnings && (severity == CompilerMessageSeverity.WARNING || severity == CompilerMessageSeverity.STRONG_WARNING)) {
-            throw RuntimeException("$severity message=$message @$location")
+        if (throwOnWarnings && severity.isWarning) {
+            warnings +=
+                    if (location == null) {
+                        "$severity\n> $message"
+                    } else {
+                        val severityChar = severity.toString()[0].toLowerCase()
+                        val tmpPath = "${location.path}: (${location.line}, ${location.column}):" // : at end triggers file hotlink in logs
+                        "$severity\n$severityChar: $tmpPath\n\t$message"
+                    }
+        }
+    }
+
+    fun throwOnWarnings() {
+        if (throwOnWarnings && warnings.isNotEmpty()) {
+            throw RuntimeException(warnings.joinToString("\n\n"))
         }
     }
 }

@@ -13,6 +13,7 @@ import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.Ranged
 import com.nextfaze.devfun.invoke.view.ValueSource
+import com.nextfaze.devfun.overlay.Dock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,7 +23,7 @@ import javax.inject.Singleton
  */
 
 @Singleton
-@DeveloperLogger
+@DeveloperLogger(snapToEdge = true, dock = Dock.RIGHT, delta = 0.27f)
 class Config @Inject constructor(context: Context) {
     private val prefs = KxSharedPreferences(context.getSharedPreferences("session", MODE_PRIVATE))
 

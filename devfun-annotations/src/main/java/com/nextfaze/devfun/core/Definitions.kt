@@ -163,6 +163,9 @@ class DebugException(message: String = "Debug") : Throwable(message)
 interface DeveloperReference {
     /** The annotation that wanted the reference.*/
     val annotation: KClass<out Annotation>
+
+    /** Map of properties declared on the annotation. */
+    val properties: Map<String, *>? get() = null
 }
 
 /**

@@ -17,7 +17,20 @@ internal inline val Element.isInterface get() = this.kind.isInterface
 internal inline val Element.isProperty get() = isStatic && simpleName.endsWith("\$annotations")
 
 internal inline val TypeMirror.isPrimitive get() = this.kind.isPrimitive
-internal inline val TypeMirror.isClassPublic get() = ((this as DeclaredType).asElement() as TypeElement).isClassPublic
+internal val TypeMirror.isClassPublic: Boolean
+    get() {
+        return when (this) {
+            is PrimitiveType -> true
+            is DeclaredType -> (asElement() as TypeElement).isClassPublic && typeArguments.all { it.isClassPublic } && asElement().enclosingElement.asType().isClassPublic
+            is ExecutableType -> returnType.isClassPublic && parameterTypes.all { it.isClassPublic } && typeVariables.all { it.isClassPublic }
+            is ArrayType -> componentType.isClassPublic
+            is WildcardType -> extendsBound?.isClassPublic != false && superBound?.isClassPublic != false
+            is TypeVariable -> upperBound?.isClassPublic != false && lowerBound?.isClassPublic != false
+            is NoType -> true
+            is NullType -> true
+            else -> TODO("this=$this (${this::class})")
+        }
+    }
 
 internal inline val TypeElement.isClassPublic: Boolean
     get() {
@@ -70,7 +83,7 @@ internal inline val TypeElement.isCompanionObject
     get() = nestingKind.isNested && isStatic && simpleName.toString() == "Companion" && !isKObject
 
 internal fun PrimitiveType.toKType() = JvmPrimitiveType.get(this.toString()).primitiveType
-private fun DeclaredType.toKType(): CharSequence {
+internal fun DeclaredType.toKType(): CharSequence {
     val name = (this.asElement() as QualifiedNameable).qualifiedName
     return JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(name.toString()))?.asSingleFqName()?.toString() ?: name
 }
@@ -82,8 +95,9 @@ val TypeMirror.isPublic: Boolean
         is TypeVariable -> this.upperBound.isPublic
         is DeclaredType -> this.asElement().isPublic && this.typeArguments.all { it.isPublic } && this.asElement().enclosingElement.asType().isPublic
         is WildcardType -> this.extendsBound?.isPublic ?: true && this.superBound?.isPublic ?: true
+        is ExecutableType -> returnType.isPublic && parameterTypes.all { it.isPublic } && typeVariables.all { it.isPublic }
         is NoType -> true
-        else -> TODO("TypeMirror.isPublic not implemented for this=$this (${this::class})")
+        else -> throw NotImplementedError("TypeMirror.isPublic not implemented for this=$this (${this::class})")
     }
 
 internal fun TypeMirror.toType(): CharSequence = when (this) {
@@ -98,7 +112,7 @@ internal fun TypeMirror.toType(): CharSequence = when (this) {
     }
     is WildcardType -> this.extendsBound?.toType() ?: this.superBound?.toType() ?: "*"
     is TypeVariable -> this.upperBound.toType()
-    else -> TODO("TypeMirror.toType not implemented for this=$this (${this::class})")
+    else -> throw NotImplementedError("TypeMirror.toType not implemented for this=$this (${this::class})")
 }
 
 internal fun TypeMirror.toClass(
@@ -109,15 +123,30 @@ internal fun TypeMirror.toClass(
     castIfNotPublic: KClass<*>? = null,
     vararg types: KClass<*>
 ): String = when {
-    !isKtFile && isPublic -> when {
+    !isKtFile && isClassPublic -> when {
         this.kind.isPrimitive || this is ArrayType && this.componentType.isPrimitive -> "${this.toType()}::class$suffix"
         else -> "kClass<${this.toType()}>()$suffix"
     }
     else -> {
-        val type = (this as DeclaredType).asElement() as TypeElement
-        val binaryName = elements.getBinaryName(type).escapeDollar()
-        "Class.forName(\"$binaryName\")${if (kotlinClass) ".kotlin" else ""}" +
-                if (castIfNotPublic != null) " as ${castIfNotPublic.qualifiedName}${if (types.isNotEmpty()) "<${types.joinToString(", ") { it.qualifiedName!! }}>" else ""}" else ""
+        when (this) {
+            is DeclaredType -> {
+                val type = asElement() as TypeElement
+                val binaryName = elements.getBinaryName(type).escapeDollar()
+                "Class.forName(\"$binaryName\")${if (kotlinClass) ".kotlin" else ""}" +
+                        if (castIfNotPublic != null) " as ${castIfNotPublic.qualifiedName}${if (types.isNotEmpty()) "<${types.joinToString(", ") { it.qualifiedName!! }}>" else ""}" else ""
+            }
+            is ArrayType -> {
+                "java.lang.reflect.Array.newInstance(${componentType.toClass(
+                    kotlinClass = false,
+                    isKtFile = isKtFile,
+                    elements = elements,
+                    suffix = suffix,
+                    castIfNotPublic = castIfNotPublic,
+                    types = *types
+                )}, 0)::class"
+            }
+            else -> throw NotImplementedError("TypeMirror.toClass not implemented for this=$this (${this::class})")
+        }
     }
 }
 

@@ -55,7 +55,8 @@ class TestContext(
     val buildType: String = "kapt3Test",
     val flavor: String = "",
     private val testDataDir: File = TEST_DATA_DIR,
-    val autoKaptAndCompile: Boolean = true,
+    val performKapt: Boolean = true,
+    val performCompile: Boolean = true,
     val sdkInt: Int? = null,
     val kaptOptions: Map<String, String> = devFunKaptOptions(packageSuffix = testDir.name),
     private val copyFailedTests: Boolean = true,
@@ -63,6 +64,7 @@ class TestContext(
     val keepFailedTestOutputs: Boolean = true,
     val keepSuccessfulTestOutputs: Boolean = false
 ) {
+    private val log = logger()
     override fun toString() = "$testMethodName.$testDirSuffix"
 
     val variantDir = when {
@@ -74,7 +76,7 @@ class TestContext(
     private val packageOverride = kaptOptions[PACKAGE_OVERRIDE]
 
     private val testDataFiles = testFiles.map { File(testDataDir, "${it.qualifiedName!!.replace('.', File.separatorChar)}.kt") }
-    private val providedFiles = listOf(TestInstanceProviders::class, Assertions::class)
+    private val providedFiles = listOf(TestInstanceProviders::class, Assertions::class, TestUtil::class)
         .map { File(TEST_SOURCES_DIR, "${it.qualifiedName!!.replace('.', File.separatorChar)}.kt") }
 
     val kotlinFiles = testDataFiles + providedFiles
@@ -97,6 +99,24 @@ class TestContext(
     val classLoader: ClassLoader by lazy {
         val classpath = listOf(kotlinCore.classesOutputDir).map { it.toURI().toURL() }
         WrappingUrlClassLoader(classpath, Thread.currentThread().contextClassLoader, packageOverride ?: packageRoot)
+    }
+
+    fun beforeRunTest() {
+        log.d {
+            """
+            |
+            |===== Test =====
+            |testMethodName: $testMethodName
+            |testDir: $testDir
+            |testDirSuffix: $testDirSuffix
+            |variantDir: $variantDir
+            |
+            |performKapt: $performKapt
+            |performCompile: $performCompile
+            |compileDir: ${kotlinCore.compileDir}
+            |classesOutputDir: ${kotlinCore.classesOutputDir}
+            |""".trimMargin()
+        }
     }
 
     fun afterRunTest(successful: Boolean) {
@@ -186,9 +206,9 @@ class TestContext(
 
     private val allItems by lazy { devFun.categories.flatMap { it.items }.toSet().groupBy { it.function } }
 
-    fun testInvocations(log: Logger) {
+    fun testInvocations(logger: Logger) {
         funDefs.forEach { fd ->
-            log.d { "Invoke $fd" }
+            logger.d { "Invoke $fd" }
 
             val receiver = fd.receiverInstance(devFun.instanceProviders)
             val v = when {
@@ -200,17 +220,17 @@ class TestContext(
                 is List<*> -> value
                 else -> listOf(value)
             }
-            log.d { "Test $testable for $fd" }
+            logger.d { "Test $testable for $fd" }
             testable.filterIsInstance<Assertable>().forEach {
                 val result = it.invoke(fd, allItems[fd].orEmpty())
-                log.d { "> $result" }
+                logger.d { "> $result" }
             }
-            log.d { "\n" }
+            logger.d { "\n" }
         }
 
         allItems.forEach { fd, items ->
             items.forEach {
-                log.d { "Invoke $it" }
+                logger.d { "Invoke $it" }
 
                 val receiver = fd.receiverInstance(devFun.instanceProviders)
                 val v = when {
@@ -225,27 +245,35 @@ class TestContext(
                     is List<*> -> value
                     else -> listOf(value)
                 }
-                log.d { "Test $testable for $it" }
+                logger.d { "Test $testable for $it" }
                 testable.filterIsInstance<Assertable>().forEach {
                     val result = it.invoke(fd, allItems[fd].orEmpty())
-                    log.d { "> $result" }
+                    logger.d { "> $result" }
                 }
-                log.d { "\n" }
+                logger.d { "\n" }
             }
         }
 
         devRefs.forEach { ref ->
             when (ref) {
                 is DeveloperMethodReference -> {
-                    log.d { "Invoke developer reference ${ref.method} ..." }
-                    assertEquals(true, ref.method.doInvoke(devFun.instanceProviders), "Unexpected return value for dev method reference.")
+                    logger.d { "Invoke developer reference ${ref.method} ..." }
+                    if (ref.method.name.startsWith("test")) {
+                        ref.method.doInvoke(devFun.instanceProviders, listOf(ref))
+                    } else {
+                        assertEquals(
+                            true,
+                            ref.method.doInvoke(devFun.instanceProviders),
+                            "Unexpected return value for dev method reference."
+                        )
+                    }
                 }
                 is DeveloperTypeReference -> {
-                    log.d { "Get instance of developer type reference ${ref.type} ..." }
+                    logger.d { "Get instance of developer type reference ${ref.type} ..." }
                     assertNotNull(devFun.instanceOf(ref.type), "Failed to get instance of referenced type: ${ref.type}")
                 }
                 is DeveloperFieldReference -> {
-                    log.d { "Get value of developer field reference ${ref.field} ..." }
+                    logger.d { "Get value of developer field reference ${ref.field} ..." }
                     assertEquals(true, ref.field.get(devFun.instanceOf(ref.field.declaringClass.kotlin)), "Referenced field did not match.")
                 }
                 else -> throw RuntimeException("Unexpected ref type $ref (${ref::class})")

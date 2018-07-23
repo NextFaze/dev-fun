@@ -1,9 +1,6 @@
 package wiki
 
-import com.nextfaze.devfun.annotations.Dagger2Component
-import com.nextfaze.devfun.annotations.Dagger2Scope
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.*
 import com.nextfaze.devfun.compiler.DevFunProcessor
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.FunctionItem
@@ -68,7 +65,13 @@ Minimum required libraries - annotations and annotation processor.
 
 `IMG_START<img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/gif/enable-sign-in.gif" alt="DevFun demonstration" width="35%" align="right"/>IMG_END`
 ### Annotations
-Contains the annotations [DeveloperFunction] and [DeveloperCategory], and various interface definitions.
+Provides DevFun annotations and various interface definitions:
+- [DeveloperFunction]
+- [DeveloperCategory]
+- [DeveloperAnnotation]
+    - [DeveloperLogger]
+    - [DeveloperProperty]
+    - [Dagger2Component]
 
 This library contains primarily interface definitions and inline functions, and will have a
 negligible impact on your method count and dex sizes. Apply to your main `compile` configuration:
@@ -78,7 +81,7 @@ implementation 'com.nextfaze.devfun:devfun-annotations:1.2.1'
 
 
 ### Compiler
-Annotation processor [DevFunProcessor] that handles [DeveloperFunction] and [DeveloperCategory] annotations.
+Annotation processor [DevFunProcessor] that handles [DeveloperFunction], [DeveloperCategory], and [DeveloperAnnotation] annotations.
 
 This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.
 ```gradle

@@ -1,23 +1,48 @@
 package com.nextfaze.devfun.compiler
 
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import javax.annotation.processing.ProcessingEnvironment
+import javax.inject.Inject
+import javax.inject.Singleton
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
+import javax.lang.model.util.Elements
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
+@Singleton
+internal class AnnotationElements @Inject constructor(elements: Elements) {
+    private val devFunElement = DevFunTypeElement(elements.getTypeElement(DeveloperFunction::class.qualifiedName))
+    private val devCatElement = DevCatTypeElement(elements.getTypeElement(DeveloperCategory::class.qualifiedName))
+    val devAnnElement = DevAnnotationTypeElement(elements.getTypeElement(DeveloperAnnotation::class.qualifiedName))
+
+    fun createDevFunAnnotation(
+        annotation: AnnotationMirror,
+        annotationTypeElement: TypeElement = devFunElement.element
+    ) = DevFunAnnotation(annotation, annotationTypeElement, devFunElement, devCatElement)
+
+    fun createDevCatAnnotation(
+        annotation: AnnotationMirror,
+        annotationTypeElement: TypeElement = devCatElement.element,
+        superCat: AnnotationMirror? = null
+    ) = DevFunCategory(annotation, annotationTypeElement, devCatElement, superCat)
+
+    fun createDevAnnotation(
+        annotation: AnnotationMirror,
+        annotationTypeElement: TypeElement = devAnnElement.element
+    ) = DevAnnotation(annotation, annotationTypeElement, devAnnElement)
+}
+
 internal class DevFunAnnotation(
-    override val processingEnvironment: ProcessingEnvironment,
     private val annotation: AnnotationMirror,
     private val annotationTypeElement: TypeElement,
     private val devFunTypeElement: DevFunTypeElement,
     private val devCatTypeElement: DevCatTypeElement
-) : WithProcessingEnvironment {
+) {
     val value by lazy {
         annotation[DeveloperFunction::value] ?: when {
             annotationTypeElement != devFunTypeElement.element ->
@@ -36,8 +61,8 @@ internal class DevFunAnnotation(
             else -> null
         }
         when (localCategory) {
-            null -> metaCategory?.let { DevFunCategory(processingEnvironment, it, devCatTypeElement.element, devCatTypeElement) }
-            else -> DevFunCategory(processingEnvironment, localCategory, devCatTypeElement.element, devCatTypeElement, metaCategory)
+            null -> metaCategory?.let { DevFunCategory(it, devCatTypeElement.element, devCatTypeElement) }
+            else -> DevFunCategory(localCategory, devCatTypeElement.element, devCatTypeElement, metaCategory)
         }
     }
 
@@ -59,12 +84,11 @@ internal class DevFunAnnotation(
 }
 
 internal data class DevFunCategory(
-    override val processingEnvironment: ProcessingEnvironment,
     private val annotation: AnnotationMirror,
     private val annotationTypeElement: TypeElement,
     private val devCatTypeElement: DevCatTypeElement,
     private val superCat: AnnotationMirror? = null
-) : WithProcessingEnvironment {
+) {
     val value by lazy {
         annotation[DeveloperCategory::value] ?: superCat?.let { it[DeveloperCategory::value] } ?: when {
             annotationTypeElement != devCatTypeElement.element ->
@@ -88,8 +112,20 @@ internal data class DevFunCategory(
             else -> null
         }
     }
+}
 
-    val targetElement: TypeElement get() = annotationTypeElement
+internal data class DevAnnotation(
+    private val annotation: AnnotationMirror,
+    private val annotationTypeElement: TypeElement,
+    private val devAnnotationTypeElement: DevAnnotationTypeElement
+) {
+    val developerFunction by lazy {
+        annotation[DeveloperAnnotation::developerFunction] ?: when {
+            annotationTypeElement != devAnnotationTypeElement.element ->
+                annotationTypeElement.getDefaultValueFor(DeveloperAnnotation::developerFunction)?.takeIf { it != devAnnotationTypeElement.developerFunction }
+            else -> null
+        }
+    }
 }
 
 internal class DevFunTypeElement(val element: TypeElement) {
@@ -103,6 +139,10 @@ internal class DevCatTypeElement(val element: TypeElement) {
     val value = element.getDefaultValueFor(DeveloperCategory::value)!!
     val group = element.getDefaultValueFor(DeveloperCategory::group)!!
     val order = element.getDefaultValueFor(DeveloperCategory::order)!!
+}
+
+internal class DevAnnotationTypeElement(val element: TypeElement) {
+    val developerFunction = element.getDefaultValueFor(DeveloperAnnotation::developerFunction)!!
 }
 
 private inline fun <reified T : Any> Element.getDefaultValueFor(callable: KCallable<T>) =

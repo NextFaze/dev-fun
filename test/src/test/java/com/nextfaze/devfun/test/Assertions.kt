@@ -92,3 +92,10 @@ data class NeverRun(val message: String = "") : Assertable {
         fail("$message :: This should not be reached! receiver=$receiver, items=$items")
     }
 }
+
+fun <T : Any> expectArrayOf(vararg values: T, block: () -> Any?) {
+    val actual = block() as Array<*>
+    values.forEachIndexed { index, t ->
+        expect(t, "index=$index of expected=[${values.joinToString()}] to actual=[${actual.joinToString()}]") { actual[index] }
+    }
+}

@@ -42,13 +42,13 @@ class WelcomeActivity : BaseActivity() {
 class WelcomeFragment : BaseFragment() {
     @Inject lateinit var config: Config
 
-    @DeveloperLogger
+    @DeveloperLogger(top = 0.137f)
     @DeveloperProperty
     private var signInButtonEnabled
         get() = signInButton.enabled
         set(value) = run { signInButton.enabled = value }
 
-    @DeveloperLogger
+    @DeveloperLogger(top = 0.104f)
     @DeveloperProperty
     private var createAccountButtonEnabled
         get() = createAccountButton.enabled

@@ -1,7 +1,9 @@
 package com.nextfaze.devfun.compiler
 
 import java.io.File
-import javax.annotation.processing.ProcessingEnvironment
+import javax.annotation.processing.Filer
+import javax.inject.Inject
+import javax.inject.Singleton
 import javax.tools.StandardLocation
 
 // Kapt1 uses <buildDir>/intermediates/classes/<buildType>/...
@@ -36,19 +38,26 @@ private data class BuildConfig(
         "BuildConfig(manifestPackage='$manifestPackage', applicationId='$applicationId', buildType='$buildType', flavor='$flavor', variantDir='$variantDir')"
 }
 
-internal class CompileContext(override val processingEnvironment: ProcessingEnvironment) : WithProcessingEnvironment {
+@Singleton
+internal class CompileContext @Inject constructor(
+    private val options: Options,
+    private val filer: Filer,
+    logging: Logging
+) {
+    private val log by logging()
+
     val pkg by lazy pkg@{
         // Use package overrides if provided
         val override = packageOverride ?: extPackageOverride
         if (override != null) {
-            return@pkg override.also { note { "DevFun package from override option is '$it'" } }
+            return@pkg override.also { log.note { "DevFun package from override option is '$it'" } }
         }
 
         // Use root/suffix override if both provided (which means we don't need to know the variant)
         val packageRoot = packageRoot ?: extPackageRoot
         val packageSuffix = packageSuffix ?: extPackageSuffix
         if (packageRoot != null && packageSuffix != null) {
-            return@pkg "$packageRoot.$packageSuffix".also { note { "DevFun package from root/suffix options is '$it'" } }
+            return@pkg "$packageRoot.$packageSuffix".also { log.note { "DevFun package from root/suffix options is '$it'" } }
         }
 
         // Use Gradle plugin provided values, but use package root if present
@@ -56,12 +65,12 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
         val applicationVariant = applicationVariant
         if (applicationPackage != null && applicationVariant != null) {
             val variantPkg = applicationVariant.splitCamelCaseToPackage()
-            return@pkg "$applicationPackage.$variantPkg.$PACKAGE_SUFFIX_DEFAULT".also { note { "DevFun package from application options is '$it'" } }
+            return@pkg "$applicationPackage.$variantPkg.$PACKAGE_SUFFIX_DEFAULT".also { log.note { "DevFun package from application options is '$it'" } }
         }
 
         // They aren't using the Gradle plugin, or it failed to identify the build details - fallback to inspection
         // TODO Changing this version number every release is annoying!
-        warn(
+        log.warn {
             """Application package and/or variant arguments were missing or invalid.
             |Please ensure you have applied the DevFun gradle plugin.
             |
@@ -71,7 +80,7 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
             |}
             |
             |Falling back to inspection of classpath and file parsing - this method is unreliable!""".trimMargin()
-        )
+        }
 
         // Generate it from BuildConfig fields etc
         return@pkg StringBuilder().apply {
@@ -94,7 +103,7 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
             appendPart(buildConfig.flavor)
 
             appendPart(packageSuffix ?: PACKAGE_SUFFIX_DEFAULT)
-        }.toString().also { note { "DevFun package from classpath and file parsing is '$it'" } }
+        }.toString().also { log.note { "DevFun package from classpath and file parsing is '$it'" } }
     }
 
     private val servicesPath by lazy {
@@ -108,7 +117,7 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
 
     private val resourcePathMatch by lazy {
         servicesPathRegex.matchEntire(servicesPath) ?: run {
-            error("Failed to match resources path from $servicesPath")
+            log.error { "Failed to match resources path from $servicesPath" }
             throw BuildContextException("Failed to locate active BuildConfig.java")
         }
     }
@@ -116,7 +125,7 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
     private val buildDir by lazy {
         File(resourcePathMatch.groupValues[1]).also {
             if (!it.exists()) {
-                error("buildDir $it does not exist!")
+                log.error { "buildDir $it does not exist!" }
                 throw BuildContextException("Failed to locate active BuildConfig.java - buildDir $it does not exist!")
             }
         }
@@ -126,7 +135,7 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
     private val buildConfig by lazy {
         val buildConfigsDir = File(buildDir, "generated/source/buildConfig/")
         if (!buildConfigsDir.exists()) {
-            error("Build configs directory does not exist at $buildConfigsDir (buildDir=$buildDir, servicesPath=$servicesPath)")
+            log.error { "Build configs directory does not exist at $buildConfigsDir (buildDir=$buildDir, servicesPath=$servicesPath)" }
             throw BuildContextException("Failed to locate active BuildConfig.java")
         }
 
@@ -134,7 +143,7 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
             .filterRecursively { it.name == "BuildConfig.java" }
             .filter { !it.canonicalPath.contains("androidTest") }
         if (buildConfigFiles.isEmpty()) {
-            error("Failed to find any BuildConfig.java files int buildConfig directory $buildConfigsDir (buildDir=$buildDir, servicesPath=$servicesPath)")
+            log.error { "Failed to find any BuildConfig.java files int buildConfig directory $buildConfigsDir (buildDir=$buildDir, servicesPath=$servicesPath)" }
             throw BuildContextException("Failed to locate active BuildConfig.java")
         }
 
@@ -151,23 +160,21 @@ internal class CompileContext(override val processingEnvironment: ProcessingEnvi
         buildConfigs.singleOrNull {
             it.variantDir.equals(buildVariant, true) || it.variantDir.replace(File.separator, "").equals(buildVariant, true)
         } ?: run failedToMatch@{
-            error("Failed to match single build variant '$buildVariant' to any buildConfigs: $buildConfigs")
+            log.error { "Failed to match single build variant '$buildVariant' to any buildConfigs: $buildConfigs" }
             throw BuildContextException("Failed to locate active BuildConfig.java")
         }
     }
 
-    private val packageRoot by lazy { PACKAGE_ROOT.optionOf() }
-    private val packageSuffix by lazy { PACKAGE_SUFFIX.optionOf() }
-    private val packageOverride by lazy { PACKAGE_OVERRIDE.optionOf() }
+    private val packageRoot get() = options.packageRoot
+    private val packageSuffix get() = options.packageSuffix
+    private val packageOverride get() = options.packageOverride
 
-    private val extPackageRoot by lazy { EXT_PACKAGE_ROOT.optionOf() }
-    private val extPackageSuffix by lazy { EXT_PACKAGE_SUFFIX.optionOf() }
-    private val extPackageOverride by lazy { EXT_PACKAGE_OVERRIDE.optionOf() }
+    private val extPackageRoot get() = options.extPackageRoot
+    private val extPackageSuffix get() = options.extPackageSuffix
+    private val extPackageOverride get() = options.extPackageOverride
 
-    private val applicationPackage by lazy { APPLICATION_PACKAGE.optionOf() }
-    private val applicationVariant by lazy { APPLICATION_VARIANT.optionOf() }
-
-    override val isDebugVerbose by lazy { FLAG_DEBUG_VERBOSE.optionOf()?.toBoolean() ?: false }
+    private val applicationPackage get() = options.applicationPackage
+    private val applicationVariant get() = options.applicationVariant
 }
 
 private class BuildContextException(message: String?) : Throwable(message)
@@ -179,3 +186,29 @@ private fun String.splitCamelCaseToPackage() = this
     .map { it.trim().toLowerCase() }
     .filter(String::isNotBlank)
     .joinToString(".")
+
+private inline fun File.filterRecursively(predicate: (File) -> Boolean) = filterRecursivelyTo(ArrayList(), predicate)
+
+private inline fun <C : MutableCollection<in File>> File.filterRecursivelyTo(destination: C, predicate: (File) -> Boolean): C {
+    val directories = ArrayList<File>()
+    if (isDirectory) {
+        directories.add(this)
+    } else {
+        if (predicate(this)) destination.add(this)
+        return destination
+    }
+
+    var i = 0
+    while (i < directories.size) {
+        directories[i++].listFiles().orEmpty().forEach {
+            if (predicate(it)) {
+                destination.add(it)
+            }
+            if (it.isDirectory) {
+                directories.add(it)
+            }
+        }
+    }
+
+    return destination
+}
