@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.annotations
 
 import com.nextfaze.devfun.annotations.Dagger2Scope.UNDEFINED
-import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.*
 
 /**
@@ -35,7 +35,8 @@ enum class Dagger2Scope(val isFragmentActivityRequired: Boolean = false, val isA
  *
  * @see Dagger2Scope
  */
-@Retention(RUNTIME)
+@Suppress("unused")
+@Retention(SOURCE)
 @DeveloperAnnotation
 @Target(PROPERTY, PROPERTY_GETTER, FUNCTION)
 annotation class Dagger2Component(

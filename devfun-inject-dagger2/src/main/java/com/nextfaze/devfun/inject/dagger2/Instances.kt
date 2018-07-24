@@ -347,7 +347,7 @@ private class Dagger2AnnotatedInstanceProvider(
     private val log = logger()
 
     private data class ComponentReference(
-        val annotation: Dagger2Component,
+        val annotation: Dagger2ComponentProperties,
         val method: Method,
         val scope: Int,
         val isActivityRequired: Boolean,
@@ -378,6 +378,13 @@ private class Dagger2AnnotatedInstanceProvider(
 
     val hasComponents get() = components.isNotEmpty()
 
+    private data class Dagger2ComponentProperties(private val map: Map<String, *>) {
+        val scope = map["scope"] as Dagger2Scope
+        val priority = map["priority"] as Int
+        val isActivityRequired = map["isActivityRequired"] as Boolean
+        val isFragmentActivityRequired = map["isFragmentActivityRequired"] as Boolean
+    }
+
     init {
         fun KClass<*>.toScope() =
             when {
@@ -400,7 +407,9 @@ private class Dagger2AnnotatedInstanceProvider(
                 } else {
                     origMethod
                 }
-                val annotation = origMethod.getAnnotation(Dagger2Component::class.java) ?: return@map null
+
+                val properties = it.properties ?: return@map null
+                val annotation = Dagger2ComponentProperties(properties)
 
                 fun Dagger2Scope.toComponentReference() =
                     ComponentReference(annotation, method, ordinal, isActivityRequired, isFragmentActivityRequired)
