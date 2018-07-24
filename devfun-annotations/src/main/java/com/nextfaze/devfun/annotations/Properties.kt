@@ -25,6 +25,7 @@ interface PropertyTransformer : FunctionTransformer
  * __This feature is experimental.__
  *
  * @see PropertyTransformer
+ * @see DeveloperFunction
  */
 @Target(PROPERTY)
 @Retention(BINARY)

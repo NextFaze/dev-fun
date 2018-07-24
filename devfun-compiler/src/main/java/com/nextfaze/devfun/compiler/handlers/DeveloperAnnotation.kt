@@ -11,12 +11,10 @@ import java.lang.reflect.Field
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.lang.model.element.*
-import javax.lang.model.type.ArrayType
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.PrimitiveType
-import javax.lang.model.type.TypeKind.*
-import javax.lang.model.type.TypeMirror
+import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.util.Elements
 import kotlin.reflect.KClass
 
@@ -27,6 +25,7 @@ internal class DeveloperAnnotationHandler @Inject constructor(
     private val annotations: AnnotationElements,
     private val importsTracker: ImportsTracker,
     private val developerFunctions: DeveloperFunctionHandler,
+    private val annotationSerializer: AnnotationSerializer,
     logging: Logging
 ) : AnnotationHandler {
     private val log by logging()
@@ -49,7 +48,8 @@ internal class DeveloperAnnotationHandler @Inject constructor(
                             it.annotationMirrors.first { it.annotationType.toString() == devAnnotatedElement.qualifiedName.toString() }
                         developerFunctions.generateFunctionDefinition(
                             annotations.createDevFunAnnotation(annotation, devAnnotatedElement),
-                            it
+                            it,
+                            devAnnotatedElement
                         )
                     } else {
                         log.error(element = it) {
@@ -102,8 +102,11 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
         }
 
         // Generate any data
-        val annotationOnElement = element.annotationMirrors.first { it.annotationType.toString() == annotation.qualifiedName.toString() }
-        val data = annotationOnElement.toMap(liftDefaults)
+        val data = annotationSerializer.findAndSerialize(
+            annotatedElement = element,
+            annotationTypeElement = annotation,
+            liftDefaults = liftDefaults
+        )
 
         val developerAnnotation = "${element.enclosingElement}::$element"
         var debugAnnotationInfo = ""
@@ -129,8 +132,11 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
         val annotationClass = annotation.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
 
         // Generate any data
-        val annotationOnElement = element.annotationMirrors.first { it.annotationType.toString() == annotation.qualifiedName.toString() }
-        val data = annotationOnElement.toMap(liftDefaults)
+        val data = annotationSerializer.findAndSerialize(
+            annotatedElement = element,
+            annotationTypeElement = annotation,
+            liftDefaults = liftDefaults
+        )
 
         val developerAnnotation = "${element.enclosingElement}::$element"
         var debugAnnotationInfo = ""
@@ -175,9 +181,11 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
         }
 
         // Generate any data
-        val annotationOnElement = element.annotationMirrors.first { it.annotationType.toString() == annotation.qualifiedName.toString() }
-        log.note { "element=$element, annotationOnElement=$annotationOnElement" }
-        val data = annotationOnElement.toMap(liftDefaults)
+        val data = annotationSerializer.findAndSerialize(
+            annotatedElement = element,
+            annotationTypeElement = annotation,
+            liftDefaults = liftDefaults
+        )
 
         val developerAnnotation = "${element.enclosingElement}::$element"
         var debugAnnotationInfo = ""
@@ -194,113 +202,6 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
                         #|}"""
     }
 
-    // todo this is a bit gross, but might be moving to Kotlin Poet so meh for now
-    private fun AnnotationMirror.toMap(liftDefaults: Boolean): String? {
-//        val liftDefaults = annotationType.asElement().getAnnotation(LiftDefaults::class.java) != null
-        val annotationElements =
-            if (liftDefaults) {
-                annotationType.asElement().enclosedElements.associate { it as ExecutableElement to elementValues[it] }
-            } else {
-                elementValues
-            }
-
-        val entries = annotationElements.mapNotNull { (element: ExecutableElement, annotationValue) ->
-            val value = annotationValue?.value ?: element.defaultValue?.value ?: return@mapNotNull null
-            val valueType: TypeMirror = element.returnType
-            val mapValue = when (valueType) {
-                is PrimitiveType ->
-                    when (valueType.kind) {
-                        BOOLEAN -> value.toString()
-                        BYTE -> "$value"
-                        SHORT -> value.toString()
-                        INT -> value.toString()
-                        LONG -> "${value}L"
-                        CHAR -> "'$value'"
-                        FLOAT -> "${value}f"
-                        DOUBLE -> value.toString()
-                        else -> throw RuntimeException("Unexpected PrimitiveType.kind: ${valueType.kind}")
-                    }
-                is DeclaredType -> {
-                    val elementKind by lazy { valueType.asElement().kind }
-                    when {
-                        value is String -> value.toKString()
-                        elementKind == ElementKind.CLASS ->
-                            when (value) {
-                                is PrimitiveType -> "${value.toKType().typeName}::class"
-                                is DeclaredType -> value.asElement().toClass()
-                                is ArrayType -> value.toClass()
-                                else -> throw NotImplementedError("Not implemented elementKind: $elementKind for $value (${value::class})")
-                            }
-                        elementKind == ElementKind.ENUM -> {
-                            if (valueType.isClassPublic) {
-                                "${valueType.toType()}.$value"
-                            } else {
-                                "java.lang.Enum.valueOf(${valueType.toClass(kotlinClass = false)} as Class<Nothing>, \"$value\") as Any"
-                            }
-                        }
-                        elementKind == ElementKind.ANNOTATION_TYPE -> (value as AnnotationMirror).toMap(liftDefaults)
-                        else -> throw NotImplementedError("Not implemented elementKind: $elementKind for $value (${value::class})")
-                    }
-                }
-                is ArrayType -> {
-                    value as List<*>
-                    val componentType = valueType.componentType
-                    when (componentType) {
-                        is PrimitiveType ->
-                            when (componentType.kind) {
-                                BOOLEAN -> "arrayOf<Boolean>($value)"
-                                BYTE -> "arrayOf<Byte>(${value.toString().replace("(byte)", "")})"
-                                SHORT -> "arrayOf<Short>($value)"
-                                INT -> "arrayOf<Int>($value)"
-                                LONG -> "arrayOf<Long>($value)"
-                                CHAR -> "arrayOf<Char>($value)"
-                                FLOAT -> "arrayOf<Float>($value)"
-                                DOUBLE -> "arrayOf<Double>($value)"
-                                else -> throw RuntimeException("Unexpected array component type PrimitiveType.kind: ${componentType.kind}")
-                            }
-                        is DeclaredType ->
-                            when {
-                                componentType.isString -> "arrayOf<String>(${value.joinToString { it.toString().toKString() }})"
-                                componentType.isClass -> "arrayOf<KClass<*>>(${value.joinToString {
-                                    val arrValue = (it as AnnotationValue).value
-                                    when (arrValue) {
-                                        is PrimitiveType -> "${arrValue.toKType().typeName}::class"
-                                        is DeclaredType -> arrValue.asElement().toClass()
-                                        is ArrayType -> arrValue.toClass()
-                                        else -> throw NotImplementedError("Not implemented arrValue: $arrValue (${arrValue::class}) for $value (${value::class})")
-                                    }
-                                }})"
-                                componentType.asElement().kind == ElementKind.ENUM ->
-                                    "arrayOf<Enum<*>>(${value.joinToString {
-                                        val arrAnnotationValue = (it as AnnotationValue).value
-                                        val arrValue = (arrAnnotationValue as VariableElement).asType()
-                                        if (arrValue.isClassPublic) {
-                                            "$it"
-                                        } else {
-                                            "java.lang.Enum.valueOf(${arrValue.toClass(kotlinClass = false)} as Class<Nothing>, \"$arrAnnotationValue\") as Enum<*>"
-                                        }
-                                    }})"
-                                componentType.asElement().kind == ElementKind.ANNOTATION_TYPE -> {
-                                    val entries = value.mapNotNull { (it as AnnotationMirror).toMap(liftDefaults) }
-                                    "arrayOf<Map<String, *>>(${entries.joinToString()})"
-                                }
-                                else -> throw NotImplementedError("Not implemented array componentType: $componentType for $value (${value::class})")
-                            }
-                        else -> throw NotImplementedError("Not implemented array componentType: $componentType for $value (${value::class})")
-                    }
-                }
-                else -> throw NotImplementedError("Not implemented type: $valueType (${valueType::class})")
-            }
-
-            "\"${element.simpleName}\" to $mapValue"
-        }
-
-        return if (entries.isEmpty()) "null" else "mapOf(${entries.joinToString()})"
-    }
-
     private val TypeElement.isDevAnnotated get() = getAnnotation(DeveloperAnnotation::class.java) != null
     private val Element.devAnnotation get() = annotationMirrors.first { it.annotationType.toString() == DeveloperAnnotation::class.qualifiedName }
-
-    private val TypeMirror.isString get() = toString() == "java.lang.String"
-    private val TypeMirror.isClass get() = toString().startsWith("java.lang.Class")
 }

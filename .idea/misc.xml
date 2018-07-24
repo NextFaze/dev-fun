@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="5">
+    <list size="6">
       <item index="0" class="java.lang.String" itemvalue="com.google.auto.service.AutoService" />
-      <item index="1" class="java.lang.String" itemvalue="com.nextfaze.devfun.annotations.DeveloperFunction" />
-      <item index="2" class="java.lang.String" itemvalue="com.nextfaze.devfun.annotations.DeveloperLogger" />
-      <item index="3" class="java.lang.String" itemvalue="com.nextfaze.devfun.annotations.DeveloperProperty" />
-      <item index="4" class="java.lang.String" itemvalue="dagger.Provides" />
+      <item index="1" class="java.lang.String" itemvalue="com.nextfaze.devfun.annotations.DeveloperArguments" />
+      <item index="2" class="java.lang.String" itemvalue="com.nextfaze.devfun.annotations.DeveloperFunction" />
+      <item index="3" class="java.lang.String" itemvalue="com.nextfaze.devfun.annotations.DeveloperLogger" />
+      <item index="4" class="java.lang.String" itemvalue="com.nextfaze.devfun.annotations.DeveloperProperty" />
+      <item index="5" class="java.lang.String" itemvalue="dagger.Provides" />
     </list>
   </component>
   <component name="NullableNotNullManager">

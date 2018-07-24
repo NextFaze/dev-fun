@@ -10,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import com.nextfaze.devfun.annotations.Args
+import com.nextfaze.devfun.annotations.DeveloperArguments
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.core.CategoryDefinition
@@ -51,7 +53,13 @@ class AuthenticateActivity : BaseActivity() {
     }
 }
 
-private val CREDENTIALS = arrayOf("foo@example.com:hello", "bar@example.com:world")
+private val normalUsers = arrayOf(
+    "foo@example.com:hello",
+    "bar@example.com:world",
+    "mary@mailinator.com:ContainDateNeck76",
+    "eli@example.com:EveningVermontNeck29",
+    "trevor@example.com:OftenJumpCost02"
+)
 
 class AuthenticateFragment : BaseFragment() {
     @Inject lateinit var session: Session
@@ -135,7 +143,7 @@ class AuthenticateFragment : BaseFragment() {
             asyncShowProgress(true)
 
             delay(2, TimeUnit.SECONDS) // simulate network delay
-            val isValid = CREDENTIALS.contains("$email:$password")
+            val isValid = normalUsers.contains("$email:$password")
 
             withContext(UI) {
                 if (isValid) {
@@ -173,7 +181,27 @@ class AuthenticateFragment : BaseFragment() {
 
     override fun inject(injector: FragmentInjector) = injector.inject(this)
 
-    @DeveloperFunction(transformer = SignInFunctionTransformer::class)
+    @DeveloperArguments(
+        // name of function for each Args entry is the first element; foo@example.com, bar@example.com, etc.
+        // name = "%0", // "%0" is the default value
+        args = [
+            Args(["foo@example.com", "hello", "Normal"]), // group = "Authenticate as Normal"
+            Args(["bar@example.com", "world", "Normal"]),
+            Args(["mary@mailinator.com", "ContainDateNeck76", "Normal"]),
+            Args(["eli@example.com", "EveningVermontNeck29", "Normal"]),
+            Args(["trevor@example.com", "OftenJumpCost02", "Normal"]),
+            Args(["rude.user@example.com", "TakePlayThought95", "Restricted"]),
+            Args(["block.stars@mailinator.com", "DeviceSeedsSeason16", "Restricted"]),
+            Args(["vulgar@user.com", "ChinaMisterGeneral11", "Banned"]),
+            Args(["thirteen@years.old", "my.password", "Underage"]),
+            Args(["twelve@years.old", "password", "Underage"]),
+            Args(["bad.password.1@example.com", "D3;d<HF-", "Invalid Password"]),
+            Args(["bad.password.2@example.com", "r2Z@fMhA", "Invalid Password"]),
+            Args(["unknown@example.com", "RV[(x43@", "Unknown User"])
+        ],
+        group = "Authenticate as %2" // %n as index to args array for each Args entry
+    )
+//    @DeveloperFunction(transformer = SignInFunctionTransformer::class) // Alternative to @DeveloperArguments
     private fun signInAs(email: String, password: String) {
         emailEditText.setText(email)
         passwordEditText.setText(password)
@@ -182,6 +210,7 @@ class AuthenticateFragment : BaseFragment() {
 }
 
 @Constructable
+@Suppress("unused")
 private class SignInFunctionTransformer : FunctionTransformer {
     private enum class Type { NORMAL, RESTRICTED, BANNED, UNDERAGE, INVALID_PASSWORD, UNKNOWN_USER }
     private data class TestAccount(val email: String, val password: String, val type: Type) {
@@ -216,13 +245,15 @@ private class SignInFunctionTransformer : FunctionTransformer {
                 override val group = it.group
             }
         }
+
+    companion object {
+        private val SPLIT_REGEX = Regex("(?<=[a-z0-9])(?=[A-Z])|[\\s]")
+
+        private fun String.splitCamelCase() = this
+            .replace('_', ' ')
+            .split(SPLIT_REGEX)
+            .map { it.trim().capitalize() }
+            .filter(String::isNotBlank)
+            .joinToString(" ")
+    }
 }
-
-private val SPLIT_REGEX = Regex("(?<=[a-z0-9])(?=[A-Z])|[\\s]")
-
-private fun String.splitCamelCase() = this
-    .replace('_', ' ')
-    .split(SPLIT_REGEX)
-    .map { it.trim().capitalize() }
-    .filter(String::isNotBlank)
-    .joinToString(" ")

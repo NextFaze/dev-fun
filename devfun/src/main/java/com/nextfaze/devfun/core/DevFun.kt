@@ -278,6 +278,7 @@ class DevFun {
 
             // Custom Transformers
             this += singletonInstance<PropertyTransformer> { get<PropertyTransformerImpl>() }
+            this += singletonInstance<ArgumentsTransformer> { get<ArgumentsTransformerImpl>() }
 
             // Overlays
             this += singletonInstance<OverlayPermissions> { get<OverlayPermissionsImpl>() }

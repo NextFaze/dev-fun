@@ -5,6 +5,7 @@ import android.os.Build
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.text.SpannableStringBuilder
+import com.nextfaze.devfun.annotations.ArgumentsTransformer
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.PropertyTransformer
 import com.nextfaze.devfun.inject.Constructable
@@ -12,6 +13,7 @@ import com.nextfaze.devfun.inject.RequiringInstanceProvider
 import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.internal.ReflectedProperty
 import com.nextfaze.devfun.internal.WithSubGroup
+import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
 import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
@@ -162,5 +164,76 @@ internal class PropertyTransformerImpl(private val invoker: Invoker) : PropertyT
                 )
             }
         })
+    }
+}
+
+@Constructable
+internal class ArgumentsTransformerImpl : ArgumentsTransformer {
+    private val log = logger()
+
+    companion object {
+        private val argIndexRegex = Regex("""%\d+""")
+    }
+
+    override fun accept(functionDefinition: FunctionDefinition) = functionDefinition.transformer == ArgumentsTransformer::class
+
+    @Suppress("UNCHECKED_CAST")
+    override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
+        if (functionDefinition !is DeveloperReference) {
+            log.w { "Got a function definition $functionDefinition that was not a DeveloperReference - ignoring." }
+            return null
+        }
+
+        val userArgs = functionDefinition.properties?.get("args") as Array<Map<String, *>>?
+        val values = userArgs?.mapNotNull { it["value"] as Array<String>? }
+        if (values == null || values.isEmpty()) {
+            log.w { "Got a DeveloperReference function definition $functionDefinition with no args? - ignoring" }
+            return null
+        }
+
+        val name = functionDefinition.properties?.get("name") as String?
+        val group = functionDefinition.properties?.get("group") as String?
+
+        return values.map { args ->
+            fun String.replaceArgs(): String {
+                if (!contains('%')) return this
+
+                var str = this
+                argIndexRegex.findAll(str).forEach {
+                    val index = it.value.substring(1).toIntOrNull()
+                    str = when (index) {
+                        null -> str.replace(it.value, "<${it.value},BAD_INT>")
+                        else -> str.replace(it.value, args.elementAtOrElse(index) { "<$index,OUT_OF_BOUNDS>" })
+                    }
+                }
+                return str
+            }
+
+            val nameValue = name?.takeIf { it.isNotBlank() }?.replaceArgs()
+            val groupValue = group?.takeIf { it.isNotBlank() }?.replaceArgs()
+
+            val paramTypes = functionDefinition.method.parameterTypes
+            val typedArgs = args.mapIndexed { index: Int, s: String ->
+                val type = paramTypes.getOrElse(index) { null }?.kotlin
+                when (type) {
+                    Boolean::class -> s.toBoolean()
+                    Byte::class -> s.toByte()
+                    Short::class -> s.toShort()
+                    Int::class -> s.toInt()
+                    Long::class -> s.toLong()
+                    Char::class -> s[0]
+                    Float::class -> s.toFloat()
+                    Double::class -> s.toDouble()
+                    String::class -> s
+                    else -> Unit
+                }
+            }
+
+            object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
+                override val name = nameValue ?: super.name
+                override val group = groupValue ?: super.group
+                override val args = typedArgs
+            }
+        }
     }
 }

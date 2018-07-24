@@ -145,10 +145,10 @@ import kotlin.reflect.KClass
  *
  * # Contextual Vars
  * _(experimental)_ At compile time that follow vars are available for use in [value] or [group] (also [DeveloperFunction.value]):
- * - `%CLASS_QN%` → The fully qualified name of the class
- * - `%CLASS_SN%` → The simple name of the class
+ * - `%CLASS_SN%` → The simple name of the annotated class
+ * - `%CLASS_QN%` → The fully qualified name of the annotated class
  *
- * e.g. For a meta category:
+ * e.g.
  * ```kotlin
  * @DeveloperCategory("Some Category", group = "Class: %CLASS_SN%")
  * annotation class MyCategory
@@ -312,11 +312,13 @@ annotation class DeveloperCategory(
  * ```
  *
  * # Contextual Vars
- * _(experimental)_ At compile time that follow vars are available for use in [value] (also [DeveloperCategory.value] and [DeveloperCategory.group]):
- * - `%CLASS_QN%` → The fully qualified name of the class
+ * _(experimental)_ At compile time the follow vars are available for use in [value] (also [DeveloperCategory.value] and [DeveloperCategory.group]):
  * - `%CLASS_SN%` → The simple name of the class
+ * - `%CLASS_QN%` → The fully qualified name of the class
+ * - `%FUN_SN%` → The simple name of the annotated function
+ * - `%FUN_QN%` → The qualified name of the annotated function. "fun myFunction(param1: String)" becomes "myFunction(java.lang.String)"
  *
- * e.g. For a meta category:
+ * e.g.
  * ```kotlin
  * class MyClass {
  *     @DeveloperFunction("I am in %CLASS_SN%")
@@ -360,12 +362,36 @@ annotation class DeveloperFunction(
  * If you have different defaults defined compared to [DeveloperFunction] then these values will be written as if you had used
  * `@DeveloperFunction(field = value)` at the declaration site - this behaviour is somewhat experimental. Please report any issues you have.
  *
- * An example of this can be seen with @[DeveloperProperty]
+ * An example of this can be seen with @[DeveloperProperty].
+ *
+ * # Custom Properties
+ * If your annotation declares custom properties, these will be serialized and available at run-time during function transformation.
+ *
+ * Function definitions will implement [DeveloperReference] with the properties available as a map via [DeveloperReference.properties].
+ *
+ * ## Contextual Vars
+ * _(experimental)_ At compile time the follow vars are available for use in `String` properties:
+ * - `%CLASS_SN%` → The simple name of the class
+ * - `%CLASS_QN%` → The fully qualified name of the class
+ * - `%FUN_SN%` → The simple name of the annotated function
+ * - `%FUN_QN%` → The qualified name of the annotated function. "fun myFunction(param1: String)" becomes "myFunction(java.lang.String)"
+ * - `%VAR_SN%` → The simple name of the annotated variable
+ * - `%VAR_QN%` → The qualified name of the annotated variable
+ *
+ * e.g.
+ * ```kotlin
+ * class MyClass {
+ *     @DeveloperFunction("I am in %CLASS_SN%")
+ *     fun someFun() = Unit // name="I am in MyClass"
+ * }
+ * ```
  *
  * @param developerFunction Set to `true` to have the compiler treat the annotation as a @[DeveloperFunction]. _(experimental)_
  *
  * @see Dagger2Component
  * @see DeveloperProperty
+ * @see DeveloperLogger
+ * @see DeveloperArguments
  */
 @Retention(BINARY)
 @Target(ANNOTATION_CLASS)

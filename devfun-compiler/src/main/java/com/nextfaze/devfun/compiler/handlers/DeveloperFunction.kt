@@ -2,6 +2,7 @@ package com.nextfaze.devfun.compiler.handlers
 
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.core.DeveloperReference
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.core.FunctionTransformer
 import com.nextfaze.devfun.generated.DevFunGenerated
@@ -24,7 +25,9 @@ internal class DeveloperFunctionHandler @Inject constructor(
     private val options: Options,
     private val preprocessor: StringPreprocessor,
     private val annotations: AnnotationElements,
+    private val importsTracker: ImportsTracker,
     private val developerCategory: DeveloperCategoryHandler,
+    private val annotationSerializer: AnnotationSerializer,
     logging: Logging
 ) : AnnotationHandler {
     private val log by logging()
@@ -48,7 +51,7 @@ internal class DeveloperFunctionHandler @Inject constructor(
 ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )"""
 
-    fun generateFunctionDefinition(annotation: DevFunAnnotation, element: ExecutableElement) {
+    fun generateFunctionDefinition(annotation: DevFunAnnotation, element: ExecutableElement, devAnnotation: TypeElement? = null) {
         val clazz = element.enclosingElement as TypeElement
         log.note { "Processing $clazz::$element..." }
 
@@ -88,7 +91,7 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         // Annotation values
         // Name
         val name = annotation.value?.let {
-            "\n#|    override val ${FunctionDefinition::name.name} = ${preprocessor.run(it.toKString(), clazz)}"
+            "\n#|    override val ${FunctionDefinition::name.name} = ${preprocessor.run(it.toKString(), element)}"
         } ?: ""
 
         // Category
@@ -204,6 +207,28 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
                 #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, allArgTypesPublic=$allArgTypesPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction, isProperty=$isProperty"""
         }
 
+        // DeveloperAnnotation
+        var implements = ""
+        var overrides = ""
+        if (devAnnotation != null) {
+            importsTracker += DeveloperReference::class
+            implements = ", ${DeveloperReference::class.java.simpleName}"
+
+            // The meta annotation class (e.g. Dagger2Component)
+            val annotationClass = devAnnotation.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
+            overrides += "\n#|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> = $annotationClass"
+
+            // Generate any data
+            val data = annotationSerializer.findAndSerialize(
+                annotatedElement = element,
+                annotationTypeElement = devAnnotation,
+                excludeNames = listOf("value", "category", "requiresApi", "transformer")
+            )
+            if (data != null) {
+                overrides += "\n#|    override val ${DeveloperReference::properties.name}: Map<String, *>? = $data"
+            }
+        }
+
         // Generate definition
         if (functionDefinitions.containsKey(functionDefinition)) {
             log.error(element) { "Only one function definition supported per function." }
@@ -211,8 +236,8 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
 
         functionDefinitions[functionDefinition] =
                 """$debugAnnotationInfo
-                     #|object : AbstractFunctionDefinition() {
-                     #|    override val ${FunctionDefinition::method.name} = $methodRef$name$category$requiresApi$transformer
+                     #|object : AbstractFunctionDefinition()$implements {
+                     #|    override val ${FunctionDefinition::method.name} = $methodRef$name$category$requiresApi$transformer$overrides
                      #|    override val ${FunctionDefinition::invoke.name}: $functionInvokeName = { $invocationArgs -> $debugElementInfo
                      #|        $invocation
                      #|    }

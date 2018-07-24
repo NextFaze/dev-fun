@@ -4,6 +4,7 @@ package tested.developer_annotation
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.core.DeveloperMethodReference
+import com.nextfaze.devfun.core.DeveloperReference
 import com.nextfaze.devfun.test.expectArrayOf
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
@@ -153,6 +154,16 @@ annotation class Nested(
             myColors = [Color.PINK, Color.PURPLE]
         ),
     val arrayOfAnnotations: Array<SimpleTypesWithDefaults> = [SimpleTypesWithDefaults(someInt = 1), SimpleTypesWithDefaults(someInt = 2)]
+)
+
+@DeveloperAnnotation
+annotation class HasNestedStringArrays(
+    val hasStringArray: HasStringArray,
+    val hasStringArrays: Array<HasStringArray>
+)
+
+annotation class HasStringArray(
+    val value: Array<String>
 )
 
 @Suppress("UNCHECKED_CAST")
@@ -479,5 +490,23 @@ class cpat_SomeClass {
                 expect(index + 1) { map["someInt"] }
             }
         }
+    }
+
+    @HasNestedStringArrays(
+        hasStringArray = HasStringArray(["Next", "Faze"]),
+        hasStringArrays = [
+            HasStringArray(["foo@example.com", "hello", "Normal"]),
+            HasStringArray(["bar@example.com", "world", "Normal"])
+        ]
+    )
+    fun testNestedStringArray(ref: DeveloperReference) {
+        val properties = ref.properties!!
+
+        val hasStringArray = properties["hasStringArray"] as Map<String, *>
+        expectArrayOf("Next", "Faze") { hasStringArray["value"] }
+
+        val hasStringArrays = properties["hasStringArrays"] as Array<Map<String, *>>
+        expectArrayOf("foo@example.com", "hello", "Normal") { hasStringArrays[0]["value"] }
+        expectArrayOf("bar@example.com", "world", "Normal") { hasStringArrays[1]["value"] }
     }
 }
