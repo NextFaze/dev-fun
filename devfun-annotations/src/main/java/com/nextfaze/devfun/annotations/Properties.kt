@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.annotations
 
 import com.nextfaze.devfun.core.FunctionTransformer
-import kotlin.annotation.AnnotationRetention.BINARY
+import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.PROPERTY
 import kotlin.reflect.KClass
 
@@ -28,7 +28,7 @@ interface PropertyTransformer : FunctionTransformer
  * @see DeveloperFunction
  */
 @Target(PROPERTY)
-@Retention(BINARY)
+@Retention(SOURCE)
 @DeveloperAnnotation(developerFunction = true)
 annotation class DeveloperProperty(
     val value: String = "",

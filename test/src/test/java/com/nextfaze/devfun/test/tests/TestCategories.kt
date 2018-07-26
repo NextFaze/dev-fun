@@ -102,21 +102,6 @@ class TestCategories : AbstractKotlinKapt3Tester() {
     }
 
     //
-    // Meta Categories
-    //
-
-    @DataProvider(name = "testMetaCategoriesData")
-    fun testMetaCategoriesData(testMethod: Method) =
-        singleFileTests(
-            testMethod,
-            MetaCategories::class,
-            MetaGroupingCategory::class
-        )
-
-    @Test(dataProvider = "testMetaCategoriesData")
-    fun testMetaCategories(test: TestContext) = test.testInvocations(log)
-
-    //
     // Functions with Category
     //
 

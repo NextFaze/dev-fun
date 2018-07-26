@@ -2,6 +2,7 @@ package com.nextfaze.devfun.annotations
 
 import com.nextfaze.devfun.core.*
 import kotlin.annotation.AnnotationRetention.BINARY
+import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.*
 import kotlin.reflect.KClass
 
@@ -171,7 +172,7 @@ import kotlin.reflect.KClass
  * @see DeveloperFunction
  */
 @Target(CLASS)
-@Retention(BINARY)
+@Retention(SOURCE)
 annotation class DeveloperCategory(
     val value: String = "",
     val group: String = "",
@@ -343,7 +344,7 @@ annotation class DeveloperCategory(
  * @see SimpleFunctionItem
  */
 @Target(FUNCTION)
-@Retention(BINARY)
+@Retention(SOURCE)
 annotation class DeveloperFunction(
     val value: String = "",
     val category: DeveloperCategory = DeveloperCategory(),

@@ -37,7 +37,7 @@ number of means - such as an automatically generated "Developer Menu".
   - [Kotlin `stdlib` Conflict](#kotlin-stdlib-conflict)
   - [Gradle Plugin and APT Options](#gradle-plugin-and-apt-options)
   - [Proguard](#proguard)
-    - [Function Transformers](#function-transformers)
+    - [`RUNTIME` Retained Meta Annotations](#runtime-retained-meta-annotations)
   - [Getting `ClassInstanceNotFoundException`](#getting-classinstancenotfoundexception)
   - [Missing Items](#missing-items)
 - [Build](#build)
@@ -358,35 +358,31 @@ See [com.nextfaze.devfun.compiler](https://nextfaze.github.io/dev-fun/com.nextfa
 
 
 ## Proguard
-Support for proguard exists, however it has not been tested extensively beyond the demo app.
+Very basic support for proguard exists (libraries keep their generated sources), though it has not been tested extensively - DevFun is
+ intended for Debug builds and thus support for Proguard has never been a priority.
 
-If you wish to use DevFun with Proguard you will need to configure your app to keep DevFun related code (the DevFun
- libraries handle themselves). See the demo [proguard-rules.pro](https://github.com/NextFaze/dev-fun/blob/master/demo/proguard-rules.pro)
- for a sample and related details.  
+- Rules that are supplied by DevFun libraries can be found in [proguard-rules-common.pro](https://github.com/NextFaze/dev-fun/blob/master/proguard-rules-common.pro) 
+ (the Glide util module also adds a couple).
+- See the demo [proguard-rules.pro](https://github.com/NextFaze/dev-fun/blob/master/demo/proguard-rules.pro) for the minimum you'll need in
+ your own app.
 
-Rules that are supplied by DevFun libraries can be found in [proguard-rules-common.pro](https://github.com/NextFaze/dev-fun/blob/master/proguard-rules-common.pro) 
-(the Glide util module also adds a couple).
+As one of the goals of DevFun is to keep your production code clean, most of DevFun's annotations are `SOURCE` retained and cannot be
+ referenced in your proguard rules. However if an annotated element is `public` or `internal` DevFun will reference the element directly in
+ its generated code (rather than via reflection). Exceptions to this are (at the moment); `@Constructable`, `@ColorPicker`, `@Ranged`,
+ and `@From`, which are all `RUNTIME` retained - it is desirable in the future that these too become `SOURCE` retained. 
 
-If everything used by DevFun (the annotated classes and functions) is _public or internal_ (see demo rules otherwise) then
- all you need to do is keep the generated file:
-```proguard
-# Keep DevFun generated class
--keep class your.package.goes.here.** extends com.nextfaze.devfun.generated.DevFunGenerated
-```
+### `RUNTIME` Retained Meta Annotations
+DevFun has experimental support for various kinds of meta annotating.
 
-For non-public/internal you will need to adjust your proguard config appropriately, or more simply use `@Keep` on the classes/functions.  
+- Creating an annotation annotated with `@DeveloperCategory` results in that annotation being treated as such (allowing you to declare that
+ one as `BINARY` or `RUNTIME` retained).
+- Creating an annotation with `@DeveloperAnnotation(developerFunction = true)` declares the annotation as a `DeveloperFunction` analogue
+ (again, allowing you to set your own retain value).
 
-
-### Function Transformers
-When DevFun processes the generated code (such as when you try to open the DevMenu), functions/references are put through a "transformation"
- process that results in something the modules use to render their various views. Custom transformers can be specified on the
- `@DeveloperFunction` annotation. Thus at the moment transformers needs to be in the main source tree (or wherever it's being used) as its
- class is referenced in the annotation.
-
-If for some reason you cannot use proguard but need sensitive code/values removed (e.g. auto-login items for test accounts à la
- [SignInFunctionTransformer](https://github.com/NextFaze/dev-fun/blob/master/demo/src/main/java/com/nextfaze/devfun/demo/AuthenticateScreen.kt#L185)),
- then surrounding the values in a `if (BuildConfig.DEBUG) { ... } else { .. }` block will allow the compiler to remove it as "dead code"
- during release builds - I'm looking into better ways to handle this (suggestions welcome).
+For examples of this see [MetaDevFunctions.kt](https://github.com/NextFaze/dev-fun/blob/master/test/src/testData/kotlin/tested/meta_annotations/MetaDevFunctions.kt)
+ et al. in tests. It is being considered that these become a part of DevFun leveraging `typealias` or the like. It is also being considered
+ to have DevFun generate a `proguard-rules.pro` file at compile time that can be used during the build. At present however no further work
+ is being done in this area. Feel free to create an issue if simpler/built-in Proguard compatibility is desired.
 
 
 ## Getting `ClassInstanceNotFoundException`

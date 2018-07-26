@@ -12,10 +12,7 @@ import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.error.ErrorDetails
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
-import com.nextfaze.devfun.inject.ConstructingInstanceProvider
-import com.nextfaze.devfun.inject.InstanceProvider
-import com.nextfaze.devfun.inject.captureInstance
-import com.nextfaze.devfun.inject.singletonInstance
+import com.nextfaze.devfun.inject.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.doInvoke
 import com.nextfaze.devfun.invoke.parameterInstances
@@ -204,53 +201,82 @@ class TestContext(
     val catDefs by lazy { devFun.definitions.flatMap { it.categoryDefinitions }.toSet() }
     val devRefs by lazy { devFun.definitions.flatMap { it.developerReferences }.toSet() }
 
-    private val allItems by lazy { devFun.categories.flatMap { it.items }.toSet().groupBy { it.function } }
+    private val categories by lazy { devFun.categories }
+    private val funDefItems by lazy { categories.flatMap { it.items }.toSet().groupBy { it.function } }
 
     fun testInvocations(logger: Logger) {
         funDefs.forEach { fd ->
             logger.d { "Invoke $fd" }
 
+            val dfIp = DevFunItemInstanceProvider(functionItem = null, functionDefinition = fd)
+            devFun.instanceProviders += dfIp
+
             val receiver = fd.receiverInstance(devFun.instanceProviders)
-            val v = when {
-                fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
-                else -> fd.invoke(receiver, fd.parameterInstances(devFun.instanceProviders, null))
-            }
-            val value = if (v is Pair<*, *>) v.first else v
-            val testable = when (value) {
-                is List<*> -> value
-                else -> listOf(value)
-            }
-            logger.d { "Test $testable for $fd" }
-            testable.filterIsInstance<Assertable>().forEach {
-                val result = it.invoke(fd, allItems[fd].orEmpty())
-                logger.d { "> $result" }
-            }
-            logger.d { "\n" }
-        }
-
-        allItems.forEach { fd, items ->
-            items.forEach {
-                logger.d { "Invoke $it" }
-
-                val receiver = fd.receiverInstance(devFun.instanceProviders)
+            if (fd.method.name.startsWith("test")) {
+                when {
+                    fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
+                    else -> fd.invoke(receiver, fd.parameterInstances(devFun.instanceProviders, null))
+                }
+            } else {
                 val v = when {
                     fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
-                    else -> it.invoke(
-                        fd.receiverInstance(devFun.instanceProviders),
-                        fd.parameterInstances(devFun.instanceProviders, it.args)
-                    )
+                    else -> fd.invoke(receiver, fd.parameterInstances(devFun.instanceProviders, null))
                 }
-                val value = if (v is Pair<*, *>) v.second else v
+                val value = if (v is Pair<*, *>) v.first else v
                 val testable = when (value) {
                     is List<*> -> value
                     else -> listOf(value)
                 }
-                logger.d { "Test $testable for $it" }
+                logger.d { "Test $testable for $fd" }
                 testable.filterIsInstance<Assertable>().forEach {
-                    val result = it.invoke(fd, allItems[fd].orEmpty())
+                    val result = it.invoke(fd, funDefItems[fd].orEmpty())
                     logger.d { "> $result" }
                 }
+            }
+
+            logger.d { "\n" }
+            devFun.instanceProviders -= dfIp
+        }
+
+        categories.forEach { cat ->
+            cat.items.forEach {
+                logger.d { "Invoke $it" }
+
+                val dfIp = DevFunItemInstanceProvider(functionItem = it, categoryItem = cat)
+                devFun.instanceProviders += dfIp
+
+                val fd = it.function
+                val receiver = fd.receiverInstance(devFun.instanceProviders)
+                if (it.function.method.name.startsWith("test")) {
+                    when {
+                        fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
+                        else -> it.invoke(
+                            fd.receiverInstance(devFun.instanceProviders),
+                            fd.parameterInstances(devFun.instanceProviders, it.args)
+                        )
+                    }
+                } else {
+                    val v = when {
+                        fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
+                        else -> it.invoke(
+                            fd.receiverInstance(devFun.instanceProviders),
+                            fd.parameterInstances(devFun.instanceProviders, it.args)
+                        )
+                    }
+                    val value = if (v is Pair<*, *>) v.second else v
+                    val testable = when (value) {
+                        is List<*> -> value
+                        else -> listOf(value)
+                    }
+                    logger.d { "Test $testable for $it" }
+                    testable.filterIsInstance<Assertable>().forEach {
+                        val result = it.invoke(fd, funDefItems[fd].orEmpty())
+                        logger.d { "> $result" }
+                    }
+                }
+
                 logger.d { "\n" }
+                devFun.instanceProviders -= dfIp
             }
         }
 
@@ -298,6 +324,24 @@ class TestContext(
             // Kotlin reflection has weird accessibility issues when invoking get/set/getter/setter .call()
             // it only seems to work the first time with subsequent calls failing with illegal access exceptions and the like
             return property.getter.javaMethod?.apply { isAccessible = true }
+        }
+}
+
+// TODO add functionality to DevFun?
+class DevFunItemInstanceProvider(
+    private val functionItem: FunctionItem?,
+    private val functionDefinition: FunctionDefinition? = functionItem?.function,
+    private val categoryDefinition: CategoryDefinition? = functionItem?.category,
+    private val categoryItem: CategoryItem? = null
+) : InstanceProvider {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(clazz: KClass<out T>): T? =
+        when {
+            clazz.isSubclassOf<FunctionItem>() -> functionItem as T?
+            clazz.isSubclassOf<FunctionDefinition>() -> functionDefinition as T?
+            clazz.isSubclassOf<CategoryDefinition>() -> categoryDefinition as T?
+            clazz.isSubclassOf<CategoryItem>() -> categoryItem as T?
+            else -> null
         }
 }
 

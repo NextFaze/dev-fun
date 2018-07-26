@@ -3,7 +3,7 @@
 package com.nextfaze.devfun.annotations
 
 import com.nextfaze.devfun.overlay.Dock
-import kotlin.annotation.AnnotationRetention.BINARY
+import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.*
 
 /**
@@ -12,7 +12,7 @@ import kotlin.annotation.AnnotationTarget.*
  * TODO support FIELD (if this is desired make an issue to expedite).
  */
 @Target(FUNCTION, PROPERTY, CLASS, PROPERTY_GETTER)
-@Retention(BINARY)
+@Retention(SOURCE)
 @DeveloperAnnotation
 annotation class DeveloperLogger(
     val enabled: Boolean = true,

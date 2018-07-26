@@ -44,11 +44,11 @@ android {
     buildTypes {
         getByName("debug") {
             applicationIdSuffix = ".debug"
-            isMinifyEnabled = getBooleanProperty("demo.debug.minify.enabled", true) // enable to demonstrate/test
+            isMinifyEnabled = getBooleanProperty("demo.minify.enabled", false)
             proguardFiles("proguard-rules.pro")
         }
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = getBooleanProperty("demo.minify.enabled", false)
             proguardFiles("proguard-rules.pro")
         }
     }
@@ -92,7 +92,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:3.10.0")
 
     // Joda Time - https://github.com/dlew/joda-time-android
-    implementation("net.danlew:android.joda:2.9.9")
+    implementation("net.danlew:android.joda:2.9.9.4")
 
     // Stetho - https://github.com/facebook/stetho
     debugImplementation(Dependency.stetho)

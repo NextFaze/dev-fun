@@ -11,6 +11,15 @@
 
 
 ###### The following entries are required for the app to function with DevFun when proguard is enabled. ######
+#
+# These keeps will only retain DevFun's generated sources.
+#
+# Both public and internal references will be directly referenced from generated sources and thus should be kept
+# transitively. However references that are private or package-private (Java) are referenced with reflection and will
+# not be kept automatically if there is nothing else (in your code) referencing them, and you will need to @Keep them
+# or something.
+#
+######
 
 
 #
@@ -21,29 +30,6 @@
 #
 # Keep DevFun generated class
 -keep class your.package.goes.here.** extends com.nextfaze.devfun.generated.DevFunGenerated
-
-
-#
-# If you implement your own DevFunModule you may need to explicitly keep it (as it's loaded via ServiceLoader).
-#
-# Keep DevFunModule
--keep class your.package.goes.here.MyDevFunModule
-
-
-#
-# If you have @DeveloperFunction methods that are unreferenced (e.g. non-public) you will need to tell proguard to keep them.
-#
-# Keep @DeveloperFunction methods
--keep class your.package.goes.here.** {
-    @com.nextfaze.devfun.annotations.DeveloperFunction *;
-}
-
-
-#
-# Similarly for non-public @DeveloperCategory annotated classes.
-#
-# Keep @DeveloperCategory classes
--keep @com.nextfaze.devfun.annotations.DeveloperCategory class your.package.goes.here.**
 
 
 #
@@ -64,6 +50,11 @@
 }
 
 
+#
+# This is only needed if you implement your own DevFunModule (as it's loaded via ServiceLoader).
+#
+# Keep DevFunModule
+-keep class your.package.goes.here.MyDevFunModule
 
 
 
@@ -75,8 +66,16 @@
 # Ignore warnings
 -dontwarn **
 
-# Keep Logback
+# For Retrace
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
+
+# Logback
 -keep class ch.qos.** { *; }
 
-# Keep GlideModule
+# Glide
 -keep class com.bumptech.glide.integration.okhttp3.OkHttpGlideModule
+
+# Joda Time
+-keep class org.joda.time.** { *; }
+-keep interface org.joda.time.** { *; }

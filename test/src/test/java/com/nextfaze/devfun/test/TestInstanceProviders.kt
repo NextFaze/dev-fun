@@ -2,6 +2,7 @@
 
 package com.nextfaze.devfun.test
 
+import com.nextfaze.devfun.core.CategoryItem
 import com.nextfaze.devfun.core.FunctionItem
 import com.nextfaze.devfun.inject.InstanceProvider
 import java.lang.reflect.Array
@@ -13,6 +14,16 @@ interface TestInstanceProviders {
     val testProviders: List<KClass<out InstanceProvider>> get() = listOf()
 }
 
+internal object NOPFunctionItem : FunctionItem {
+    override val function get() = TODO("not implemented")
+    override val category get() = TODO("not implemented")
+}
+
+internal object NOPCategoryItem : CategoryItem {
+    override val name: CharSequence get() = TODO("not implemented")
+    override val items: List<FunctionItem> get() = TODO("not implemented")
+}
+
 internal class SimpleTypesInstanceProvider : InstanceProvider {
     override fun <T : Any> get(clazz: KClass<out T>) = when (clazz) {
         List::class -> ArrayList::class.createInstance()
@@ -20,10 +31,8 @@ internal class SimpleTypesInstanceProvider : InstanceProvider {
         Iterable::class -> ArrayList::class.createInstance()
         ArrayDeque::class -> ArrayDeque::class.createInstance()
         CharSequence::class -> ""
-        FunctionItem::class -> object : FunctionItem {
-            override val function get() = TODO("not implemented")
-            override val category get() = TODO("not implemented")
-        }
+        FunctionItem::class -> NOPFunctionItem
+        CategoryItem::class -> NOPCategoryItem
         else -> null
     } as T?
 }

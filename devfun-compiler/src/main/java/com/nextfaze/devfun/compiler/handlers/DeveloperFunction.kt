@@ -96,11 +96,11 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
 
         // Category
         val category = annotation.category?.let {
-            "\n#|    override val ${FunctionDefinition::category.name} = ${developerCategory.generateCatDef(
+            "\n#|    override val ${FunctionDefinition::category.name} by lazy { ${developerCategory.generateCatDef(
                 it,
                 FunctionDefinition::clazz.name,
                 clazz
-            )}"
+            )} }"
         } ?: ""
 
         // Requires API
@@ -237,7 +237,7 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         functionDefinitions[functionDefinition] =
                 """$debugAnnotationInfo
                      #|object : AbstractFunctionDefinition()$implements {
-                     #|    override val ${FunctionDefinition::method.name} = $methodRef$name$category$requiresApi$transformer$overrides
+                     #|    override val ${FunctionDefinition::method.name} by lazy { $methodRef }$name$category$requiresApi$transformer$overrides
                      #|    override val ${FunctionDefinition::invoke.name}: $functionInvokeName = { $invocationArgs -> $debugElementInfo
                      #|        $invocation
                      #|    }
