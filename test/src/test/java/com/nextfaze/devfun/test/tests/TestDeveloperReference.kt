@@ -6,16 +6,16 @@ import com.nextfaze.devfun.test.TestContext
 import com.nextfaze.devfun.test.singleFileTests
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
-import tested.developer_annotation.*
+import tested.developer_reference.*
 import java.lang.reflect.Method
 import kotlin.test.assertFalse
 
-@Test(groups = ["kapt", "compile", "compiler", "developerAnnotation"])
-class TestDeveloperAnnotation : AbstractKotlinKapt3Tester() {
+@Test(groups = ["kapt", "compile", "compiler", "developerReference"])
+class TestDeveloperReference : AbstractKotlinKapt3Tester() {
     private val log = logger()
 
-    @DataProvider(name = "testDeveloperAnnotationsData")
-    fun testDeveloperAnnotationsData(testMethod: Method) =
+    @DataProvider(name = "testDeveloperReferencesData")
+    fun testDeveloperReferencesData(testMethod: Method) =
         singleFileTests(
             testMethod,
             ExecutableReferences::class,
@@ -23,17 +23,17 @@ class TestDeveloperAnnotation : AbstractKotlinKapt3Tester() {
             VarReferences::class
         )
 
-    @Test(dataProvider = "testDeveloperAnnotationsData")
-    fun testDeveloperAnnotations(test: TestContext) {
+    @Test(dataProvider = "testDeveloperReferencesData")
+    fun testDeveloperReferences(test: TestContext) {
         assertFalse(test.devRefs.isEmpty(), "Expected devRefs but was empty!")
         test.testInvocations(log)
     }
 
-    @DataProvider(name = "testDeveloperAnnotationPropertiesData")
-    fun testDeveloperAnnotationPropertiesData(testMethod: Method) = singleFileTests(testMethod, MetaDevFunAnnotation::class)
+    @DataProvider(name = "testDeveloperReferencePropertiesData")
+    fun testDeveloperReferencePropertiesData(testMethod: Method) = singleFileTests(testMethod, MetaDevFunAnnotation::class)
 
-    @Test(dataProvider = "testDeveloperAnnotationPropertiesData")
-    fun testDeveloperAnnotationProperties(test: TestContext) = test.testInvocations(log)
+    @Test(dataProvider = "testDeveloperReferencePropertiesData")
+    fun testDeveloperReferenceProperties(test: TestContext) = test.testInvocations(log)
 
     @DataProvider(name = "testCustomPropertiesData")
     fun testCustomPropertiesData(testMethod: Method) =

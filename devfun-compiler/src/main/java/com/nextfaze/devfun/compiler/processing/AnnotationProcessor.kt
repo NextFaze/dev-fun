@@ -1,19 +1,19 @@
-package com.nextfaze.devfun.compiler.handlers
+package com.nextfaze.devfun.compiler.processing
 
 import com.nextfaze.devfun.compiler.toClass
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import kotlin.reflect.KClass
 
-internal interface AnnotationHandler {
+internal interface AnnotationProcessor {
     val elements: Elements
 
     val willGenerateSource: Boolean
-    fun process(elements: Set<TypeElement>, env: RoundEnvironment)
 
     fun generateSource(): String
+
+    fun processAnnotatedElement(annotationElement: TypeElement, annotatedElement: Element)
 
     fun Element.toClass(
         kotlinClass: Boolean = true,

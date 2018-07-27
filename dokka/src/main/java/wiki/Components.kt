@@ -68,6 +68,7 @@ Minimum required libraries - annotations and annotation processor.
 Provides DevFun annotations and various interface definitions:
 - [DeveloperFunction]
 - [DeveloperCategory]
+- [DeveloperReference]
 - [DeveloperAnnotation]
     - [DeveloperLogger]
     - [DeveloperProperty]
@@ -81,7 +82,7 @@ implementation 'com.nextfaze.devfun:devfun-annotations:1.2.1'
 
 
 ### Compiler
-Annotation processor [DevFunProcessor] that handles [DeveloperFunction], [DeveloperCategory], and [DeveloperAnnotation] annotations.
+Annotation processor [DevFunProcessor] that handles [DeveloperFunction], [DeveloperCategory], [DeveloperReference], and [DeveloperAnnotation] annotations.
 
 This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.
 ```gradle

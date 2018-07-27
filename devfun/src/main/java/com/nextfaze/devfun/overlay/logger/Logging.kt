@@ -16,7 +16,6 @@ import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.internal.ReflectedMethod
 import com.nextfaze.devfun.internal.ReflectedProperty
 import com.nextfaze.devfun.internal.android.*
-import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.internal.toReflected
@@ -50,8 +49,8 @@ internal class OverlayLoggingImpl(
     private val loggers =
         devFun.developerReferences<DeveloperLogger>().mapNotNull {
             when (it) {
-                is DeveloperMethodReference -> MethodLogger(it)
-                is DeveloperTypeReference -> TypeLogger(it)
+                is MethodReference -> MethodLogger(it)
+                is TypeReference -> TypeLogger(it)
                 else -> {
                     devFun.get<ErrorHandler>().onWarn(
                         "Overlay Logging",
@@ -162,7 +161,7 @@ internal class OverlayLoggingImpl(
             )
     }
 
-    private inner class TypeLogger(ref: DeveloperTypeReference) : Logger(ref.type, ref.properties) {
+    private inner class TypeLogger(ref: TypeReference) : Logger(ref.type, ref.properties) {
         override val displayName: CharSequence = clazz.java.name
         override val prefsName: String = clazz.java.simpleName
         override val group = clazz.java.simpleName.splitCamelCase()
@@ -175,7 +174,7 @@ internal class OverlayLoggingImpl(
         override fun toString() = clazz.toString()
     }
 
-    private inner class MethodLogger(ref: DeveloperMethodReference, private val reflected: ReflectedMethod = ref.method.toReflected()) :
+    private inner class MethodLogger(ref: MethodReference, private val reflected: ReflectedMethod = ref.method.toReflected()) :
         Logger(reflected.clazz, ref.properties) {
         override val displayName by lazy { if (reflected is ReflectedProperty) reflected.desc else ".${reflected.name}()" }
         override val prefsName = "${clazz.java.simpleName}.${reflected.name.substringBefore('$')}"

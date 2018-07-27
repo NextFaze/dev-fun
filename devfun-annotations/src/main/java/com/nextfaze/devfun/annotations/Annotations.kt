@@ -173,6 +173,7 @@ import kotlin.reflect.KClass
  */
 @Target(CLASS)
 @Retention(SOURCE)
+@DeveloperAnnotation(developerCategory = true)
 annotation class DeveloperCategory(
     val value: String = "",
     val group: String = "",
@@ -345,6 +346,7 @@ annotation class DeveloperCategory(
  */
 @Target(FUNCTION)
 @Retention(SOURCE)
+@DeveloperAnnotation(developerFunction = true)
 annotation class DeveloperFunction(
     val value: String = "",
     val category: DeveloperCategory = DeveloperCategory(),
@@ -353,9 +355,24 @@ annotation class DeveloperFunction(
 )
 
 /**
+ * Annotated elements will be recorded by DevFun for later retrieval via `devFun.developerReferences<DeveloperReference>()`.
+ *
+ * In general this is not used much beyond testing.
+ *
+ * Typically usage of this type is via your own custom annotations with [DeveloperAnnotation] à la [DeveloperLogger].
+ *
+ * @see DeveloperAnnotation
+ * @see Dagger2Component
+ * @see DeveloperLogger
+ */
+@Retention(SOURCE)
+@DeveloperAnnotation(developerReference = true)
+annotation class DeveloperReference
+
+/**
  * Annotation used to by DevFun to "tag" references to some other annotations.
  *
- * By default usages of the annotated annotations result in generated [DeveloperReference] instances.
+ * By default usages of the annotated annotations result in generated [ReferenceDefinition] instances.
  *
  * However, if [developerFunction] is set to `true` then the compiler will treat it as if it was an @[DeveloperFunction] annotation.
  * In this state the compiler will check for the same fields of `@DeveloperFunction`.
@@ -368,7 +385,7 @@ annotation class DeveloperFunction(
  * # Custom Properties
  * If your annotation declares custom properties, these will be serialized and available at run-time during function transformation.
  *
- * Function definitions will implement [DeveloperReference] with the properties available as a map via [DeveloperReference.properties].
+ * Function definitions will implement [ReferenceDefinition] with the properties available as a map via [ReferenceDefinition.properties].
  *
  * ## Contextual Vars
  * _(experimental)_ At compile time the follow vars are available for use in `String` properties:
@@ -396,4 +413,8 @@ annotation class DeveloperFunction(
  */
 @Retention(BINARY)
 @Target(ANNOTATION_CLASS)
-annotation class DeveloperAnnotation(val developerFunction: Boolean = false)
+annotation class DeveloperAnnotation(
+    val developerFunction: Boolean = false,
+    val developerCategory: Boolean = false,
+    val developerReference: Boolean = false
+)

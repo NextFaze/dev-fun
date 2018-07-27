@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentActivity
 import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
 import com.google.auto.service.AutoService
-import com.nextfaze.devfun.annotations.DeveloperCategory
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.AbstractDevFunModule
 import com.nextfaze.devfun.core.ActivityProvider
@@ -23,6 +23,8 @@ import com.nextfaze.devfun.menu.controllers.VOLUME_KEY_SEQUENCE
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.view.ViewFactoryProvider
 import com.nextfaze.devfun.view.viewFactory
+import kotlin.annotation.AnnotationRetention.SOURCE
+import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.reflect.KClass
 
 interface DeveloperMenu : MenuController {
@@ -92,7 +94,7 @@ interface MenuHeader
 val DevFun.devMenu get() = get<DevMenu>()
 
 @AutoService(DevFunModule::class)
-@DeveloperCategory("DevMenu", order = 90_000)
+@MenuCategory
 class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     private val overlays by lazy { devFun.get<OverlayManager>() }
     private val activityProvider by lazy { devFun.get<ActivityProvider>() }
@@ -188,3 +190,12 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
         return "$title\n$msg"
     }
 }
+
+@Target(CLASS)
+@Retention(SOURCE)
+@DeveloperAnnotation(developerCategory = true)
+internal annotation class MenuCategory(
+    val group: String = "",
+    val value: String = "DevMenu",
+    val order: Int = 90_000
+)

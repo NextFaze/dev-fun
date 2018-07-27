@@ -18,7 +18,6 @@ import kotlin.reflect.KClass
 internal class AnnotationElements @Inject constructor(elements: Elements) {
     private val devFunElement = DevFunTypeElement(elements.getTypeElement(DeveloperFunction::class.qualifiedName))
     private val devCatElement = DevCatTypeElement(elements.getTypeElement(DeveloperCategory::class.qualifiedName))
-    val devAnnElement = DevAnnotationTypeElement(elements.getTypeElement(DeveloperAnnotation::class.qualifiedName))
 
     fun createDevFunAnnotation(
         annotation: AnnotationMirror,
@@ -27,14 +26,8 @@ internal class AnnotationElements @Inject constructor(elements: Elements) {
 
     fun createDevCatAnnotation(
         annotation: AnnotationMirror,
-        annotationTypeElement: TypeElement = devCatElement.element,
-        superCat: AnnotationMirror? = null
-    ) = DevFunCategory(annotation, annotationTypeElement, devCatElement, superCat)
-
-    fun createDevAnnotation(
-        annotation: AnnotationMirror,
-        annotationTypeElement: TypeElement = devAnnElement.element
-    ) = DevAnnotation(annotation, annotationTypeElement, devAnnElement)
+        annotationTypeElement: TypeElement = devCatElement.element
+    ) = DevFunCategory(annotation, annotationTypeElement, devCatElement)
 }
 
 internal class DevFunAnnotation(
@@ -114,20 +107,6 @@ internal data class DevFunCategory(
     }
 }
 
-internal data class DevAnnotation(
-    private val annotation: AnnotationMirror,
-    private val annotationTypeElement: TypeElement,
-    private val devAnnotationTypeElement: DevAnnotationTypeElement
-) {
-    val developerFunction by lazy {
-        annotation[DeveloperAnnotation::developerFunction] ?: when {
-            annotationTypeElement != devAnnotationTypeElement.element ->
-                annotationTypeElement.getDefaultValueFor(DeveloperAnnotation::developerFunction)?.takeIf { it != devAnnotationTypeElement.developerFunction }
-            else -> null
-        }
-    }
-}
-
 internal class DevFunTypeElement(val element: TypeElement) {
     val value = element.getDefaultValueFor(DeveloperFunction::value)!!
     val category = element.getDefaultValueFor(DeveloperFunction::category)!!
@@ -143,6 +122,8 @@ internal class DevCatTypeElement(val element: TypeElement) {
 
 internal class DevAnnotationTypeElement(val element: TypeElement) {
     val developerFunction = element.getDefaultValueFor(DeveloperAnnotation::developerFunction)!!
+    val developerCategory = element.getDefaultValueFor(DeveloperAnnotation::developerCategory)!!
+    val developerReference = element.getDefaultValueFor(DeveloperAnnotation::developerReference)!!
 }
 
 private inline fun <reified T : Any> Element.getDefaultValueFor(callable: KCallable<T>) =

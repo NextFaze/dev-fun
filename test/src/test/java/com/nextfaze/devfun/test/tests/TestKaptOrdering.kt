@@ -12,7 +12,7 @@ import java.lang.reflect.Method
 import java.util.ServiceLoader
 import kotlin.test.expect
 
-@Test(groups = arrayOf("kapt", "compile", "supported", "compiler"))
+@Test(groups = ["kapt", "compile", "supported", "compiler"])
 class TestKaptOrdering : AbstractKotlinKapt3Tester() {
 
     @DataProvider(name = "testGenerationOrderData")
@@ -28,7 +28,7 @@ class TestKaptOrdering : AbstractKotlinKapt3Tester() {
     }
 
     @Suppress("UNUSED_PARAMETER")
-    @Test(dataProvider = "testGenerationOrderData", dependsOnMethods = arrayOf("testGenerationOrderFirstPass"))
+    @Test(dataProvider = "testGenerationOrderData", dependsOnMethods = ["testGenerationOrderFirstPass"])
     fun testGenerationOrder(test: TestContext) {
         val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()
         val secondPass = devFun.functionDefinitions.map { it.method.toString().substringBefore('$') }

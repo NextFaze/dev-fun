@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "unused")
 
-package tested.developer_annotation
+package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory

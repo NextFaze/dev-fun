@@ -395,27 +395,27 @@ class DevFun {
     val categories: List<CategoryItem> get() = definitionsProcessor.getTransformedDefinitions()
 
     /**
-     * Get references to annotations that are annotated by meta annotation [DeveloperAnnotation].
+     * Get references to annotations that were annotated as [DeveloperReference].
      *
      * __Experimental API__
      *
-     * @param T The annotation type that was annotation with [DeveloperAnnotation].
+     * @param T The annotation type that was annotation with [DeveloperReference].
      * @return A list of references across all modules annotated with [T].
      *
      * @see Dagger2Component
      * @see getDeveloperReferences
      */
-    inline fun <reified T : Annotation> developerReferences(): List<DeveloperReference> =
+    inline fun <reified T : Annotation> developerReferences(): List<ReferenceDefinition> =
         definitions.flatMap {
             it.developerReferences.filter { it.annotation == T::class }
         }
 
     /**
-     * Get references to annotations that are annotated by meta annotation [DeveloperAnnotation].
+     * Get references to annotations that were annotated as [DeveloperReference].
      *
      * __Experimental API__
      *
-     * @param clazz The annotation class that was annotation with [DeveloperAnnotation].
+     * @param clazz The annotation class that was annotation with [DeveloperReference].
      * @return A list of references across all modules annotated with [clazz].
      *
      * @see developerReferences

@@ -1,4 +1,4 @@
-package tested.developer_annotation;
+package tested.developer_reference;
 
 @interface PackagePrivateEmptyAnnotation {
 }

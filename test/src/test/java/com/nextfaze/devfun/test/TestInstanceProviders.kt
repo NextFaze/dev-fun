@@ -3,7 +3,9 @@
 package com.nextfaze.devfun.test
 
 import com.nextfaze.devfun.core.CategoryItem
+import com.nextfaze.devfun.core.FieldReference
 import com.nextfaze.devfun.core.FunctionItem
+import com.nextfaze.devfun.core.TypeReference
 import com.nextfaze.devfun.inject.InstanceProvider
 import java.lang.reflect.Array
 import java.util.ArrayDeque
@@ -65,4 +67,12 @@ internal class PrimitivesInstanceProvider : InstanceProvider {
             else -> return null
         } as T
     }
+}
+
+interface WithTypeReferenceTest {
+    fun testTypeReference(ref: TypeReference)
+}
+
+interface WithFieldReferenceTest {
+    fun testFieldReference(ref: FieldReference)
 }

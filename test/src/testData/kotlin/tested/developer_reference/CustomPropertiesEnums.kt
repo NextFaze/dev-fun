@@ -1,9 +1,9 @@
 @file:Suppress("UNUSED_PARAMETER", "unused", "PackageName", "ClassName", "UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS")
 
-package tested.developer_annotation
+package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.core.DeveloperMethodReference
+import com.nextfaze.devfun.core.MethodReference
 import com.nextfaze.devfun.test.expectArrayOf
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
@@ -13,7 +13,7 @@ annotation class CustomPropertiesEnums
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 private annotation class HasEnumProperties(
     val myNumbers: MyNumbers,
     val myNumbersDefault: MyNumbers = MyNumbers.TWO,
@@ -25,7 +25,7 @@ private annotation class HasEnumProperties(
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 private annotation class HasEnumArrayProperties(
     val myNumbers: Array<MyNumbers>,
     val myNumbersDefault: Array<MyNumbers> = [MyNumbers.ONE, MyNumbers.TWO],
@@ -46,7 +46,7 @@ class cpe_SomeClass {
         myPrivateTypes = MyPrivateTypes.HELLO,
         myPrivateTypesDefaultChangeMe = MyPrivateTypes.WORLD
     )
-    fun testEnumProperties(ref: DeveloperMethodReference) {
+    fun testEnumProperties(ref: MethodReference) {
         val properties = ref.properties!!
         expect(MyNumbers.ONE) { properties["myNumbers"] }
         expect(MyNumbers.TWO) { properties["myNumbersDefault"] }
@@ -62,7 +62,7 @@ class cpe_SomeClass {
         myPrivateTypes = [MyPrivateTypes.HELLO, MyPrivateTypes.NEXT, MyPrivateTypes.FAZE],
         myPrivateTypesDefaultChangeMe = [MyPrivateTypes.HELLO, MyPrivateTypes.HELLO, MyPrivateTypes.HELLO]
     )
-    fun testEnumArrayProperties(ref: DeveloperMethodReference) {
+    fun testEnumArrayProperties(ref: MethodReference) {
         val properties = ref.properties!!
         expectArrayOf(MyNumbers.ONE, MyNumbers.ONE, MyNumbers.THREE) { properties["myNumbers"] }
         expectArrayOf(MyNumbers.ONE, MyNumbers.TWO) { properties["myNumbersDefault"] }

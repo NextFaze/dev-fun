@@ -157,3 +157,12 @@ internal fun TypeMirror.toCast(): String = when {
     }
     else -> ""
 }
+
+//internal inline fun <reified T : Any> Element.getAnnotation(): AnnotationMirror? =
+//    annotationMirrors.singleOrNull { it.annotationType.toString() == T::class.qualifiedName }
+
+internal fun Element.getAnnotation(typeElement: TypeElement): AnnotationMirror? =
+    annotationMirrors.singleOrNull { it.annotationType.toString() == typeElement.qualifiedName.toString() }
+
+//internal fun Element.getAnnotation(typeElement: TypeElement): AnnotationMirror? =
+//    annotationMirrors.singleOrNull { it.annotationType.asElement() == typeElement }

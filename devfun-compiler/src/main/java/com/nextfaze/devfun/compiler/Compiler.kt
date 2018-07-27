@@ -3,7 +3,7 @@ package com.nextfaze.devfun.compiler
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.compiler.handlers.AnnotationHandler
+import com.nextfaze.devfun.compiler.processing.DeveloperAnnotationProcessor
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
 import java.io.File
@@ -229,7 +229,7 @@ class DevFunProcessor : AbstractProcessor() {
     @Inject internal lateinit var logging: Logging
     @Inject internal lateinit var filer: Filer
     @Inject internal lateinit var ctx: CompileContext
-    @Inject internal lateinit var handlers: Set<@JvmSuppressWildcards AnnotationHandler>
+    @Inject internal lateinit var processor: DeveloperAnnotationProcessor
     @Inject internal lateinit var typeImports: ImportsTracker
 
     private val log by lazy { logging.create(this) }
@@ -247,14 +247,12 @@ class DevFunProcessor : AbstractProcessor() {
         try {
             if (!env.errorRaised()) {
                 if (env.processingOver()) {
-                    if (handlers.any { it.willGenerateSource }) {
+                    if (processor.willGenerateSources) {
                         writeServiceFile()
                         writeSourceFile(generateKSource())
                     }
                 } else {
-                    handlers.forEach {
-                        it.process(elements, env)
-                    }
+                    processor.process(elements, env)
                 }
             }
         } catch (t: Throwable) {
@@ -291,7 +289,7 @@ class DevFunProcessor : AbstractProcessor() {
         // it doesn't replace/update static fields *inside* of the class (only the class definition itself). This
         // wouldn't be a problem normally w.r.t. normal singletons, but this field is not accessible/assignable by us.
         //
-        return """@file:Suppress("UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "PackageDirectoryMismatch")
+        return """@file:Suppress("UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "PackageDirectoryMismatch", "PackageName")
 
 package ${ctx.pkg}
 
@@ -316,7 +314,7 @@ private inline val <T : Any> KClass<T>.privateObjectInstance
     get() = java.getDeclaredField("INSTANCE").apply { isAccessible = true }.get(null) as T
 
 class $DEFINITIONS_CLASS_NAME : ${DevFunGenerated::class.simpleName} {
-${handlers.filter { it.willGenerateSource }.sortedBy { it::class.java.simpleName }.joinToString("\n") { it.generateSource() }}
+${processor.generateSources()}
 }
 """
     }

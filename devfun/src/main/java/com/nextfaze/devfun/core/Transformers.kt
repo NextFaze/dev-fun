@@ -179,7 +179,7 @@ internal class ArgumentsTransformerImpl : ArgumentsTransformer {
 
     @Suppress("UNCHECKED_CAST")
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
-        if (functionDefinition !is DeveloperReference) {
+        if (functionDefinition !is ReferenceDefinition) {
             log.w { "Got a function definition $functionDefinition that was not a DeveloperReference - ignoring." }
             return null
         }

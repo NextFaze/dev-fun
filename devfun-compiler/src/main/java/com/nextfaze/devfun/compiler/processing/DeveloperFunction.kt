@@ -1,12 +1,11 @@
-package com.nextfaze.devfun.compiler.handlers
+package com.nextfaze.devfun.compiler.processing
 
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.compiler.*
-import com.nextfaze.devfun.core.DeveloperReference
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.core.FunctionTransformer
+import com.nextfaze.devfun.core.ReferenceDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
-import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.Element
@@ -29,7 +28,7 @@ internal class DeveloperFunctionHandler @Inject constructor(
     private val developerCategory: DeveloperCategoryHandler,
     private val annotationSerializer: AnnotationSerializer,
     logging: Logging
-) : AnnotationHandler {
+) : AnnotationProcessor {
     private val log by logging()
 
     private val useKotlinReflection get() = options.useKotlinReflection
@@ -40,18 +39,29 @@ internal class DeveloperFunctionHandler @Inject constructor(
     private val functionDefinitions = HashMap<String, String>()
     override val willGenerateSource: Boolean get() = functionDefinitions.isNotEmpty()
 
-    override fun process(elements: Set<TypeElement>, env: RoundEnvironment) {
-        env.getElementsAnnotatedWith(DeveloperFunction::class.java).forEach {
-            generateFunctionDefinition(annotations.createDevFunAnnotation(it.devFunAnnotation), it as ExecutableElement)
-        }
-    }
-
     override fun generateSource() =
         """    override val ${DevFunGenerated::functionDefinitions.name} = listOf<${FunctionDefinition::class.simpleName}>(
 ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )"""
 
-    fun generateFunctionDefinition(annotation: DevFunAnnotation, element: ExecutableElement, devAnnotation: TypeElement? = null) {
+    override fun processAnnotatedElement(annotationElement: TypeElement, annotatedElement: Element) {
+        if (annotatedElement !is ExecutableElement) {
+            log.error(element = annotatedElement) {
+                """Only executable elements are supported with DeveloperFunction (elementType=${annotatedElement::class}).
+                            |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
+            }
+            return
+        }
+
+        val annotation = annotatedElement.getAnnotation(annotationElement) ?: return
+        addDefinition(
+            annotations.createDevFunAnnotation(annotation, annotationElement),
+            annotatedElement,
+            annotationElement
+        )
+    }
+
+    private fun addDefinition(annotation: DevFunAnnotation, element: ExecutableElement, annotationElement: TypeElement) {
         val clazz = element.enclosingElement as TypeElement
         log.note { "Processing $clazz::$element..." }
 
@@ -96,7 +106,7 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
 
         // Category
         val category = annotation.category?.let {
-            "\n#|    override val ${FunctionDefinition::category.name} by lazy { ${developerCategory.generateCatDef(
+            "\n#|    override val ${FunctionDefinition::category.name} by lazy { ${developerCategory.createCatDefSource(
                 it,
                 FunctionDefinition::clazz.name,
                 clazz
@@ -207,26 +217,22 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
                 #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, allArgTypesPublic=$allArgTypesPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction, isProperty=$isProperty"""
         }
 
-        // DeveloperAnnotation
-        var implements = ""
-        var overrides = ""
-        if (devAnnotation != null) {
-            importsTracker += DeveloperReference::class
-            implements = ", ${DeveloperReference::class.java.simpleName}"
+        // ReferenceDefinition
+        importsTracker += ReferenceDefinition::class
+        val implements = ", ${ReferenceDefinition::class.java.simpleName}"
 
-            // The meta annotation class (e.g. Dagger2Component)
-            val annotationClass = devAnnotation.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
-            overrides += "\n#|    override val ${DeveloperReference::annotation.name}: KClass<out Annotation> = $annotationClass"
+        // The meta annotation class (e.g. Dagger2Component)
+        val annotationClass = annotationElement.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
+        var overrides = "\n#|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass"
 
-            // Generate any data
-            val data = annotationSerializer.findAndSerialize(
-                annotatedElement = element,
-                annotationTypeElement = devAnnotation,
-                excludeNames = listOf("value", "category", "requiresApi", "transformer")
-            )
-            if (data != null) {
-                overrides += "\n#|    override val ${DeveloperReference::properties.name}: Map<String, *>? = $data"
-            }
+        // Generate any data
+        val data = annotationSerializer.findAndSerialize(
+            annotatedElement = element,
+            annotationTypeElement = annotationElement,
+            excludeFields = listOf("value", "category", "requiresApi", "transformer")
+        )
+        if (data != null) {
+            overrides += "\n#|    override val ${ReferenceDefinition::properties.name}: Map<String, *>? = $data"
         }
 
         // Generate definition
@@ -256,6 +262,4 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         }
         else -> "($from${asType().toCast()})"
     }
-
-    private val Element.devFunAnnotation get() = annotationMirrors.first { it.annotationType.toString() == DeveloperFunction::class.qualifiedName }
 }

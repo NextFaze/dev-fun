@@ -3,7 +3,6 @@
 package tested.meta_annotations
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.core.CategoryItem
 import com.nextfaze.devfun.core.FunctionItem
 import com.nextfaze.devfun.test.NOPCategoryItem
@@ -19,7 +18,7 @@ TODO Add something like these to DevFun?
 
 /** Example of meta categories with `BINARY` retention for better proguard compatibility. */
 @Retention(BINARY)
-@DeveloperCategory
+@DeveloperAnnotation(developerCategory = true)
 annotation class DevCategory(
     val value: String = "",
     val group: String = "",

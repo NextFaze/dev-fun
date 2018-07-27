@@ -2,6 +2,7 @@
 
 package tested.meta_annotations
 
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.CategoryItem
@@ -13,14 +14,19 @@ import kotlin.test.expect
 
 annotation class MetaCategories
 
+@DeveloperAnnotation(developerCategory = true)
+annotation class CustomCategory(
+    val value: String = "My Custom Category",
+    val order: Int = 5_000
+)
 
-@DeveloperCategory("My Custom Category", order = 5_000)
-annotation class CustomCategory
+@DeveloperAnnotation(developerCategory = true)
+annotation class CategoryContext(
+    val value: String = "Context",
+    val order: Int = -10_000
+)
 
-@DeveloperCategory("Context", order = -10_000)
-annotation class CategoryContext
-
-@DeveloperCategory
+@DeveloperAnnotation(developerCategory = true)
 annotation class MetaCategory(
     val value: String = "",
     val group: String = "",

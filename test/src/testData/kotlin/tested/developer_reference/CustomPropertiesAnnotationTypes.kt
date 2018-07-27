@@ -1,10 +1,10 @@
 @file:Suppress("UNUSED_PARAMETER", "unused", "PackageName", "ClassName")
 
-package tested.developer_annotation
+package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.core.DeveloperMethodReference
-import com.nextfaze.devfun.core.DeveloperReference
+import com.nextfaze.devfun.core.MethodReference
+import com.nextfaze.devfun.core.ReferenceDefinition
 import com.nextfaze.devfun.test.expectArrayOf
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
@@ -30,7 +30,7 @@ annotation class CustomPropertiesAnnotationTypes
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 internal annotation class HasAnnotationProperties(
     val simpleTypesWithDefaults: SimpleTypesWithDefaults =
         SimpleTypesWithDefaults(
@@ -156,7 +156,7 @@ annotation class Nested(
     val arrayOfAnnotations: Array<SimpleTypesWithDefaults> = [SimpleTypesWithDefaults(someInt = 1), SimpleTypesWithDefaults(someInt = 2)]
 )
 
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasNestedStringArrays(
     val hasStringArray: HasStringArray,
     val hasStringArrays: Array<HasStringArray>
@@ -169,7 +169,7 @@ annotation class HasStringArray(
 @Suppress("UNCHECKED_CAST")
 class cpat_SomeClass {
     @HasAnnotationProperties
-    fun testAllDefaults(ref: DeveloperMethodReference) {
+    fun testAllDefaults(ref: MethodReference) {
         val properties = ref.properties!!
 
         run simpleTypesWithDefaults@{
@@ -337,7 +337,7 @@ class cpat_SomeClass {
             )
         )
     )
-    fun testWithUseSiteValues(ref: DeveloperMethodReference) {
+    fun testWithUseSiteValues(ref: MethodReference) {
         val properties = ref.properties!!
 
         run simpleTypesWithDefaults@{
@@ -499,7 +499,7 @@ class cpat_SomeClass {
             HasStringArray(["bar@example.com", "world", "Normal"])
         ]
     )
-    fun testNestedStringArray(ref: DeveloperReference) {
+    fun testNestedStringArray(ref: ReferenceDefinition) {
         val properties = ref.properties!!
 
         val hasStringArray = properties["hasStringArray"] as Map<String, *>

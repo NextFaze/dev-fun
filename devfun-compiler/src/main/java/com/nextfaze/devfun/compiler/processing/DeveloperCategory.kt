@@ -1,13 +1,11 @@
-package com.nextfaze.devfun.compiler.handlers
+package com.nextfaze.devfun.compiler.processing
 
-import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.core.CategoryDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
-import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.lang.model.element.ElementKind
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import kotlin.reflect.KCallable
@@ -19,7 +17,7 @@ internal class DeveloperCategoryHandler @Inject constructor(
     private val preprocessor: StringPreprocessor,
     private val annotations: AnnotationElements,
     logging: Logging
-) : AnnotationHandler {
+) : AnnotationProcessor {
     private val log by logging()
 
     private val isDebugCommentsEnabled get() = options.isDebugCommentsEnabled
@@ -27,24 +25,17 @@ internal class DeveloperCategoryHandler @Inject constructor(
     private val categoryDefinitions = HashMap<String, String>()
     override val willGenerateSource: Boolean get() = categoryDefinitions.isNotEmpty()
 
-    override fun process(elements: Set<TypeElement>, env: RoundEnvironment) {
-        env.getElementsAnnotatedWith(DeveloperCategory::class.java).forEach { element ->
-            element as TypeElement
-            log.note { "Processing ${element.enclosingElement}::$element..." }
-
-            val annotation = element.annotationMirrors.single { it.annotationType.toString() == DeveloperCategory::class.qualifiedName }
-            if (element.kind == ElementKind.ANNOTATION_TYPE) { // meta categories
-                env.getElementsAnnotatedWith(element).forEach {
-                    val useSiteAnnotation = it.annotationMirrors.first { it.annotationType.toString() == element.qualifiedName.toString() }
-                    addCategoryDefinition(
-                        annotations.createDevCatAnnotation(annotation, element, useSiteAnnotation),
-                        it as TypeElement
-                    )
-                }
-            } else {
-                addCategoryDefinition(annotations.createDevCatAnnotation(annotation), element)
+    override fun processAnnotatedElement(annotationElement: TypeElement, annotatedElement: Element) {
+        if (annotatedElement !is TypeElement) {
+            log.error(element = annotatedElement) {
+                """Only type elements are supported with DeveloperCategory (elementType=${annotatedElement::class}).
+                            |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
             }
+            return
         }
+
+        val annotation = annotatedElement.getAnnotation(annotationElement) ?: return
+        addDefinition(annotations.createDevCatAnnotation(annotation, annotationElement), annotatedElement)
     }
 
     override fun generateSource() =
@@ -52,14 +43,14 @@ internal class DeveloperCategoryHandler @Inject constructor(
 ${categoryDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )"""
 
-    fun generateCatDef(devFunCat: DevFunCategory, ref: String, element: TypeElement) = mutableMapOf<KCallable<*>, Any>().apply {
+    fun createCatDefSource(devFunCat: DevFunCategory, ref: String, element: TypeElement) = mutableMapOf<KCallable<*>, Any>().apply {
         this += CategoryDefinition::clazz to ref
         devFunCat.value?.let { this += CategoryDefinition::name to preprocessor.run(it.toKString(), element) }
         devFunCat.group?.let { this += CategoryDefinition::group to preprocessor.run(it.toKString(), element) }
         devFunCat.order?.let { this += CategoryDefinition::order to it }
     }.let { "SimpleCategoryDefinition(${it.entries.joinToString { "${it.key.name} = ${it.value}" }})" }
 
-    private fun addCategoryDefinition(devFunCat: DevFunCategory, element: TypeElement) {
+    private fun addDefinition(devFunCat: DevFunCategory, element: TypeElement) {
         // Debugging
         val categoryDefinition = "${element.enclosingElement}::$element"
         var debugAnnotationInfo = ""
@@ -70,7 +61,7 @@ ${categoryDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         // Generate definition
         categoryDefinitions[element.asType().toString()] =
                 """$debugAnnotationInfo
-                     #|${generateCatDef(devFunCat, element.toClass(), element)}"""
+                     #|${createCatDefSource(devFunCat, element.toClass(), element)}"""
     }
 
 }

@@ -1,11 +1,11 @@
 package com.nextfaze.devfun.generated
 
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperReference
 import com.nextfaze.devfun.core.CategoryDefinition
-import com.nextfaze.devfun.core.DeveloperReference
 import com.nextfaze.devfun.core.FunctionDefinition
+import com.nextfaze.devfun.core.ReferenceDefinition
 import java.util.ServiceLoader
 
 /**
@@ -15,8 +15,8 @@ import java.util.ServiceLoader
  * @see CategoryDefinition
  * @see DeveloperFunction
  * @see FunctionDefinition
- * @see DeveloperAnnotation
  * @see DeveloperReference
+ * @see ReferenceDefinition
  */
 interface DevFunGenerated {
     /**
@@ -36,7 +36,7 @@ interface DevFunGenerated {
     /**
      * List of developer references.
      *
-     * @see DeveloperAnnotation
+     * @see DeveloperReference
      */
-    val developerReferences: List<DeveloperReference> get() = emptyList()
+    val developerReferences: List<ReferenceDefinition> get() = emptyList()
 }

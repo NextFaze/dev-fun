@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.nextfaze.devfun.annotations.DeveloperCategory
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.BaseActivity
 import com.nextfaze.devfun.demo.BaseFragment
@@ -12,6 +12,8 @@ import com.nextfaze.devfun.demo.R
 import com.nextfaze.devfun.demo.inject.ActivityInjector
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import javax.inject.Inject
+import kotlin.annotation.AnnotationRetention.SOURCE
+import kotlin.annotation.AnnotationTarget.CLASS
 
 class DaggerScopesActivity : BaseActivity() {
     @Inject lateinit var injectableNotScopedWithZeroArgsConstructor: InjectableNotScopedWithZeroArgsConstructor
@@ -119,5 +121,11 @@ private fun <T : Any> assertEquals(expected: T, actual: T, name: String) {
     }
 }
 
-@DeveloperCategory("Testing & Debugging", group = "%CLASS_SN%", order = 200_000)
-annotation class TestCat
+@Target(CLASS)
+@Retention(SOURCE)
+@DeveloperAnnotation(developerCategory = true)
+annotation class TestCat(
+    val value: String = "Testing & Debugging",
+    val group: String = "%CLASS_SN%",
+    val order: Int = 200_000
+)

@@ -1,11 +1,11 @@
 @file:Suppress("UNUSED_PARAMETER", "unused", "PackageName", "ClassName")
 
-package tested.developer_annotation
+package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.core.DeveloperMethodReference
-import com.nextfaze.devfun.core.DeveloperReference
 import com.nextfaze.devfun.core.FunctionTransformer
+import com.nextfaze.devfun.core.MethodReference
+import com.nextfaze.devfun.core.ReferenceDefinition
 import com.nextfaze.devfun.core.SingleFunctionTransformer
 import com.nextfaze.devfun.test.expectArrayOf
 import kotlin.annotation.AnnotationRetention.SOURCE
@@ -17,7 +17,7 @@ annotation class CustomPropertiesClassTypes
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasClassProperties(
     val clazz: KClass<*>,
     val primitiveClass: KClass<*>,
@@ -33,7 +33,7 @@ annotation class HasClassProperties(
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasArrayClassProperties(
     val booleanArray: KClass<*>,
     val byteArray: KClass<*>,
@@ -47,7 +47,7 @@ annotation class HasArrayClassProperties(
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasClassPropertiesWithDefaults(
     val defaultClass: KClass<*> = Any::class,
     val defaultPrimitiveClass: KClass<*> = BooleanArray::class,
@@ -56,7 +56,7 @@ annotation class HasClassPropertiesWithDefaults(
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasClassArrayPropertiesWithDefaults(
     val defaultClasses: Array<KClass<*>> = [Any::class, Int::class, BooleanArray::class],
     val optionalClasses: Array<KClass<*>> = [Boolean::class],
@@ -64,7 +64,7 @@ annotation class HasClassArrayPropertiesWithDefaults(
 )
 
 private class PrivateClass
-class TypedClass<T : DeveloperReference>
+class TypedClass<T : ReferenceDefinition>
 
 interface MyInterface<T : FunctionTransformer>
 class NestedTypedStarClass<T : MyInterface<*>>
@@ -88,7 +88,7 @@ class cpct_SomeClass {
         packagePrivateTypedClass = PackagePrivateTypedClass::class,
         multipleTypedClass = MultipleTypedClass::class
     )
-    fun testClassProperties(ref: DeveloperMethodReference) {
+    fun testClassProperties(ref: MethodReference) {
         val properties = ref.properties!!
         expect(cpct_SomeClass::class) { properties["clazz"] }
         expect(Byte::class) { properties["primitiveClass"] }
@@ -112,7 +112,7 @@ class cpct_SomeClass {
         floatArray = FloatArray::class,
         doubleArray = DoubleArray::class
     )
-    fun testArrayClassProperties(ref: DeveloperMethodReference) {
+    fun testArrayClassProperties(ref: MethodReference) {
         val properties = ref.properties!!
         expect(BooleanArray::class) { properties["booleanArray"] }
         expect(ByteArray::class) { properties["byteArray"] }
@@ -125,7 +125,7 @@ class cpct_SomeClass {
     }
 
     @HasClassPropertiesWithDefaults
-    fun testSimpleTypesWithDefaults(ref: DeveloperMethodReference) {
+    fun testSimpleTypesWithDefaults(ref: MethodReference) {
         val properties = ref.properties!!
         expect(Any::class) { properties["defaultClass"] }
         expect(BooleanArray::class) { properties["defaultPrimitiveClass"] }
@@ -144,7 +144,7 @@ class cpct_SomeClass {
             Array<PackagePrivateType>::class
         ]
     )
-    fun testClassArrayPropertiesWithDefaults(ref: DeveloperMethodReference) {
+    fun testClassArrayPropertiesWithDefaults(ref: MethodReference) {
         val properties = ref.properties!!
         expectArrayOf(
             Int::class,

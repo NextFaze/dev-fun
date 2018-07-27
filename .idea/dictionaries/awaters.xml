@@ -48,6 +48,7 @@
       <w>jrebel</w>
       <w>kapt</w>
       <w>klass</w>
+      <w>kotlinpoet</w>
       <w>kotlinx</w>
       <w>lateinit</w>
       <w>leakcanary</w>

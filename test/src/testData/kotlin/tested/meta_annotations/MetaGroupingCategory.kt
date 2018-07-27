@@ -2,6 +2,7 @@
 
 package tested.meta_annotations
 
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.FunctionItem
@@ -11,8 +12,11 @@ import kotlin.test.expect
 annotation class MetaGroupingCategory
 
 
-@DeveloperCategory("My Custom Grouping Category")
-annotation class CustomGroupingCategory(val group: String = "")
+@DeveloperAnnotation(developerCategory = true)
+annotation class CustomGroupingCategory(
+    val group: String = "",
+    val value: String = "My Custom Grouping Category"
+)
 
 @CustomGroupingCategory
 class mgc_SimpleClass {
@@ -48,8 +52,11 @@ class mgc_SimpleClassWithFunGroup {
 }
 
 
-@DeveloperCategory("My Custom Default Grouping Category")
-annotation class CustomDefaultGroupingCategory(val group: String = "DefaultGroup")
+@DeveloperAnnotation(developerCategory = true)
+annotation class CustomDefaultGroupingCategory(
+    val group: String = "DefaultGroup",
+    val value: String = "My Custom Default Grouping Category"
+)
 
 @CustomDefaultGroupingCategory
 class mgc_DefaultGroupingClass {

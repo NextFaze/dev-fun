@@ -1,9 +1,9 @@
 @file:Suppress("UNUSED_PARAMETER", "unused", "PackageName", "ClassName")
 
-package tested.developer_annotation
+package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.core.DeveloperMethodReference
+import com.nextfaze.devfun.core.MethodReference
 import com.nextfaze.devfun.test.expectArrayOf
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
@@ -12,7 +12,7 @@ annotation class CustomPropertiesSimpleArrayTypes
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasSimpleArrayTypeProperties(
     val booleans: BooleanArray,
     val bytes: ByteArray,
@@ -26,7 +26,7 @@ annotation class HasSimpleArrayTypeProperties(
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasSimpleArrayTypePropertiesWithDefaults(
     val defaultBooleans: BooleanArray = [false, false, true, true],
     val defaultBytes: ByteArray = [0xA, 0xB, 0xC],
@@ -45,7 +45,7 @@ class cpsat_SomeClass {
         floats = [0.123f, 4.567f, 89.1010f],
         doubles = [0.0, 0.00001, 1234567.8, -0.0]
     )
-    fun testSimpleTypeArrayTypeProperties(ref: DeveloperMethodReference) {
+    fun testSimpleTypeArrayTypeProperties(ref: MethodReference) {
         val properties = ref.properties!!
         expectArrayOf(false, true, false, false) { properties["booleans"] }
         expectArrayOf<Byte>(0xD, 0xE, 0xA, 0xD) { properties["bytes"] }
@@ -61,7 +61,7 @@ class cpsat_SomeClass {
         defaultBooleans = [true, true, false, true],
         someInts = [1, 2, 3, 4]
     )
-    fun testSimpleTypeArrayTypePropertiesWithDefaults(ref: DeveloperMethodReference) {
+    fun testSimpleTypeArrayTypePropertiesWithDefaults(ref: MethodReference) {
         val properties = ref.properties!!
         expectArrayOf(true, true, false, true) { properties["defaultBooleans"] }
         expectArrayOf<Byte>(0xA, 0xB, 0xC) { properties["defaultBytes"] }

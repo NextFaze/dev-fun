@@ -1,4 +1,4 @@
-package com.nextfaze.devfun.compiler.handlers
+package com.nextfaze.devfun.compiler.processing
 
 import com.nextfaze.devfun.compiler.*
 import javax.inject.Inject
@@ -11,20 +11,23 @@ import kotlin.reflect.KClass
 @Singleton
 internal class AnnotationSerializer @Inject constructor(
     private val elements: Elements,
-    private val stringPreprocessor: StringPreprocessor
+    private val stringPreprocessor: StringPreprocessor,
+    logging: Logging
 ) {
+    private val log by logging()
+
     fun findAndSerialize(
         annotatedElement: Element,
         annotationTypeElement: TypeElement,
         liftDefaults: Boolean = true,
-        excludeNames: List<String> = emptyList()
-    ): String? = findAndSerialize(annotatedElement, annotationTypeElement.qualifiedName.toString(), liftDefaults, excludeNames)
+        excludeFields: List<String> = emptyList()
+    ): String? = findAndSerialize(annotatedElement, annotationTypeElement.qualifiedName.toString(), liftDefaults, excludeFields)
 
     private fun findAndSerialize(
         annotatedElement: Element,
         annotationQualifiedName: String,
         liftDefaults: Boolean = true,
-        excludeNames: List<String> = emptyList()
+        excludeFields: List<String> = emptyList()
     ): String? = annotatedElement.annotationMirrors
         .first { it.annotationType.toString() == annotationQualifiedName }
         .let {
@@ -32,7 +35,7 @@ internal class AnnotationSerializer @Inject constructor(
                 annotatedElement,
                 it,
                 liftDefaults = liftDefaults,
-                excludeNames = excludeNames
+                excludeFields = excludeFields
             )
         }
 
@@ -40,14 +43,14 @@ internal class AnnotationSerializer @Inject constructor(
         annotatedElement: Element,
         annotationMirror: AnnotationMirror,
         liftDefaults: Boolean = true,
-        excludeNames: List<String> = emptyList()
-    ): String? = annotationMirror.toMap(annotatedElement, liftDefaults, excludeNames)
+        excludeFields: List<String> = emptyList()
+    ): String? = annotationMirror.toMap(annotatedElement, liftDefaults, excludeFields)
 
     // todo this is a bit gross, but might be moving to Kotlin Poet so meh for now
     private fun AnnotationMirror.toMap(
         annotationElement: Element?,
         liftDefaults: Boolean,
-        excludeNames: List<String> = emptyList()
+        excludeFields: List<String> = emptyList()
     ): String? {
 //        val liftDefaults = annotationType.asElement().getAnnotation(LiftDefaults::class.java) != null
         val annotationElements =
@@ -58,7 +61,7 @@ internal class AnnotationSerializer @Inject constructor(
             }
 
         val entries = annotationElements.mapNotNull { (element: ExecutableElement, annotationValue) ->
-            if (element.simpleName.toString() in excludeNames) return@mapNotNull null
+            if (element.simpleName.toString() in excludeFields) return@mapNotNull null
 
             val value = annotationValue?.value ?: element.defaultValue?.value ?: return@mapNotNull null
             val valueType: TypeMirror = element.returnType

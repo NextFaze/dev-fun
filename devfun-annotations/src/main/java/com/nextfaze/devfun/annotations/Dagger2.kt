@@ -37,7 +37,7 @@ enum class Dagger2Scope(val isFragmentActivityRequired: Boolean = false, val isA
  */
 @Suppress("unused")
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 @Target(PROPERTY, PROPERTY_GETTER, FUNCTION)
 annotation class Dagger2Component(
     /**

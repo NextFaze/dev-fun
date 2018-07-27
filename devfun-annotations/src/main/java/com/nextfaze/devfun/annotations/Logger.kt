@@ -13,7 +13,7 @@ import kotlin.annotation.AnnotationTarget.*
  */
 @Target(FUNCTION, PROPERTY, CLASS, PROPERTY_GETTER)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class DeveloperLogger(
     val enabled: Boolean = true,
     val refreshRate: Long = 1000L,

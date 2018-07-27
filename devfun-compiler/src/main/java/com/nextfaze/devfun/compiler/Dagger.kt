@@ -1,9 +1,9 @@
 package com.nextfaze.devfun.compiler
 
-import com.nextfaze.devfun.compiler.handlers.AnnotationHandler
-import com.nextfaze.devfun.compiler.handlers.DeveloperAnnotationHandler
-import com.nextfaze.devfun.compiler.handlers.DeveloperCategoryHandler
-import com.nextfaze.devfun.compiler.handlers.DeveloperFunctionHandler
+import com.nextfaze.devfun.compiler.processing.AnnotationProcessor
+import com.nextfaze.devfun.compiler.processing.DeveloperCategoryHandler
+import com.nextfaze.devfun.compiler.processing.DeveloperFunctionHandler
+import com.nextfaze.devfun.compiler.processing.DeveloperReferenceHandler
 import dagger.Component
 import dagger.Module
 import dagger.Provides
@@ -29,9 +29,9 @@ internal class MainModule(
     @Provides fun filer(): Filer = env.filer
     @Provides fun elements(): Elements = env.elementUtils
 
-    @Provides @IntoSet @Singleton fun developerFunction(handler: DeveloperFunctionHandler): AnnotationHandler = handler
-    @Provides @IntoSet @Singleton fun developerCategory(handler: DeveloperCategoryHandler): AnnotationHandler = handler
-    @Provides @IntoSet @Singleton fun developerAnnotation(handler: DeveloperAnnotationHandler): AnnotationHandler = handler
+    @Provides @IntoSet @Singleton fun developerFunction(handler: DeveloperFunctionHandler): AnnotationProcessor = handler
+    @Provides @IntoSet @Singleton fun developerCategory(handler: DeveloperCategoryHandler): AnnotationProcessor = handler
+    @Provides @IntoSet @Singleton fun developerReference(handler: DeveloperReferenceHandler): AnnotationProcessor = handler
 }
 
 internal interface Injector {

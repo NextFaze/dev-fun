@@ -15,7 +15,6 @@ import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.ImageView
-import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.devFun
@@ -29,10 +28,7 @@ import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.Ranged
 import com.nextfaze.devfun.invoke.view.ValueSource
-import com.nextfaze.devfun.menu.DeveloperMenu
-import com.nextfaze.devfun.menu.MenuController
-import com.nextfaze.devfun.menu.R
-import com.nextfaze.devfun.menu.devMenu
+import com.nextfaze.devfun.menu.*
 import com.nextfaze.devfun.overlay.Dock
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.overlay.OverlayWindow
@@ -49,7 +45,7 @@ import com.nextfaze.devfun.overlay.OverlayWindow
  * <color name="df_menu_cog_tint">#77FF0000</color> <!-- red -->
  * ```
  */
-@DeveloperCategory("DevMenu", "Cog Overlay")
+@MenuCategory("Cog Overlay")
 class CogOverlay constructor(
     context: Context,
     private val activityProvider: ActivityProvider,

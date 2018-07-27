@@ -1,9 +1,9 @@
 @file:Suppress("UNUSED_PARAMETER", "unused", "PackageName", "ClassName")
 
-package tested.developer_annotation
+package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.core.DeveloperMethodReference
+import com.nextfaze.devfun.core.MethodReference
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.test.expect
@@ -12,7 +12,7 @@ annotation class CustomPropertiesSimpleTypes
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasSimpleTypedProperties(
     // NOTE: can't use 'boolean', 'byte', etc. as they are reserved words in Java realm (should probably create a bug for this as it fails silently...)
     val aBoolean: Boolean,
@@ -27,7 +27,7 @@ annotation class HasSimpleTypedProperties(
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasSimpleTypedPropertiesWithDefaults(
     val defaultBoolean: Boolean = true,
     val defaultByte: Byte = 0xA,
@@ -46,7 +46,7 @@ class cpst_SomeClass {
         aFloat = 0.123f,
         aDouble = 45.6789
     )
-    fun testSimpleTypeProperties(ref: DeveloperMethodReference) {
+    fun testSimpleTypeProperties(ref: MethodReference) {
         val properties = ref.properties!!
         expect(true) { properties["aBoolean"] }
         expect(0xD) { properties["aByte"] }
@@ -62,7 +62,7 @@ class cpst_SomeClass {
         defaultShort = 99,
         someInt = 123
     )
-    fun testSimpleTypePropertiesWithDefaults(ref: DeveloperMethodReference) {
+    fun testSimpleTypePropertiesWithDefaults(ref: MethodReference) {
         val properties = ref.properties!!
         expect(true) { properties["defaultBoolean"] }
         expect(0xA) { properties["defaultByte"] }

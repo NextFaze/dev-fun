@@ -38,7 +38,6 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinProperty
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 private val TEST_SOURCES_DIR = File("src/test/java")
 private val TEST_DATA_DIR = File("src/testData/kotlin")
@@ -281,11 +280,13 @@ class TestContext(
         }
 
         devRefs.forEach { ref ->
+            val dfRp = DevFunReferenceInstanceProvider(ref)
+            devFun.instanceProviders += dfRp
             when (ref) {
-                is DeveloperMethodReference -> {
+                is MethodReference -> {
                     logger.d { "Invoke developer reference ${ref.method} ..." }
                     if (ref.method.name.startsWith("test")) {
-                        ref.method.doInvoke(devFun.instanceProviders, listOf(ref))
+                        ref.method.doInvoke(devFun.instanceProviders)
                     } else {
                         assertEquals(
                             true,
@@ -294,16 +295,17 @@ class TestContext(
                         )
                     }
                 }
-                is DeveloperTypeReference -> {
+                is TypeReference -> {
                     logger.d { "Get instance of developer type reference ${ref.type} ..." }
-                    assertNotNull(devFun.instanceOf(ref.type), "Failed to get instance of referenced type: ${ref.type}")
+                    (devFun.instanceOf(ref.type) as WithTypeReferenceTest).testTypeReference(ref)
                 }
-                is DeveloperFieldReference -> {
+                is FieldReference -> {
                     logger.d { "Get value of developer field reference ${ref.field} ..." }
-                    assertEquals(true, ref.field.get(devFun.instanceOf(ref.field.declaringClass.kotlin)), "Referenced field did not match.")
+                    (devFun.instanceOf(ref.field.declaringClass.kotlin) as WithFieldReferenceTest).testFieldReference(ref)
                 }
                 else -> throw RuntimeException("Unexpected ref type $ref (${ref::class})")
             }
+            devFun.instanceProviders -= dfRp
         }
     }
 
@@ -343,6 +345,17 @@ class DevFunItemInstanceProvider(
             clazz.isSubclassOf<CategoryItem>() -> categoryItem as T?
             else -> null
         }
+}
+
+// TODO add functionality to DevFun?
+class DevFunReferenceInstanceProvider(
+    private val referenceDefinition: ReferenceDefinition
+) : InstanceProvider {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(clazz: KClass<out T>): T? = when {
+        referenceDefinition::class.isSubclassOf(clazz) -> referenceDefinition as T?
+        else -> null
+    }
 }
 
 

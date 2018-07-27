@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.compiler
 
 import com.nextfaze.devfun.core.CategoryDefinition
-import com.nextfaze.devfun.core.DeveloperReference
+import com.nextfaze.devfun.core.ReferenceDefinition
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
 import java.lang.reflect.Method
@@ -15,7 +15,7 @@ internal class ImportsTracker @Inject constructor() : Iterable<KClass<*>> {
         this += CategoryDefinition::class
         this += DevFunGenerated::class
         this += FunctionDefinition::class
-        this += DeveloperReference::class
+        this += ReferenceDefinition::class
         this += Method::class
         this += KClass::class
     }

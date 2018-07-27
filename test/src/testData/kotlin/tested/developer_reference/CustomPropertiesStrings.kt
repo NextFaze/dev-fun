@@ -1,9 +1,9 @@
 @file:Suppress("UNUSED_PARAMETER", "unused", "PackageName", "ClassName")
 
-package tested.developer_annotation
+package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.core.DeveloperMethodReference
+import com.nextfaze.devfun.core.MethodReference
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.test.expect
@@ -12,7 +12,7 @@ annotation class CustomPropertiesStrings
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasStringProperties(
     val aString: String,
     val anotherString: String,
@@ -23,7 +23,7 @@ private const val DOLLAR = "$"
 
 @Target(FUNCTION)
 @Retention(SOURCE)
-@DeveloperAnnotation
+@DeveloperAnnotation(developerReference = true)
 annotation class HasStringPropertiesWithDefaults(
     val defaultString: String = "This is a default string.",
     val anotherDefaultString: String =
@@ -47,7 +47,7 @@ class cps_SomeClass {
 
             Last Line!"""
     )
-    fun testStringProperties(ref: DeveloperMethodReference) {
+    fun testStringProperties(ref: MethodReference) {
         val dollar = "$"
         val properties = ref.properties!!
         expect("This is a String") { properties["aString"] }
@@ -69,7 +69,7 @@ class cps_SomeClass {
         andAnotherDefaultString = "My custom value!",
         someString = "Blah!"
     )
-    fun testStringPropertiesWithDefaults(ref: DeveloperMethodReference) {
+    fun testStringPropertiesWithDefaults(ref: MethodReference) {
         val properties = ref.properties!!
         expect("This is a default string.") { properties["defaultString"] }
         expect("Another default string, but with a ${DOLLAR}var\n        And another line.") { properties["anotherDefaultString"] }
