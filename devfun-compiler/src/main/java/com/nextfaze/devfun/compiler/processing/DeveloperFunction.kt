@@ -44,19 +44,22 @@ internal class DeveloperFunctionHandler @Inject constructor(
 ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )"""
 
-    override fun processAnnotatedElement(annotationElement: TypeElement, annotatedElement: Element) {
-        if (annotatedElement !is ExecutableElement) {
-            log.error(element = annotatedElement) {
-                """Only executable elements are supported with DeveloperFunction (elementType=${annotatedElement::class}).
+    override fun processAnnotatedElement(annotatedElement: AnnotatedElement) {
+        if (!annotatedElement.asFunction) return
+
+        val (element, annotationElement) = annotatedElement
+
+        if (element !is ExecutableElement) {
+            log.error(element = element) {
+                """Only executable elements are supported with DeveloperFunction (elementType=${element::class}).
                             |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
             }
             return
         }
 
-        val annotation = annotatedElement.getAnnotation(annotationElement) ?: return
         addDefinition(
-            annotations.createDevFunAnnotation(annotation, annotationElement),
-            annotatedElement,
+            annotations.createDevFunAnnotation(annotatedElement.annotation, annotationElement),
+            element,
             annotationElement
         )
     }
@@ -232,7 +235,7 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
             excludeFields = listOf("value", "category", "requiresApi", "transformer")
         )
         if (data != null) {
-            overrides += "\n#|    override val ${ReferenceDefinition::properties.name}: Map<String, *>? = $data"
+            overrides += "\n#|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data"
         }
 
         // Generate definition

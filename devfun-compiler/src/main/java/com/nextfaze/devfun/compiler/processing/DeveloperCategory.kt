@@ -5,7 +5,6 @@ import com.nextfaze.devfun.core.CategoryDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import kotlin.reflect.KCallable
@@ -25,17 +24,20 @@ internal class DeveloperCategoryHandler @Inject constructor(
     private val categoryDefinitions = HashMap<String, String>()
     override val willGenerateSource: Boolean get() = categoryDefinitions.isNotEmpty()
 
-    override fun processAnnotatedElement(annotationElement: TypeElement, annotatedElement: Element) {
-        if (annotatedElement !is TypeElement) {
-            log.error(element = annotatedElement) {
-                """Only type elements are supported with DeveloperCategory (elementType=${annotatedElement::class}).
+    override fun processAnnotatedElement(annotatedElement: AnnotatedElement) {
+        if (!annotatedElement.asCategory) return
+
+        val (element, annotationElement) = annotatedElement
+
+        if (element !is TypeElement) {
+            log.error(element = element) {
+                """Only type elements are supported with DeveloperCategory (elementType=${element::class}).
                             |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
             }
             return
         }
 
-        val annotation = annotatedElement.getAnnotation(annotationElement) ?: return
-        addDefinition(annotations.createDevCatAnnotation(annotation, annotationElement), annotatedElement)
+        addDefinition(annotations.createDevCatAnnotation(annotatedElement.annotation, annotationElement), element)
     }
 
     override fun generateSource() =
@@ -63,5 +65,4 @@ ${categoryDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
                 """$debugAnnotationInfo
                      #|${createCatDefSource(devFunCat, element.toClass(), element)}"""
     }
-
 }

@@ -47,7 +47,7 @@ class cpe_SomeClass {
         myPrivateTypesDefaultChangeMe = MyPrivateTypes.WORLD
     )
     fun testEnumProperties(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expect(MyNumbers.ONE) { properties["myNumbers"] }
         expect(MyNumbers.TWO) { properties["myNumbersDefault"] }
         expect(MyNumbers.THREE) { properties["myNumbersDefaultChangeMe"] }
@@ -63,7 +63,7 @@ class cpe_SomeClass {
         myPrivateTypesDefaultChangeMe = [MyPrivateTypes.HELLO, MyPrivateTypes.HELLO, MyPrivateTypes.HELLO]
     )
     fun testEnumArrayProperties(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expectArrayOf(MyNumbers.ONE, MyNumbers.ONE, MyNumbers.THREE) { properties["myNumbers"] }
         expectArrayOf(MyNumbers.ONE, MyNumbers.TWO) { properties["myNumbersDefault"] }
         expectArrayOf(MyNumbers.THREE, MyNumbers.ONE, MyNumbers.TWO) { properties["myNumbersDefaultChangeMe"] }

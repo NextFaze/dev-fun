@@ -47,7 +47,7 @@ class cpst_SomeClass {
         aDouble = 45.6789
     )
     fun testSimpleTypeProperties(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expect(true) { properties["aBoolean"] }
         expect(0xD) { properties["aByte"] }
         expect(0xEA) { properties["aShort"] }
@@ -63,7 +63,7 @@ class cpst_SomeClass {
         someInt = 123
     )
     fun testSimpleTypePropertiesWithDefaults(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expect(true) { properties["defaultBoolean"] }
         expect(0xA) { properties["defaultByte"] }
         expect(99) { properties["defaultShort"] }

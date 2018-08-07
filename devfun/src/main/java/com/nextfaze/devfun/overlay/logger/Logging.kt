@@ -161,7 +161,7 @@ internal class OverlayLoggingImpl(
             )
     }
 
-    private inner class TypeLogger(ref: TypeReference) : Logger(ref.type, ref.properties) {
+    private inner class TypeLogger(ref: TypeReference) : Logger(ref.type, ref.propertyMap) {
         override val displayName: CharSequence = clazz.java.name
         override val prefsName: String = clazz.java.simpleName
         override val group = clazz.java.simpleName.splitCamelCase()
@@ -175,7 +175,7 @@ internal class OverlayLoggingImpl(
     }
 
     private inner class MethodLogger(ref: MethodReference, private val reflected: ReflectedMethod = ref.method.toReflected()) :
-        Logger(reflected.clazz, ref.properties) {
+        Logger(reflected.clazz, ref.propertyMap) {
         override val displayName by lazy { if (reflected is ReflectedProperty) reflected.desc else ".${reflected.name}()" }
         override val prefsName = "${clazz.java.simpleName}.${reflected.name.substringBefore('$')}"
         override val group = clazz.java.simpleName.splitCamelCase()

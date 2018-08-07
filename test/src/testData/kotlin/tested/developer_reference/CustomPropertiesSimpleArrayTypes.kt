@@ -46,7 +46,7 @@ class cpsat_SomeClass {
         doubles = [0.0, 0.00001, 1234567.8, -0.0]
     )
     fun testSimpleTypeArrayTypeProperties(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expectArrayOf(false, true, false, false) { properties["booleans"] }
         expectArrayOf<Byte>(0xD, 0xE, 0xA, 0xD) { properties["bytes"] }
         expectArrayOf<Short>(0xBE, 0xEF) { properties["shorts"] }
@@ -62,7 +62,7 @@ class cpsat_SomeClass {
         someInts = [1, 2, 3, 4]
     )
     fun testSimpleTypeArrayTypePropertiesWithDefaults(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expectArrayOf(true, true, false, true) { properties["defaultBooleans"] }
         expectArrayOf<Byte>(0xA, 0xB, 0xC) { properties["defaultBytes"] }
         expectArrayOf<Short>(12, 34, 56) { properties["defaultShorts"] }

@@ -89,7 +89,7 @@ class cpct_SomeClass {
         multipleTypedClass = MultipleTypedClass::class
     )
     fun testClassProperties(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expect(cpct_SomeClass::class) { properties["clazz"] }
         expect(Byte::class) { properties["primitiveClass"] }
         expect(TypedClass::class) { properties["typedClazz"] }
@@ -113,7 +113,7 @@ class cpct_SomeClass {
         doubleArray = DoubleArray::class
     )
     fun testArrayClassProperties(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expect(BooleanArray::class) { properties["booleanArray"] }
         expect(ByteArray::class) { properties["byteArray"] }
         expect(ShortArray::class) { properties["shortArray"] }
@@ -126,7 +126,7 @@ class cpct_SomeClass {
 
     @HasClassPropertiesWithDefaults
     fun testSimpleTypesWithDefaults(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expect(Any::class) { properties["defaultClass"] }
         expect(BooleanArray::class) { properties["defaultPrimitiveClass"] }
         expect(MyInterface::class) { properties["defaultTypedClazz"] }
@@ -145,7 +145,7 @@ class cpct_SomeClass {
         ]
     )
     fun testClassArrayPropertiesWithDefaults(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expectArrayOf(
             Int::class,
             cpct_SomeClass::class,

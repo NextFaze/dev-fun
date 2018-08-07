@@ -170,7 +170,7 @@ annotation class HasStringArray(
 class cpat_SomeClass {
     @HasAnnotationProperties
     fun testAllDefaults(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
 
         run simpleTypesWithDefaults@{
             val simpleTypesWithDefaults = properties["simpleTypesWithDefaults"] as Map<String, *>
@@ -338,7 +338,7 @@ class cpat_SomeClass {
         )
     )
     fun testWithUseSiteValues(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
 
         run simpleTypesWithDefaults@{
             val simpleTypesWithDefaults = properties["simpleTypesWithDefaults"] as Map<String, *>
@@ -500,7 +500,7 @@ class cpat_SomeClass {
         ]
     )
     fun testNestedStringArray(ref: ReferenceDefinition) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
 
         val hasStringArray = properties["hasStringArray"] as Map<String, *>
         expectArrayOf("Next", "Faze") { hasStringArray["value"] }

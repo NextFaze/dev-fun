@@ -162,7 +162,7 @@ interface ReferenceDefinition {
     val annotation: KClass<out Annotation>
 
     /** Map of properties declared on the annotation. */
-    val properties: Map<String, *>? get() = null
+    val propertyMap: Map<String, *>? get() = null
 }
 
 /**

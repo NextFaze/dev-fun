@@ -9,7 +9,6 @@ import com.nextfaze.devfun.generated.DevFunGenerated
 import java.lang.reflect.Field
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -32,14 +31,18 @@ internal class DeveloperReferenceHandler @Inject constructor(
     private val developerReferences = HashMap<String, String>()
     override val willGenerateSource: Boolean get() = developerReferences.isNotEmpty()
 
-    override fun processAnnotatedElement(annotationElement: TypeElement, annotatedElement: Element) {
+    override fun processAnnotatedElement(annotatedElement: AnnotatedElement) {
+        if (!annotatedElement.asReference) return
+
+        val (element, annotationElement) = annotatedElement
+
         val liftDefaults = true
-        when (annotatedElement) {
-            is ExecutableElement -> generateDeveloperExecutableReference(annotationElement, annotatedElement, liftDefaults)
-            is TypeElement -> generateDeveloperTypeReference(annotationElement, annotatedElement, liftDefaults)
-            is VariableElement -> generateDeveloperFieldReference(annotationElement, annotatedElement, liftDefaults)
-            else -> log.error(element = annotatedElement) {
-                """Only executable, type, and variable elements are supported at the moment (elementType=${annotatedElement::class}).
+        when (element) {
+            is ExecutableElement -> generateDeveloperExecutableReference(annotationElement, element, liftDefaults)
+            is TypeElement -> generateDeveloperTypeReference(annotationElement, element, liftDefaults)
+            is VariableElement -> generateDeveloperFieldReference(annotationElement, element, liftDefaults)
+            else -> log.error(element = element) {
+                """Only executable, type, and variable elements are supported at the moment (elementType=${element::class}).
                                             |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
             }
         }
@@ -91,7 +94,7 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
                 """$debugAnnotationInfo
                         #|object : ${FieldReference::class.simpleName} {
                         #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
-                        #|    override val ${ReferenceDefinition::properties.name}: Map<String, *>? = $data
+                        #|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data
                         #|    override val ${FieldReference::field.name}: Field by lazy { $field }
                         #|}"""
     }
@@ -121,7 +124,7 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
                 """$debugAnnotationInfo
                         #|object : ${TypeReference::class.simpleName} {
                         #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
-                        #|    override val ${ReferenceDefinition::properties.name}: Map<String, *>? = $data
+                        #|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data
                         #|    override val ${TypeReference::type.name}: KClass<*> = ${element.toClass()}
                         #|}"""
     }
@@ -170,7 +173,7 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
                 """$debugAnnotationInfo
                         #|object : ${MethodReference::class.simpleName} {
                         #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
-                        #|    override val ${ReferenceDefinition::properties.name}: Map<String, *>? = $data
+                        #|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data
                         #|    override val ${MethodReference::method.name}: Method by lazy { $method }
                         #|}"""
     }

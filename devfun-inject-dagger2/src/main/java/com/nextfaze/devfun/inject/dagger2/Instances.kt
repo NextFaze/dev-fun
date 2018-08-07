@@ -408,7 +408,7 @@ private class Dagger2AnnotatedInstanceProvider(
                     origMethod
                 }
 
-                val properties = it.properties ?: return@map null
+                val properties = it.propertyMap ?: return@map null
                 val annotation = Dagger2ComponentProperties(properties)
 
                 fun Dagger2Scope.toComponentReference() =

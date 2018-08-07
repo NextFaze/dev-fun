@@ -385,7 +385,7 @@ annotation class DeveloperReference
  * # Custom Properties
  * If your annotation declares custom properties, these will be serialized and available at run-time during function transformation.
  *
- * Function definitions will implement [ReferenceDefinition] with the properties available as a map via [ReferenceDefinition.properties].
+ * Function definitions will implement [ReferenceDefinition] with the properties available as a map via [ReferenceDefinition.propertyMap].
  *
  * ## Contextual Vars
  * _(experimental)_ At compile time the follow vars are available for use in `String` properties:

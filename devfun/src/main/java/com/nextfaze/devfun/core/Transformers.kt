@@ -184,15 +184,15 @@ internal class ArgumentsTransformerImpl : ArgumentsTransformer {
             return null
         }
 
-        val userArgs = functionDefinition.properties?.get("args") as Array<Map<String, *>>?
+        val userArgs = functionDefinition.propertyMap?.get("args") as Array<Map<String, *>>?
         val values = userArgs?.mapNotNull { it["value"] as Array<String>? }
         if (values == null || values.isEmpty()) {
             log.w { "Got a DeveloperReference function definition $functionDefinition with no args? - ignoring" }
             return null
         }
 
-        val name = functionDefinition.properties?.get("name") as String?
-        val group = functionDefinition.properties?.get("group") as String?
+        val name = functionDefinition.propertyMap?.get("name") as String?
+        val group = functionDefinition.propertyMap?.get("group") as String?
 
         return values.map { args ->
             fun String.replaceArgs(): String {

@@ -1,10 +1,7 @@
 package com.nextfaze.devfun.compiler.processing
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.compiler.DevAnnotationTypeElement
-import com.nextfaze.devfun.compiler.Logging
-import com.nextfaze.devfun.compiler.get
-import com.nextfaze.devfun.compiler.getAnnotation
+import com.nextfaze.devfun.compiler.*
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,20 +10,17 @@ import javax.lang.model.util.Elements
 
 @Singleton
 internal class DeveloperAnnotationProcessor @Inject constructor(
-    elements: Elements,
-    private val functions: DeveloperFunctionHandler,
-    private val categories: DeveloperCategoryHandler,
-    private val references: DeveloperReferenceHandler,
+    override val elements: Elements,
+    private val handlers: Set<@JvmSuppressWildcards AnnotationProcessor>,
     logging: Logging
-) {
+) : Processor {
     private val log by logging()
 
     private val developerAnnotation = DevAnnotationTypeElement(elements.getTypeElement(DeveloperAnnotation::class.qualifiedName))
 
-    val willGenerateSources get() = functions.willGenerateSource || categories.willGenerateSource || references.willGenerateSource
+    val willGenerateSources get() = handlers.any { it.willGenerateSource }
 
     fun generateSources(): String {
-        val handlers = listOf(categories, functions, references)
         return handlers.filter { it.willGenerateSource }.sortedBy { it::class.java.simpleName }.joinToString("\n") { it.generateSource() }
     }
 
@@ -37,20 +31,11 @@ internal class DeveloperAnnotationProcessor @Inject constructor(
             val asFunction = devAnnotation[DeveloperAnnotation::developerFunction] ?: developerAnnotation.developerFunction
             val asCategory = devAnnotation[DeveloperAnnotation::developerCategory] ?: developerAnnotation.developerCategory
             val asReference = devAnnotation[DeveloperAnnotation::developerReference] ?: developerAnnotation.developerReference
-            if (!asFunction && !asCategory && !asReference) {
-                log.error(element = devAnnotatedElement) { "One or more behaviour flags must be true." }
-                return@forEach
-            }
 
-            env.getElementsAnnotatedWith(devAnnotatedElement).forEach { annotatedElement ->
-                if (asFunction) {
-                    functions.processAnnotatedElement(devAnnotatedElement, annotatedElement)
-                }
-                if (asCategory) {
-                    categories.processAnnotatedElement(devAnnotatedElement, annotatedElement)
-                }
-                if (asReference) {
-                    references.processAnnotatedElement(devAnnotatedElement, annotatedElement)
+            env.getElementsAnnotatedWith(devAnnotatedElement).forEach { element ->
+                val annotatedElement = AnnotatedElement(element, devAnnotatedElement, asFunction, asCategory, asReference)
+                handlers.forEach {
+                    it.processAnnotatedElement(annotatedElement)
                 }
             }
         }

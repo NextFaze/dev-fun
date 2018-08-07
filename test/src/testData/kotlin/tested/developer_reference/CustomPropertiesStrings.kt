@@ -49,7 +49,7 @@ class cps_SomeClass {
     )
     fun testStringProperties(ref: MethodReference) {
         val dollar = "$"
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expect("This is a String") { properties["aString"] }
         expect("A string with a \$annoyingUser") { properties["anotherString"] }
         expect(
@@ -70,7 +70,7 @@ class cps_SomeClass {
         someString = "Blah!"
     )
     fun testStringPropertiesWithDefaults(ref: MethodReference) {
-        val properties = ref.properties!!
+        val properties = ref.propertyMap!!
         expect("This is a default string.") { properties["defaultString"] }
         expect("Another default string, but with a ${DOLLAR}var\n        And another line.") { properties["anotherDefaultString"] }
         expect("My custom value!") { properties["andAnotherDefaultString"] }
