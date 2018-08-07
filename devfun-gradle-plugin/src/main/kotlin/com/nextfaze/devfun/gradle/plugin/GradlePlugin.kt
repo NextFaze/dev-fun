@@ -11,6 +11,7 @@ import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.kotlin.gradle.internal.KaptVariantData
 import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin
+import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
@@ -38,8 +39,7 @@ class DevFunGradlePlugin : Plugin<Project> {
 @AutoService(KotlinGradleSubplugin::class)
 class DevFunKotlinGradlePlugin : KotlinGradleSubplugin<AbstractCompile> {
     override fun getCompilerPluginId() = DEVFUN_GROUP_NAME
-    override fun getGroupName() = DEVFUN_GROUP_NAME
-    override fun getArtifactName() = DEVFUN_ARTIFACT_NAME
+    override fun getPluginArtifact() = SubpluginArtifact(DEVFUN_GROUP_NAME, DEVFUN_ARTIFACT_NAME, DEVFUN_VERSION_NAME)
 
     override fun isApplicable(project: Project, task: AbstractCompile): Boolean {
         if (project.plugins.findPlugin(DevFunGradlePlugin::class.java) == null) return false
@@ -149,6 +149,9 @@ class DevFunKotlinGradlePlugin : KotlinGradleSubplugin<AbstractCompile> {
 
 private const val DEVFUN_GROUP_NAME = "com.nextfaze.devfun"
 private const val DEVFUN_ARTIFACT_NAME = "devfun-gradle-plugin"
+
+// TODO this is just annoying - package with JAR or something so we can set at build time from build state and get it dynamically at run time
+private const val DEVFUN_VERSION_NAME = "1.3.0-SNAPSHOT"
 
 private val ExtensionContainer.android get() = findByType(BaseExtension::class.java)
 private val ExtensionContainer.kapt get() = findByType(KaptExtension::class.java)

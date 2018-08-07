@@ -20,9 +20,10 @@ dependencies {
     compileOnly(gradleApi())
 
     // Kotlin
-    compile(Dependency.kotlinStdLib)
-    compile(Dependency.kotlinPluginApi)
-    compileOnly(Dependency.kotlinPlugin)
+    val kotlinVersion = getStringProperty("DEVFUN_GRADLE_PLUGIN_USE_KOTLIN_VERSION", Dependency.kotlinVersion)
+    compile(Dependency.kotlinStdLib(kotlinVersion))
+    compile(Dependency.kotlinPluginApi(kotlinVersion))
+    compileOnly(Dependency.kotlinPlugin(kotlinVersion))
 
     // Android
     compileOnly(Dependency.androidPlugin) {
