@@ -1,5 +1,5 @@
 val buildSrcKotlinVersion: String by extra(findProperty("buildSrc.kotlin.version")?.toString() ?: embeddedKotlinVersion)
 
-val kotlinVersion by extra("1.2.51")
+val kotlinVersion by extra("1.2.60")
 val dokkaVersion by extra("0.9.17")
 val agpVersion by extra("3.3.0-alpha04")

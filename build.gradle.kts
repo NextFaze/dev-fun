@@ -14,7 +14,9 @@ buildscript {
 
         val useMavenLocal = getBooleanProperty("DEVFUN_GRADLE_PLUGIN_USE_MAVEN_LOCAL", false)
         if (useMavenLocal) {
-            classpath("com.nextfaze.devfun:devfun-gradle-plugin:+")
+            val localDependency = "com.nextfaze.devfun:devfun-gradle-plugin:${project.versionName}"
+            println("Using local devfun-gradle-plugin '$localDependency'\n")
+            classpath(localDependency)
         } else {
             classpath("gradle.plugin.com.nextfaze.devfun:devfun-gradle-plugin:+")
         }
