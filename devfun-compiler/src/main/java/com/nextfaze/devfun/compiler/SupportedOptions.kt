@@ -31,6 +31,8 @@ internal class Options @Inject constructor(
     val extPackageOverride = EXT_PACKAGE_OVERRIDE.optionOf()
 
     val generateInterfaces = GENERATE_INTERFACES.booleanOf(true)
+    val generateDefinitions = GENERATE_DEFINITIONS.booleanOf(true)
+
     private val elementFilterInclude = ELEMENTS_FILTER_INCLUDE.optionOf()?.split(",")?.map { it.trim() } ?: emptyList()
     private val elementFilterExclude = ELEMENTS_FILTER_EXCLUDE.optionOf()?.split(",")?.map { it.trim() } ?: emptyList()
 

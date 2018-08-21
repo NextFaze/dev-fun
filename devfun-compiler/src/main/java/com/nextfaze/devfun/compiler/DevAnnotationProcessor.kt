@@ -3,6 +3,7 @@ package com.nextfaze.devfun.compiler
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.compiler.properties.InterfaceGenerator
+import com.nextfaze.devfun.generated.DevFunGenerated
 import java.io.IOException
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Processor
@@ -13,6 +14,12 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import javax.tools.StandardLocation.SOURCE_OUTPUT
 
+/**
+ * Flag to disable DevFun from generating interfaces of [DeveloperAnnotation] annotations. Useful for testing or if you only want to
+ * generate [DevFunGenerated] implementations.
+ *
+ * @see GENERATE_DEFINITIONS
+ */
 const val GENERATE_INTERFACES = "devfun.interfaces.generate"
 const val GENERATE_INTERFACES_NON_SOURCE = "devfun.interfaces.generate.external" // TODO
 const val GENERATE_INTERFACES_DESTINATION_DIR = "devfun.interfaces.destinationDir" // TODO
@@ -44,7 +51,7 @@ class DevAnnotationProcessor : DaggerProcessor() {
     private val log by lazy { logging.create(this) }
 
     override fun process(annotations: Set<TypeElement>, env: RoundEnvironment): Boolean {
-        if (!options.generateInterfaces) return true
+        if (!options.generateInterfaces) return false // not generating interfaces - allow other Processors to use them if they really want
         if (env.errorRaised()) return true
 
         try {

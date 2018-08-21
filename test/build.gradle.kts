@@ -24,6 +24,7 @@ android {
                     argument("devfun.debug.verbose", "true")
                 }
                 argument("devfun.interfaces.generate", "true")
+                argument("devfun.definitions.generate", "false")
                 argument("devfun.elements.exclude", "tested.kapt_and_compile.interfaces.")
             }
         }

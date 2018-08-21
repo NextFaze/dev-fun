@@ -252,6 +252,14 @@ const val ELEMENTS_FILTER_INCLUDE = "devfun.elements.include"
  */
 const val ELEMENTS_FILTER_EXCLUDE = "devfun.elements.exclude"
 
+/**
+ * Flag to disable DevFun from generating implementations of [DevFunGenerated]. Useful for testing or if you only want to generate
+ * annotation interfaces.
+ *
+ * @see GENERATE_INTERFACES
+ */
+const val GENERATE_DEFINITIONS = "devfun.definitions.generate"
+
 internal const val META_INF_SERVICES = "META-INF/services"
 private const val DEFINITIONS_FILE_NAME = "DevFunDefinitions.kt"
 private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
@@ -273,6 +281,7 @@ private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
     EXT_PACKAGE_SUFFIX,
     EXT_PACKAGE_ROOT,
     EXT_PACKAGE_OVERRIDE,
+    GENERATE_DEFINITIONS,
     ELEMENTS_FILTER_INCLUDE,
     ELEMENTS_FILTER_EXCLUDE
 )
@@ -295,7 +304,7 @@ class DevFunProcessor : DaggerProcessor() {
     private val log by lazy { logging.create(this) }
 
     override fun process(annotations: Set<TypeElement>, env: RoundEnvironment): Boolean {
-        if (env.errorRaised()) return false
+        if (!options.generateDefinitions || env.errorRaised()) return false
 
         try {
             if (env.processingOver()) {
