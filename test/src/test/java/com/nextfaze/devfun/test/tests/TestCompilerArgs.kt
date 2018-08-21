@@ -25,7 +25,9 @@ class TestCompilerArgs : AbstractKotlinKapt3Tester() {
             TestContext(
                 testMethodName = method.name,
                 testFiles = listOf(SimpleFunctionsInClasses::class),
-                kaptOptions = mapOf(FLAG_DEBUG_VERBOSE to "true")
+                kaptOptions = mapOf(FLAG_DEBUG_VERBOSE to "true"),
+                copyFailedTests = false,
+                keepFailedTestOutputs = false
             ).execute()
         }
     }
