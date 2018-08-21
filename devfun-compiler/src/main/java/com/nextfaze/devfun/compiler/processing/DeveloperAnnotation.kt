@@ -12,6 +12,7 @@ import javax.lang.model.util.Elements
 internal class DeveloperAnnotationProcessor @Inject constructor(
     override val elements: Elements,
     private val handlers: Set<@JvmSuppressWildcards AnnotationProcessor>,
+    private val options: Options,
     logging: Logging
 ) : Processor {
     private val log by logging()
@@ -20,11 +21,10 @@ internal class DeveloperAnnotationProcessor @Inject constructor(
 
     val willGenerateSources get() = handlers.any { it.willGenerateSource }
 
-    fun generateSources(): String {
-        return handlers.filter { it.willGenerateSource }.sortedBy { it::class.java.simpleName }.joinToString("\n") { it.generateSource() }
-    }
+    fun generateSources() =
+        handlers.filter { it.willGenerateSource }.sortedBy { it::class.java.simpleName }.joinToString("\n") { it.generateSource() }
 
-    fun process(elements: Set<TypeElement>, env: RoundEnvironment) {
+    fun process(elements: Set<TypeElement>, env: RoundEnvironment) =
         elements.forEach { devAnnotatedElement ->
             val devAnnotation = devAnnotatedElement.getAnnotation(developerAnnotation.element) ?: return@forEach
 
@@ -33,11 +33,14 @@ internal class DeveloperAnnotationProcessor @Inject constructor(
             val asReference = devAnnotation[DeveloperAnnotation::developerReference] ?: developerAnnotation.developerReference
 
             env.getElementsAnnotatedWith(devAnnotatedElement).forEach { element ->
-                val annotatedElement = AnnotatedElement(element, devAnnotatedElement, asFunction, asCategory, asReference)
-                handlers.forEach {
-                    it.processAnnotatedElement(annotatedElement)
+                val annotatedElement by lazy { AnnotatedElement(element, devAnnotatedElement, asFunction, asCategory, asReference) }
+                if (options.shouldProcessElement(element)) {
+                    handlers.forEach {
+                        it.processAnnotatedElement(annotatedElement, env)
+                    }
+                } else {
+                    log.note { "Element $element skipped due to name filter." }
                 }
             }
         }
-    }
 }

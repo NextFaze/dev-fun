@@ -1,17 +1,16 @@
 package com.nextfaze.devfun.compiler.processing
 
+import com.nextfaze.devfun.compiler.WithElements
 import com.nextfaze.devfun.compiler.getAnnotation
 import com.nextfaze.devfun.compiler.toClass
+import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
-import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
-import javax.lang.model.util.Elements
+import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
-internal interface Processor {
-    val elements: Elements
-
+internal interface Processor : WithElements {
     fun Element.toClass(
         kotlinClass: Boolean = true,
         isKtFile: Boolean = false,
@@ -26,8 +25,23 @@ internal interface Processor {
             types = *types
         )
 
-    val Element.packageElement: PackageElement
-        get() = elements.getPackageOf(this)
+    fun TypeMirror.toClass(
+        kotlinClass: Boolean = true,
+        isKtFile: Boolean = false,
+        castIfNotPublic: KClass<*>? = null,
+        vararg types: KClass<*>
+    ) =
+        toClass(
+            kotlinClass = kotlinClass,
+            isKtFile = isKtFile,
+            elements = elements,
+            castIfNotPublic = castIfNotPublic,
+            types = *types
+        )
+
+    // during normal gradle builds string types will be java.lang
+    // during testing however they will be kotlin types
+    val TypeMirror.isString get() = toString().let { it == "java.lang.String" || it == "kotlin.String" }
 }
 
 internal interface AnnotationProcessor : Processor {
@@ -35,7 +49,7 @@ internal interface AnnotationProcessor : Processor {
 
     fun generateSource(): String
 
-    fun processAnnotatedElement(annotatedElement: AnnotatedElement)
+    fun processAnnotatedElement(annotatedElement: AnnotatedElement, env: RoundEnvironment)
 }
 
 

@@ -1,12 +1,14 @@
 package com.nextfaze.devfun.compiler.processing
 
 import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
 import com.nextfaze.devfun.core.FieldReference
 import com.nextfaze.devfun.core.MethodReference
 import com.nextfaze.devfun.core.ReferenceDefinition
 import com.nextfaze.devfun.core.TypeReference
 import com.nextfaze.devfun.generated.DevFunGenerated
 import java.lang.reflect.Field
+import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.ExecutableElement
@@ -21,6 +23,7 @@ internal class DeveloperReferenceHandler @Inject constructor(
     private val options: Options,
     private val importsTracker: ImportsTracker,
     private val annotationSerializer: AnnotationSerializer,
+    private val implementations: ImplementationGenerator,
     logging: Logging
 ) : AnnotationProcessor {
     private val log by logging()
@@ -31,16 +34,16 @@ internal class DeveloperReferenceHandler @Inject constructor(
     private val developerReferences = HashMap<String, String>()
     override val willGenerateSource: Boolean get() = developerReferences.isNotEmpty()
 
-    override fun processAnnotatedElement(annotatedElement: AnnotatedElement) {
+    override fun processAnnotatedElement(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
         if (!annotatedElement.asReference) return
 
-        val (element, annotationElement) = annotatedElement
+        val element = annotatedElement.element
 
         val liftDefaults = true
         when (element) {
-            is ExecutableElement -> generateDeveloperExecutableReference(annotationElement, element, liftDefaults)
-            is TypeElement -> generateDeveloperTypeReference(annotationElement, element, liftDefaults)
-            is VariableElement -> generateDeveloperFieldReference(annotationElement, element, liftDefaults)
+            is ExecutableElement -> generateDeveloperExecutableReference(annotatedElement, liftDefaults, env)
+            is TypeElement -> generateDeveloperTypeReference(annotatedElement, liftDefaults, env)
+            is VariableElement -> generateDeveloperFieldReference(annotatedElement, liftDefaults, env)
             else -> log.error(element = element) {
                 """Only executable, type, and variable elements are supported at the moment (elementType=${element::class}).
                                             |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
@@ -53,9 +56,12 @@ internal class DeveloperReferenceHandler @Inject constructor(
 ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )"""
 
-    private fun generateDeveloperFieldReference(annotationElement: TypeElement, element: VariableElement, liftDefaults: Boolean) {
+    private fun generateDeveloperFieldReference(annotatedElement: AnnotatedElement, liftDefaults: Boolean, env: RoundEnvironment) {
         importsTracker += FieldReference::class
         importsTracker += Field::class
+
+        val element = annotatedElement.element as VariableElement
+        val annotationElement = annotatedElement.annotationElement
 
         val clazz = element.enclosingElement as TypeElement
         log.note { "Processing $clazz::$element for $annotationElement..." }
@@ -84,6 +90,8 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
             liftDefaults = liftDefaults
         )
 
+        val properties = implementations.processAnnotatedElement(annotatedElement, env)
+
         val developerAnnotation = "${element.enclosingElement}::$element"
         var debugAnnotationInfo = ""
         if (isDebugCommentsEnabled) {
@@ -95,12 +103,16 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
                         #|object : ${FieldReference::class.simpleName} {
                         #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
                         #|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data
+                        #|    override val ${ReferenceDefinition::properties.name}: Any? = $properties
                         #|    override val ${FieldReference::field.name}: Field by lazy { $field }
                         #|}"""
     }
 
-    private fun generateDeveloperTypeReference(annotationElement: TypeElement, element: TypeElement, liftDefaults: Boolean) {
+    private fun generateDeveloperTypeReference(annotatedElement: AnnotatedElement, liftDefaults: Boolean, env: RoundEnvironment) {
         importsTracker += TypeReference::class
+
+        val element = annotatedElement.element as TypeElement
+        val annotationElement = annotatedElement.annotationElement
 
         log.note { "Processing $element for $annotationElement..." }
 
@@ -114,6 +126,8 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
             liftDefaults = liftDefaults
         )
 
+        val properties = implementations.processAnnotatedElement(annotatedElement, env)
+
         val developerAnnotation = "${element.enclosingElement}::$element"
         var debugAnnotationInfo = ""
         if (isDebugCommentsEnabled) {
@@ -125,12 +139,16 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
                         #|object : ${TypeReference::class.simpleName} {
                         #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
                         #|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data
+                        #|    override val ${ReferenceDefinition::properties.name}: Any? = $properties
                         #|    override val ${TypeReference::type.name}: KClass<*> = ${element.toClass()}
                         #|}"""
     }
 
-    private fun generateDeveloperExecutableReference(annotationElement: TypeElement, element: ExecutableElement, liftDefaults: Boolean) {
+    private fun generateDeveloperExecutableReference(annotatedElement: AnnotatedElement, liftDefaults: Boolean, env: RoundEnvironment) {
         importsTracker += MethodReference::class
+
+        val element = annotatedElement.element as ExecutableElement
+        val annotationElement = annotatedElement.annotationElement
 
         val clazz = element.enclosingElement as TypeElement
         log.note { "Processing $clazz::$element for $annotationElement..." }
@@ -163,6 +181,8 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
             liftDefaults = liftDefaults
         )
 
+        val properties = implementations.processAnnotatedElement(annotatedElement, env)
+
         val developerAnnotation = "${element.enclosingElement}::$element"
         var debugAnnotationInfo = ""
         if (isDebugCommentsEnabled) {
@@ -174,6 +194,7 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
                         #|object : ${MethodReference::class.simpleName} {
                         #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
                         #|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data
+                        #|    override val ${ReferenceDefinition::properties.name}: Any? = $properties
                         #|    override val ${MethodReference::method.name}: Method by lazy { $method }
                         #|}"""
     }

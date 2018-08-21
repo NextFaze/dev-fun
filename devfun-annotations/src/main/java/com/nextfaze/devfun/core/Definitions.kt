@@ -163,6 +163,9 @@ interface ReferenceDefinition {
 
     /** Map of properties declared on the annotation. */
     val propertyMap: Map<String, *>? get() = null
+
+    /** Generated implementation of annotation and its properties/values as a type-safe object (where possible).  */
+    val properties: Any? get() = null
 }
 
 /**

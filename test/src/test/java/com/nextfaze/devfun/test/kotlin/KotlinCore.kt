@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions
 import org.jetbrains.kotlin.com.intellij.openapi.project.Project
+import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.com.intellij.openapi.vfs.CharsetToolkit
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.impl.PsiFileFactoryImpl
@@ -31,10 +32,14 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.descriptors.PackagePartProvider
+import org.jetbrains.kotlin.diagnostics.PsiDiagnosticUtils
+import org.jetbrains.kotlin.diagnostics.Severity
+import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.kapt3.base.KaptPaths
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.jvm.extensions.AnalysisHandlerExtension
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
@@ -319,6 +324,7 @@ private object JvmResolveUtil {
         files.forEach { file -> AnalyzingUtils.checkForSyntacticErrors(file) }
         return analyze(project, files, configuration, packagePartProvider).apply {
             AnalyzingUtils.throwExceptionOnErrors(bindingContext)
+            throwExceptionOnWarnings(bindingContext)
         }
     }
 
@@ -331,4 +337,13 @@ private object JvmResolveUtil {
         TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
             project, files, CliBindingTrace(), configuration, packagePartProviderFactory
         )
+
+    private fun throwExceptionOnWarnings(bindingContext: BindingContext) {
+        bindingContext.diagnostics.forEach {
+            if (it.severity == Severity.WARNING) {
+                val location = PsiDiagnosticUtils.atLocation(it.psiFile, it.textRanges[0] as TextRange)
+                throw IllegalStateException("${it.factory.name}: ${DefaultErrorMessages.render(it)} $location")
+            }
+        }
+    }
 }

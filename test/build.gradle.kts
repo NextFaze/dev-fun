@@ -1,6 +1,8 @@
 plugins {
     id("com.android.library")
     kotlin("android")
+    kotlin("kapt")
+    id("com.nextfaze.devfun")
 }
 
 android {
@@ -21,6 +23,8 @@ android {
                 if (project.isSnapshot) {
                     argument("devfun.debug.verbose", "true")
                 }
+                argument("devfun.interfaces.generate", "true")
+                argument("devfun.elements.exclude", "tested.kapt_and_compile.interfaces.")
             }
         }
     }
@@ -35,6 +39,7 @@ dependencies {
     testImplementation(project(":devfun-compiler"))
     testImplementation(project(":devfun"))
     testImplementation(project(":devfun-internal"))
+    kaptTest(project(":devfun-compiler"))
 
     // TestNG - http://testng.org
     testImplementation("org.testng:testng:6.13.1")

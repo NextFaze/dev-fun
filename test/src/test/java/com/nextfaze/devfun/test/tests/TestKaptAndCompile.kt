@@ -56,9 +56,9 @@ class TestKaptAndCompile : AbstractKotlinKapt3Tester() {
         val generated = ServiceLoader.load(DevFunGenerated::class.java).single()
 
         // Check that there are the expected number of definitions
-        val counts = (test.kotlinFiles + test.javaFiles).map {
-            it.useLines {
-                it.map { it.substringBefore("//") }.fold(0 to 0) { acc, str ->
+        val counts = (test.kotlinFiles + test.javaFiles).map { file ->
+            file.useLines { lines ->
+                lines.map { it.substringBefore("//") }.fold(0 to 0) { acc, str ->
                     (acc.first + if (str.contains("@DeveloperCategory")) 1 else 0) to (acc.second + if (str.contains("@DeveloperFunction")) 1 else 0)
                 }
             }

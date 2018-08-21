@@ -1,5 +1,9 @@
 package com.nextfaze.devfun.compiler
 
+import javax.lang.model.element.Element
+import javax.lang.model.element.PackageElement
+import javax.lang.model.util.Elements
+
 
 /** Same as `Iterable.joinToString` but returns and empty string if [List] is empty. (i.e. wont include [prefix] or [postfix]). */
 internal fun <T> List<T>.joiner(
@@ -14,3 +18,10 @@ internal fun <T> List<T>.joiner(
         this.isEmpty() -> ""
         else -> joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
     }
+
+internal interface WithElements {
+    val elements: Elements
+
+    val Element.packageElement: PackageElement
+        get() = elements.getPackageOf(this)
+}

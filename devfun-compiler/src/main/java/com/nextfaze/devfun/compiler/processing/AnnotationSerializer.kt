@@ -6,14 +6,13 @@ import javax.inject.Singleton
 import javax.lang.model.element.*
 import javax.lang.model.type.*
 import javax.lang.model.util.Elements
-import kotlin.reflect.KClass
 
 @Singleton
 internal class AnnotationSerializer @Inject constructor(
-    private val elements: Elements,
+    override val elements: Elements,
     private val stringPreprocessor: StringPreprocessor,
     logging: Logging
-) {
+) : Processor {
     private val log by logging()
 
     fun findAndSerialize(
@@ -28,16 +27,13 @@ internal class AnnotationSerializer @Inject constructor(
         annotationQualifiedName: String,
         liftDefaults: Boolean = true,
         excludeFields: List<String> = emptyList()
-    ): String? = annotatedElement.annotationMirrors
-        .first { it.annotationType.toString() == annotationQualifiedName }
-        .let {
-            serialize(
-                annotatedElement,
-                it,
-                liftDefaults = liftDefaults,
-                excludeFields = excludeFields
-            )
-        }
+    ): String? =
+        serialize(
+            annotatedElement,
+            annotatedElement.annotationMirrors.first { it.annotationType.toString() == annotationQualifiedName },
+            liftDefaults = liftDefaults,
+            excludeFields = excludeFields
+        )
 
     private fun serialize(
         annotatedElement: Element,
@@ -160,34 +156,4 @@ internal class AnnotationSerializer @Inject constructor(
 
         return if (entries.isEmpty()) "null" else "mapOf(${entries.joinToString()})"
     }
-
-    private fun Element.toClass(
-        kotlinClass: Boolean = true,
-        isKtFile: Boolean = false,
-        castIfNotPublic: KClass<*>? = null,
-        vararg types: KClass<*>
-    ) =
-        asType().toClass(
-            kotlinClass = kotlinClass,
-            isKtFile = isKtFile,
-            elements = elements,
-            castIfNotPublic = castIfNotPublic,
-            types = *types
-        )
-
-    private fun TypeMirror.toClass(
-        kotlinClass: Boolean = true,
-        isKtFile: Boolean = false,
-        castIfNotPublic: KClass<*>? = null,
-        vararg types: KClass<*>
-    ) =
-        toClass(
-            kotlinClass = kotlinClass,
-            isKtFile = isKtFile,
-            elements = elements,
-            castIfNotPublic = castIfNotPublic,
-            types = *types
-        )
-
-    private val TypeMirror.isString get() = toString() == "java.lang.String"
 }

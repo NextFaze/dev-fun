@@ -1,19 +1,25 @@
 package com.nextfaze.devfun.compiler
 
 import com.google.auto.service.AutoService
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.compiler.processing.DeveloperAnnotationProcessor
+import com.nextfaze.devfun.core.CategoryDefinition
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
+import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import java.io.File
 import java.io.IOException
-import javax.annotation.processing.*
+import javax.annotation.processing.Filer
+import javax.annotation.processing.Processor
+import javax.annotation.processing.RoundEnvironment
+import javax.annotation.processing.SupportedOptions
 import javax.inject.Inject
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import javax.tools.StandardLocation.CLASS_OUTPUT
 import javax.tools.StandardLocation.SOURCE_OUTPUT
+import kotlin.reflect.KClass
 
 /**
  * Flag to enable Kotlin reflection to get method references. _(default: `false`)_ **(experimental)**
@@ -198,12 +204,62 @@ const val EXT_PACKAGE_OVERRIDE = "devfun.ext.package.override"
  */
 const val PACKAGE_SUFFIX_DEFAULT = "devfun_generated"
 
+/**
+ * Restrict DevFun to only process elements matching filter `elementFQN.startsWith(it)`.
+ *
+ * Value can be a comma separated list. Whitespace will be trimmed.
+ *
+ * In general this shouldn't be used and is primarily for testing/development purposes.
+ *
+ * Example usage (from test sources):
+ * ```kotlin
+ * android {
+ *     defaultConfig {
+ *         javaCompileOptions {
+ *             annotationProcessorOptions {
+ *                 argument("devfun.elements.include", "tested.developer_reference.HasSimpleTypes, tested.custom_names.")
+ *             }
+ *         }
+ *     }
+ * }
+ * ```
+ * Will match classes `tested.developer_reference.HasSimpleTypes` and `tested.developer_reference.HasSimpleTypesWithDefaults`,
+ * and anything in package `tested.custom_names.` (including nested).
+ */
+const val ELEMENTS_FILTER_INCLUDE = "devfun.elements.include"
+
+/**
+ * Restrict DevFun to only process elements matching filter `elementFQN.startsWith(it)`.
+ *
+ * Value can be a comma separated list. Whitespace will be trimmed.
+ *
+ * In general this shouldn't be used and is primarily for testing/development purposes.
+ *
+ * Example usage (from test sources):
+ * ```kotlin
+ * android {
+ *     defaultConfig {
+ *         javaCompileOptions {
+ *             annotationProcessorOptions {
+ *                 argument("devfun.elements.include", "tested.developer_reference.HasSimpleTypes, tested.custom_names.")
+ *             }
+ *         }
+ *     }
+ * }
+ * ```
+ * Will match classes `tested.developer_reference.HasSimpleTypes` and `tested.developer_reference.HasSimpleTypesWithDefaults`,
+ * and anything in package `tested.custom_names.` (including nested).
+ */
+const val ELEMENTS_FILTER_EXCLUDE = "devfun.elements.exclude"
+
 internal const val META_INF_SERVICES = "META-INF/services"
 private const val DEFINITIONS_FILE_NAME = "DevFunDefinitions.kt"
 private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
 
 /**
- * Annotation processor for [DeveloperFunction] and [DeveloperCategory].
+ * Annotation processor for [DeveloperAnnotation] annotated annotations.
+ *
+ * _Visible for testing purposes only! Use at your own risk._
  */
 @SupportedOptions(
     FLAG_USE_KOTLIN_REFLECTION,
@@ -216,12 +272,16 @@ private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
     APPLICATION_VARIANT,
     EXT_PACKAGE_SUFFIX,
     EXT_PACKAGE_ROOT,
-    EXT_PACKAGE_OVERRIDE
+    EXT_PACKAGE_OVERRIDE,
+    ELEMENTS_FILTER_INCLUDE,
+    ELEMENTS_FILTER_EXCLUDE
 )
 @AutoService(Processor::class)
-class DevFunProcessor : AbstractProcessor() {
+class DevFunProcessor : DaggerProcessor() {
     override fun getSupportedAnnotationTypes() = setOf("*") // we need to accept all to be able to process meta annotated elements
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
+
+    override fun inject(injector: Injector) = injector.inject(this)
 
     private val useKotlinReflection get() = options.useKotlinReflection
 
@@ -234,26 +294,17 @@ class DevFunProcessor : AbstractProcessor() {
 
     private val log by lazy { logging.create(this) }
 
-    override fun init(env: ProcessingEnvironment) {
-        super.init(env)
+    override fun process(annotations: Set<TypeElement>, env: RoundEnvironment): Boolean {
+        if (env.errorRaised()) return false
 
-        (DaggerApplicationComponent.builder()
-            .mainModule(MainModule(this, env))
-            .build() as Injector)
-            .inject(this)
-    }
-
-    override fun process(elements: Set<TypeElement>, env: RoundEnvironment): Boolean {
         try {
-            if (!env.errorRaised()) {
-                if (env.processingOver()) {
-                    if (processor.willGenerateSources) {
-                        writeServiceFile()
-                        writeSourceFile(generateKSource())
-                    }
-                } else {
-                    processor.process(elements, env)
+            if (env.processingOver()) {
+                if (processor.willGenerateSources) {
+                    writeServiceFile()
+                    writeSourceFile(generateKSource())
                 }
+            } else {
+                processor.process(annotations, env)
             }
         } catch (t: Throwable) {
             log.error { "Unexpected error: ${t.stackTraceAsString}" }
@@ -270,6 +321,74 @@ class DevFunProcessor : AbstractProcessor() {
      */
     private val functionInvokeQualified = "${FunctionDefinition::class.qualifiedName!!.replace("Definition", "")}Invoke"
 
+    private val simpleCategoryDefinition by lazy {
+        val kClassType = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.STAR).asNullable()
+        val stringType = String::class.asTypeName().asNullable()
+        val intType = Int::class.asTypeName().asNullable()
+
+        TypeSpec.classBuilder("SimpleCategoryDefinition")
+            .addSuperinterface(CategoryDefinition::class)
+            .addModifiers(KModifier.PRIVATE, KModifier.DATA)
+            .primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addParameter(ParameterSpec.builder("clazz", kClassType, KModifier.OVERRIDE).defaultValue("null").build())
+                    .addParameter(ParameterSpec.builder("name", stringType, KModifier.OVERRIDE).defaultValue("null").build())
+                    .addParameter(ParameterSpec.builder("group", stringType, KModifier.OVERRIDE).defaultValue("null").build())
+                    .addParameter(ParameterSpec.builder("order", intType, KModifier.OVERRIDE).defaultValue("null").build())
+                    .build()
+            )
+            .addProperty(PropertySpec.builder("clazz", kClassType).initializer("clazz").build())
+            .addProperty(PropertySpec.builder("name", stringType).initializer("name").build())
+            .addProperty(PropertySpec.builder("group", stringType).initializer("group").build())
+            .addProperty(PropertySpec.builder("order", intType).initializer("order").build())
+            .build()
+    }
+
+    private val abstractFunctionDefinition by lazy {
+        TypeSpec.classBuilder("AbstractFunctionDefinition")
+            .addSuperinterface(FunctionDefinition::class)
+            .addModifiers(KModifier.PRIVATE, KModifier.ABSTRACT)
+            .addFunction(
+                FunSpec.builder("equals")
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addParameter("other", ANY.asNullable())
+                    .addStatement("return %L", "this === other || other is FunctionDefinition && method == other.method")
+                    .build()
+            )
+            .addFunction(
+                FunSpec.builder("hashCode")
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addStatement("return %L", "method.hashCode()")
+                    .build()
+            )
+            .addFunction(
+                FunSpec.builder("toString")
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addStatement("return %S", "FunctionDefinition(\$method)")
+                    .build()
+            )
+            .build()
+    }
+
+    private val privateObjectInstanceFunc by lazy {
+        // TODO https://github.com/square/kotlinpoet/issues/437
+        PropertySpec.builder("privateObjectInstance", TypeVariableName("T"), KModifier.PRIVATE)
+            .receiver(KClass::class.asTypeName().parameterizedBy(TypeVariableName("T")))
+            .getter(
+                FunSpec.getterBuilder()
+                    .addModifiers(KModifier.INLINE)
+                    .addStatement("return %L", "java.getDeclaredField(\"INSTANCE\").apply { isAccessible = true }.get(null) as T")
+                    .build()
+            )
+            .build()
+
+        CodeBlock.of(
+            """
+private inline val <T : Any> KClass<T>.privateObjectInstance
+    get() = java.getDeclaredField("INSTANCE").apply { isAccessible = true }.get(null) as T""".trimIndent()
+        )
+    }
+
     private fun generateKSource(): String {
         val imports = mutableSetOf<String?>().apply {
             typeImports.forEach { this += it.qualifiedName }
@@ -281,6 +400,11 @@ class DevFunProcessor : AbstractProcessor() {
             }
         }.toList().filterNotNull().sorted()
 
+        val annotations = AnnotationSpec.builder(Suppress::class)
+            .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE)
+            .addMember("%L", """"UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "PackageDirectoryMismatch", "PackageName"""")
+            .build()
+
         //
         // FTR we generate/use 'class' as opposed to 'object' due to issues with JRebel hot-swapping, creating a new
         // instance as needed (caching results after processing etc.).
@@ -289,29 +413,16 @@ class DevFunProcessor : AbstractProcessor() {
         // it doesn't replace/update static fields *inside* of the class (only the class definition itself). This
         // wouldn't be a problem normally w.r.t. normal singletons, but this field is not accessible/assignable by us.
         //
-        return """@file:Suppress("UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "PackageDirectoryMismatch", "PackageName")
+        return """$annotations
 
 package ${ctx.pkg}
 
 ${imports.joinToString("\n") { "import $it" }}
 
-private data class SimpleCategoryDefinition(
-    override val clazz: KClass<*>? = null,
-    override val name: String? = null,
-    override val group: String? = null,
-    override val order: Int? = null
-) : CategoryDefinition
-
-private abstract class AbstractFunctionDefinition : FunctionDefinition {
-    override fun equals(other: Any?) = this === other || other is FunctionDefinition && method == other.method
-    override fun hashCode() = method.hashCode()
-    override fun toString() = "FunctionDefinition(${'$'}method)"
-}
-
-private inline fun <reified T : Any> kClass(): KClass<T> = T::class
-
-private inline val <T : Any> KClass<T>.privateObjectInstance
-    get() = java.getDeclaredField("INSTANCE").apply { isAccessible = true }.get(null) as T
+$simpleCategoryDefinition
+$abstractFunctionDefinition
+$kClassFunc
+$privateObjectInstanceFunc
 
 class $DEFINITIONS_CLASS_NAME : ${DevFunGenerated::class.simpleName} {
 ${processor.generateSources()}
@@ -338,4 +449,12 @@ ${processor.generateSources()}
             log.error { "Failed to write source file:\n${e.stackTraceAsString}" }
         }
     }
+}
+
+val kClassFunc by lazy {
+    FunSpec.builder("kClass")
+        .addTypeVariable(TypeVariableName("T", ANY).reified(true))
+        .addModifiers(KModifier.PRIVATE, KModifier.INLINE)
+        .addStatement("return T::class")
+        .build()
 }

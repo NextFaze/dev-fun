@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.text.SpannableStringBuilder
 import com.nextfaze.devfun.annotations.ArgumentsTransformer
+import com.nextfaze.devfun.annotations.DeveloperArgumentsProperties
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.PropertyTransformer
 import com.nextfaze.devfun.inject.Constructable
@@ -159,7 +160,7 @@ internal class PropertyTransformerImpl(private val invoker: Invoker) : PropertyT
                         title = prop.desc,
                         signature = prop.property.toString(),
                         parameters = listOf(Property(prop.property, prop.value)),
-                        invoke = { it.first().also { prop.value = it } }
+                        invoke = { args -> args.first().also { prop.value = it } }
                     )
                 )
             }
@@ -184,33 +185,33 @@ internal class ArgumentsTransformerImpl : ArgumentsTransformer {
             return null
         }
 
-        val userArgs = functionDefinition.propertyMap?.get("args") as Array<Map<String, *>>?
-        val values = userArgs?.mapNotNull { it["value"] as Array<String>? }
+        val annotation = functionDefinition.properties as DeveloperArgumentsProperties?
+        val values = annotation?.args?.map { it.value }
         if (values == null || values.isEmpty()) {
             log.w { "Got a DeveloperReference function definition $functionDefinition with no args? - ignoring" }
             return null
         }
 
-        val name = functionDefinition.propertyMap?.get("name") as String?
-        val group = functionDefinition.propertyMap?.get("group") as String?
+        val name = annotation.name
+        val group = annotation.group
 
         return values.map { args ->
             fun String.replaceArgs(): String {
                 if (!contains('%')) return this
 
                 var str = this
-                argIndexRegex.findAll(str).forEach {
-                    val index = it.value.substring(1).toIntOrNull()
+                argIndexRegex.findAll(str).forEach { match ->
+                    val index = match.value.substring(1).toIntOrNull()
                     str = when (index) {
-                        null -> str.replace(it.value, "<${it.value},BAD_INT>")
-                        else -> str.replace(it.value, args.elementAtOrElse(index) { "<$index,OUT_OF_BOUNDS>" })
+                        null -> str.replace(match.value, "<${match.value},BAD_INT>")
+                        else -> str.replace(match.value, args.elementAtOrElse(index) { "<$index,OUT_OF_BOUNDS>" })
                     }
                 }
                 return str
             }
 
-            val nameValue = name?.takeIf { it.isNotBlank() }?.replaceArgs()
-            val groupValue = group?.takeIf { it.isNotBlank() }?.replaceArgs()
+            val nameValue = name.takeIf { it.isNotBlank() }?.replaceArgs()
+            val groupValue = group.takeIf { it.isNotBlank() }?.replaceArgs()
 
             val paramTypes = functionDefinition.method.parameterTypes
             val typedArgs = args.mapIndexed { index: Int, s: String ->

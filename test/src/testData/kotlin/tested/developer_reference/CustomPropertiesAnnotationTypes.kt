@@ -31,7 +31,7 @@ annotation class CustomPropertiesAnnotationTypes
 @Target(FUNCTION)
 @Retention(SOURCE)
 @DeveloperAnnotation(developerReference = true)
-internal annotation class HasAnnotationProperties(
+internal annotation class HasAnnotations(
     val simpleTypesWithDefaults: SimpleTypesWithDefaults =
         SimpleTypesWithDefaults(
             defaultByte = 112,
@@ -168,31 +168,31 @@ annotation class HasStringArray(
 
 @Suppress("UNCHECKED_CAST")
 class cpat_SomeClass {
-    @HasAnnotationProperties
+    @HasAnnotations
     fun testAllDefaults(ref: MethodReference) {
-        val properties = ref.propertyMap!!
+        val propertyMap = ref.propertyMap!!
 
         run simpleTypesWithDefaults@{
-            val simpleTypesWithDefaults = properties["simpleTypesWithDefaults"] as Map<String, *>
+            val simpleTypesWithDefaults = propertyMap["simpleTypesWithDefaults"] as Map<String, *>
             expect(true) { simpleTypesWithDefaults["defaultBoolean"] }
             expect(112) { simpleTypesWithDefaults["defaultByte"] }
             expect(12) { simpleTypesWithDefaults["defaultShort"] }
             expect(123) { simpleTypesWithDefaults["someInt"] }
 
-            val anotherSimpleTypesWithDefaults = properties["anotherSimpleTypesWithDefaults"] as Map<String, *>
+            val anotherSimpleTypesWithDefaults = propertyMap["anotherSimpleTypesWithDefaults"] as Map<String, *>
             expect(true) { anotherSimpleTypesWithDefaults["defaultBoolean"] }
             expect(0xA) { anotherSimpleTypesWithDefaults["defaultByte"] }
             expect(12) { anotherSimpleTypesWithDefaults["defaultShort"] }
             expect(999) { anotherSimpleTypesWithDefaults["someInt"] }
 
-            val arrayTypesWithDefaults = properties["arrayTypesWithDefaults"] as Map<String, *>
+            val arrayTypesWithDefaults = propertyMap["arrayTypesWithDefaults"] as Map<String, *>
             expectArrayOf(true, true) { arrayTypesWithDefaults["defaultBooleans"] }
             expectArrayOf<Byte> { arrayTypesWithDefaults["defaultBytes"] }
             expectArrayOf<Short>(12, 34, 56) { arrayTypesWithDefaults["defaultShorts"] }
             expectArrayOf(0.123f, 4.567f) { arrayTypesWithDefaults["someFloats"] }
             expectArrayOf(1, 2, 3) { arrayTypesWithDefaults["someInts"] }
 
-            val classArrayPropertiesWithDefaults = properties["classArrayPropertiesWithDefaults"] as Map<String, *>
+            val classArrayPropertiesWithDefaults = propertyMap["classArrayPropertiesWithDefaults"] as Map<String, *>
             expectArrayOf(Any::class, Int::class, BooleanArray::class, Unit::class, Nothing::class) {
                 classArrayPropertiesWithDefaults["defaultClasses"]
             }
@@ -202,7 +202,7 @@ class cpat_SomeClass {
             }
             expectArrayOf<KClass<*>> { classArrayPropertiesWithDefaults["classes"] }
 
-            val complexTypesWithDefaults = properties["complexTypesWithDefaults"] as Map<String, *>
+            val complexTypesWithDefaults = propertyMap["complexTypesWithDefaults"] as Map<String, *>
             expect("Hello World") { complexTypesWithDefaults["aString"] }
             expectArrayOf<Enum<*>> { complexTypesWithDefaults["normalPets"] }
             expectArrayOf(Color.RED, Color.GREEN, Color.BLUE) { complexTypesWithDefaults["primaryColors"] }
@@ -211,10 +211,10 @@ class cpat_SomeClass {
             expect(2) { complexTypesWithDefaults["myAge"] }
             expectArrayOf(Color.PINK, Color.PURPLE) { complexTypesWithDefaults["myColors"] }
 
-            val emptyArrayOfAnnotations = properties["emptyArrayOfAnnotations"]
+            val emptyArrayOfAnnotations = propertyMap["emptyArrayOfAnnotations"]
             expectArrayOf<PackagePrivateEmptyAnnotation> { emptyArrayOfAnnotations }
 
-            val arrayOfAnnotations = properties["arrayOfAnnotations"] as Array<Map<String, *>>
+            val arrayOfAnnotations = propertyMap["arrayOfAnnotations"] as Array<Map<String, *>>
             arrayOfAnnotations.forEachIndexed { index, map ->
                 expect(true) { map["defaultBoolean"] }
                 expect(0xA) { map["defaultByte"] }
@@ -224,7 +224,7 @@ class cpat_SomeClass {
         }
 
         run nestedAllDefault@{
-            val nestedAllDefault = properties["nestedAllDefault"] as Map<String, *>
+            val nestedAllDefault = propertyMap["nestedAllDefault"] as Map<String, *>
 
             val simpleTypesWithDefaultsNested = nestedAllDefault["simpleTypesWithDefaults"] as Map<String, *>
             expect(true) { simpleTypesWithDefaultsNested["defaultBoolean"] }
@@ -274,7 +274,7 @@ class cpat_SomeClass {
         }
 
         run nestedCustom@{
-            val nestedCustom = properties["nestedCustom"] as Map<String, *>
+            val nestedCustom = propertyMap["nestedCustom"] as Map<String, *>
 
             val simpleTypesWithDefaultsNestedCustom = nestedCustom["simpleTypesWithDefaults"] as Map<String, *>
             expect(false) { simpleTypesWithDefaultsNestedCustom["defaultBoolean"] }
@@ -320,9 +320,160 @@ class cpat_SomeClass {
                 expect(index * 2) { map["someInt"] }
             }
         }
+
+        val properties = ref.properties as HasAnnotationsProperties
+
+        run simpleTypesWithDefaults@{
+            val simpleTypesWithDefaults = properties.simpleTypesWithDefaults
+            expect(true) { simpleTypesWithDefaults.defaultBoolean }
+            expect(112) { simpleTypesWithDefaults.defaultByte }
+            expect(12) { simpleTypesWithDefaults.defaultShort }
+            expect(123) { simpleTypesWithDefaults.someInt }
+
+            val anotherSimpleTypesWithDefaults = properties.anotherSimpleTypesWithDefaults
+            expect(true) { anotherSimpleTypesWithDefaults.defaultBoolean }
+            expect(0xA) { anotherSimpleTypesWithDefaults.defaultByte }
+            expect(12) { anotherSimpleTypesWithDefaults.defaultShort }
+            expect(999) { anotherSimpleTypesWithDefaults.someInt }
+
+            val arrayTypesWithDefaults = properties.arrayTypesWithDefaults
+            expectArrayOf(true, true) { arrayTypesWithDefaults.defaultBooleans }
+            expectArrayOf<Byte> { arrayTypesWithDefaults.defaultBytes }
+            expectArrayOf<Short>(12, 34, 56) { arrayTypesWithDefaults.defaultShorts }
+            expectArrayOf(0.123f, 4.567f) { arrayTypesWithDefaults.someFloats }
+            expectArrayOf(1, 2, 3) { arrayTypesWithDefaults.someInts }
+
+            val classArrayPropertiesWithDefaults = properties.classArrayPropertiesWithDefaults
+            expectArrayOf(Any::class, Int::class, BooleanArray::class, Unit::class, Nothing::class) {
+                classArrayPropertiesWithDefaults.defaultClasses
+            }
+            expectArrayOf(Char::class, SimpleTypesWithDefaults::class) { classArrayPropertiesWithDefaults.badClasses }
+            expectArrayOf(Array<String>::class, CustomPropertiesAnnotationTypes::class) {
+                classArrayPropertiesWithDefaults.optionalClasses
+            }
+            expectArrayOf<KClass<*>> { classArrayPropertiesWithDefaults.classes }
+
+            val complexTypesWithDefaults = properties.complexTypesWithDefaults
+            expect("Hello World") { complexTypesWithDefaults.aString }
+            expectArrayOf<Enum<*>> { complexTypesWithDefaults.normalPets }
+            expectArrayOf(Color.RED, Color.GREEN, Color.BLUE) { complexTypesWithDefaults.primaryColors }
+            expect(Animal.OTTER) { complexTypesWithDefaults.myPet }
+            expect(Color.PURPLE) { complexTypesWithDefaults.myColor }
+            expect(2) { complexTypesWithDefaults.myAge }
+            expectArrayOf(Color.PINK, Color.PURPLE) { complexTypesWithDefaults.myColors }
+
+            val emptyArrayOfAnnotations = properties.emptyArrayOfAnnotations
+            expectArrayOf<PackagePrivateEmptyAnnotation> { emptyArrayOfAnnotations }
+
+            val arrayOfAnnotations = properties.arrayOfAnnotations
+            arrayOfAnnotations.forEachIndexed { index, map ->
+                expect(true) { map.defaultBoolean }
+                expect(0xA) { map.defaultByte }
+                expect(12) { map.defaultShort }
+                expect(index + 1) { map.someInt }
+            }
+        }
+
+        run nestedAllDefault@{
+            val nestedAllDefault = properties.nestedAllDefault
+
+            val simpleTypesWithDefaultsNested = nestedAllDefault.simpleTypesWithDefaults
+            expect(true) { simpleTypesWithDefaultsNested.defaultBoolean }
+            expect(13) { simpleTypesWithDefaultsNested.defaultByte }
+            expect(12) { simpleTypesWithDefaultsNested.defaultShort }
+            expect(456) { simpleTypesWithDefaultsNested.someInt }
+
+            val anotherSimpleTypesWithDefaultsNested = nestedAllDefault.anotherSimpleTypesWithDefaults
+            expect(true) { anotherSimpleTypesWithDefaultsNested.defaultBoolean }
+            expect(0xA) { anotherSimpleTypesWithDefaultsNested.defaultByte }
+            expect(12) { anotherSimpleTypesWithDefaultsNested.defaultShort }
+            expect(777) { anotherSimpleTypesWithDefaultsNested.someInt }
+
+            val arrayTypesWithDefaults = nestedAllDefault.arrayTypesWithDefaults
+            expectArrayOf(false, false) { arrayTypesWithDefaults.defaultBooleans }
+            expectArrayOf<Byte>(1, 2, 3) { arrayTypesWithDefaults.defaultBytes }
+            expectArrayOf<Short>(12, 34, 56) { arrayTypesWithDefaults.defaultShorts }
+            expectArrayOf<Float> { arrayTypesWithDefaults.someFloats }
+            expectArrayOf(3, 2, 1) { arrayTypesWithDefaults.someInts }
+
+            val classArrayPropertiesWithDefaultsNested = nestedAllDefault.classArrayPropertiesWithDefaults
+            expectArrayOf(Any::class, Int::class, BooleanArray::class, Unit::class, Nothing::class) {
+                classArrayPropertiesWithDefaultsNested.defaultClasses
+            }
+            expectArrayOf(Char::class, SimpleTypesWithDefaults::class) { classArrayPropertiesWithDefaultsNested.badClasses }
+            expectArrayOf(Array<Boolean>::class, SimpleTypesWithDefaults::class) {
+                classArrayPropertiesWithDefaultsNested.optionalClasses
+            }
+            expectArrayOf<KClass<*>> { classArrayPropertiesWithDefaultsNested.classes }
+
+            val complexTypesWithDefaultsNested = nestedAllDefault.complexTypesWithDefaults
+            expect("Hello World") { complexTypesWithDefaultsNested.aString }
+            expectArrayOf(Animal.DOG, Animal.CAT, Animal.BIRD) { complexTypesWithDefaultsNested.normalPets }
+            expectArrayOf(Color.RED, Color.GREEN, Color.BLUE) { complexTypesWithDefaultsNested.primaryColors }
+            expect(Animal.BIRD) { complexTypesWithDefaultsNested.myPet }
+            expect(Color.PINK) { complexTypesWithDefaultsNested.myColor }
+            expect(12) { complexTypesWithDefaultsNested.myAge }
+            expectArrayOf(Color.PINK, Color.PURPLE) { complexTypesWithDefaultsNested.myColors }
+
+            val arrayOfAnnotations = nestedAllDefault.arrayOfAnnotations
+            arrayOfAnnotations.forEachIndexed { index, map ->
+                expect(true) { map.defaultBoolean }
+                expect(0xA) { map.defaultByte }
+                expect(12) { map.defaultShort }
+                expect(index + 1) { map.someInt }
+            }
+        }
+
+        run nestedCustom@{
+            val nestedCustom = properties.nestedCustom
+
+            val simpleTypesWithDefaultsNestedCustom = nestedCustom.simpleTypesWithDefaults
+            expect(false) { simpleTypesWithDefaultsNestedCustom.defaultBoolean }
+            expect(0xA) { simpleTypesWithDefaultsNestedCustom.defaultByte }
+            expect(12) { simpleTypesWithDefaultsNestedCustom.defaultShort }
+            expect(1337) { simpleTypesWithDefaultsNestedCustom.someInt }
+
+            val anotherSimpleTypesWithDefaultsNestedCustom = nestedCustom.anotherSimpleTypesWithDefaults
+            expect(true) { anotherSimpleTypesWithDefaultsNestedCustom.defaultBoolean }
+            expect(0xA) { anotherSimpleTypesWithDefaultsNestedCustom.defaultByte }
+            expect(12) { anotherSimpleTypesWithDefaultsNestedCustom.defaultShort }
+            expect(777) { anotherSimpleTypesWithDefaultsNestedCustom.someInt }
+
+            val arrayTypesWithDefaults = nestedCustom.arrayTypesWithDefaults
+            expectArrayOf(false, false) { arrayTypesWithDefaults.defaultBooleans }
+            expectArrayOf<Byte>(0xA, 0xB, 0xC) { arrayTypesWithDefaults.defaultBytes }
+            expectArrayOf<Short>(6, 7, 8) { arrayTypesWithDefaults.defaultShorts }
+            expectArrayOf(-1.0f) { arrayTypesWithDefaults.someFloats }
+            expectArrayOf<Int> { arrayTypesWithDefaults.someInts }
+
+            val classArrayPropertiesWithDefaultsNestedCustom = nestedCustom.classArrayPropertiesWithDefaults
+            expectArrayOf(Any::class, Int::class, BooleanArray::class, Unit::class, Nothing::class) {
+                classArrayPropertiesWithDefaultsNestedCustom.defaultClasses
+            }
+            expectArrayOf<KClass<*>> { classArrayPropertiesWithDefaultsNestedCustom.badClasses }
+            expectArrayOf(Boolean::class) { classArrayPropertiesWithDefaultsNestedCustom.optionalClasses }
+            expectArrayOf(Animal::class, Color::class, Nothing::class) { classArrayPropertiesWithDefaultsNestedCustom.classes }
+
+            val complexTypesWithDefaultsNestedCustom = nestedCustom.complexTypesWithDefaults
+            expect("I'm nested!") { complexTypesWithDefaultsNestedCustom.aString }
+            expectArrayOf(Animal.DOG, Animal.CAT, Animal.BIRD) { complexTypesWithDefaultsNestedCustom.normalPets }
+            expectArrayOf(Color.RED, Color.GREEN, Color.BLUE) { complexTypesWithDefaultsNestedCustom.primaryColors }
+            expect(Animal.DOG) { complexTypesWithDefaultsNestedCustom.myPet }
+            expect(Color.GREEN) { complexTypesWithDefaultsNestedCustom.myColor }
+            expect(99) { complexTypesWithDefaultsNestedCustom.myAge }
+            expectArrayOf<Enum<*>> { complexTypesWithDefaultsNestedCustom.myColors }
+
+            val arrayOfAnnotations = nestedCustom.arrayOfAnnotations
+            arrayOfAnnotations.forEachIndexed { index, map ->
+                expect(true) { map.defaultBoolean }
+                expect(0xA) { map.defaultByte }
+                expect(12) { map.defaultShort }
+                expect(index * 2) { map.someInt }
+            }
+        }
     }
 
-    @HasAnnotationProperties(
+    @HasAnnotations(
         anotherSimpleTypesWithDefaults = SimpleTypesWithDefaults(
             defaultBoolean = false,
             someInt = 163
@@ -338,29 +489,29 @@ class cpat_SomeClass {
         )
     )
     fun testWithUseSiteValues(ref: MethodReference) {
-        val properties = ref.propertyMap!!
+        val propertyMap = ref.propertyMap!!
 
         run simpleTypesWithDefaults@{
-            val simpleTypesWithDefaults = properties["simpleTypesWithDefaults"] as Map<String, *>
+            val simpleTypesWithDefaults = propertyMap["simpleTypesWithDefaults"] as Map<String, *>
             expect(true) { simpleTypesWithDefaults["defaultBoolean"] }
             expect(112) { simpleTypesWithDefaults["defaultByte"] }
             expect(12) { simpleTypesWithDefaults["defaultShort"] }
             expect(123) { simpleTypesWithDefaults["someInt"] }
 
-            val anotherSimpleTypesWithDefaults = properties["anotherSimpleTypesWithDefaults"] as Map<String, *>
+            val anotherSimpleTypesWithDefaults = propertyMap["anotherSimpleTypesWithDefaults"] as Map<String, *>
             expect(false) { anotherSimpleTypesWithDefaults["defaultBoolean"] }
             expect(0xA) { anotherSimpleTypesWithDefaults["defaultByte"] }
             expect(12) { anotherSimpleTypesWithDefaults["defaultShort"] }
             expect(163) { anotherSimpleTypesWithDefaults["someInt"] }
 
-            val arrayTypesWithDefaults = properties["arrayTypesWithDefaults"] as Map<String, *>
+            val arrayTypesWithDefaults = propertyMap["arrayTypesWithDefaults"] as Map<String, *>
             expectArrayOf(true, true) { arrayTypesWithDefaults["defaultBooleans"] }
             expectArrayOf<Byte> { arrayTypesWithDefaults["defaultBytes"] }
             expectArrayOf<Short>(12, 34, 56) { arrayTypesWithDefaults["defaultShorts"] }
             expectArrayOf(0.123f, 4.567f) { arrayTypesWithDefaults["someFloats"] }
             expectArrayOf(1, 2, 3) { arrayTypesWithDefaults["someInts"] }
 
-            val classArrayPropertiesWithDefaults = properties["classArrayPropertiesWithDefaults"] as Map<String, *>
+            val classArrayPropertiesWithDefaults = propertyMap["classArrayPropertiesWithDefaults"] as Map<String, *>
             expectArrayOf(Any::class, Int::class, BooleanArray::class, Unit::class, Nothing::class) {
                 classArrayPropertiesWithDefaults["defaultClasses"]
             }
@@ -370,7 +521,7 @@ class cpat_SomeClass {
             }
             expectArrayOf<KClass<*>> { classArrayPropertiesWithDefaults["classes"] }
 
-            val complexTypesWithDefaults = properties["complexTypesWithDefaults"] as Map<String, *>
+            val complexTypesWithDefaults = propertyMap["complexTypesWithDefaults"] as Map<String, *>
             expect("Hello World") { complexTypesWithDefaults["aString"] }
             expectArrayOf<Enum<*>> { complexTypesWithDefaults["normalPets"] }
             expectArrayOf(Color.RED, Color.GREEN, Color.BLUE) { complexTypesWithDefaults["primaryColors"] }
@@ -379,10 +530,10 @@ class cpat_SomeClass {
             expect(2) { complexTypesWithDefaults["myAge"] }
             expectArrayOf(Color.PINK, Color.PURPLE) { complexTypesWithDefaults["myColors"] }
 
-            val emptyArrayOfAnnotations = properties["emptyArrayOfAnnotations"]
+            val emptyArrayOfAnnotations = propertyMap["emptyArrayOfAnnotations"]
             expectArrayOf<PackagePrivateEmptyAnnotation> { emptyArrayOfAnnotations }
 
-            val arrayOfAnnotations = properties["arrayOfAnnotations"] as Array<Map<String, *>>
+            val arrayOfAnnotations = propertyMap["arrayOfAnnotations"] as Array<Map<String, *>>
             arrayOfAnnotations.forEachIndexed { index, map ->
                 expect(true) { map["defaultBoolean"] }
                 expect(0xA) { map["defaultByte"] }
@@ -392,7 +543,7 @@ class cpat_SomeClass {
         }
 
         run nestedAllDefault@{
-            val nestedAllDefault = properties["nestedAllDefault"] as Map<String, *>
+            val nestedAllDefault = propertyMap["nestedAllDefault"] as Map<String, *>
 
             val simpleTypesWithDefaultsNested = nestedAllDefault["simpleTypesWithDefaults"] as Map<String, *>
             expect(true) { simpleTypesWithDefaultsNested["defaultBoolean"] }
@@ -442,7 +593,7 @@ class cpat_SomeClass {
         }
 
         run nestedCustom@{
-            val nestedCustom = properties["nestedCustom"] as Map<String, *>
+            val nestedCustom = propertyMap["nestedCustom"] as Map<String, *>
 
             val simpleTypesWithDefaultsNestedCustom = nestedCustom["simpleTypesWithDefaults"] as Map<String, *>
             expect(true) { simpleTypesWithDefaultsNestedCustom["defaultBoolean"] }
@@ -490,6 +641,159 @@ class cpat_SomeClass {
                 expect(index + 1) { map["someInt"] }
             }
         }
+
+        val properties = ref.properties as HasAnnotationsProperties
+
+        run simpleTypesWithDefaults@{
+            val simpleTypesWithDefaults = properties.simpleTypesWithDefaults
+            expect(true) { simpleTypesWithDefaults.defaultBoolean }
+            expect(112) { simpleTypesWithDefaults.defaultByte }
+            expect(12) { simpleTypesWithDefaults.defaultShort }
+            expect(123) { simpleTypesWithDefaults.someInt }
+
+            val anotherSimpleTypesWithDefaults = properties.anotherSimpleTypesWithDefaults
+            expect(false) { anotherSimpleTypesWithDefaults.defaultBoolean }
+            expect(0xA) { anotherSimpleTypesWithDefaults.defaultByte }
+            expect(12) { anotherSimpleTypesWithDefaults.defaultShort }
+            expect(163) { anotherSimpleTypesWithDefaults.someInt }
+
+            val arrayTypesWithDefaults = properties.arrayTypesWithDefaults
+            expectArrayOf(true, true) { arrayTypesWithDefaults.defaultBooleans }
+            expectArrayOf<Byte> { arrayTypesWithDefaults.defaultBytes }
+            expectArrayOf<Short>(12, 34, 56) { arrayTypesWithDefaults.defaultShorts }
+            expectArrayOf(0.123f, 4.567f) { arrayTypesWithDefaults.someFloats }
+            expectArrayOf(1, 2, 3) { arrayTypesWithDefaults.someInts }
+
+            val classArrayPropertiesWithDefaults = properties.classArrayPropertiesWithDefaults
+            expectArrayOf(Any::class, Int::class, BooleanArray::class, Unit::class, Nothing::class) {
+                classArrayPropertiesWithDefaults.defaultClasses
+            }
+            expectArrayOf(Char::class, SimpleTypesWithDefaults::class) { classArrayPropertiesWithDefaults.badClasses }
+            expectArrayOf(Array<String>::class, CustomPropertiesAnnotationTypes::class) {
+                classArrayPropertiesWithDefaults.optionalClasses
+            }
+            expectArrayOf<KClass<*>> { classArrayPropertiesWithDefaults.classes }
+
+            val complexTypesWithDefaults = properties.complexTypesWithDefaults
+            expect("Hello World") { complexTypesWithDefaults.aString }
+            expectArrayOf<Enum<*>> { complexTypesWithDefaults.normalPets }
+            expectArrayOf(Color.RED, Color.GREEN, Color.BLUE) { complexTypesWithDefaults.primaryColors }
+            expect(Animal.OTTER) { complexTypesWithDefaults.myPet }
+            expect(Color.PURPLE) { complexTypesWithDefaults.myColor }
+            expect(2) { complexTypesWithDefaults.myAge }
+            expectArrayOf(Color.PINK, Color.PURPLE) { complexTypesWithDefaults.myColors }
+
+            val emptyArrayOfAnnotations = properties.emptyArrayOfAnnotations
+            expectArrayOf<PackagePrivateEmptyAnnotation> { emptyArrayOfAnnotations }
+
+            val arrayOfAnnotations = properties.arrayOfAnnotations
+            arrayOfAnnotations.forEachIndexed { index, map ->
+                expect(true) { map.defaultBoolean }
+                expect(0xA) { map.defaultByte }
+                expect(12) { map.defaultShort }
+                expect(index + 1) { map.someInt }
+            }
+        }
+
+        run nestedAllDefault@{
+            val nestedAllDefault = properties.nestedAllDefault
+
+            val simpleTypesWithDefaultsNested = nestedAllDefault.simpleTypesWithDefaults
+            expect(true) { simpleTypesWithDefaultsNested.defaultBoolean }
+            expect(13) { simpleTypesWithDefaultsNested.defaultByte }
+            expect(12) { simpleTypesWithDefaultsNested.defaultShort }
+            expect(456) { simpleTypesWithDefaultsNested.someInt }
+
+            val anotherSimpleTypesWithDefaultsNested = nestedAllDefault.anotherSimpleTypesWithDefaults
+            expect(true) { anotherSimpleTypesWithDefaultsNested.defaultBoolean }
+            expect(0xA) { anotherSimpleTypesWithDefaultsNested.defaultByte }
+            expect(12) { anotherSimpleTypesWithDefaultsNested.defaultShort }
+            expect(777) { anotherSimpleTypesWithDefaultsNested.someInt }
+
+            val arrayTypesWithDefaults = nestedAllDefault.arrayTypesWithDefaults
+            expectArrayOf(false, false) { arrayTypesWithDefaults.defaultBooleans }
+            expectArrayOf<Byte>(1, 2, 3) { arrayTypesWithDefaults.defaultBytes }
+            expectArrayOf<Short>(12, 34, 56) { arrayTypesWithDefaults.defaultShorts }
+            expectArrayOf<Float> { arrayTypesWithDefaults.someFloats }
+            expectArrayOf(3, 2, 1) { arrayTypesWithDefaults.someInts }
+
+            val classArrayPropertiesWithDefaultsNested = nestedAllDefault.classArrayPropertiesWithDefaults
+            expectArrayOf(Any::class, Int::class, BooleanArray::class, Unit::class, Nothing::class) {
+                classArrayPropertiesWithDefaultsNested.defaultClasses
+            }
+            expectArrayOf(Char::class, SimpleTypesWithDefaults::class) { classArrayPropertiesWithDefaultsNested.badClasses }
+            expectArrayOf(Array<Boolean>::class, SimpleTypesWithDefaults::class) {
+                classArrayPropertiesWithDefaultsNested.optionalClasses
+            }
+            expectArrayOf<KClass<*>> { classArrayPropertiesWithDefaultsNested.classes }
+
+            val complexTypesWithDefaultsNested = nestedAllDefault.complexTypesWithDefaults
+            expect("Hello World") { complexTypesWithDefaultsNested.aString }
+            expectArrayOf(Animal.DOG, Animal.CAT, Animal.BIRD) { complexTypesWithDefaultsNested.normalPets }
+            expectArrayOf(Color.RED, Color.GREEN, Color.BLUE) { complexTypesWithDefaultsNested.primaryColors }
+            expect(Animal.BIRD) { complexTypesWithDefaultsNested.myPet }
+            expect(Color.PINK) { complexTypesWithDefaultsNested.myColor }
+            expect(12) { complexTypesWithDefaultsNested.myAge }
+            expectArrayOf(Color.PINK, Color.PURPLE) { complexTypesWithDefaultsNested.myColors }
+
+            val arrayOfAnnotations = nestedAllDefault.arrayOfAnnotations
+            arrayOfAnnotations.forEachIndexed { index, map ->
+                expect(true) { map.defaultBoolean }
+                expect(0xA) { map.defaultByte }
+                expect(12) { map.defaultShort }
+                expect(index + 1) { map.someInt }
+            }
+        }
+
+        run nestedCustom@{
+            val nestedCustom = properties.nestedCustom
+
+            val simpleTypesWithDefaultsNestedCustom = nestedCustom.simpleTypesWithDefaults
+            expect(true) { simpleTypesWithDefaultsNestedCustom.defaultBoolean }
+            expect(13) { simpleTypesWithDefaultsNestedCustom.defaultByte }
+            expect(12) { simpleTypesWithDefaultsNestedCustom.defaultShort }
+            expect(456) { simpleTypesWithDefaultsNestedCustom.someInt }
+
+            val anotherSimpleTypesWithDefaultsNestedCustom = nestedCustom.anotherSimpleTypesWithDefaults
+            expect(true) { anotherSimpleTypesWithDefaultsNestedCustom.defaultBoolean }
+            expect(0xA) { anotherSimpleTypesWithDefaultsNestedCustom.defaultByte }
+            expect(12) { anotherSimpleTypesWithDefaultsNestedCustom.defaultShort }
+            expect(777) { anotherSimpleTypesWithDefaultsNestedCustom.someInt }
+
+            val arrayTypesWithDefaults = nestedCustom.arrayTypesWithDefaults
+            expectArrayOf(false, false) { arrayTypesWithDefaults.defaultBooleans }
+            expectArrayOf<Byte>(1, 2, 3) { arrayTypesWithDefaults.defaultBytes }
+            expectArrayOf<Short>(12, 34, 56) { arrayTypesWithDefaults.defaultShorts }
+            expectArrayOf<Float> { arrayTypesWithDefaults.someFloats }
+            expectArrayOf(3, 2, 1) { arrayTypesWithDefaults.someInts }
+
+            val classArrayPropertiesWithDefaultsNestedCustom = nestedCustom.classArrayPropertiesWithDefaults
+            expectArrayOf(Any::class, Int::class, BooleanArray::class, Unit::class, Nothing::class) {
+                classArrayPropertiesWithDefaultsNestedCustom.defaultClasses
+            }
+            expectArrayOf(Char::class, SimpleTypesWithDefaults::class) { classArrayPropertiesWithDefaultsNestedCustom.badClasses }
+            expectArrayOf(Array<Boolean>::class, SimpleTypesWithDefaults::class) {
+                classArrayPropertiesWithDefaultsNestedCustom.optionalClasses
+            }
+            expectArrayOf<KClass<*>> { classArrayPropertiesWithDefaultsNestedCustom.classes }
+
+            val complexTypesWithDefaultsNestedCustom = nestedCustom.complexTypesWithDefaults
+            expect("Hello World") { complexTypesWithDefaultsNestedCustom.aString }
+            expectArrayOf<Enum<*>> { complexTypesWithDefaultsNestedCustom.normalPets }
+            expectArrayOf(Color.RED, Color.GREEN, Color.BLUE) { complexTypesWithDefaultsNestedCustom.primaryColors }
+            expect(Animal.OTTER) { complexTypesWithDefaultsNestedCustom.myPet }
+            expect(Color.PINK) { complexTypesWithDefaultsNestedCustom.myColor }
+            expect(50) { complexTypesWithDefaultsNestedCustom.myAge }
+            expectArrayOf(Color.RED) { complexTypesWithDefaultsNestedCustom.myColors }
+
+            val arrayOfAnnotations = nestedCustom.arrayOfAnnotations
+            arrayOfAnnotations.forEachIndexed { index, map ->
+                expect(true) { map.defaultBoolean }
+                expect(0xA) { map.defaultByte }
+                expect(12) { map.defaultShort }
+                expect(index + 1) { map.someInt }
+            }
+        }
     }
 
     @HasNestedStringArrays(
@@ -500,13 +804,18 @@ class cpat_SomeClass {
         ]
     )
     fun testNestedStringArray(ref: ReferenceDefinition) {
-        val properties = ref.propertyMap!!
+        val propertyMap = ref.propertyMap!!
 
-        val hasStringArray = properties["hasStringArray"] as Map<String, *>
+        val hasStringArray = propertyMap["hasStringArray"] as Map<String, *>
         expectArrayOf("Next", "Faze") { hasStringArray["value"] }
 
-        val hasStringArrays = properties["hasStringArrays"] as Array<Map<String, *>>
+        val hasStringArrays = propertyMap["hasStringArrays"] as Array<Map<String, *>>
         expectArrayOf("foo@example.com", "hello", "Normal") { hasStringArrays[0]["value"] }
         expectArrayOf("bar@example.com", "world", "Normal") { hasStringArrays[1]["value"] }
+
+        val properties = ref.properties as HasNestedStringArraysProperties
+        expectArrayOf("Next", "Faze") { properties.hasStringArray.value }
+        expectArrayOf("foo@example.com", "hello", "Normal") { properties.hasStringArrays[0].value }
+        expectArrayOf("bar@example.com", "world", "Normal") { properties.hasStringArrays[1].value }
     }
 }

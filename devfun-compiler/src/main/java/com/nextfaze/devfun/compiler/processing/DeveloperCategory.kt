@@ -3,6 +3,7 @@ package com.nextfaze.devfun.compiler.processing
 import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.core.CategoryDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
+import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.TypeElement
@@ -24,7 +25,7 @@ internal class DeveloperCategoryHandler @Inject constructor(
     private val categoryDefinitions = HashMap<String, String>()
     override val willGenerateSource: Boolean get() = categoryDefinitions.isNotEmpty()
 
-    override fun processAnnotatedElement(annotatedElement: AnnotatedElement) {
+    override fun processAnnotatedElement(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
         if (!annotatedElement.asCategory) return
 
         val (element, annotationElement) = annotatedElement

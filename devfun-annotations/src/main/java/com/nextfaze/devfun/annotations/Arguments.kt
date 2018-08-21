@@ -59,10 +59,10 @@ interface ArgumentsTransformer : FunctionTransformer
  * fun myFunction(str: String, float: Float) = Unit
  * ```
  *
- * 
+ *
  * # Example Usage
  * _Taken from demo [AuthenticateFragment.signInAs](https://github.com/NextFaze/dev-fun/tree/master/demo/src/main/java/com/nextfaze/devfun/demo/AuthenticateScreen.kt#L200)_
- * 
+ *
  * ```kotlin
  * @DeveloperArguments(
  *     args = [

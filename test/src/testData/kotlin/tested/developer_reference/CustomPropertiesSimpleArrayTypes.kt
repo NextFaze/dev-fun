@@ -13,7 +13,7 @@ annotation class CustomPropertiesSimpleArrayTypes
 @Target(FUNCTION)
 @Retention(SOURCE)
 @DeveloperAnnotation(developerReference = true)
-annotation class HasSimpleArrayTypeProperties(
+annotation class HasSimpleArrayTypes(
     val booleans: BooleanArray,
     val bytes: ByteArray,
     val shorts: ShortArray,
@@ -27,7 +27,7 @@ annotation class HasSimpleArrayTypeProperties(
 @Target(FUNCTION)
 @Retention(SOURCE)
 @DeveloperAnnotation(developerReference = true)
-annotation class HasSimpleArrayTypePropertiesWithDefaults(
+annotation class HasSimpleArrayTypesWithDefaults(
     val defaultBooleans: BooleanArray = [false, false, true, true],
     val defaultBytes: ByteArray = [0xA, 0xB, 0xC],
     val defaultShorts: ShortArray = [12, 34, 56],
@@ -35,7 +35,7 @@ annotation class HasSimpleArrayTypePropertiesWithDefaults(
 )
 
 class cpsat_SomeClass {
-    @HasSimpleArrayTypeProperties(
+    @HasSimpleArrayTypes(
         booleans = [false, true, false, false],
         bytes = [0xD, 0xE, 0xA, 0xD],
         shorts = [0xBE, 0xEF],
@@ -46,26 +46,42 @@ class cpsat_SomeClass {
         doubles = [0.0, 0.00001, 1234567.8, -0.0]
     )
     fun testSimpleTypeArrayTypeProperties(ref: MethodReference) {
-        val properties = ref.propertyMap!!
-        expectArrayOf(false, true, false, false) { properties["booleans"] }
-        expectArrayOf<Byte>(0xD, 0xE, 0xA, 0xD) { properties["bytes"] }
-        expectArrayOf<Short>(0xBE, 0xEF) { properties["shorts"] }
-        expectArrayOf(0xCAFE, 0xBABE) { properties["ints"] }
-        expectArrayOf(214748383L, 214748581L, 214748803L, 214749011L, 214749211L, 214749397L) { properties["longs"] }
-        expectArrayOf('N', 'e', 'x', 't', 'F', 'a', 'z', 'e') { properties["chars"] }
-        expectArrayOf(0.123f, 4.567f, 89.1010f) { properties["floats"] }
-        expectArrayOf(0.0, 0.00001, 1234567.8, -0.0) { properties["doubles"] }
+        val propertyMap = ref.propertyMap!!
+        expectArrayOf(false, true, false, false) { propertyMap["booleans"] }
+        expectArrayOf<Byte>(0xD, 0xE, 0xA, 0xD) { propertyMap["bytes"] }
+        expectArrayOf<Short>(0xBE, 0xEF) { propertyMap["shorts"] }
+        expectArrayOf(0xCAFE, 0xBABE) { propertyMap["ints"] }
+        expectArrayOf(214748383L, 214748581L, 214748803L, 214749011L, 214749211L, 214749397L) { propertyMap["longs"] }
+        expectArrayOf('N', 'e', 'x', 't', 'F', 'a', 'z', 'e') { propertyMap["chars"] }
+        expectArrayOf(0.123f, 4.567f, 89.1010f) { propertyMap["floats"] }
+        expectArrayOf(0.0, 0.00001, 1234567.8, -0.0) { propertyMap["doubles"] }
+
+        val properties = ref.properties as HasSimpleArrayTypesProperties
+        expectArrayOf(false, true, false, false) { properties.booleans }
+        expectArrayOf<Byte>(0xD, 0xE, 0xA, 0xD) { properties.bytes }
+        expectArrayOf<Short>(0xBE, 0xEF) { properties.shorts }
+        expectArrayOf(0xCAFE, 0xBABE) { properties.ints }
+        expectArrayOf(214748383L, 214748581L, 214748803L, 214749011L, 214749211L, 214749397L) { properties.longs }
+        expectArrayOf('N', 'e', 'x', 't', 'F', 'a', 'z', 'e') { properties.chars }
+        expectArrayOf(0.123f, 4.567f, 89.1010f) { properties.floats }
+        expectArrayOf(0.0, 0.00001, 1234567.8, -0.0) { properties.doubles }
     }
 
-    @HasSimpleArrayTypePropertiesWithDefaults(
+    @HasSimpleArrayTypesWithDefaults(
         defaultBooleans = [true, true, false, true],
         someInts = [1, 2, 3, 4]
     )
     fun testSimpleTypeArrayTypePropertiesWithDefaults(ref: MethodReference) {
-        val properties = ref.propertyMap!!
-        expectArrayOf(true, true, false, true) { properties["defaultBooleans"] }
-        expectArrayOf<Byte>(0xA, 0xB, 0xC) { properties["defaultBytes"] }
-        expectArrayOf<Short>(12, 34, 56) { properties["defaultShorts"] }
-        expectArrayOf(1, 2, 3, 4) { properties["someInts"] }
+        val propertyMap = ref.propertyMap!!
+        expectArrayOf(true, true, false, true) { propertyMap["defaultBooleans"] }
+        expectArrayOf<Byte>(0xA, 0xB, 0xC) { propertyMap["defaultBytes"] }
+        expectArrayOf<Short>(12, 34, 56) { propertyMap["defaultShorts"] }
+        expectArrayOf(1, 2, 3, 4) { propertyMap["someInts"] }
+
+        val properties = ref.properties as HasSimpleArrayTypesWithDefaultsProperties
+        expectArrayOf(true, true, false, true) { properties.defaultBooleans }
+        expectArrayOf<Byte>(0xA, 0xB, 0xC) { properties.defaultBytes }
+        expectArrayOf<Short>(12, 34, 56) { properties.defaultShorts }
+        expectArrayOf(1, 2, 3, 4) { properties.someInts }
     }
 }

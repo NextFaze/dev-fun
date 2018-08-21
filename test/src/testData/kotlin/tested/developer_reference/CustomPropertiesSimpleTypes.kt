@@ -13,7 +13,7 @@ annotation class CustomPropertiesSimpleTypes
 @Target(FUNCTION)
 @Retention(SOURCE)
 @DeveloperAnnotation(developerReference = true)
-annotation class HasSimpleTypedProperties(
+annotation class HasSimpleTypes(
     // NOTE: can't use 'boolean', 'byte', etc. as they are reserved words in Java realm (should probably create a bug for this as it fails silently...)
     val aBoolean: Boolean,
     val aByte: Byte,
@@ -28,7 +28,7 @@ annotation class HasSimpleTypedProperties(
 @Target(FUNCTION)
 @Retention(SOURCE)
 @DeveloperAnnotation(developerReference = true)
-annotation class HasSimpleTypedPropertiesWithDefaults(
+annotation class HasSimpleTypesWithDefaults(
     val defaultBoolean: Boolean = true,
     val defaultByte: Byte = 0xA,
     val defaultShort: Short = 12,
@@ -36,7 +36,7 @@ annotation class HasSimpleTypedPropertiesWithDefaults(
 )
 
 class cpst_SomeClass {
-    @HasSimpleTypedProperties(
+    @HasSimpleTypes(
         aBoolean = true,
         aByte = 0xD,
         aShort = 0xEA,
@@ -47,26 +47,42 @@ class cpst_SomeClass {
         aDouble = 45.6789
     )
     fun testSimpleTypeProperties(ref: MethodReference) {
-        val properties = ref.propertyMap!!
-        expect(true) { properties["aBoolean"] }
-        expect(0xD) { properties["aByte"] }
-        expect(0xEA) { properties["aShort"] }
-        expect(0xDBEEF) { properties["aInt"] }
-        expect(0xCAFEBABE) { properties["aLong"] }
-        expect('N') { properties["aChar"] }
-        expect(0.123f) { properties["aFloat"] }
-        expect(45.6789) { properties["aDouble"] }
+        val propertyMap = ref.propertyMap!!
+        expect(true) { propertyMap["aBoolean"] }
+        expect(0xD) { propertyMap["aByte"] }
+        expect(0xEA) { propertyMap["aShort"] }
+        expect(0xDBEEF) { propertyMap["aInt"] }
+        expect(0xCAFEBABE) { propertyMap["aLong"] }
+        expect('N') { propertyMap["aChar"] }
+        expect(0.123f) { propertyMap["aFloat"] }
+        expect(45.6789) { propertyMap["aDouble"] }
+
+        val properties = ref.properties as HasSimpleTypesProperties
+        expect(true) { properties.aBoolean }
+        expect(0xD) { properties.aByte }
+        expect(0xEA) { properties.aShort }
+        expect(0xDBEEF) { properties.aInt }
+        expect(0xCAFEBABE) { properties.aLong }
+        expect('N') { properties.aChar }
+        expect(0.123f) { properties.aFloat }
+        expect(45.6789) { properties.aDouble }
     }
 
-    @HasSimpleTypedPropertiesWithDefaults(
+    @HasSimpleTypesWithDefaults(
         defaultShort = 99,
         someInt = 123
     )
     fun testSimpleTypePropertiesWithDefaults(ref: MethodReference) {
-        val properties = ref.propertyMap!!
-        expect(true) { properties["defaultBoolean"] }
-        expect(0xA) { properties["defaultByte"] }
-        expect(99) { properties["defaultShort"] }
-        expect(123) { properties["someInt"] }
+        val propertyMap = ref.propertyMap!!
+        expect(true) { propertyMap["defaultBoolean"] }
+        expect(0xA) { propertyMap["defaultByte"] }
+        expect(99) { propertyMap["defaultShort"] }
+        expect(123) { propertyMap["someInt"] }
+
+        val properties = ref.properties as HasSimpleTypesWithDefaultsProperties
+        expect(true) { properties.defaultBoolean }
+        expect(0xA) { properties.defaultByte }
+        expect(99) { properties.defaultShort }
+        expect(123) { properties.someInt }
     }
 }

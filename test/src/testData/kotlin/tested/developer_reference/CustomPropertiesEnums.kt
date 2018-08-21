@@ -14,7 +14,7 @@ annotation class CustomPropertiesEnums
 @Target(FUNCTION)
 @Retention(SOURCE)
 @DeveloperAnnotation(developerReference = true)
-private annotation class HasEnumProperties(
+private annotation class HasEnums(
     val myNumbers: MyNumbers,
     val myNumbersDefault: MyNumbers = MyNumbers.TWO,
     val myNumbersDefaultChangeMe: MyNumbers = MyNumbers.ONE,
@@ -26,7 +26,7 @@ private annotation class HasEnumProperties(
 @Target(FUNCTION)
 @Retention(SOURCE)
 @DeveloperAnnotation(developerReference = true)
-private annotation class HasEnumArrayProperties(
+private annotation class HasEnumArrays(
     val myNumbers: Array<MyNumbers>,
     val myNumbersDefault: Array<MyNumbers> = [MyNumbers.ONE, MyNumbers.TWO],
     val myNumbersDefaultChangeMe: Array<MyNumbers> = [MyNumbers.TWO, MyNumbers.TWO],
@@ -40,35 +40,51 @@ enum class MyNumbers { ONE, TWO, THREE }
 private enum class MyPrivateTypes { HELLO, WORLD, NEXT, FAZE }
 
 class cpe_SomeClass {
-    @HasEnumProperties(
+    @HasEnums(
         myNumbers = MyNumbers.ONE,
         myNumbersDefaultChangeMe = MyNumbers.THREE,
         myPrivateTypes = MyPrivateTypes.HELLO,
         myPrivateTypesDefaultChangeMe = MyPrivateTypes.WORLD
     )
     fun testEnumProperties(ref: MethodReference) {
-        val properties = ref.propertyMap!!
-        expect(MyNumbers.ONE) { properties["myNumbers"] }
-        expect(MyNumbers.TWO) { properties["myNumbersDefault"] }
-        expect(MyNumbers.THREE) { properties["myNumbersDefaultChangeMe"] }
-        expect(MyPrivateTypes.HELLO) { properties["myPrivateTypes"] }
-        expect(MyPrivateTypes.NEXT) { properties["myPrivateTypesDefault"] }
-        expect(MyPrivateTypes.WORLD) { properties["myPrivateTypesDefaultChangeMe"] }
+        val propertyMap = ref.propertyMap!!
+        expect(MyNumbers.ONE) { propertyMap["myNumbers"] }
+        expect(MyNumbers.TWO) { propertyMap["myNumbersDefault"] }
+        expect(MyNumbers.THREE) { propertyMap["myNumbersDefaultChangeMe"] }
+        expect(MyPrivateTypes.HELLO) { propertyMap["myPrivateTypes"] }
+        expect(MyPrivateTypes.NEXT) { propertyMap["myPrivateTypesDefault"] }
+        expect(MyPrivateTypes.WORLD) { propertyMap["myPrivateTypesDefaultChangeMe"] }
+
+        val properties = ref.properties as HasEnumsProperties
+        expect(MyNumbers.ONE) { properties.myNumbers }
+        expect(MyNumbers.TWO) { properties.myNumbersDefault }
+        expect(MyNumbers.THREE) { properties.myNumbersDefaultChangeMe }
+        expect(MyPrivateTypes.HELLO) { properties.myPrivateTypes }
+        expect(MyPrivateTypes.NEXT) { properties.myPrivateTypesDefault }
+        expect(MyPrivateTypes.WORLD) { properties.myPrivateTypesDefaultChangeMe }
     }
 
-    @HasEnumArrayProperties(
+    @HasEnumArrays(
         myNumbers = [MyNumbers.ONE, MyNumbers.ONE, MyNumbers.THREE],
         myNumbersDefaultChangeMe = [MyNumbers.THREE, MyNumbers.ONE, MyNumbers.TWO],
         myPrivateTypes = [MyPrivateTypes.HELLO, MyPrivateTypes.NEXT, MyPrivateTypes.FAZE],
         myPrivateTypesDefaultChangeMe = [MyPrivateTypes.HELLO, MyPrivateTypes.HELLO, MyPrivateTypes.HELLO]
     )
     fun testEnumArrayProperties(ref: MethodReference) {
-        val properties = ref.propertyMap!!
-        expectArrayOf(MyNumbers.ONE, MyNumbers.ONE, MyNumbers.THREE) { properties["myNumbers"] }
-        expectArrayOf(MyNumbers.ONE, MyNumbers.TWO) { properties["myNumbersDefault"] }
-        expectArrayOf(MyNumbers.THREE, MyNumbers.ONE, MyNumbers.TWO) { properties["myNumbersDefaultChangeMe"] }
-        expectArrayOf(MyPrivateTypes.HELLO, MyPrivateTypes.NEXT, MyPrivateTypes.FAZE) { properties["myPrivateTypes"] }
-        expectArrayOf(MyPrivateTypes.NEXT, MyPrivateTypes.FAZE) { properties["myPrivateTypesDefault"] }
-        expectArrayOf(MyPrivateTypes.HELLO, MyPrivateTypes.HELLO, MyPrivateTypes.HELLO) { properties["myPrivateTypesDefaultChangeMe"] }
+        val propertyMap = ref.propertyMap!!
+        expectArrayOf(MyNumbers.ONE, MyNumbers.ONE, MyNumbers.THREE) { propertyMap["myNumbers"] }
+        expectArrayOf(MyNumbers.ONE, MyNumbers.TWO) { propertyMap["myNumbersDefault"] }
+        expectArrayOf(MyNumbers.THREE, MyNumbers.ONE, MyNumbers.TWO) { propertyMap["myNumbersDefaultChangeMe"] }
+        expectArrayOf(MyPrivateTypes.HELLO, MyPrivateTypes.NEXT, MyPrivateTypes.FAZE) { propertyMap["myPrivateTypes"] }
+        expectArrayOf(MyPrivateTypes.NEXT, MyPrivateTypes.FAZE) { propertyMap["myPrivateTypesDefault"] }
+        expectArrayOf(MyPrivateTypes.HELLO, MyPrivateTypes.HELLO, MyPrivateTypes.HELLO) { propertyMap["myPrivateTypesDefaultChangeMe"] }
+
+        val properties = ref.properties as HasEnumArraysProperties
+        expectArrayOf(MyNumbers.ONE, MyNumbers.ONE, MyNumbers.THREE) { properties.myNumbers }
+        expectArrayOf(MyNumbers.ONE, MyNumbers.TWO) { properties.myNumbersDefault }
+        expectArrayOf(MyNumbers.THREE, MyNumbers.ONE, MyNumbers.TWO) { properties.myNumbersDefaultChangeMe }
+        expectArrayOf(MyPrivateTypes.HELLO, MyPrivateTypes.NEXT, MyPrivateTypes.FAZE) { properties.myPrivateTypes }
+        expectArrayOf(MyPrivateTypes.NEXT, MyPrivateTypes.FAZE) { properties.myPrivateTypesDefault }
+        expectArrayOf(MyPrivateTypes.HELLO, MyPrivateTypes.HELLO, MyPrivateTypes.HELLO) { properties.myPrivateTypesDefaultChangeMe }
     }
 }

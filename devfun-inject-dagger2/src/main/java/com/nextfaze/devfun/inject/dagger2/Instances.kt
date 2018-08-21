@@ -9,10 +9,7 @@ import android.support.v4.app.FragmentActivity
 import android.text.SpannableStringBuilder
 import android.view.View
 import com.google.auto.service.AutoService
-import com.nextfaze.devfun.annotations.Dagger2Component
-import com.nextfaze.devfun.annotations.Dagger2Scope
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.annotations.*
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
@@ -26,7 +23,6 @@ import com.nextfaze.devfun.invoke.receiverInstance
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import java.lang.RuntimeException
 import java.lang.reflect.*
 import javax.inject.Inject
 import javax.inject.Provider
@@ -378,13 +374,6 @@ private class Dagger2AnnotatedInstanceProvider(
 
     val hasComponents get() = components.isNotEmpty()
 
-    private data class Dagger2ComponentProperties(private val map: Map<String, *>) {
-        val scope = map["scope"] as Dagger2Scope
-        val priority = map["priority"] as Int
-        val isActivityRequired = map["isActivityRequired"] as Boolean
-        val isFragmentActivityRequired = map["isFragmentActivityRequired"] as Boolean
-    }
-
     init {
         fun KClass<*>.toScope() =
             when {
@@ -398,8 +387,8 @@ private class Dagger2AnnotatedInstanceProvider(
         components = devFun.developerReferences<Dagger2Component>()
             .also { log.d { "Dagger2Component references: $it" } }
             .filterIsInstance<MethodReference>()
-            .map {
-                val origMethod = it.method
+            .map { ref ->
+                val origMethod = ref.method
                 val method = if (origMethod.name.endsWith("\$annotations")) {
                     // user has annotated a property
                     val getterName = "get${origMethod.name.substringBeforeLast('$').capitalize()}"
@@ -408,8 +397,7 @@ private class Dagger2AnnotatedInstanceProvider(
                     origMethod
                 }
 
-                val properties = it.propertyMap ?: return@map null
-                val annotation = Dagger2ComponentProperties(properties)
+                val annotation = ref.properties as Dagger2ComponentProperties? ?: return@map null
 
                 fun Dagger2Scope.toComponentReference() =
                     ComponentReference(annotation, method, ordinal, isActivityRequired, isFragmentActivityRequired)
@@ -470,44 +458,44 @@ private class Dagger2AnnotatedInstanceProvider(
 
         // We need to check component via resolve cache first as a scope may not be RUNTIME retained (in which case even though it's scoped, it
         // will be seen as not scoped and could be incorrectly instantiated when using reflection)
-        components.forEach {
-            if (it.isFragmentActivityRequired && androidInstances.activity !is FragmentActivity) {
-                log.t { "Component out of scope - FragmentActivity required but not present: $it" }
+        components.forEach { ref ->
+            if (ref.isFragmentActivityRequired && androidInstances.activity !is FragmentActivity) {
+                log.t { "Component out of scope - FragmentActivity required but not present: $ref" }
                 return@forEach
             }
-            if (it.isActivityRequired && androidInstances.activity == null) {
-                log.t { "Component out of scope - Activity required but not present: $it" }
+            if (ref.isActivityRequired && androidInstances.activity == null) {
+                log.t { "Component out of scope - Activity required but not present: $ref" }
                 return@forEach
             }
 
             try {
-                log.t { "Check for $clazz from component reference $it" }
+                log.t { "Check for $clazz from component reference $ref" }
 
                 val receiver = when {
-                    it.method.isStatic -> null
-                    else -> it.method.receiverInstance(devFun.instanceProviders)
+                    ref.method.isStatic -> null
+                    else -> ref.method.receiverInstance(devFun.instanceProviders)
                 }
-                val args = it.method.parameterInstances(devFun.instanceProviders)
+                val args = ref.method.parameterInstances(devFun.instanceProviders)
                 log.t { "Component receiver instance: $receiver, args: $args" }
 
                 val component = when {
-                    args != null -> it.method.invoke(receiver, *args.toTypedArray())
-                    else -> it.method.invoke(receiver)
+                    args != null -> ref.method.invoke(receiver, *args.toTypedArray())
+                    else -> ref.method.invoke(receiver)
                 } ?: return@forEach
 
                 tryGetInstanceFromComponentCache(component, clazz)?.let { return it }
                 componentInstances += component
             } catch (t: Throwable) {
-                log.w(t) { "Component $it threw $t (may be out of scope - check your configuration) - trying other providers." }
+                log.w(t) { "Component $ref threw $t (may be out of scope - check your configuration) - trying other providers." }
             }
         }
 
         // Now we try using on-the-fly introspection via reflection - much slower but can sometimes succeed for weird typing issues
-        componentInstances.forEach {
+        componentInstances.forEach { component ->
             try {
-                tryGetInstanceFromComponentReflection(it, clazz)?.let { return it }
+                tryGetInstanceFromComponentReflection(component, clazz)?.let { return it }
             } catch (t: Throwable) {
-                log.w(t) { "Component $it threw $t (may be out of scope - check your configuration) - trying other providers." }
+                log.w(t) { "Component $component threw $t (may be out of scope - check your configuration) - trying other providers." }
             }
         }
 

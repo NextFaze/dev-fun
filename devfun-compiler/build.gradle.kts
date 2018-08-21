@@ -19,6 +19,9 @@ dependencies {
     compile(Dependency.kotlinStdLib)
     compile(Dependency.kotlinReflect)
 
+    // Kotlin Poet
+    compile("com.squareup:kotlinpoet:1.0.0-RC1")
+
     // Dagger
     kapt(Dependency.daggerCompiler)
     compile(Dependency.dagger)

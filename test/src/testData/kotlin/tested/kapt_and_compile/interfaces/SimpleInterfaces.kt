@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER", "unused", "PackageName", "ClassName")
+
 package tested.kapt_and_compile.interfaces
 
 import com.nextfaze.devfun.annotations.DeveloperFunction

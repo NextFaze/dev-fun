@@ -76,8 +76,14 @@ internal operator fun <K : KClass<*>> AnnotationMirror.get(
 }
 
 internal fun Name.stripInternal() = toString().substringBefore("\$")
-internal fun CharSequence.escapeDollar() = this.toString().replace("\$", "\\\$")
-internal fun String.toKString() = "\"\"\"${this.replace("\$", "\${'\$'}")}\"\"\""
+internal fun CharSequence.escapeDollar() = toString().replace("\$", "\\\$")
+internal fun String.toKString(trimMargin: Boolean = false) =
+    "\"\"\"${replace("\$", "\${'\$'}")}\"\"\"".run {
+        when {
+            trimMargin && contains('\n') -> "${replace("\n", "\n|")}.trimMargin()"
+            else -> this
+        }
+    }
 
 internal inline val TypeElement.isCompanionObject
     get() = nestingKind.isNested && isStatic && simpleName.toString() == "Companion" && !isKObject

@@ -9,6 +9,7 @@ import android.text.SpannableStringBuilder
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.annotations.DeveloperLogger
+import com.nextfaze.devfun.annotations.DeveloperLoggerProperties
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.Constructable
@@ -22,9 +23,7 @@ import com.nextfaze.devfun.internal.toReflected
 import com.nextfaze.devfun.overlay.Dock
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.overlay.OverlayWindow
-import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
 
 /** Handles the creation, maintenance, and permissions of [OverlayLogger] instances. */
 interface OverlayLogging {
@@ -104,22 +103,7 @@ internal class OverlayLoggingImpl(
         }
     }
 
-    private class AnnotationProperties(private val properties: Map<String, *>) {
-        inline fun <reified T> propertyMap(default: T) =
-            object : ReadOnlyProperty<Any, T> {
-                override fun getValue(thisRef: Any, property: KProperty<*>) = properties[property.name] as T? ?: default
-            }
-
-        val enabled: Boolean by propertyMap(true)
-        val refreshRate: Long by propertyMap(1000L)
-        val snapToEdge: Boolean by propertyMap(false)
-        val dock: Dock by propertyMap(Dock.TOP_LEFT)
-        val delta: Float by propertyMap(0f)
-        val top: Float by propertyMap(0f)
-        val left: Float by propertyMap(0f)
-    }
-
-    private abstract inner class Logger(val clazz: KClass<*>, properties: Map<String, *>?) {
+    private abstract inner class Logger(val clazz: KClass<*>, val properties: DeveloperLoggerProperties) {
         abstract val displayName: CharSequence
         abstract val prefsName: String
         abstract val group: CharSequence
@@ -133,8 +117,8 @@ internal class OverlayLoggingImpl(
         val isInContext
             get() = when {
                 isInActivity -> activityProvider()?.let { it::class.isSubclassOf(clazz) } == true
-                isInFragment -> activityProvider()?.let { it as? FragmentActivity }?.let {
-                    it.supportFragmentManager.fragments.orEmpty().any {
+                isInFragment -> activityProvider()?.let { it as? FragmentActivity }?.let { activity ->
+                    activity.supportFragmentManager.fragments.orEmpty().any {
                         // not sure how/why, but under some circumstances some of them are null
                         it != null && it.isAdded && clazz.java.isAssignableFrom(it::class.java)
                     }
@@ -142,26 +126,24 @@ internal class OverlayLoggingImpl(
                 else -> false
             }
 
-        val props = AnnotationProperties(properties ?: emptyMap<String, Any>())
-
         fun createLogger() =
             createLogger(
                 createOverlay(
                     prefsName,
-                    snapToEdge = props.snapToEdge,
-                    dock = props.dock,
-                    delta = props.delta,
-                    top = props.top,
-                    left = props.left,
-                    enabled = props.enabled
+                    snapToEdge = properties.snapToEdge,
+                    dock = properties.dock,
+                    delta = properties.delta,
+                    top = properties.top,
+                    left = properties.left,
+                    enabled = properties.enabled
                 ),
                 updateCallback,
                 onClick,
-                props.refreshRate
+                properties.refreshRate
             )
     }
 
-    private inner class TypeLogger(ref: TypeReference) : Logger(ref.type, ref.propertyMap) {
+    private inner class TypeLogger(ref: TypeReference) : Logger(ref.type, ref.properties as DeveloperLoggerProperties) {
         override val displayName: CharSequence = clazz.java.name
         override val prefsName: String = clazz.java.simpleName
         override val group = clazz.java.simpleName.splitCamelCase()
@@ -175,7 +157,7 @@ internal class OverlayLoggingImpl(
     }
 
     private inner class MethodLogger(ref: MethodReference, private val reflected: ReflectedMethod = ref.method.toReflected()) :
-        Logger(reflected.clazz, ref.propertyMap) {
+        Logger(reflected.clazz, ref.properties as DeveloperLoggerProperties) {
         override val displayName by lazy { if (reflected is ReflectedProperty) reflected.desc else ".${reflected.name}()" }
         override val prefsName = "${clazz.java.simpleName}.${reflected.name.substringBefore('$')}"
         override val group = clazz.java.simpleName.splitCamelCase()
@@ -208,8 +190,8 @@ internal class OverlayLoggingImpl(
 
         override val onClick: OnClick = onClick@{
             if (reflected is ReflectedProperty) {
-                devFun.categories.forEach {
-                    it.items.forEach {
+                devFun.categories.forEach { cat ->
+                    cat.items.forEach {
                         if (it.function.method == reflected.method) {
                             it.invoke(null, emptyList()) // if it's a property then it's handled by the UI
                             return@onClick

@@ -2,10 +2,12 @@ package com.nextfaze.devfun.compiler.processing
 
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.core.FunctionTransformer
 import com.nextfaze.devfun.core.ReferenceDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
+import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.Element
@@ -27,6 +29,7 @@ internal class DeveloperFunctionHandler @Inject constructor(
     private val importsTracker: ImportsTracker,
     private val developerCategory: DeveloperCategoryHandler,
     private val annotationSerializer: AnnotationSerializer,
+    private val implementationGenerator: ImplementationGenerator,
     logging: Logging
 ) : AnnotationProcessor {
     private val log by logging()
@@ -44,11 +47,14 @@ internal class DeveloperFunctionHandler @Inject constructor(
 ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
     )"""
 
-    override fun processAnnotatedElement(annotatedElement: AnnotatedElement) {
-        if (!annotatedElement.asFunction) return
+    override fun processAnnotatedElement(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
+        if (annotatedElement.asFunction) {
+            addDefinition(annotatedElement, env)
+        }
+    }
 
-        val (element, annotationElement) = annotatedElement
-
+    private fun addDefinition(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
+        val element = annotatedElement.element
         if (element !is ExecutableElement) {
             log.error(element = element) {
                 """Only executable elements are supported with DeveloperFunction (elementType=${element::class}).
@@ -57,14 +63,6 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
             return
         }
 
-        addDefinition(
-            annotations.createDevFunAnnotation(annotatedElement.annotation, annotationElement),
-            element,
-            annotationElement
-        )
-    }
-
-    private fun addDefinition(annotation: DevFunAnnotation, element: ExecutableElement, annotationElement: TypeElement) {
         val clazz = element.enclosingElement as TypeElement
         log.note { "Processing $clazz::$element..." }
 
@@ -102,6 +100,8 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         }
 
         // Annotation values
+        val annotation = annotations.createDevFunAnnotation(annotatedElement.annotation, annotatedElement.annotationElement)
+
         // Name
         val name = annotation.value?.let {
             "\n#|    override val ${FunctionDefinition::name.name} = ${preprocessor.run(it.toKString(), element)}"
@@ -225,6 +225,7 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         val implements = ", ${ReferenceDefinition::class.java.simpleName}"
 
         // The meta annotation class (e.g. Dagger2Component)
+        val annotationElement = annotatedElement.annotationElement
         val annotationClass = annotationElement.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
         var overrides = "\n#|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass"
 
@@ -236,6 +237,11 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         )
         if (data != null) {
             overrides += "\n#|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data"
+        }
+
+        val propertiesImpl = implementationGenerator.processAnnotatedElement(annotatedElement, env)
+        if (propertiesImpl != null) {
+            overrides += "\n#|    override val ${ReferenceDefinition::properties.name}: Any? = $propertiesImpl"
         }
 
         // Generate definition
