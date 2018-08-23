@@ -4,6 +4,8 @@ import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.generated.DevFunGenerated
+import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import java.lang.reflect.Field
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
@@ -12,6 +14,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.util.Elements
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 @Singleton
@@ -27,42 +30,64 @@ internal class DeveloperReferenceHandler @Inject constructor(
     private val useKotlinReflection get() = options.useKotlinReflection
     private val isDebugCommentsEnabled get() = options.isDebugCommentsEnabled
 
-    private val developerReferences = HashMap<String, String>()
+    private val developerReferences = HashMap<String, TypeSpec>()
     override val willGenerateSource: Boolean get() = developerReferences.isNotEmpty()
 
     override fun processAnnotatedElement(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
         if (!annotatedElement.asReference) return
 
+        val ref = TypeSpec.anonymousClassBuilder()
+            .addProperty(
+                ReferenceDefinition::annotation.toPropertySpec(
+                    // TODO https://github.com/square/kotlinpoet/pull/445
+                    propReturnType = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.subtypeOf(Annotation::class))
+                ).apply {
+                    val t = annotatedElement.annotationElement
+                    when {
+                        t.isClassPublic -> initializer("%T::class", t.asClassName())
+                        else -> initializer("%L", t.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class)))
+                    }
+                }.build()
+            )
+
+        val properties = implementations.processAnnotatedElement(annotatedElement, env)
+        if (properties != null) {
+            ref.addSuperinterface(WithProperties::class.asTypeName().parameterizedBy(Any::class.asTypeName()))
+                .addProperty(
+                    WithProperties<Any>::properties.toPropertySpec(propReturnType = Any::class.asTypeName())
+                        .initializer("%L", properties).build()
+                )
+        }
+
         val element = annotatedElement.element
         when (element) {
-            is ExecutableElement -> generateDeveloperExecutableReference(annotatedElement, env)
-            is TypeElement -> generateDeveloperTypeReference(annotatedElement, env)
-            is VariableElement -> generateDeveloperFieldReference(annotatedElement, env)
+            is ExecutableElement -> generateDeveloperExecutableReference(annotatedElement, ref)
+            is TypeElement -> generateDeveloperTypeReference(annotatedElement, ref)
+            is VariableElement -> generateDeveloperFieldReference(annotatedElement, ref)
             else -> log.error(element = element) {
                 """Only executable, type, and variable elements are supported at the moment (elementType=${element::class}).
-                                            |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
+                    |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
             }
         }
     }
 
     override fun generateSource() =
-        """    override val ${DevFunGenerated::developerReferences.name} = listOf<${ReferenceDefinition::class.simpleName}>(
-${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
-    )"""
+        DevFunGenerated::developerReferences.toPropertySpec()
+            .initializer(
+                "listOf<%T>(%L)",
+                ReferenceDefinition::class,
+                developerReferences.values.map { it.toString() }.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")
+            )
+            .build()
+            .toString()
 
-    private fun generateDeveloperFieldReference(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
+    private fun generateDeveloperFieldReference(annotatedElement: AnnotatedElement, ref: TypeSpec.Builder) {
         importsTracker += FieldReference::class
         importsTracker += Field::class
-        importsTracker += WithProperties::class
 
         val element = annotatedElement.element as VariableElement
-        val annotationElement = annotatedElement.annotationElement
-
         val clazz = element.enclosingElement as TypeElement
-        log.note { "Processing $clazz::$element for $annotationElement..." }
-
-        // The meta annotation class (e.g. Dagger2Component)
-        val annotationClass = annotationElement.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
+        log.note { "Processing $clazz::$element for ${annotatedElement.annotationElement}..." }
 
         // Can we reference the field directly
         val fieldIsPublic = element.isPublic
@@ -78,66 +103,46 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
             """${clazz.toClass(false, isClassKtFile)}.getDeclaredField("$fieldName")$setAccessible"""
         }
 
-        // Generate any custom properties
-        val properties = implementations.processAnnotatedElement(annotatedElement, env)
-
         val developerAnnotation = "${element.enclosingElement}::$element"
-        var debugAnnotationInfo = ""
-        if (isDebugCommentsEnabled) {
-            debugAnnotationInfo = "\n#|// $developerAnnotation"
-        }
-
-        developerReferences[developerAnnotation] =
-                """$debugAnnotationInfo
-                        #|object : ${FieldReference::class.simpleName}, ${WithProperties::class.simpleName}<Any> {
-                        #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
-                        #|    override val ${WithProperties<*>::properties.name}: Any = $properties
-                        #|    override val ${FieldReference::field.name}: Field by lazy { $field }
-                        #|}"""
+        developerReferences[developerAnnotation] = ref
+            .addSuperinterface(FieldReference::class.asTypeName())
+            .addProperty(
+                FieldReference::field.toPropertySpec().delegate("lazy { %L }", field)
+                    .applyIf(isDebugCommentsEnabled) { addKdoc("%L", developerAnnotation) }
+                    .build()
+            )
+            .build()
     }
 
-    private fun generateDeveloperTypeReference(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
+    private fun generateDeveloperTypeReference(annotatedElement: AnnotatedElement, ref: TypeSpec.Builder) {
         importsTracker += TypeReference::class
-        importsTracker += WithProperties::class
 
         val element = annotatedElement.element as TypeElement
-        val annotationElement = annotatedElement.annotationElement
-
-        log.note { "Processing $element for $annotationElement..." }
-
-        // The meta annotation class (e.g. Dagger2Component)
-        val annotationClass = annotationElement.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
-
-        // Generate any custom properties
-        val properties = implementations.processAnnotatedElement(annotatedElement, env)
+        log.note { "Processing $element for ${annotatedElement.annotationElement}..." }
 
         val developerAnnotation = "${element.enclosingElement}::$element"
-        var debugAnnotationInfo = ""
-        if (isDebugCommentsEnabled) {
-            debugAnnotationInfo = "\n#|// $developerAnnotation"
-        }
-
-        developerReferences[developerAnnotation] =
-                """$debugAnnotationInfo
-                        #|object : ${TypeReference::class.simpleName}, ${WithProperties::class.simpleName}<Any> {
-                        #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
-                        #|    override val ${WithProperties<*>::properties.name}: Any = $properties
-                        #|    override val ${TypeReference::type.name}: KClass<*> = ${element.toClass()}
-                        #|}"""
+        developerReferences[developerAnnotation] = ref
+            .addSuperinterface(TypeReference::class.asTypeName())
+            .addProperty(
+                TypeReference::type.toPropertySpec()
+                    .apply {
+                        when {
+                            element.isClassPublic -> initializer("%T::class", element.asClassName())
+                            else -> initializer("%L", element.toClass())
+                        }
+                    }
+                    .applyIf(isDebugCommentsEnabled) { addKdoc("%L", developerAnnotation) }
+                    .build()
+            )
+            .build()
     }
 
-    private fun generateDeveloperExecutableReference(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
+    private fun generateDeveloperExecutableReference(annotatedElement: AnnotatedElement, ref: TypeSpec.Builder) {
         importsTracker += MethodReference::class
-        importsTracker += WithProperties::class
 
         val element = annotatedElement.element as ExecutableElement
-        val annotationElement = annotatedElement.annotationElement
-
         val clazz = element.enclosingElement as TypeElement
-        log.note { "Processing $clazz::$element for $annotationElement..." }
-
-        // The meta annotation class (e.g. Dagger2Component)
-        val annotationClass = annotationElement.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
+        log.note { "Processing $clazz::$element for ${annotatedElement.annotationElement}..." }
 
         // Can we call the function directly
         val funIsPublic = element.isPublic
@@ -157,21 +162,25 @@ ${developerReferences.values.sorted().joinToString(",").replaceIndentByMargin(" 
             }
         }
 
-        // Generate any custom properties
-        val properties = implementations.processAnnotatedElement(annotatedElement, env)
-
         val developerAnnotation = "${element.enclosingElement}::$element"
-        var debugAnnotationInfo = ""
-        if (isDebugCommentsEnabled) {
-            debugAnnotationInfo = "\n#|// $developerAnnotation"
-        }
-
-        developerReferences[developerAnnotation] =
-                """$debugAnnotationInfo
-                        #|object : ${MethodReference::class.simpleName}, ${WithProperties::class.simpleName}<Any> {
-                        #|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass
-                        #|    override val ${WithProperties<*>::properties.name}: Any = $properties
-                        #|    override val ${MethodReference::method.name}: Method by lazy { $method }
-                        #|}"""
+        developerReferences[developerAnnotation] = ref
+            .addSuperinterface(MethodReference::class.asTypeName())
+            .addProperty(
+                MethodReference::method.toPropertySpec()
+                    .initializer("%L", method)
+                    .applyIf(isDebugCommentsEnabled) { addKdoc(developerAnnotation) }
+                    .build()
+            )
+            .build()
     }
+
+    private fun KCallable<*>.toPropertySpec(
+        propName: String = name,
+        propReturnType: TypeName = returnType.asTypeName()
+    ) =
+        PropertySpec.builder(
+            propName,
+            propReturnType,
+            KModifier.OVERRIDE
+        )
 }

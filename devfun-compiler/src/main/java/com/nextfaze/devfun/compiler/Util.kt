@@ -25,3 +25,10 @@ internal interface WithElements {
     val Element.packageElement: PackageElement
         get() = elements.getPackageOf(this)
 }
+
+inline fun <T> T.applyIf(predicate: Boolean, block: T.() -> Unit): T {
+    if (predicate) {
+        block(this)
+    }
+    return this
+}

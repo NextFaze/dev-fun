@@ -2,6 +2,7 @@ package com.nextfaze.devfun.compiler.properties
 
 import com.nextfaze.devfun.compiler.Logging
 import com.nextfaze.devfun.compiler.StringPreprocessor
+import com.nextfaze.devfun.compiler.applyIf
 import com.nextfaze.devfun.compiler.kClassFunc
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
@@ -70,12 +71,5 @@ internal class InterfaceGenerator @Inject constructor(
         }
 
         return builder.build()
-    }
-
-    private inline fun <T> T.applyIf(predicate: Boolean, block: T.() -> Unit): T {
-        if (predicate) {
-            block(this)
-        }
-        return this
     }
 }
