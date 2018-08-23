@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 
 internal abstract class PropertiesGenerator(
     final override val elements: Elements,
-    private val preprocessor: StringPreprocessor,
+    final override val preprocessor: StringPreprocessor,
     logging: Logging
 ) : Processor {
     private val log by logging()
@@ -129,7 +129,7 @@ internal abstract class PropertiesGenerator(
                 }
             is DeclaredType ->
                 when (value) {
-                    is String -> addStatement("return %L", value.toLiteral(preprocessor, this))
+                    is String -> addStatement("return %L", value.toLiteral(this))
                     is TypeMirror -> addStatement("return %L", value.toKClass())
                     is VariableElement -> addStatement("return %L", value.toEnumValue())
                     is AnnotationMirror -> generateImplementation(value)?.let { addStatement("return %L", it) }
@@ -142,7 +142,7 @@ internal abstract class PropertiesGenerator(
                     is PrimitiveType -> value.joinToString().replace("(byte)", "")
                     is DeclaredType -> {
                         if (componentType.isString) {
-                            value.joinToString { ((it as AnnotationValue).value as String).toLiteral(preprocessor, this) }
+                            value.joinToString { ((it as AnnotationValue).value as String).toLiteral(this) }
                         } else {
                             val kind = componentType.asElement().kind
                             when (kind) {

@@ -4,10 +4,10 @@ import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.generated.DevFunGenerated
+import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.WildcardTypeName
-import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import java.lang.reflect.Field
 import javax.annotation.processing.RoundEnvironment
@@ -22,7 +22,8 @@ import kotlin.reflect.KClass
 @Singleton
 internal class DeveloperReferenceHandler @Inject constructor(
     override val elements: Elements,
-    private val options: Options,
+    override val preprocessor: StringPreprocessor,
+    override val options: Options,
     private val importsTracker: ImportsTracker,
     private val implementations: ImplementationGenerator,
     logging: Logging
@@ -30,7 +31,6 @@ internal class DeveloperReferenceHandler @Inject constructor(
     private val log by logging()
 
     private val useKotlinReflection get() = options.useKotlinReflection
-    private val isDebugCommentsEnabled get() = options.isDebugCommentsEnabled
 
     private val developerReferences = HashMap<String, TypeSpec>()
     override val willGenerateSource: Boolean get() = developerReferences.isNotEmpty()
@@ -42,22 +42,17 @@ internal class DeveloperReferenceHandler @Inject constructor(
             .addProperty(
                 ReferenceDefinition::annotation.toPropertySpec(
                     // TODO https://github.com/square/kotlinpoet/pull/445
-                    propReturnType = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.subtypeOf(Annotation::class))
-                ).apply {
-                    val t = annotatedElement.annotationElement
-                    when {
-                        t.isClassPublic -> initializer("%T::class", t.asClassName())
-                        else -> initializer("%L", t.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class)))
-                    }
-                }.build()
+                    returns = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.subtypeOf(Annotation::class)),
+                    initType = annotatedElement.annotationElement,
+                    initTypeParams = *arrayOf(Annotation::class)
+                ).build()
             )
 
         val properties = implementations.processAnnotatedElement(annotatedElement, env)
         if (properties != null) {
-            ref.addSuperinterface(WithProperties::class.asTypeName().parameterizedBy(Any::class.asTypeName()))
+            ref.addSuperinterface(WithProperties::class.asTypeName().parameterizedBy(ANY))
                 .addProperty(
-                    WithProperties<Any>::properties.toPropertySpec(propReturnType = Any::class.asTypeName())
-                        .initializer("%L", properties).build()
+                    WithProperties<Any>::properties.toPropertySpec(returns = ANY, init = properties).build()
                 )
         }
 
@@ -108,11 +103,7 @@ internal class DeveloperReferenceHandler @Inject constructor(
         val developerAnnotation = "${element.enclosingElement}::$element"
         developerReferences[developerAnnotation] = ref
             .addSuperinterface(FieldReference::class.asTypeName())
-            .addProperty(
-                FieldReference::field.toPropertySpec().delegate("lazy { %L }", field)
-                    .applyIf(isDebugCommentsEnabled) { addKdoc("%L", developerAnnotation) }
-                    .build()
-            )
+            .addProperty(FieldReference::field.toPropertySpec(lazy = field, kDoc = developerAnnotation).build())
             .build()
     }
 
@@ -125,17 +116,7 @@ internal class DeveloperReferenceHandler @Inject constructor(
         val developerAnnotation = "${element.enclosingElement}::$element"
         developerReferences[developerAnnotation] = ref
             .addSuperinterface(TypeReference::class.asTypeName())
-            .addProperty(
-                TypeReference::type.toPropertySpec()
-                    .apply {
-                        when {
-                            element.isClassPublic -> initializer("%T::class", element.asClassName())
-                            else -> initializer("%L", element.toClass())
-                        }
-                    }
-                    .applyIf(isDebugCommentsEnabled) { addKdoc("%L", developerAnnotation) }
-                    .build()
-            )
+            .addProperty(TypeReference::type.toPropertySpec(initType = element, initTypeCast = null, kDoc = developerAnnotation).build())
             .build()
     }
 
@@ -167,12 +148,7 @@ internal class DeveloperReferenceHandler @Inject constructor(
         val developerAnnotation = "${element.enclosingElement}::$element"
         developerReferences[developerAnnotation] = ref
             .addSuperinterface(MethodReference::class.asTypeName())
-            .addProperty(
-                MethodReference::method.toPropertySpec()
-                    .initializer("%L", method)
-                    .applyIf(isDebugCommentsEnabled) { addKdoc(developerAnnotation) }
-                    .build()
-            )
+            .addProperty(MethodReference::method.toPropertySpec(init = method, kDoc = developerAnnotation).build())
             .build()
     }
 }

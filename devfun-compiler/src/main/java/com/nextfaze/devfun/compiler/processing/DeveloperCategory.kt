@@ -13,8 +13,8 @@ import javax.lang.model.util.Elements
 @Singleton
 internal class DeveloperCategoryHandler @Inject constructor(
     override val elements: Elements,
-    private val options: Options,
-    private val preprocessor: StringPreprocessor,
+    override val preprocessor: StringPreprocessor,
+    override val options: Options,
     private val annotations: AnnotationElements,
     logging: Logging
 ) : AnnotationProcessor {
@@ -56,8 +56,8 @@ internal class DeveloperCategoryHandler @Inject constructor(
             .apply { debugComment?.let { add(debugComment) } }
             .add("%T(%L = %L", simpleCategoryDefinitionName, CategoryDefinition::clazz.name, ref)
             .apply {
-                devFunCat.value?.let { add(", %L = %L", CategoryDefinition::name.name, it.toLiteral(preprocessor, element)) }
-                devFunCat.group?.let { add(", %L = %L", CategoryDefinition::group.name, it.toLiteral(preprocessor, element)) }
+                devFunCat.value?.let { add(", %L = %L", CategoryDefinition::name.name, it.toLiteral(element)) }
+                devFunCat.group?.let { add(", %L = %L", CategoryDefinition::group.name, it.toLiteral(element)) }
                 devFunCat.order?.let { add(", %L = %L", CategoryDefinition::order.name, it) }
             }
             .add(")")

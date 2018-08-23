@@ -354,7 +354,7 @@ class DevFunProcessor : DaggerProcessor() {
     }
 
     private val abstractFunctionDefinition by lazy {
-        TypeSpec.classBuilder("AbstractFunctionDefinition")
+        TypeSpec.classBuilder(abstractFunctionDefinitionName)
             .addSuperinterface(FunctionDefinition::class)
             .addModifiers(KModifier.PRIVATE, KModifier.ABSTRACT)
             .addFunction(
@@ -469,3 +469,4 @@ val kClassFunc by lazy {
 }
 
 val simpleCategoryDefinitionName = ClassName.bestGuess("SimpleCategoryDefinition")
+val abstractFunctionDefinitionName = ClassName.bestGuess("AbstractFunctionDefinitionName")

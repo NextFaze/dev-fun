@@ -11,6 +11,7 @@ import javax.lang.model.util.Elements
 @Singleton
 internal class DeveloperAnnotationProcessor @Inject constructor(
     override val elements: Elements,
+    override val preprocessor: StringPreprocessor,
     private val handlers: Set<@JvmSuppressWildcards AnnotationProcessor>,
     private val options: Options,
     logging: Logging

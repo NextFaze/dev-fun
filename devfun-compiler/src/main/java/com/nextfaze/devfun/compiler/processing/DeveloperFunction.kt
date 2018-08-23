@@ -8,6 +8,8 @@ import com.nextfaze.devfun.core.FunctionTransformer
 import com.nextfaze.devfun.core.ReferenceDefinition
 import com.nextfaze.devfun.core.WithProperties
 import com.nextfaze.devfun.generated.DevFunGenerated
+import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,8 +26,8 @@ private const val ARGS_VAR_NAME = "args"
 @Singleton
 internal class DeveloperFunctionHandler @Inject constructor(
     override val elements: Elements,
-    private val options: Options,
-    private val preprocessor: StringPreprocessor,
+    override val preprocessor: StringPreprocessor,
+    override val options: Options,
     private val annotations: AnnotationElements,
     private val importsTracker: ImportsTracker,
     private val developerCategory: DeveloperCategoryHandler,
@@ -37,29 +39,37 @@ internal class DeveloperFunctionHandler @Inject constructor(
     private val useKotlinReflection get() = options.useKotlinReflection
     private val isDebugCommentsEnabled get() = options.isDebugCommentsEnabled
 
-    private val functionInvokeName = "${FunctionDefinition::class.simpleName!!.replace("Definition", "")}Invoke"
+    private val functionInvokeName =
+        ClassName.bestGuess("com.nextfaze.devfun.core.${FunctionDefinition::class.simpleName!!.replace("Definition", "")}Invoke")
 
-    private val functionDefinitions = HashMap<String, String>()
+    private val functionDefinitions = HashMap<String, TypeSpec>()
     override val willGenerateSource: Boolean get() = functionDefinitions.isNotEmpty()
 
     override fun generateSource() =
-        """    override val ${DevFunGenerated::functionDefinitions.name} = listOf<${FunctionDefinition::class.simpleName}>(
-${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
-    )"""
+        DevFunGenerated::functionDefinitions.toPropertySpec()
+            .initializer(
+                "listOf<%T>(%L)",
+                FunctionDefinition::class,
+                functionDefinitions.values.map { it.toString() }.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")
+            )
+            .build()
+            .toString()
 
     override fun processAnnotatedElement(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
-        if (annotatedElement.asFunction) {
-            addDefinition(annotatedElement, env)
-        }
-    }
+        if (!annotatedElement.asFunction) return
 
-    private fun addDefinition(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
         val element = annotatedElement.element
         if (element !is ExecutableElement) {
             log.error(element = element) {
                 """Only executable elements are supported with DeveloperFunction (elementType=${element::class}).
                             |Please make an issue if you want something else (or feel free to make a PR)""".trimMargin()
             }
+            return
+        }
+
+        val functionDefinition = "${element.enclosingElement}::$element"
+        if (functionDefinitions.containsKey(functionDefinition)) {
+            log.error(element) { "Only one function definition supported per function." }
             return
         }
 
@@ -85,8 +95,6 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         // in a duplicate function definition.
         // Since the Companion object calls the generated static function at run-time, it's easier to just ignore
         // the Companion object definition and only consider the static method when it's eventually processed (if it hasn't been already).
-        //
-
         if (clazz.isCompanionObject) {
             val superClass = clazz.enclosingElement as TypeElement
             if (superClass.enclosedElements.count {
@@ -99,35 +107,28 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
             }
         }
 
+        // Definition implementation
+        val def = TypeSpec.anonymousClassBuilder().superclass(abstractFunctionDefinitionName)
+
         // Annotation values
-        val annotation = annotations.createDevFunAnnotation(annotatedElement.annotation, annotatedElement.annotationElement)
-
-        // Name
-        val name = annotation.value?.let {
-            "\n#|    override val ${FunctionDefinition::name.name} = ${preprocessor.run(it.toKString(), element)}"
-        } ?: ""
-
-        // Category
-        val category = annotation.category?.let {
-            "\n#|    override val ${FunctionDefinition::category.name} by lazy { ${developerCategory.createCatDefSource(
-                it,
-                FunctionDefinition::clazz.name,
-                clazz
-            )} }"
-        } ?: ""
-
-        // Requires API
-        val requiresApi = annotation.requiresApi?.let {
-            "\n#|    override val ${FunctionDefinition::requiresApi.name} = $it"
-        } ?: ""
-
-        // Transformer
-        val transformer = annotation.transformer?.let {
-            "\n#|    override val ${FunctionDefinition::transformer.name} = ${it.asElement().toClass(
-                castIfNotPublic = KClass::class,
-                types = *arrayOf(FunctionTransformer::class)
-            )}"
-        } ?: ""
+        annotations.createDevFunAnnotation(annotatedElement.annotation, annotatedElement.annotationElement).apply {
+            value?.apply { def.addProperty(FunctionDefinition::name.toPropertySpec(init = toLiteral(element)).build()) }
+            category?.apply {
+                val cat = developerCategory.createCatDefSource(this, FunctionDefinition::clazz.name, clazz)
+                def.addProperty(FunctionDefinition::category.toPropertySpec(lazy = cat).build())
+            }
+            requiresApi?.apply { def.addProperty(FunctionDefinition::requiresApi.toPropertySpec(init = this).build()) }
+            transformer?.apply {
+                def.addProperty(
+                    FunctionDefinition::transformer.toPropertySpec(
+                        // TODO https://github.com/square/kotlinpoet/pull/445
+                        returns = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.subtypeOf(FunctionTransformer::class)),
+                        initType = asElement() as TypeElement,
+                        initTypeParams = *arrayOf(FunctionTransformer::class)
+                    ).build()
+                )
+            }
+        }
 
         // Can we call the function directly
         val funIsPublic = element.isPublic
@@ -176,6 +177,7 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
                 else -> """${clazz.toClass(false, isClassKtFile)}.getDeclaredMethod("$funName"$methodArgTypes)$setAccessible"""
             }
         }
+        def.addProperty(FunctionDefinition::method.toPropertySpec(lazy = methodRef, kDoc = functionDefinition).build())
 
         // Call invocation
         val invocation = run generateInvocation@{
@@ -197,59 +199,50 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
         val argsVar = if (element.parameters.isNotEmpty()) ARGS_VAR_NAME else "_"
         val invocationArgs = "$receiverVar, $argsVar"
 
-        // Debug info
-        val functionDefinition = "${element.enclosingElement}::$element"
-        var debugAnnotationInfo = ""
-        if (isDebugCommentsEnabled) {
-            debugAnnotationInfo = "\n#|// $functionDefinition"
-        }
+        // TODO as CodeBlock
+        val lambda = """{ $invocationArgs ->
+            |    $invocation
+            |}""".trimMargin()
 
-        var debugElementInfo = ""
-        if (isDebugCommentsEnabled) {
-            debugElementInfo = """
-                #|        // element modifiers: ${element.modifiers.joinToString()}
-                #|        // enclosing element modifiers: ${element.enclosingElement.modifiers.joinToString()}
-                #|        // enclosing element metadata: isClassKtFile=$isClassKtFile
-                #|        // enclosing element as type element: ${(element.enclosingElement.asType() as? DeclaredType)?.asElement() as? TypeElement}
-                #|        // param type modifiers: ${element.parameters.joiner {
-                "${it.simpleName}=${(it.asType() as? DeclaredType)?.asElement()?.modifiers?.joinToString(",")}"
-            }}
-                #|        // params: ${element.parameters.joiner {
-                "${it.simpleName}=@[${it.annotationMirrors}] isTypePublic=${it.asType().isPublic} ${it.asType()}"
-            }}
-                #|        // classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, allArgTypesPublic=$allArgTypesPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction, isProperty=$isProperty"""
-        }
+        val debugComments = if (isDebugCommentsEnabled) {
+            """element modifiers: ${element.modifiers.joinToString()}
+                |enclosing element modifiers: ${element.enclosingElement.modifiers.joinToString()}
+                |enclosing element metadata: isClassKtFile=$isClassKtFile
+                |enclosing element as type element: ${(element.enclosingElement.asType() as? DeclaredType)?.asElement() as? TypeElement}
+                |param type modifiers: ${element.parameters
+                .joiner { "${it.simpleName}=${(it.asType() as? DeclaredType)?.asElement()?.modifiers?.joinToString(",")}" }}
+                |params: ${element.parameters.joiner { "${it.simpleName}=@[${it.annotationMirrors}] isTypePublic=${it.asType().isPublic} ${it.asType()}" }}
+                |classIsPublic=$classIsPublic, funIsPublic=$funIsPublic, allArgTypesPublic=$allArgTypesPublic, callFunDirectly=$callFunDirectly, needReceiverArg=$needReceiverArg, isExtensionFunction=$isExtensionFunction, isProperty=$isProperty""${'"'}""".trimMargin()
+        } else null
 
-        // ReferenceDefinition
-        importsTracker += ReferenceDefinition::class
-        var implements = ", ${ReferenceDefinition::class.java.simpleName}"
+        def.addProperty(
+            FunctionDefinition::invoke.toPropertySpec(
+                returns = functionInvokeName,
+                init = lambda,
+                kDoc = debugComments
+            ).build()
+        )
 
-        // The meta annotation class (e.g. Dagger2Component)
-        val annotationElement = annotatedElement.annotationElement
-        val annotationClass = annotationElement.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
-        var overrides = "\n#|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass"
-
-        // Generate any custom properties
+        // Generate any properties
         val propertiesImpl = implementationGenerator.processAnnotatedElement(annotatedElement, env)
         if (propertiesImpl != null) {
-            importsTracker += WithProperties::class
-            implements += ", ${WithProperties::class.java.simpleName}<Any>"
-            overrides += "\n#|    override val ${WithProperties<*>::properties.name}: Any = $propertiesImpl"
+            def.addSuperinterface(ReferenceDefinition::class)
+                .addProperty(
+                    ReferenceDefinition::annotation.toPropertySpec(
+                        // TODO https://github.com/square/kotlinpoet/pull/445
+                        returns = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.subtypeOf(Annotation::class)),
+                        initType = annotatedElement.annotationElement, // The meta annotation class (e.g. Dagger2Component)
+                        initTypeParams = *arrayOf(Annotation::class)
+                    ).build()
+                )
+                .addSuperinterface(WithProperties::class.asTypeName().parameterizedBy(ANY))
+                .addProperty(
+                    WithProperties<Any>::properties.toPropertySpec(returns = ANY, init = propertiesImpl).build()
+                )
         }
 
         // Generate definition
-        if (functionDefinitions.containsKey(functionDefinition)) {
-            log.error(element) { "Only one function definition supported per function." }
-        }
-
-        functionDefinitions[functionDefinition] =
-                """$debugAnnotationInfo
-                     #|object : AbstractFunctionDefinition()$implements {
-                     #|    override val ${FunctionDefinition::method.name} by lazy { $methodRef }$name$category$requiresApi$transformer$overrides
-                     #|    override val ${FunctionDefinition::invoke.name}: $functionInvokeName = { $invocationArgs -> $debugElementInfo
-                     #|        $invocation
-                     #|    }
-                     #|}"""
+        functionDefinitions[functionDefinition] = def.build()
     }
 
     private fun Element.toInstance(from: String, forStaticUse: Boolean = false, isClassKtFile: Boolean = false): String = when {

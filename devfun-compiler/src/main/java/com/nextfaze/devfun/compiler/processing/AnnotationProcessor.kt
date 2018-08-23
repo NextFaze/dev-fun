@@ -1,10 +1,7 @@
 package com.nextfaze.devfun.compiler.processing
 
 import com.nextfaze.devfun.compiler.*
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.*
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
@@ -14,6 +11,8 @@ import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 internal interface Processor : WithElements {
+    val preprocessor: StringPreprocessor
+
     fun Element.toClass(
         kotlinClass: Boolean = true,
         isKtFile: Boolean = false,
@@ -47,11 +46,12 @@ internal interface Processor : WithElements {
     val TypeMirror.isString get() = toString().let { it == "java.lang.String" || it == "kotlin.String" }
 
     // todo remove this once https://github.com/square/kotlinpoet/issues/439 resolved
-    fun String.toLiteral(stringPreprocessor: StringPreprocessor, element: Element?) =
-        stringPreprocessor.run(toKString(trimMargin = true), element)
+    fun String.toLiteral(element: Element?) = preprocessor.run(toKString(trimMargin = true), element)
 }
 
 internal interface AnnotationProcessor : Processor {
+    val options: Options
+
     val willGenerateSource: Boolean
 
     fun generateSource(): String
@@ -60,13 +60,33 @@ internal interface AnnotationProcessor : Processor {
 
     fun KCallable<*>.toPropertySpec(
         propName: String = name,
-        propReturnType: TypeName = returnType.asTypeName()
+        returns: TypeName = returnType.asTypeName(),
+        init: Any? = null,
+        lazy: Any? = null,
+        kDoc: Any? = null,
+        kDocEnabled: Boolean = options.isDebugCommentsEnabled,
+        initType: TypeElement? = null,
+        initTypeCast: KClass<*>? = KClass::class,
+        vararg initTypeParams: KClass<*>
     ) =
         PropertySpec.builder(
             propName,
-            propReturnType,
+            returns,
             KModifier.OVERRIDE
-        )
+        ).apply {
+            if (init != null) initializer("%L", init)
+            if (initType != null) {
+                when {
+                    initType.isClassPublic -> initializer("%T::class", initType.asClassName())
+                    else -> initializer("%L", initType.toClass(castIfNotPublic = initTypeCast, types = *initTypeParams))
+                }
+            }
+            if (lazy != null) delegate("lazy { %L }", lazy)
+            if (kDoc != null && kDocEnabled) addKdoc("%L", kDoc)
+        }
+
+    fun Collection<*>.toInitList(type: KClass<*>) =
+        CodeBlock.of("listOf<%T>(${",\n%L".repeat(size).drop(1)})", type, *toTypedArray())
 }
 
 data class AnnotatedElement(
