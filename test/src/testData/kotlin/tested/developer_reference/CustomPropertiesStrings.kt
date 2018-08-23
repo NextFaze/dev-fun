@@ -4,6 +4,7 @@ package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.core.MethodReference
+import com.nextfaze.devfun.core.getProperties
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.test.expect
@@ -49,22 +50,7 @@ class cps_SomeClass {
     )
     fun testStringProperties(ref: MethodReference) {
         val dollar = "$"
-        val propertyMap = ref.propertyMap!!
-        expect("This is a String") { propertyMap["aString"] }
-        expect("A string with a \$annoyingUser") { propertyMap["anotherString"] }
-        expect(
-            """> First Line! !@#$%^&*()_+ <
-
-            String with multiple lines
-
-            Another Line
-
-            And ${dollar}anotherAnnoyingUser
-
-            Last Line!"""
-        ) { propertyMap["yas"] }
-
-        val properties = ref.properties as HasStringsProperties
+        val properties = ref.getProperties<HasStringsProperties>()
         expect("This is a String") { properties.aString }
         expect("A string with a \$annoyingUser") { properties.anotherString }
         expect(
@@ -85,13 +71,7 @@ class cps_SomeClass {
         someString = "Blah!"
     )
     fun testStringPropertiesWithDefaults(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expect("This is a default string.") { propertyMap["defaultString"] }
-        expect("Another default string, but with a ${DOLLAR}var\n        And another line.") { propertyMap["anotherDefaultString"] }
-        expect("My custom value!") { propertyMap["andAnotherDefaultString"] }
-        expect("Blah!") { propertyMap["someString"] }
-
-        val properties = ref.properties as HasStringsWithDefaultsProperties
+        val properties = ref.getProperties<HasStringsWithDefaultsProperties>()
         expect("This is a default string.") { properties.defaultString }
         expect("Another default string, but with a ${DOLLAR}var\n        And another line.") { properties.anotherDefaultString }
         expect("My custom value!") { properties.andAnotherDefaultString }

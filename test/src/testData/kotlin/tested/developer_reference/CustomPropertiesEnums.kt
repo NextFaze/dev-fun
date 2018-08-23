@@ -4,6 +4,7 @@ package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.core.MethodReference
+import com.nextfaze.devfun.core.getProperties
 import com.nextfaze.devfun.test.expectArrayOf
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
@@ -47,15 +48,7 @@ class cpe_SomeClass {
         myPrivateTypesDefaultChangeMe = MyPrivateTypes.WORLD
     )
     fun testEnumProperties(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expect(MyNumbers.ONE) { propertyMap["myNumbers"] }
-        expect(MyNumbers.TWO) { propertyMap["myNumbersDefault"] }
-        expect(MyNumbers.THREE) { propertyMap["myNumbersDefaultChangeMe"] }
-        expect(MyPrivateTypes.HELLO) { propertyMap["myPrivateTypes"] }
-        expect(MyPrivateTypes.NEXT) { propertyMap["myPrivateTypesDefault"] }
-        expect(MyPrivateTypes.WORLD) { propertyMap["myPrivateTypesDefaultChangeMe"] }
-
-        val properties = ref.properties as HasEnumsProperties
+        val properties = ref.getProperties<HasEnumsProperties>()
         expect(MyNumbers.ONE) { properties.myNumbers }
         expect(MyNumbers.TWO) { properties.myNumbersDefault }
         expect(MyNumbers.THREE) { properties.myNumbersDefaultChangeMe }
@@ -71,15 +64,7 @@ class cpe_SomeClass {
         myPrivateTypesDefaultChangeMe = [MyPrivateTypes.HELLO, MyPrivateTypes.HELLO, MyPrivateTypes.HELLO]
     )
     fun testEnumArrayProperties(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expectArrayOf(MyNumbers.ONE, MyNumbers.ONE, MyNumbers.THREE) { propertyMap["myNumbers"] }
-        expectArrayOf(MyNumbers.ONE, MyNumbers.TWO) { propertyMap["myNumbersDefault"] }
-        expectArrayOf(MyNumbers.THREE, MyNumbers.ONE, MyNumbers.TWO) { propertyMap["myNumbersDefaultChangeMe"] }
-        expectArrayOf(MyPrivateTypes.HELLO, MyPrivateTypes.NEXT, MyPrivateTypes.FAZE) { propertyMap["myPrivateTypes"] }
-        expectArrayOf(MyPrivateTypes.NEXT, MyPrivateTypes.FAZE) { propertyMap["myPrivateTypesDefault"] }
-        expectArrayOf(MyPrivateTypes.HELLO, MyPrivateTypes.HELLO, MyPrivateTypes.HELLO) { propertyMap["myPrivateTypesDefaultChangeMe"] }
-
-        val properties = ref.properties as HasEnumArraysProperties
+        val properties = ref.getProperties<HasEnumArraysProperties>()
         expectArrayOf(MyNumbers.ONE, MyNumbers.ONE, MyNumbers.THREE) { properties.myNumbers }
         expectArrayOf(MyNumbers.ONE, MyNumbers.TWO) { properties.myNumbersDefault }
         expectArrayOf(MyNumbers.THREE, MyNumbers.ONE, MyNumbers.TWO) { properties.myNumbersDefaultChangeMe }

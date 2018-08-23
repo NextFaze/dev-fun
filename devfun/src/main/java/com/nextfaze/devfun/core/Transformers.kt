@@ -185,7 +185,7 @@ internal class ArgumentsTransformerImpl : ArgumentsTransformer {
             return null
         }
 
-        val annotation = functionDefinition.properties as DeveloperArgumentsProperties?
+        val annotation = functionDefinition.withProperties<DeveloperArgumentsProperties>()
         val values = annotation?.args?.map { it.value }
         if (values == null || values.isEmpty()) {
             log.w { "Got a DeveloperReference function definition $functionDefinition with no args? - ignoring" }

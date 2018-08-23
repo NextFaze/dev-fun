@@ -397,7 +397,7 @@ private class Dagger2AnnotatedInstanceProvider(
                     origMethod
                 }
 
-                val annotation = ref.properties as Dagger2ComponentProperties? ?: return@map null
+                val annotation = ref.withProperties<Dagger2ComponentProperties>() ?: return@map null
 
                 fun Dagger2Scope.toComponentReference() =
                     ComponentReference(annotation, method, ordinal, isActivityRequired, isFragmentActivityRequired)

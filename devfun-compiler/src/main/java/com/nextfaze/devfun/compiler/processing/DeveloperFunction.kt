@@ -6,6 +6,7 @@ import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
 import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.core.FunctionTransformer
 import com.nextfaze.devfun.core.ReferenceDefinition
+import com.nextfaze.devfun.core.WithProperties
 import com.nextfaze.devfun.generated.DevFunGenerated
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
@@ -28,7 +29,6 @@ internal class DeveloperFunctionHandler @Inject constructor(
     private val annotations: AnnotationElements,
     private val importsTracker: ImportsTracker,
     private val developerCategory: DeveloperCategoryHandler,
-    private val annotationSerializer: AnnotationSerializer,
     private val implementationGenerator: ImplementationGenerator,
     logging: Logging
 ) : AnnotationProcessor {
@@ -222,26 +222,19 @@ ${functionDefinitions.values.sorted().joinToString(",").replaceIndentByMargin(" 
 
         // ReferenceDefinition
         importsTracker += ReferenceDefinition::class
-        val implements = ", ${ReferenceDefinition::class.java.simpleName}"
+        var implements = ", ${ReferenceDefinition::class.java.simpleName}"
 
         // The meta annotation class (e.g. Dagger2Component)
         val annotationElement = annotatedElement.annotationElement
         val annotationClass = annotationElement.toClass(castIfNotPublic = KClass::class, types = *arrayOf(Annotation::class))
         var overrides = "\n#|    override val ${ReferenceDefinition::annotation.name}: KClass<out Annotation> = $annotationClass"
 
-        // Generate any data
-        val data = annotationSerializer.findAndSerialize(
-            annotatedElement = element,
-            annotationTypeElement = annotationElement,
-            excludeFields = listOf("value", "category", "requiresApi", "transformer")
-        )
-        if (data != null) {
-            overrides += "\n#|    override val ${ReferenceDefinition::propertyMap.name}: Map<String, *>? = $data"
-        }
-
+        // Generate any custom properties
         val propertiesImpl = implementationGenerator.processAnnotatedElement(annotatedElement, env)
         if (propertiesImpl != null) {
-            overrides += "\n#|    override val ${ReferenceDefinition::properties.name}: Any? = $propertiesImpl"
+            importsTracker += WithProperties::class
+            implements += ", ${WithProperties::class.java.simpleName}<Any>"
+            overrides += "\n#|    override val ${WithProperties<*>::properties.name}: Any = $propertiesImpl"
         }
 
         // Generate definition

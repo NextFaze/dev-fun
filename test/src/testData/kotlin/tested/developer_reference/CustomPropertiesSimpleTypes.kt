@@ -4,6 +4,7 @@ package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.core.MethodReference
+import com.nextfaze.devfun.core.getProperties
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.test.expect
@@ -47,17 +48,7 @@ class cpst_SomeClass {
         aDouble = 45.6789
     )
     fun testSimpleTypeProperties(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expect(true) { propertyMap["aBoolean"] }
-        expect(0xD) { propertyMap["aByte"] }
-        expect(0xEA) { propertyMap["aShort"] }
-        expect(0xDBEEF) { propertyMap["aInt"] }
-        expect(0xCAFEBABE) { propertyMap["aLong"] }
-        expect('N') { propertyMap["aChar"] }
-        expect(0.123f) { propertyMap["aFloat"] }
-        expect(45.6789) { propertyMap["aDouble"] }
-
-        val properties = ref.properties as HasSimpleTypesProperties
+        val properties = ref.getProperties<HasSimpleTypesProperties>()
         expect(true) { properties.aBoolean }
         expect(0xD) { properties.aByte }
         expect(0xEA) { properties.aShort }
@@ -73,13 +64,7 @@ class cpst_SomeClass {
         someInt = 123
     )
     fun testSimpleTypePropertiesWithDefaults(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expect(true) { propertyMap["defaultBoolean"] }
-        expect(0xA) { propertyMap["defaultByte"] }
-        expect(99) { propertyMap["defaultShort"] }
-        expect(123) { propertyMap["someInt"] }
-
-        val properties = ref.properties as HasSimpleTypesWithDefaultsProperties
+        val properties = ref.getProperties<HasSimpleTypesWithDefaultsProperties>()
         expect(true) { properties.defaultBoolean }
         expect(0xA) { properties.defaultByte }
         expect(99) { properties.defaultShort }

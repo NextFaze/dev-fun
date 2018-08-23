@@ -3,10 +3,7 @@
 package tested.developer_reference
 
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.core.FunctionTransformer
-import com.nextfaze.devfun.core.MethodReference
-import com.nextfaze.devfun.core.ReferenceDefinition
-import com.nextfaze.devfun.core.SingleFunctionTransformer
+import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.test.expectArrayOf
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
@@ -103,19 +100,7 @@ class cpct_SomeClass {
         multipleTypedClass = MultipleTypedClass::class
     )
     fun testClassProperties(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expect(cpct_SomeClass::class) { propertyMap["clazz"] }
-        expect(Byte::class) { propertyMap["primitiveClass"] }
-        expect(TypedClass::class) { propertyMap["typedClazz"] }
-        expect(NestedTypedStarClass::class) { propertyMap["nestedTypedStarClass"] }
-        expect(NestedTypedExplicitTypedClass::class) { propertyMap["nestedTypedExplicitClass"] }
-        expect(PrivateClass::class) { propertyMap["privateClass"] }
-        expect(PackagePrivateType::class) { propertyMap["packagePrivateClass"] }
-        expect(PrivateTypedClass::class) { propertyMap["privateTypedClass"] }
-        expect(PackagePrivateTypedClass::class) { propertyMap["packagePrivateTypedClass"] }
-        expect(MultipleTypedClass::class) { propertyMap["multipleTypedClass"] }
-
-        val properties = ref.properties as HasKClassesProperties
+        val properties = ref.getProperties<HasKClassesProperties>()
         expect(cpct_SomeClass::class) { properties.clazz }
         expect(Byte::class) { properties.primitiveClass }
         expect(TypedClass::class) { properties.typedClazz }
@@ -136,16 +121,7 @@ class cpct_SomeClass {
         packagePrivateBounded = PackagePrivateType::class
     )
     fun testBoundedKClasses(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expect(Short::class) { propertyMap["numberType1"] }
-        expect(Int::class) { propertyMap["numberTypeInt"] }
-        expect(Number::class) { propertyMap["numberType3"] }
-//        expect(List::class) { propertyMap["listType1"] }
-//        expect(List::class) { propertyMap["listTypeDefault"] }
-        expect(Collection::class) { propertyMap["listType2"] }
-        expect(PackagePrivateType::class) { propertyMap["packagePrivateBounded"] }
-
-        val properties = ref.properties as HasKClassesBoundedProperties
+        val properties = ref.getProperties<HasKClassesBoundedProperties>()
         expect(Short::class) { properties.numberType1 }
         expect(Int::class) { properties.numberTypeInt }
         expect(Number::class) { properties.numberType3 }
@@ -166,17 +142,7 @@ class cpct_SomeClass {
         doubleArray = DoubleArray::class
     )
     fun testArrayClassProperties(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expect(BooleanArray::class) { propertyMap["booleanArray"] }
-        expect(ByteArray::class) { propertyMap["byteArray"] }
-        expect(ShortArray::class) { propertyMap["shortArray"] }
-        expect(IntArray::class) { propertyMap["intArray"] }
-        expect(LongArray::class) { propertyMap["longArray"] }
-        expect(CharArray::class) { propertyMap["charArray"] }
-        expect(FloatArray::class) { propertyMap["floatArray"] }
-        expect(DoubleArray::class) { propertyMap["doubleArray"] }
-
-        val properties = ref.properties as HasKClassesOfArrayTypesProperties
+        val properties = ref.getProperties<HasKClassesOfArrayTypesProperties>()
         expect(BooleanArray::class) { properties.booleanArray }
         expect(ByteArray::class) { properties.byteArray }
         expect(ShortArray::class) { properties.shortArray }
@@ -189,12 +155,7 @@ class cpct_SomeClass {
 
     @HasKClassesWithDefaults
     fun testSimpleTypesWithDefaults(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expect(Any::class) { propertyMap["defaultClass"] }
-        expect(BooleanArray::class) { propertyMap["defaultPrimitiveClass"] }
-        expect(MyInterface::class) { propertyMap["defaultTypedClazz"] }
-
-        val properties = ref.properties as HasKClassesWithDefaultsProperties
+        val properties = ref.getProperties<HasKClassesWithDefaultsProperties>()
         expect(Any::class) { properties.defaultClass }
         expect(BooleanArray::class) { properties.defaultPrimitiveClass }
         expect(MyInterface::class) { properties.defaultTypedClazz }
@@ -213,25 +174,7 @@ class cpct_SomeClass {
         ]
     )
     fun testClassArrayPropertiesWithDefaults(ref: MethodReference) {
-        val propertyMap = ref.propertyMap!!
-        expectArrayOf(
-            Int::class,
-            cpct_SomeClass::class,
-            ByteArray::class,
-            PrivateClass::class,
-            NestedTypedExplicitTypedClass::class
-        ) { propertyMap["optionalClasses"] }
-        expectArrayOf(
-            HasKClassArraysWithDefaults::class,
-            NestedTypedStarClass::class,
-            PackagePrivateTypedClass::class,
-            Array<Boolean>::class,
-            Array<HasKClassesWithDefaults>::class,
-            Array<PrivateClass>::class,
-            Array<PackagePrivateType>::class
-        ) { propertyMap["classes"] }
-
-        val properties = ref.properties as HasKClassArraysWithDefaultsProperties
+        val properties = ref.getProperties<HasKClassArraysWithDefaultsProperties>()
         expectArrayOf(
             Int::class,
             cpct_SomeClass::class,
