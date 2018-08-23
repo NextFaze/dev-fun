@@ -3,12 +3,12 @@ package com.nextfaze.devfun.compiler.processing
 import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.core.CategoryDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
+import com.squareup.kotlinpoet.CodeBlock
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
-import kotlin.reflect.KCallable
 
 @Singleton
 internal class DeveloperCategoryHandler @Inject constructor(
@@ -22,7 +22,7 @@ internal class DeveloperCategoryHandler @Inject constructor(
 
     private val isDebugCommentsEnabled get() = options.isDebugCommentsEnabled
 
-    private val categoryDefinitions = HashMap<String, String>()
+    private val categoryDefinitions = HashMap<String, CodeBlock>()
     override val willGenerateSource: Boolean get() = categoryDefinitions.isNotEmpty()
 
     override fun processAnnotatedElement(annotatedElement: AnnotatedElement, env: RoundEnvironment) {
@@ -42,28 +42,32 @@ internal class DeveloperCategoryHandler @Inject constructor(
     }
 
     override fun generateSource() =
-        """    override val ${DevFunGenerated::categoryDefinitions.name} = listOf<${CategoryDefinition::class.simpleName}>(
-${categoryDefinitions.values.sorted().joinToString(",").replaceIndentByMargin("        ", "#|")}
-    )"""
+        DevFunGenerated::categoryDefinitions.toPropertySpec()
+            .initializer(
+                "listOf<%T>(%L%W)",
+                CategoryDefinition::class,
+                categoryDefinitions.values.map { it.toString() }.sorted().joinToString(",")
+            )
+            .build()
+            .toString()
 
-    fun createCatDefSource(devFunCat: DevFunCategory, ref: String, element: TypeElement) = mutableMapOf<KCallable<*>, Any>().apply {
-        this += CategoryDefinition::clazz to ref
-        devFunCat.value?.let { this += CategoryDefinition::name to preprocessor.run(it.toKString(), element) }
-        devFunCat.group?.let { this += CategoryDefinition::group to preprocessor.run(it.toKString(), element) }
-        devFunCat.order?.let { this += CategoryDefinition::order to it }
-    }.let { "SimpleCategoryDefinition(${it.entries.joinToString { "${it.key.name} = ${it.value}" }})" }
+    fun createCatDefSource(devFunCat: DevFunCategory, ref: String, element: TypeElement, debugComment: String? = null) =
+        CodeBlock.builder()
+            .apply { debugComment?.let { add(debugComment) } }
+            .add("%T(%L = %L", simpleCategoryDefinitionName, CategoryDefinition::clazz.name, ref)
+            .apply {
+                devFunCat.value?.let { add(", %L = %L", CategoryDefinition::name.name, it.toLiteral(preprocessor, element)) }
+                devFunCat.group?.let { add(", %L = %L", CategoryDefinition::group.name, it.toLiteral(preprocessor, element)) }
+                devFunCat.order?.let { add(", %L = %L", CategoryDefinition::order.name, it) }
+            }
+            .add(")")
+            .build()
 
     private fun addDefinition(devFunCat: DevFunCategory, element: TypeElement) {
         // Debugging
-        val categoryDefinition = "${element.enclosingElement}::$element"
-        var debugAnnotationInfo = ""
-        if (isDebugCommentsEnabled) {
-            debugAnnotationInfo = "\n#|// $categoryDefinition"
-        }
+        val debugAnnotationInfo = if (isDebugCommentsEnabled) "\n// ${element.enclosingElement}::$element\n" else null
 
         // Generate definition
-        categoryDefinitions[element.asType().toString()] =
-                """$debugAnnotationInfo
-                     #|${createCatDefSource(devFunCat, element.toClass(), element)}"""
+        categoryDefinitions[element.asType().toString()] = createCatDefSource(devFunCat, element.toClass(), element, debugAnnotationInfo)
     }
 }

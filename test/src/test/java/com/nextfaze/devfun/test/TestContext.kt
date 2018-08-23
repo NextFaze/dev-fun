@@ -41,12 +41,16 @@ import kotlin.test.assertEquals
 
 private val TEST_SOURCES_DIR = File("src/test/java")
 private val TEST_DATA_DIR = File("src/testData/kotlin")
+private val TEMP_DIR = File(System.getProperty("java.io.tmpdir"))
 
+private fun createTestDir(prefix: String): File = Files.createDirectory(File(TEMP_DIR, "$prefix${System.nanoTime()}").toPath()).toFile()
+
+@Suppress("MemberVisibilityCanBePrivate")
 class TestContext(
     val testMethodName: String,
     val testFiles: List<KClass<*>>,
     private val testDirSuffix: String = testFiles.joinToString("_") { it.simpleName!! },
-    val testDir: File = Files.createTempDirectory("devfun_testing.$testMethodName.$testDirSuffix").toFile(),
+    val testDir: File = createTestDir("devfun_testing.$testMethodName.$testDirSuffix"),
     val applicationId: String = "tested.com.nextfaze.devfun",
     val buildType: String = "kapt3Test",
     val flavor: String = "",
@@ -56,7 +60,7 @@ class TestContext(
     val sdkInt: Int? = null,
     val kaptOptions: Map<String, String> = devFunKaptOptions(packageSuffix = testDir.name),
     private val copyFailedTests: Boolean = true,
-    private val copySuccessfulTests: Boolean = false,
+    var copySuccessfulTests: Boolean = false,
     val keepFailedTestOutputs: Boolean = true,
     val keepSuccessfulTestOutputs: Boolean = false
 ) {
@@ -76,12 +80,12 @@ class TestContext(
         .map { File(TEST_SOURCES_DIR, "${it.qualifiedName!!.replace('.', File.separatorChar)}.kt") }
 
     val kotlinFiles = testDataFiles + providedFiles
-    val javaFiles = testDataFiles.flatMap { it.parentFile.walkTopDown().filter { it.extension == "java" }.toList() }
+    val javaFiles = testDataFiles.flatMap { it.parentFile.walkTopDown().filter { file -> file.extension == "java" }.toList() }
 
     val testInstanceProviders = testFiles
         .filter { it.isSubclassOf(TestInstanceProviders::class) }
         .map { it.objectInstance as TestInstanceProviders }
-        .flatMap { it.testProviders.map { it.qualifiedName!! } }
+        .flatMap { it.testProviders.map { clazz -> clazz.qualifiedName!! } }
         .toSet()
 
     private val kotlinCore by lazy {
@@ -203,6 +207,10 @@ class TestContext(
     private val categories by lazy { devFun.categories }
     private val funDefItems by lazy { categories.flatMap { it.items }.toSet().groupBy { it.function } }
 
+    private val Method.isTestMethod
+        get() = name.startsWith("test", ignoreCase = true) ||
+                declaringClass.simpleName.startsWith("fn_")
+
     fun testInvocations(logger: Logger) {
         funDefs.forEach { fd ->
             logger.d { "Invoke $fd" }
@@ -211,7 +219,7 @@ class TestContext(
             devFun.instanceProviders += dfIp
 
             val receiver = fd.receiverInstance(devFun.instanceProviders)
-            if (fd.method.name.startsWith("test")) {
+            if (fd.method.isTestMethod) {
                 when {
                     fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
                     else -> fd.invoke(receiver, fd.parameterInstances(devFun.instanceProviders, null))
@@ -246,7 +254,7 @@ class TestContext(
 
                 val fd = it.function
                 val receiver = fd.receiverInstance(devFun.instanceProviders)
-                if (it.function.method.name.startsWith("test")) {
+                if (it.function.method.isTestMethod) {
                     when {
                         fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
                         else -> it.invoke(
@@ -268,8 +276,8 @@ class TestContext(
                         else -> listOf(value)
                     }
                     logger.d { "Test $testable for $it" }
-                    testable.filterIsInstance<Assertable>().forEach {
-                        val result = it.invoke(fd, funDefItems[fd].orEmpty())
+                    testable.filterIsInstance<Assertable>().forEach { assertable ->
+                        val result = assertable.invoke(fd, funDefItems[fd].orEmpty())
                         logger.d { "> $result" }
                     }
                 }
@@ -285,7 +293,7 @@ class TestContext(
             when (ref) {
                 is MethodReference -> {
                     logger.d { "Invoke developer reference ${ref.method} ..." }
-                    if (ref.method.name.startsWith("test")) {
+                    if (ref.method.isTestMethod) {
                         ref.method.doInvoke(devFun.instanceProviders)
                     } else {
                         assertEquals(

@@ -14,11 +14,12 @@ class TestNaming : AbstractKotlinKapt3Tester() {
     private val log = logger()
 
     @DataProvider(name = "testNamingData")
-    fun testNamingData(testMethod: Method) = singleFileTests(
-        testMethod,
-        FunctionNaming::class,
-        CategoryNaming::class
-    ).last().let { arrayOf(it) }
+    fun testNamingData(testMethod: Method) =
+        singleFileTests(
+            testMethod,
+            FunctionNaming::class,
+            CategoryNaming::class
+        )
 
     @Test(dataProvider = "testNamingData", groups = ["kapt", "compile", "supported", "naming", "function", "category"])
     fun testNaming(test: TestContext) = test.testInvocations(log)

@@ -1,25 +1,30 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "PackageName", "ClassName")
 
 package tested.custom_names
 
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.test.ExpectedCategoryName
-import com.nextfaze.devfun.test.ExpectedItemCount
+import com.nextfaze.devfun.core.FunctionItem
+import com.nextfaze.devfun.test.NOPFunctionItem
+import kotlin.test.expect
 
 internal annotation class CategoryNaming
 
-private fun itemWithCategoryNamed(name: String) = listOf(ExpectedItemCount(1), ExpectedCategoryName(name))
-
 internal class Single {
     @DeveloperFunction
-    fun single() = itemWithCategoryNamed("Single")
+    fun testSingle(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Single") { functionItem.category.name }
+    }
 }
 
 class FromCompanionObject {
     companion object {
         @DeveloperFunction
-        fun someCompanionFunction() = itemWithCategoryNamed("From Companion Object")
+        fun testSomeCompanionFunction(functionItem: FunctionItem) {
+            if (functionItem === NOPFunctionItem) return
+            expect("From Companion Object") { functionItem.category.name }
+        }
     }
 }
 
@@ -27,122 +32,191 @@ class JvmStaticInCompanionObject {
     companion object {
         @JvmStatic
         @DeveloperFunction
-        fun someCompanionFunction() = itemWithCategoryNamed("Jvm Static In Companion Object")
+        fun testSomeCompanionFunction(functionItem: FunctionItem) {
+            if (functionItem === NOPFunctionItem) return
+            expect("Jvm Static In Companion Object") { functionItem.category.name }
+        }
     }
 }
 
 internal class single {
     @DeveloperFunction
-    fun single() = itemWithCategoryNamed("Single")
+    fun testSingle(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Single") { functionItem.category.name }
+    }
 }
 
 private class AlreadyCapital {
     @DeveloperFunction
-    fun AlreadyCapital() = itemWithCategoryNamed("Already Capital")
+    fun testAlreadyCapital(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Already Capital") { functionItem.category.name }
+    }
 }
 
 internal class camelCaseName {
     @DeveloperFunction
-    fun camelCaseName() = itemWithCategoryNamed("Camel Case Name")
+    fun testCamelCaseName(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Camel Case Name") { functionItem.category.name }
+    }
 }
 
 class _camelCaseName {
     @DeveloperFunction
-    fun _camelCaseName() = itemWithCategoryNamed("Camel Case Name")
+    fun testCamelCaseNameStartWithUnderscore(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Camel Case Name") { functionItem.category.name }
+    }
 }
 
 internal class camel123Case4Name {
     @DeveloperFunction
-    fun camel123Case4Name() = itemWithCategoryNamed("Camel123 Case4 Name")
+    fun testCamel123Case4Name(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Camel123 Case4 Name") { functionItem.category.name }
+    }
 }
 
 internal class CAPS {
     @DeveloperFunction
-    fun CAPS() = itemWithCategoryNamed("CAPS")
+    fun testCAPS(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("CAPS") { functionItem.category.name }
+    }
 }
 
 private class ALL_CAPS {
     @DeveloperFunction
-    fun ALL_CAPS() = itemWithCategoryNamed("ALL CAPS")
+    fun testALL_CAPS(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("ALL CAPS") { functionItem.category.name }
+    }
 }
 
 class _ALL_CAPS {
     @DeveloperFunction
-    fun _ALL_CAPS() = itemWithCategoryNamed("ALL CAPS")
+    fun test_ALL_CAPS(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("ALL CAPS") { functionItem.category.name }
+    }
 }
 
 internal class __someCAPS {
     @DeveloperFunction
-    fun __someCAPS() = itemWithCategoryNamed("Some CAPS")
+    fun test__someCAPS(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Some CAPS") { functionItem.category.name }
+    }
 }
 
 @DeveloperCategory("My Custom Name")
-internal class customName {
+internal class cn_customName {
     @DeveloperFunction
-    fun customName() = itemWithCategoryNamed("My Custom Name")
+    fun testCustomName(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("My Custom Name") { functionItem.category.name }
+    }
 }
 
 @DeveloperCategory("")
-private class blankName {
+private class cn_blankName {
     @DeveloperFunction
-    fun blankName() = itemWithCategoryNamed("")
+    fun testBlankName(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("") { functionItem.category.name }
+    }
 }
 
 @DeveloperCategory("      ")
-internal class spaces {
+internal class cn_spaces {
     @DeveloperFunction
-    fun spaces() = itemWithCategoryNamed("      ")
+    fun testSpaces(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("      ") { functionItem.category.name }
+    }
 }
 
 @DeveloperCategory("     Starts with 5 spaces")
-internal class startsWith5Spaces {
+internal class cn_startsWith5Spaces {
     @DeveloperFunction
-    fun startsWith5Spaces() = itemWithCategoryNamed("     Starts with 5 spaces")
+    fun testStartsWith5Spaces(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("     Starts with 5 spaces") { functionItem.category.name }
+    }
 }
 
 @DeveloperCategory("Ends with 5 spaces     ")
-class endsWith5Spaces {
+class cn_endsWith5Spaces {
     @DeveloperFunction
-    fun endsWith5Spaces() = itemWithCategoryNamed("Ends with 5 spaces     ")
+    fun testEndsWith5Spaces(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Ends with 5 spaces     ") { functionItem.category.name }
+    }
 }
 
 @DeveloperCategory("Some \"annoying\" quotes")
-internal class withQuotes {
+internal class cn_withQuotes {
     @DeveloperFunction
-    fun withQuotes() = itemWithCategoryNamed("Some \"annoying\" quotes")
+    fun testWithQuotes(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("Some \"annoying\" quotes") { functionItem.category.name }
+    }
 }
 
 @DeveloperCategory("With a \$dollar symbol")
-private class withDollar {
+private class cn_withDollar {
     @DeveloperFunction
-    fun withDollar() = itemWithCategoryNamed("With a \$dollar symbol")
+    fun testWithDollar(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("With a \$dollar symbol") { functionItem.category.name }
+    }
 }
 
 @DeveloperCategory("\"\"More Annoying Quotes\"\"")
-class moreAnnoyingQuotes {
+class cn_moreAnnoyingQuotes {
     @DeveloperFunction
-    fun moreAnnoyingQuotes() = itemWithCategoryNamed("\"\"More Annoying Quotes\"\"")
+    fun testMoreAnnoyingQuotes(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("\"\"More Annoying Quotes\"\"") { functionItem.category.name }
+    }
 }
 
-@DeveloperCategory("""""More Annoying
-Quotes 2""""")
-internal class moreAnnoyingQuotes2 {
+@DeveloperCategory(
+    """""More Annoying
+Quotes 2"""""
+)
+internal class cn_moreAnnoyingQuotes2 {
     @DeveloperFunction
-    fun moreAnnoyingQuotes2() = itemWithCategoryNamed("\"\"More Annoying\nQuotes 2\"\"")
+    fun testMoreAnnoyingQuotes2(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("\"\"More Annoying\nQuotes 2\"\"") { functionItem.category.name }
+    }
 }
 
-@DeveloperCategory("""With
+@DeveloperCategory(
+    """With
 new
 lines
-            and some spaces""")
-internal class withNewLinesAndSomeSpaces {
+            and some spaces"""
+)
+internal class cn_withNewLinesAndSomeSpaces {
     @DeveloperFunction
-    fun withNewLinesAndSomeSpaces() = itemWithCategoryNamed("With\nnew\nlines\n            and some spaces")
+    fun testWithNewLinesAndSomeSpaces(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("With\nnew\nlines\n            and some spaces") { functionItem.category.name }
+    }
 }
 
-@DeveloperCategory("""With another
-${'$'}dollar symbol""")
-private class withNewLineAndDollar {
+@DeveloperCategory(
+    """With another
+${'$'}dollar symbol"""
+)
+private class cn_withNewLineAndDollar {
     @DeveloperFunction
-    fun withNewLineAndDollar() = itemWithCategoryNamed("With another\n\$dollar symbol")
+    fun testWithNewLineAndDollar(functionItem: FunctionItem) {
+        if (functionItem === NOPFunctionItem) return
+        expect("With another\n\$dollar symbol") { functionItem.category.name }
+    }
 }

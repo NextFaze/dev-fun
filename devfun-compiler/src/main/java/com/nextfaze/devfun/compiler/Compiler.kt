@@ -335,7 +335,7 @@ class DevFunProcessor : DaggerProcessor() {
         val stringType = String::class.asTypeName().asNullable()
         val intType = Int::class.asTypeName().asNullable()
 
-        TypeSpec.classBuilder("SimpleCategoryDefinition")
+        TypeSpec.classBuilder(simpleCategoryDefinitionName)
             .addSuperinterface(CategoryDefinition::class)
             .addModifiers(KModifier.PRIVATE, KModifier.DATA)
             .primaryConstructor(
@@ -467,3 +467,5 @@ val kClassFunc by lazy {
         .addStatement("return T::class")
         .build()
 }
+
+val simpleCategoryDefinitionName = ClassName.bestGuess("SimpleCategoryDefinition")

@@ -1,7 +1,10 @@
 package com.nextfaze.devfun.compiler.properties
 
-import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.compiler.Logging
+import com.nextfaze.devfun.compiler.StringPreprocessor
+import com.nextfaze.devfun.compiler.isClassPublic
 import com.nextfaze.devfun.compiler.processing.Processor
+import com.nextfaze.devfun.compiler.toKType
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.WildcardTypeName.Companion.STAR
@@ -126,7 +129,7 @@ internal abstract class PropertiesGenerator(
                 }
             is DeclaredType ->
                 when (value) {
-                    is String -> addStatement("return %L", preprocessor.run(value, this).toKString(trimMargin = true))
+                    is String -> addStatement("return %L", value.toLiteral(preprocessor, this))
                     is TypeMirror -> addStatement("return %L", value.toKClass())
                     is VariableElement -> addStatement("return %L", value.toEnumValue())
                     is AnnotationMirror -> generateImplementation(value)?.let { addStatement("return %L", it) }
@@ -139,9 +142,7 @@ internal abstract class PropertiesGenerator(
                     is PrimitiveType -> value.joinToString().replace("(byte)", "")
                     is DeclaredType -> {
                         if (componentType.isString) {
-                            value.joinToString {
-                                preprocessor.run((it as AnnotationValue).value as String, this).toKString(trimMargin = true)
-                            }
+                            value.joinToString { ((it as AnnotationValue).value as String).toLiteral(preprocessor, this) }
                         } else {
                             val kind = componentType.asElement().kind
                             when (kind) {

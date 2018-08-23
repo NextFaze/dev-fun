@@ -4,8 +4,11 @@ import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.generated.DevFunGenerated
-import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.WildcardTypeName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
 import java.lang.reflect.Field
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
@@ -14,7 +17,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.util.Elements
-import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 @Singleton
@@ -173,14 +175,4 @@ internal class DeveloperReferenceHandler @Inject constructor(
             )
             .build()
     }
-
-    private fun KCallable<*>.toPropertySpec(
-        propName: String = name,
-        propReturnType: TypeName = returnType.asTypeName()
-    ) =
-        PropertySpec.builder(
-            propName,
-            propReturnType,
-            KModifier.OVERRIDE
-        )
 }
