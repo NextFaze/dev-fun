@@ -1,36 +1,32 @@
 package com.nextfaze.devfun.compiler.properties
 
-import com.nextfaze.devfun.compiler.Logging
-import com.nextfaze.devfun.compiler.StringPreprocessor
-import com.nextfaze.devfun.compiler.isClassPublic
+import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.compiler.processing.KElements
 import com.nextfaze.devfun.compiler.processing.Processor
-import com.nextfaze.devfun.compiler.toKType
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.WildcardTypeName.Companion.STAR
 import javax.lang.model.element.*
-import javax.lang.model.type.*
+import javax.lang.model.type.ArrayType
+import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.PrimitiveType
+import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Elements
-import kotlin.reflect.KClass
 
 internal abstract class PropertiesGenerator(
     final override val elements: Elements,
+    final override val kElements: KElements,
     final override val preprocessor: StringPreprocessor,
     logging: Logging
 ) : Processor {
     private val log by logging()
 
-    protected var referencingKClassFunc = false // TODO this kind of gross be meh for now
-
-    protected fun generateImplementation(annotation: AnnotationMirror): TypeSpec? {
+    protected fun generateImplementation(annotation: AnnotationMirror): TypeSpec {
         val annotationElement = annotation.annotationType.asElement() as TypeElement
 
         log.note { "Generate implementation for $annotationElement" }
 
         val builder = TypeSpec.anonymousClassBuilder()
-
-        val implements = ClassName.bestGuess(annotationElement.interfaceFqn)
-        builder.addSuperinterface(implements)
+            .addSuperinterface(ClassName.bestGuess(annotationElement.interfaceFqn))
 
         annotation.elementValues.forEach { (element: ExecutableElement, annotationValue: AnnotationValue) ->
             log.note { "Processing (element: $element, annotationValue: $annotationValue (${annotationValue::class})" }
@@ -40,99 +36,73 @@ internal abstract class PropertiesGenerator(
             val valueType: TypeMirror = element.returnType
             log.note { "valueType=$valueType (${valueType::class})" }
 
-            val property = element.toPropertySpec(annotationValue)
-
+            val property = element.toPropertySpec(annotationValue, ValueInitType.INITIALIZER)
             builder.addProperty(property.addModifiers(KModifier.OVERRIDE).build())
         }
 
         return builder.build()
     }
 
-    private fun TypeMirror.toTypeName(): TypeName =
+    /**
+     * We override a few of the types here;
+     * - The dev annotation to "Properties" implementation type (for top-level and nested annotations)
+     * - Primitive arrays to Array<Primitive>
+     */
+    private fun TypeMirror.toReturnTypeName(): TypeName =
         when (this) {
-            is DeclaredType ->
-                if (isString) String::class.asTypeName()
-                else {
-                    val element = asElement()
-                    when (element.kind) {
-                        ElementKind.CLASS -> KClass::class.asTypeName().parameterizedBy(STAR)
-                        ElementKind.ENUM -> if (isClassPublic) asTypeName() else Enum::class.asTypeName().parameterizedBy(STAR)
-                        ElementKind.ANNOTATION_TYPE -> ClassName(element.interfacePackage, element.interfaceName)
-                        else -> TODO()
-                    }
+            is DeclaredType -> {
+                val element = asElement()
+                when (element.kind) {
+                    ElementKind.CLASS -> if (isClassPublic) toTypeName(true) else TypeNames.kClassStar
+                    ElementKind.ENUM -> if (isClassPublic) toTypeName(true) else TypeNames.enumStar
+                    ElementKind.ANNOTATION_TYPE -> ClassName(element.interfacePackage, element.interfaceName)
+                    else -> toTypeName(true)
                 }
-            is ArrayType -> ClassName("kotlin", "Array").parameterizedBy(componentType.toTypeName())
-            else -> asTypeName()
+            }
+            is ArrayType -> TypeNames.array.parameterizedBy(componentType.toReturnTypeName())
+            else -> toTypeName(true)
         }
+
+    protected enum class ValueInitType { GETTER, INITIALIZER }
 
     protected fun ExecutableElement.toPropertySpec(
         annotationValue: AnnotationValue? = defaultValue,
-        withInitializer: Boolean = true
+        valueInitType: ValueInitType
     ): PropertySpec.Builder {
         val value = annotationValue?.value
         val valueType: TypeMirror = returnType
-        log.note(element = this) { "toPropertySpec($this, $annotationValue: ${annotationValue?.let { it::class }}, withInitializer=$withInitializer), value=$value (${value?.let { it::class }}), valueType=$valueType (${valueType::class})" }
+        log.note(element = this) { "${this.enclosingElement}.$this.toPropertySpec($annotationValue: ${annotationValue?.let { it::class }}, valueInitType=$valueInitType), value=$value (${value?.let { it::class }}), valueType=$valueType (${valueType::class})" }
 
-        val typeName = valueType.toTypeName()
-        val property = PropertySpec.builder(simpleName.toString(), typeName)
-
-        fun TypeMirror.toKClass(kotlinClass: Boolean = true): String =
-            when (this) {
-                is PrimitiveType -> "${this.toKType().typeName}::class"
-                is DeclaredType -> this.asElement().toClass(kotlinClass = kotlinClass)
-                is ArrayType -> this.toClass(kotlinClass = kotlinClass)
-                else -> throw NotImplementedError("Not implemented TypeMirror.toKClass(): $this (${this::class})")
-            }.also {
-                if (!referencingKClassFunc && it.contains("kClass<")) {
-                    referencingKClassFunc = true
-                }
-            }
-
-        fun Element.toKClass(kotlinClass: Boolean = true) = asType().toKClass(kotlinClass)
+        val returnTypeName = valueType.toReturnTypeName()
+        val property = PropertySpec.builder(simpleName.toString(), returnTypeName)
 
         var uncheckedCastAdded = false
-        fun VariableElement.toEnumValue(): String =
-            if (asType().isClassPublic) {
-                "${asType()}.$this"
+        fun VariableElement.toEnumBlock(): CodeBlock {
+            val t = this.asType()
+            return if (t.isClassPublic) {
+                CodeBlock.of("%T.%L", t, simpleName)
             } else {
                 if (!uncheckedCastAdded) {
                     uncheckedCastAdded = true
                     property.addAnnotation(uncheckedCast)
                 }
-                "java.lang.Enum.valueOf(${toKClass(kotlinClass = false)} as Class<Nothing>, \"$this\") as Enum<*>"
+                val clazz = t.toKClassBlock(kotlinClass = false, castIfNotPublic = TypeNames.clazz.parameterizedBy(TypeNames.nothing))
+                CodeBlock.of("java.lang.Enum.valueOf(%L, \"$this\") as Enum<*>", clazz)
             }
+        }
 
         if (value == null) return property
 
         log.note { "Adding default :: value=$value (${value::class})" }
-        val func by lazy { FunSpec.getterBuilder() }
 
-        fun addStatement(format: String, vararg args: Any) {
-            when {
-                withInitializer -> property.initializer(format.substring(7), *args)
-                else -> func.addStatement(format, *args)
-            }
-        }
-
-        when (valueType) {
-            is PrimitiveType ->
-                when (valueType.kind) {
-                    TypeKind.BOOLEAN,
-                    TypeKind.BYTE,
-                    TypeKind.SHORT,
-                    TypeKind.INT,
-                    TypeKind.DOUBLE -> addStatement("return %L", value)
-                    TypeKind.CHAR -> addStatement("return '%L'", value)
-                    TypeKind.LONG -> addStatement("return %LL", value)
-                    TypeKind.FLOAT -> addStatement("return %Lf", value)
-                    else -> throw RuntimeException("Unexpected PrimitiveType.kind: ${valueType.kind}")
-                }
+        val initBlock = when (valueType) {
+            is PrimitiveType -> CodeBlock.of("%V", value)
             is DeclaredType ->
                 when (value) {
-                    is String -> addStatement("return %L", value.toLiteral(this))
-                    is TypeMirror -> addStatement("return %L", value.toKClass())
-                    is VariableElement -> addStatement("return %L", value.toEnumValue())
-                    is AnnotationMirror -> generateImplementation(value)?.let { addStatement("return %L", it) }
+                    is String -> CodeBlock.of("%V", value)
+                    is TypeMirror -> value.toKClassBlock(castIfNotPublic = returnTypeName)
+                    is VariableElement -> value.toEnumBlock()
+                    is AnnotationMirror -> CodeBlock.of("%L", generateImplementation(value))
                     else -> throw NotImplementedError("DeclaredType not implement for valueType=$valueType (${valueType::class}) with value=$value (${value::class})")
                 }
             is ArrayType -> {
@@ -142,27 +112,32 @@ internal abstract class PropertiesGenerator(
                     is PrimitiveType -> value.joinToString().replace("(byte)", "")
                     is DeclaredType -> {
                         if (componentType.isString) {
-                            value.joinToString { ((it as AnnotationValue).value as String).toLiteral(this) }
+                            value.map { ((it as AnnotationValue).value as String).toValue(this) }.toTypedArray()
                         } else {
                             val kind = componentType.asElement().kind
                             when (kind) {
-                                ElementKind.CLASS -> value.joinToString { ((it as AnnotationValue).value as TypeMirror).toKClass() }
-                                ElementKind.ENUM -> value.joinToString { ((it as AnnotationValue).value as VariableElement).toEnumValue() }
-                                ElementKind.ANNOTATION_TYPE -> value.mapNotNull { generateImplementation(it as AnnotationMirror) }.joinToString()
+                                ElementKind.CLASS -> value.map { ((it as AnnotationValue).value as TypeMirror).toKClassBlock() }.toTypedArray()
+                                ElementKind.ENUM -> value.map { ((it as AnnotationValue).value as VariableElement).toEnumBlock() }.toTypedArray()
+                                ElementKind.ANNOTATION_TYPE -> value.mapNotNull { generateImplementation(it as AnnotationMirror) }.toTypedArray()
                                 else -> throw NotImplementedError("Not implemented array componentType: $componentType (kind=$kind) for $value (${value::class})")
                             }
                         }
                     }
                     else -> throw NotImplementedError("Not implemented array componentType: $componentType for $value (${value::class})")
-                }.also {
-                    addStatement("return arrayOf<%T>(%L)", componentType.toTypeName(), it)
+                }.let {
+                    if (it is Array<*>) {
+                        CodeBlock.of("%V", it)
+                    } else {
+                        CodeBlock.of("arrayOf<%T>(%L)", componentType.toReturnTypeName(), it)
+                    }
                 }
             }
             else -> throw NotImplementedError("Default value not implemented for valueType=$valueType (${valueType::class}) with value=$value (${value::class})")
         }
 
-        if (!withInitializer) {
-            property.getter(func.build())
+        when (valueInitType) {
+            ValueInitType.GETTER -> property.getter(FunSpec.getterBuilder().addCode("%[return %L\n%]", initBlock).build())
+            ValueInitType.INITIALIZER -> property.initializer(initBlock)
         }
 
         return property

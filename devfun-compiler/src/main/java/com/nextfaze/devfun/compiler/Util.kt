@@ -1,5 +1,8 @@
 package com.nextfaze.devfun.compiler
 
+import com.nextfaze.devfun.compiler.processing.KElements
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.joinToCode
 import javax.lang.model.element.Element
 import javax.lang.model.element.PackageElement
 import javax.lang.model.util.Elements
@@ -15,20 +18,35 @@ internal fun <T> List<T>.joiner(
     transform: ((T) -> CharSequence)? = null
 ) =
     when {
-        this.isEmpty() -> ""
+        isEmpty() -> ""
         else -> joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
     }
+
+internal fun List<CodeBlock>.joiner(
+    prefix: CharSequence = "",
+    suffix: CharSequence = ""
+): CodeBlock = when {
+    isEmpty() -> CodeBlock.of("")
+    else -> joinToCode(prefix = prefix, suffix = suffix)
+}
 
 internal interface WithElements {
     val elements: Elements
 
     val Element.packageElement: PackageElement
-        get() = elements.getPackageOf(this)
+        get() = if (this is KElements.ClassElement) elements.getPackageOf(element) else elements.getPackageOf(this)
 }
 
 inline fun <T> T.applyIf(predicate: Boolean, block: T.() -> Unit): T {
     if (predicate) {
         block(this)
+    }
+    return this
+}
+
+inline fun <T : Any, V : Any> T.applyNotNull(value: V?, block: T.(V) -> Unit): T {
+    if (value != null) {
+        block(value)
     }
     return this
 }

@@ -19,6 +19,8 @@ annotation class HasKClasses(
     val clazz: KClass<*>,
     val primitiveClass: KClass<*>,
     val typedClazz: KClass<*>,
+    val primitiveArrayClazz: KClass<*>,
+    val arrayClazz: KClass<*>,
     val nestedTypedStarClass: KClass<*>,
     val nestedTypedExplicitClass: KClass<*>,
     val privateClass: KClass<*>,
@@ -26,6 +28,42 @@ annotation class HasKClasses(
     val privateTypedClass: KClass<*>,
     val packagePrivateTypedClass: KClass<*>,
     val multipleTypedClass: KClass<*>
+)
+
+@Target(FUNCTION)
+@Retention(SOURCE)
+@DeveloperAnnotation(developerReference = true)
+private annotation class HasKClassesAsDefaults(
+    val clazz: KClass<*> = cpct_SomeClass::class,
+    val primitiveClass: KClass<*> = Byte::class,
+    val typedClazz: KClass<*> = TypedClass::class,
+    val primitiveArrayClazz: KClass<*> = FloatArray::class,
+    val arrayClazz: KClass<*> = Array<Long>::class,
+    val nestedTypedStarClass: KClass<*> = NestedTypedStarClass::class,
+    val nestedTypedExplicitClass: KClass<*> = NestedTypedExplicitTypedClass::class,
+    val privateClass: KClass<*> = PrivateClass::class,
+    val packagePrivateClass: KClass<*> = PackagePrivateType::class,
+    val privateTypedClass: KClass<*> = PrivateTypedClass::class,
+    val packagePrivateTypedClass: KClass<*> = PackagePrivateTypedClass::class,
+    val multipleTypedClass: KClass<*> = MultipleTypedClass::class
+)
+
+@Target(FUNCTION)
+@Retention(SOURCE)
+@DeveloperAnnotation(developerReference = true)
+private annotation class HasBoundedKClassesWithDefaults(
+    val clazz: KClass<in cpct_SomeClass> = cpct_SomeClass::class,
+    val primitiveClass: KClass<out Number> = Byte::class,
+    val typedClazz: KClass<in TypedClass<out ReferenceDefinition>> = TypedClass::class,
+    val primitiveArrayClazz: KClass<FloatArray> = FloatArray::class,
+    val arrayClazz: KClass<out Array<out Number>> = Array<Long>::class,
+//    val nestedTypedStarClass: KClass<NestedTypedStarClass<*>> = NestedTypedStarClass::class, // stub error
+    val nestedTypedExplicitClass: KClass<in NestedTypedExplicitTypedClass<*>> = NestedTypedExplicitTypedClass::class,
+    val privateClass: KClass<out MyInterface<*>> = PrivateClass::class,
+    val packagePrivateClass: KClass<out PackagePrivateType> = PackagePrivateType::class,
+    val privateTypedClass: KClass<in PrivateTypedClass<*>> = PrivateTypedClass::class
+//    val packagePrivateTypedClass: KClass<PackagePrivateTypedClass<*>> = PackagePrivateTypedClass::class, // stub error
+//    val multipleTypedClass: KClass<out MyInterface<FunctionTransformer>> = MultipleTypedClass::class // stub error
 )
 
 @Target(FUNCTION)
@@ -46,7 +84,7 @@ internal annotation class HasKClassesBounded(
 @Retention(SOURCE)
 @DeveloperAnnotation(developerReference = true)
 annotation class HasKClassesOfArrayTypes(
-    val booleanArray: KClass<*>,
+    val booleanArray: KClass<*> = BooleanArray::class,
     val byteArray: KClass<*>,
     val shortArray: KClass<*>,
     val intArray: KClass<*>,
@@ -74,7 +112,21 @@ annotation class HasKClassArraysWithDefaults(
     val classes: Array<KClass<*>>
 )
 
-private class PrivateClass
+@Target(FUNCTION)
+@Retention(SOURCE)
+@DeveloperAnnotation(developerReference = true)
+private annotation class HasKClassArraysWithPrivateDefaults(
+    val defaultClasses: Array<KClass<*>> = [Any::class, Int::class, PrivateClass::class, Array<Long>::class, BooleanArray::class],
+    val packagePrivateClasses: Array<KClass<*>> = [PackagePrivateType::class],
+    val typed: Array<KClass<out MyInterface<*>>> = [PublicClass::class/*, MultipleTypedClass::class*/], // todo stubs error
+    val typedNumberArrays: Array<KClass<out Array<out Number>>> = [Array<out Long>::class, Array<Int>::class],
+    val typedArrays: Array<KClass<out Array<out MyInterface<*>>>> = [Array<PublicClass>::class],
+    val optionalClasses: Array<KClass<*>> = [Boolean::class],
+    val classes: Array<KClass<*>>
+)
+
+private class PrivateClass : MyInterface<FunctionTransformer>
+class PublicClass : MyInterface<FunctionTransformer>
 class TypedClass<T : ReferenceDefinition>
 
 interface MyInterface<T : FunctionTransformer>
@@ -84,13 +136,15 @@ class NestedTypedExplicitTypedClass<T : MyInterface<SingleFunctionTransformer>>
 private class PrivateTypedClass<T : FunctionTransformer>
 internal class PackagePrivateTypedClass<T : PackagePrivateType>
 
-class MultipleTypedClass<T : MyInterface<*>, U : TypedClass<*>>
+class MultipleTypedClass<T : MyInterface<*>, U : TypedClass<*>> : MyInterface<FunctionTransformer>
 
 class cpct_SomeClass {
     @HasKClasses(
         clazz = cpct_SomeClass::class,
         primitiveClass = Byte::class,
         typedClazz = TypedClass::class,
+        primitiveArrayClazz = FloatArray::class,
+        arrayClazz = Array<Long>::class,
         nestedTypedStarClass = NestedTypedStarClass::class,
         nestedTypedExplicitClass = NestedTypedExplicitTypedClass::class,
         privateClass = PrivateClass::class,
@@ -104,6 +158,8 @@ class cpct_SomeClass {
         expect(cpct_SomeClass::class) { properties.clazz }
         expect(Byte::class) { properties.primitiveClass }
         expect(TypedClass::class) { properties.typedClazz }
+        expect(FloatArray::class) { properties.primitiveArrayClazz }
+        expect(Array<Long>::class) { properties.arrayClazz }
         expect(NestedTypedStarClass::class) { properties.nestedTypedStarClass }
         expect(NestedTypedExplicitTypedClass::class) { properties.nestedTypedExplicitClass }
         expect(PrivateClass::class) { properties.privateClass }
@@ -111,6 +167,40 @@ class cpct_SomeClass {
         expect(PrivateTypedClass::class) { properties.privateTypedClass }
         expect(PackagePrivateTypedClass::class) { properties.packagePrivateTypedClass }
         expect(MultipleTypedClass::class) { properties.multipleTypedClass }
+    }
+
+    @HasKClassesAsDefaults
+    fun testKClassesAsDefaults(ref: MethodReference) {
+        val properties = ref.getProperties<HasKClassesAsDefaultsProperties>()
+        expect(cpct_SomeClass::class) { properties.clazz }
+        expect(Byte::class) { properties.primitiveClass }
+        expect(TypedClass::class) { properties.typedClazz }
+        expect(FloatArray::class) { properties.primitiveArrayClazz }
+        expect(Array<Long>::class) { properties.arrayClazz }
+        expect(NestedTypedStarClass::class) { properties.nestedTypedStarClass }
+        expect(NestedTypedExplicitTypedClass::class) { properties.nestedTypedExplicitClass }
+        expect(PrivateClass::class) { properties.privateClass }
+        expect(PackagePrivateType::class) { properties.packagePrivateClass }
+        expect(PrivateTypedClass::class) { properties.privateTypedClass }
+        expect(PackagePrivateTypedClass::class) { properties.packagePrivateTypedClass }
+        expect(MultipleTypedClass::class) { properties.multipleTypedClass }
+    }
+
+    @HasBoundedKClassesWithDefaults
+    fun testBoundedKClassesWithDefaults(ref: MethodReference) {
+        val properties = ref.getProperties<HasBoundedKClassesWithDefaultsProperties>()
+        expect(cpct_SomeClass::class) { properties.clazz }
+        expect(Byte::class) { properties.primitiveClass }
+        expect(TypedClass::class) { properties.typedClazz }
+        expect(FloatArray::class) { properties.primitiveArrayClazz }
+        expect(Array<Long>::class) { properties.arrayClazz }
+//        expect(NestedTypedStarClass::class) { properties.nestedTypedStarClass }
+        expect(NestedTypedExplicitTypedClass::class) { properties.nestedTypedExplicitClass }
+        expect(PrivateClass::class) { properties.privateClass }
+        expect(PackagePrivateType::class) { properties.packagePrivateClass }
+        expect(PrivateTypedClass::class) { properties.privateTypedClass }
+//        expect(PackagePrivateTypedClass::class) { properties.packagePrivateTypedClass }
+//        expect(MultipleTypedClass::class) { properties.multipleTypedClass }
     }
 
     @HasKClassesBounded(
@@ -132,7 +222,6 @@ class cpct_SomeClass {
     }
 
     @HasKClassesOfArrayTypes(
-        booleanArray = BooleanArray::class,
         byteArray = ByteArray::class,
         shortArray = ShortArray::class,
         intArray = IntArray::class,
@@ -175,6 +264,44 @@ class cpct_SomeClass {
     )
     fun testClassArrayPropertiesWithDefaults(ref: MethodReference) {
         val properties = ref.getProperties<HasKClassArraysWithDefaultsProperties>()
+        expectArrayOf(Any::class, Int::class, BooleanArray::class) { properties.defaultClasses }
+        expectArrayOf(
+            Int::class,
+            cpct_SomeClass::class,
+            ByteArray::class,
+            PrivateClass::class,
+            NestedTypedExplicitTypedClass::class
+        ) { properties.optionalClasses }
+        expectArrayOf(
+            HasKClassArraysWithDefaults::class,
+            NestedTypedStarClass::class,
+            PackagePrivateTypedClass::class,
+            Array<Boolean>::class,
+            Array<HasKClassesWithDefaults>::class,
+            Array<PrivateClass>::class,
+            Array<PackagePrivateType>::class
+        ) { properties.classes }
+    }
+
+    @HasKClassArraysWithPrivateDefaults(
+        optionalClasses = [Int::class, cpct_SomeClass::class, ByteArray::class, PrivateClass::class, NestedTypedExplicitTypedClass::class],
+        classes = [
+            HasKClassArraysWithDefaults::class,
+            NestedTypedStarClass::class,
+            PackagePrivateTypedClass::class,
+            Array<Boolean>::class,
+            Array<HasKClassesWithDefaults>::class,
+            Array<PrivateClass>::class,
+            Array<PackagePrivateType>::class
+        ]
+    )
+    fun testKClassArraysWithPrivateDefaults(ref: MethodReference) {
+        val properties = ref.getProperties<HasKClassArraysWithPrivateDefaultsProperties>()
+        expectArrayOf(Any::class, Int::class, PrivateClass::class, Array<Long>::class, BooleanArray::class) { properties.defaultClasses }
+        expectArrayOf(PackagePrivateType::class) { properties.packagePrivateClasses }
+        expectArrayOf(PublicClass::class/*, MultipleTypedClass::class*/) { properties.typed }
+        expectArrayOf(Array<Long>::class, Array<Int>::class) { properties.typedNumberArrays }
+        expectArrayOf(Array<PublicClass>::class) { properties.typedArrays }
         expectArrayOf(
             Int::class,
             cpct_SomeClass::class,

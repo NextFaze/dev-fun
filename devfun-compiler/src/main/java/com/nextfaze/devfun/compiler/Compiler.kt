@@ -3,11 +3,10 @@ package com.nextfaze.devfun.compiler
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.compiler.processing.DeveloperAnnotationProcessor
-import com.nextfaze.devfun.core.CategoryDefinition
-import com.nextfaze.devfun.core.FunctionDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
-import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.TypeSpec
 import java.io.File
 import java.io.IOException
 import javax.annotation.processing.Filer
@@ -19,7 +18,7 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import javax.tools.StandardLocation.CLASS_OUTPUT
 import javax.tools.StandardLocation.SOURCE_OUTPUT
-import kotlin.reflect.KClass
+import kotlin.math.roundToInt
 
 /**
  * Flag to enable Kotlin reflection to get method references. _(default: `false`)_ **(experimental)**
@@ -292,14 +291,11 @@ class DevFunProcessor : DaggerProcessor() {
 
     override fun inject(injector: Injector) = injector.inject(this)
 
-    private val useKotlinReflection get() = options.useKotlinReflection
-
     @Inject internal lateinit var options: Options
     @Inject internal lateinit var logging: Logging
     @Inject internal lateinit var filer: Filer
     @Inject internal lateinit var ctx: CompileContext
     @Inject internal lateinit var processor: DeveloperAnnotationProcessor
-    @Inject internal lateinit var typeImports: ImportsTracker
 
     private val log by lazy { logging.create(this) }
 
@@ -310,10 +306,10 @@ class DevFunProcessor : DaggerProcessor() {
             if (env.processingOver()) {
                 if (processor.willGenerateSources) {
                     writeServiceFile()
-                    writeSourceFile(generateKSource())
+                    writeSourceFile(logTimeMillis("generateKSource") { generateKSource() })
                 }
             } else {
-                processor.process(annotations, env)
+                logTimeMillis("process") { processor.process(annotations, env) }
             }
         } catch (t: Throwable) {
             log.error { "Unexpected error: ${t.stackTraceAsString}" }
@@ -323,95 +319,15 @@ class DevFunProcessor : DaggerProcessor() {
         return false
     }
 
-    /**
-     * `FunctionInvoke` is a type alias - currently no way to resolve that at runtime (on road-map though)
-     *
-     * @see com.nextfaze.devfun.core.FunctionInvoke
-     */
-    private val functionInvokeQualified = "${FunctionDefinition::class.qualifiedName!!.replace("Definition", "")}Invoke"
-
-    private val simpleCategoryDefinition by lazy {
-        val kClassType = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.STAR).asNullable()
-        val stringType = String::class.asTypeName().asNullable()
-        val intType = Int::class.asTypeName().asNullable()
-
-        TypeSpec.classBuilder(simpleCategoryDefinitionName)
-            .addSuperinterface(CategoryDefinition::class)
-            .addModifiers(KModifier.PRIVATE, KModifier.DATA)
-            .primaryConstructor(
-                FunSpec.constructorBuilder()
-                    .addParameter(ParameterSpec.builder("clazz", kClassType, KModifier.OVERRIDE).defaultValue("null").build())
-                    .addParameter(ParameterSpec.builder("name", stringType, KModifier.OVERRIDE).defaultValue("null").build())
-                    .addParameter(ParameterSpec.builder("group", stringType, KModifier.OVERRIDE).defaultValue("null").build())
-                    .addParameter(ParameterSpec.builder("order", intType, KModifier.OVERRIDE).defaultValue("null").build())
-                    .build()
-            )
-            .addProperty(PropertySpec.builder("clazz", kClassType).initializer("clazz").build())
-            .addProperty(PropertySpec.builder("name", stringType).initializer("name").build())
-            .addProperty(PropertySpec.builder("group", stringType).initializer("group").build())
-            .addProperty(PropertySpec.builder("order", intType).initializer("order").build())
-            .build()
-    }
-
-    private val abstractFunctionDefinition by lazy {
-        TypeSpec.classBuilder(abstractFunctionDefinitionName)
-            .addSuperinterface(FunctionDefinition::class)
-            .addModifiers(KModifier.PRIVATE, KModifier.ABSTRACT)
-            .addFunction(
-                FunSpec.builder("equals")
-                    .addModifiers(KModifier.OVERRIDE)
-                    .addParameter("other", ANY.asNullable())
-                    .addStatement("return %L", "this === other || other is FunctionDefinition && method == other.method")
-                    .build()
-            )
-            .addFunction(
-                FunSpec.builder("hashCode")
-                    .addModifiers(KModifier.OVERRIDE)
-                    .addStatement("return %L", "method.hashCode()")
-                    .build()
-            )
-            .addFunction(
-                FunSpec.builder("toString")
-                    .addModifiers(KModifier.OVERRIDE)
-                    .addStatement("return %S", "FunctionDefinition(\$method)")
-                    .build()
-            )
-            .build()
-    }
-
-    private val privateObjectInstanceFunc by lazy {
-        // TODO https://github.com/square/kotlinpoet/issues/437
-        PropertySpec.builder("privateObjectInstance", TypeVariableName("T"), KModifier.PRIVATE)
-            .receiver(KClass::class.asTypeName().parameterizedBy(TypeVariableName("T")))
-            .getter(
-                FunSpec.getterBuilder()
-                    .addModifiers(KModifier.INLINE)
-                    .addStatement("return %L", "java.getDeclaredField(\"INSTANCE\").apply { isAccessible = true }.get(null) as T")
-                    .build()
-            )
-            .build()
-
-        CodeBlock.of(
-            """
-private inline val <T : Any> KClass<T>.privateObjectInstance
-    get() = java.getDeclaredField("INSTANCE").apply { isAccessible = true }.get(null) as T""".trimIndent()
-        )
-    }
-
     private fun generateKSource(): String {
-        val imports = mutableSetOf<String?>().apply {
-            typeImports.forEach { this += it.qualifiedName }
-            this += functionInvokeQualified
-
-            if (useKotlinReflection) {
-                this += "kotlin.reflect.full.declaredFunctions"
-                this += "kotlin.reflect.jvm.javaMethod"
-            }
-        }.toList().filterNotNull().sorted()
-
         val annotations = AnnotationSpec.builder(Suppress::class)
             .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE)
-            .addMember("%L", """"UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "PackageDirectoryMismatch", "PackageName"""")
+            .addMember("%L", """"UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "REDUNDANT_PROJECTION", "USELESS_CAST", "PackageDirectoryMismatch", "PackageName"""")
+            .build()
+
+        val def = TypeSpec.classBuilder(DEFINITIONS_CLASS_NAME)
+            .addSuperinterface(DevFunGenerated::class)
+            .apply { processor.applyToTypeSpec(this) }
             .build()
 
         //
@@ -422,21 +338,12 @@ private inline val <T : Any> KClass<T>.privateObjectInstance
         // it doesn't replace/update static fields *inside* of the class (only the class definition itself). This
         // wouldn't be a problem normally w.r.t. normal singletons, but this field is not accessible/assignable by us.
         //
-        return """$annotations
-
-package ${ctx.pkg}
-
-${imports.joinToString("\n") { "import $it" }}
-
-$simpleCategoryDefinition
-$abstractFunctionDefinition
-$kClassFunc
-$privateObjectInstanceFunc
-
-class $DEFINITIONS_CLASS_NAME : ${DevFunGenerated::class.simpleName} {
-${processor.generateSources()}
-}
-"""
+        return FileSpec.builder(ctx.pkg, DEFINITIONS_FILE_NAME)
+            .addAnnotation(annotations)
+            .apply { processor.applyToFileSpec(this) }
+            .addType(def)
+            .build()
+            .toString()
     }
 
     private fun writeServiceFile() {
@@ -458,15 +365,12 @@ ${processor.generateSources()}
             log.error { "Failed to write source file:\n${e.stackTraceAsString}" }
         }
     }
-}
 
-val kClassFunc by lazy {
-    FunSpec.builder("kClass")
-        .addTypeVariable(TypeVariableName("T", ANY).reified(true))
-        .addModifiers(KModifier.PRIVATE, KModifier.INLINE)
-        .addStatement("return T::class")
-        .build()
+    private inline fun <reified T : Any> logTimeMillis(tag: String, block: () -> T): T {
+        val start = System.nanoTime()
+        return block().also {
+            val duration = (System.nanoTime() - start).toDouble() / 1000_000_000.0
+            log.note { "$tag took $duration seconds (${(duration * 1000).roundToInt()}ms)" }
+        }
+    }
 }
-
-val simpleCategoryDefinitionName = ClassName.bestGuess("SimpleCategoryDefinition")
-val abstractFunctionDefinitionName = ClassName.bestGuess("AbstractFunctionDefinitionName")

@@ -2,8 +2,8 @@ package com.nextfaze.devfun.compiler.properties
 
 import com.nextfaze.devfun.compiler.Logging
 import com.nextfaze.devfun.compiler.StringPreprocessor
-import com.nextfaze.devfun.compiler.applyIf
-import com.nextfaze.devfun.compiler.kClassFunc
+import com.nextfaze.devfun.compiler.processing.KElements
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
 import java.util.ArrayDeque
@@ -19,13 +19,21 @@ import javax.lang.model.util.Elements
 @Singleton
 internal class InterfaceGenerator @Inject constructor(
     elements: Elements,
+    kElements: KElements,
     preprocessor: StringPreprocessor,
     logging: Logging
-) : PropertiesGenerator(elements, preprocessor, logging) {
+) : PropertiesGenerator(elements, kElements, preprocessor, logging) {
     private val log by logging()
 
     private val interfaces = mutableMapOf<String, FileSpec>()
     private val queue = ArrayDeque<TypeElement>()
+
+    private val uselessCastAnnotation by lazy {
+        AnnotationSpec.builder(Suppress::class)
+            .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE)
+            .addMember("%L", """"UNCHECKED_CAST", "USELESS_CAST"""")
+            .build()
+    }
 
     val fileSpecs get() = interfaces.values
 
@@ -36,12 +44,10 @@ internal class InterfaceGenerator @Inject constructor(
             val element = queue.remove()
             val interfaceFqn = element.interfaceFqn
             if (!interfaces.containsKey(interfaceFqn)) {
-                referencingKClassFunc = false
-
                 interfaces[interfaceFqn] = FileSpec
                     .builder(element.interfacePackage, element.interfaceFileName)
+                    .addAnnotation(uselessCastAnnotation)
                     .addType(element.generateInterface())
-                    .applyIf(referencingKClassFunc) { addFunction(kClassFunc) }
                     .build()
             }
         } while (queue.isNotEmpty())
@@ -55,7 +61,7 @@ internal class InterfaceGenerator @Inject constructor(
             if (element.simpleName.toString() in excludeFields) return@forEach
             element as ExecutableElement
 
-            val property = element.toPropertySpec(withInitializer = false)
+            val property = element.toPropertySpec(valueInitType = ValueInitType.GETTER)
             builder.addProperty(property.build())
 
             // referenced types (not necessarily @DeveloperAnnotation)

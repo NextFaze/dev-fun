@@ -35,22 +35,22 @@ internal class ComplexTypesClass {
     fun listArrayLong(arg1: List<Array<Long>>) = Unit
 
     @DeveloperFunction
-    fun arrayListLong(arg1: ArrayList<Long>) = Unit
+    fun arrayListLong(arg1: ArrayList<in Long>) = Unit
 
     @DeveloperFunction
-    fun arrayDequeLong(arg1: ArrayDeque<Long>) = Unit
+    fun arrayDequeLong(arg1: ArrayDeque<out Long>) = Unit
 
     @DeveloperFunction
     fun <T : TypedTypedClass<*, *>> kClass(arg1: KClass<out T>) = Unit
 
     @DeveloperFunction
-    fun various1(arg1: Short, arg2: IntArray, arg3: List<Array<Long>>) = Unit
+    fun various1(arg1: Short, arg2: IntArray, arg3: List<Array<in Long>>) = Unit
 
     @DeveloperFunction
-    fun various2(arg1: Int, arg2: Array<Int>) = Unit
+    fun various2(arg1: Int, arg2: Array<out Int>) = Unit
 
     @DeveloperFunction
-    fun various3(arg1: Long, arg2: Array<Number>, arg3: Array<Array<Int>>) = Unit
+    fun various3(arg1: Long, arg2: Array<in Number>, arg3: Array<out Array<Int>>) = Unit
 
     @DeveloperFunction
     fun various4(arg1: Byte, arg2: ByteArray, arg3: Array<ComplexTypesClass>) = Unit
@@ -70,7 +70,7 @@ internal class ComplexTypesClass {
     @DeveloperFunction
     fun various9(arg1: Short, arg2: Int, arg3: Long, arg4: Byte, arg5: Char, arg6: Boolean, arg7: Float, arg8: Double,
                  arg9: Array<ComplexTypesClass>,
-                 arg10: List<Iterable<Array<TypedTypedClass<Float, SimpleTypedClass<Float>>>>>) = Unit
+                 arg10: List<Iterable<Array<TypedTypedClass<in Float, SimpleTypedClass<Float>>>>>) = Unit
 }
 
 private class PrivateComplexTypesClass {

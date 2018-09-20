@@ -7,7 +7,6 @@ import com.nextfaze.devfun.compiler.processing.DeveloperReferenceHandler
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import dagger.multibindings.IntoSet
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
@@ -27,9 +26,11 @@ internal class MainModule(private val env: ProcessingEnvironment) {
     @Provides fun elements(): Elements = env.elementUtils
     @Provides fun types(): Types = env.typeUtils
 
-    @Provides @IntoSet @Singleton fun developerFunction(handler: DeveloperFunctionHandler): AnnotationProcessor = handler
-    @Provides @IntoSet @Singleton fun developerCategory(handler: DeveloperCategoryHandler): AnnotationProcessor = handler
-    @Provides @IntoSet @Singleton fun developerReference(handler: DeveloperReferenceHandler): AnnotationProcessor = handler
+    @Provides @Singleton fun annotationProcessors(
+        functions: DeveloperFunctionHandler,
+        categories: DeveloperCategoryHandler,
+        references: DeveloperReferenceHandler
+    ): Set<AnnotationProcessor> = setOf(categories, functions, references)
 }
 
 /**

@@ -20,7 +20,8 @@ dependencies {
     compile(Dependency.kotlinReflect)
 
     // Kotlin Poet
-    compile("com.squareup:kotlinpoet:1.0.0-RC1")
+//    compile("com.squareup:kotlinpoet:1.0.0-RC1")
+    compile("com.github.alex2069:kotlinpoet:01d85d37883895b913e547ead8828dcd75889bf0")
 
     // Dagger
     kapt(Dependency.daggerCompiler)
