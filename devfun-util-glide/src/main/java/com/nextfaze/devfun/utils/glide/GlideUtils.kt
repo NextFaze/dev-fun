@@ -19,9 +19,7 @@ import kotlinx.coroutines.experimental.launch
 object GlideUtils {
     private val log = logger()
 
-    /**
-     * Log Glide's bitmap pool and memory cache size stats to logcat.
-     */
+    /** Log Glide's bitmap pool and memory cache size stats to logcat. */
     @DeveloperFunction
     fun showMemoryInfo(context: Context): String {
         fun Long.fileSize() = Formatter.formatFileSize(context, this)
@@ -76,6 +74,24 @@ object GlideUtils {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         }
     }
+
+    /**
+     * Clear Glide's disk and memory cache.
+     *
+     * @see clearMemoryCache
+     * @see clearDiskCache
+     */
+    @DeveloperFunction("Clear Disk & Memory Cache")
+    fun clearDiskAndMemoryCache(context: Context): String {
+        Glide.get(context).clearMemory()
+        System.gc()
+        launch(CommonPool) {
+            Glide.get(context).clearDiskCache()
+        }
+        return "Glide bitmap pool, memory cache, and disk cache cleared!".also {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+    }
 }
 
 /** Provides support for Glide 3.x and 4.x for [BitmapPool] and [MemoryCache] changed size types ([Int] to [Long]) */
@@ -86,11 +102,17 @@ private class GlideCompat(context: Context) {
 
     private val glide = Glide.get(context)
 
-    private val BitmapPool.currentSizeCompat get() = this::class.java.getDeclaredField("currentSize").apply { isAccessible = true }.get(this) as Number
-    private val BitmapPool.maxSizeCompat get() = this::class.java.getDeclaredField("maxSize").apply { isAccessible = true }.get(this) as Number
+    private val BitmapPool.currentSizeCompat
+        get() = this::class.java.getDeclaredField("currentSize").apply { isAccessible = true }.get(this) as Number
 
-    private val MemoryCache.currentSizeCompat get() = MemoryCache::class.java.getDeclaredMethod("getCurrentSize").apply { isAccessible = true }.invoke(this) as Number
-    private val MemoryCache.maxSizeCompat get() = MemoryCache::class.java.getDeclaredMethod("getMaxSize").apply { isAccessible = true }.invoke(this) as Number
+    private val BitmapPool.maxSizeCompat
+        get() = this::class.java.getDeclaredField("maxSize").apply { isAccessible = true }.get(this) as Number
+
+    private val MemoryCache.currentSizeCompat
+        get() = MemoryCache::class.java.getDeclaredMethod("getCurrentSize").apply { isAccessible = true }.invoke(this) as Number
+
+    private val MemoryCache.maxSizeCompat
+        get() = MemoryCache::class.java.getDeclaredMethod("getMaxSize").apply { isAccessible = true }.invoke(this) as Number
 
     private val bitmapPool: BitmapPool by lazy { glide.bitmapPool }
     private val memoryCache by lazy { memoryCacheField.get(glide) as MemoryCache }
