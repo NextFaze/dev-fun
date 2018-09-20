@@ -71,7 +71,7 @@ class KotlinCore(
         processors: List<Processor>,
         kotlinFiles: List<File>,
         javaFiles: List<File>
-    ) {
+    ): List<String> {
         log.d {
             """
                 |
@@ -138,13 +138,15 @@ class KotlinCore(
             AnalysisHandlerExtension.unregisterExtension(env.project, kapt3Extension)
             messageCollector.throwOnWarnings()
         }
+
+        return messageCollector.warnings
     }
 
     fun runCompile(
         compileClasspath: List<File>,
         kotlinFiles: List<File>,
         javaFiles: List<File>
-    ) {
+    ): List<String> {
         log.d {
             """
                 |
@@ -187,6 +189,7 @@ class KotlinCore(
         val exitCode = compiler.exec(collector, Services.EMPTY, compilerArgs)
         collector.throwOnWarnings()
         assertTrue("Expected compiler exit code of ${ExitCode.OK}(${ExitCode.OK.code}) but got $exitCode(${exitCode.code})") { exitCode == ExitCode.OK }
+        return collector.warnings
     }
 
     fun logTestOutputs(
@@ -230,14 +233,15 @@ class KotlinCore(
 
 private class WarningsMessageCollector(
     verbose: Boolean,
-    private val throwOnWarnings: Boolean = true
+    private val collectWarnings: Boolean = true,
+    private val throwOnWarnings: Boolean = false
 ) : PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, verbose) {
-    private val warnings = mutableListOf<String>()
+    val warnings = mutableListOf<String>()
 
     override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
         super.report(severity, message, location)
 
-        if (throwOnWarnings && severity.isWarning) {
+        if ((collectWarnings || throwOnWarnings) && severity.isWarning) {
             warnings +=
                     if (location == null) {
                         "$severity\n> $message"

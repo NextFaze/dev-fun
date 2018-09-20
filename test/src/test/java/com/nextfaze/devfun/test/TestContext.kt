@@ -101,6 +101,9 @@ class TestContext(
         WrappingUrlClassLoader(classpath, Thread.currentThread().contextClassLoader, packageOverride ?: packageRoot)
     }
 
+    private var kaptWarnings: List<String> = emptyList()
+    private var compileWarnings: List<String> = emptyList()
+
     fun beforeRunTest() {
         log.d {
             """
@@ -119,7 +122,9 @@ class TestContext(
         }
     }
 
-    fun afterRunTest(successful: Boolean) {
+    fun afterRunTest(testsSuccessful: Boolean) {
+        val successful = testsSuccessful && kaptWarnings.isEmpty() && compileWarnings.isEmpty()
+
         if (keepSuccessfulTestOutputs || keepFailedTestOutputs) {
             kotlinCore.logTestOutputs(successful, toString().replace(", ", "\n> "), kotlinFiles, javaFiles)
         }
@@ -139,14 +144,21 @@ class TestContext(
                 testDir.deleteRecursively()
             }
         }
+
+        if (kaptWarnings.isNotEmpty()) {
+            throw RuntimeException(kaptWarnings.joinToString("\n\n"))
+        }
+        if (compileWarnings.isNotEmpty()) {
+            throw RuntimeException(compileWarnings.joinToString("\n\n"))
+        }
     }
 
     fun runKapt(compileClasspath: List<File>, processors: List<Processor>) {
-        kotlinCore.runKapt(compileClasspath, processors, kotlinFiles, javaFiles)
+        kaptWarnings = kotlinCore.runKapt(compileClasspath, processors, kotlinFiles, javaFiles)
     }
 
     fun runCompile(compileClasspath: List<File>) {
-        kotlinCore.runCompile(compileClasspath, kotlinFiles, javaFiles)
+        compileWarnings = kotlinCore.runCompile(compileClasspath, kotlinFiles, javaFiles)
     }
 
     fun writeGeneratedFile(path: String, contents: String) {
