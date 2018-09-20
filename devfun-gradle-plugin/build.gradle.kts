@@ -46,7 +46,7 @@ pluginBundle {
     tags = listOf("kotlin", "android", "developer", "kapt", "NextFaze", "tool", "debugging")
 
     (plugins) {
-        "devfun-gradle-plugin" {
+        create("devfun-gradle-plugin") {
             id = "com.nextfaze.devfun"
             displayName = "DevFun Gradle Plugin"
         }

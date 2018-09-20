@@ -10,7 +10,7 @@ import org.gradle.kotlin.dsl.*
 fun Project.sourcesJar(): Jar =
     task<Jar>("sourcesJar") {
         group = "publishing"
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
         classifier = "sources"
         from(mainSourceSet)
         addArtifact("archives", this, this)
@@ -18,12 +18,12 @@ fun Project.sourcesJar(): Jar =
 
 fun ConfigurationContainer.getOrCreate(name: String): Configuration = findByName(name) ?: create(name)
 
-fun <T> Project.addArtifact(configuration: Configuration, task: Task, artifactRef: T, body: ConfigurablePublishArtifact.() -> Unit = {}) {
+fun <T: Any> Project.addArtifact(configuration: Configuration, task: Task, artifactRef: T, body: ConfigurablePublishArtifact.() -> Unit = {}) {
     artifacts.add(configuration.name, artifactRef) {
         builtBy(task)
         body()
     }
 }
 
-fun <T> Project.addArtifact(configurationName: String, task: Task, artifactRef: T, body: ConfigurablePublishArtifact.() -> Unit = {}) =
+fun <T: Any> Project.addArtifact(configurationName: String, task: Task, artifactRef: T, body: ConfigurablePublishArtifact.() -> Unit = {}) =
     addArtifact(configurations.getOrCreate(configurationName), task, artifactRef, body)

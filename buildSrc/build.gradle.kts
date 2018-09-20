@@ -15,7 +15,6 @@ buildscript {
     dependencies {
         val buildSrcKotlinVersion: String by extra
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$buildSrcKotlinVersion")
-        classpath("org.jetbrains.kotlin:kotlin-sam-with-receiver:$buildSrcKotlinVersion")
     }
 }
 
@@ -25,12 +24,10 @@ println("buildSrc stdlib version: ${KotlinVersion.CURRENT}")
 
 apply {
     plugin("kotlin")
-    plugin("kotlin-sam-with-receiver")
 }
 
 plugins {
     `kotlin-dsl`
-    `java-gradle-plugin`
 }
 
 repositories {
@@ -61,9 +58,3 @@ dependencies {
     // Bintray
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
 }
-
-samWithReceiver {
-    annotation("org.gradle.api.HasImplicitReceiver")
-}
-
-fun Project.samWithReceiver(configure: SamWithReceiverExtension.() -> Unit): Unit = extensions.configure("samWithReceiver", configure)

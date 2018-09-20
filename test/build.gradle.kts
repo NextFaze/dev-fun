@@ -52,7 +52,6 @@ dependencies {
     // Kotlin
     testImplementation("org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:${Dependency.kotlinVersion}")
     testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:${Dependency.kotlinVersion}")
-    testImplementation("org.jetbrains.kotlin:kotlin-compiler:${Dependency.kotlinVersion}:sources") // because sources aren't auto-linking
     testImplementation("org.jetbrains.kotlin:kotlin-test:${Dependency.kotlinVersion}")
     testImplementation("org.jetbrains.kotlin:kotlin-reflect:${Dependency.kotlinVersion}")
 

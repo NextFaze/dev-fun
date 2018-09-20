@@ -59,8 +59,7 @@ project.afterEvaluate {
 
         mainDokkaTask.sourceDirs +=
                 when (libDokkaTask) {
-                    is DokkaAndroidTask -> libDokkaTask.project.android.sourceSets["main"].java.srcDirs
-                    is DokkaTask -> libDokkaTask.project.java.sourceSets["main"].allSource
+                    is DokkaTask -> libDokkaTask.project.mainSourceSet
                     else -> throw RuntimeException("Unexpected type ${libDokkaTask::class} for libDokkaTask $libDokkaTask")
                 }
 
