@@ -13,8 +13,8 @@ import javax.lang.model.type.*
 import javax.lang.model.util.Elements
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
+import kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap
 import kotlin.reflect.jvm.internal.impl.name.FqName
-import kotlin.reflect.jvm.internal.impl.platform.JavaToKotlinClassMap
 import kotlin.reflect.jvm.internal.impl.resolve.jvm.JvmPrimitiveType
 
 internal inline val Element.isPublic get() = modifiers.contains(Modifier.PUBLIC)

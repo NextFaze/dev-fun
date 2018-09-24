@@ -31,12 +31,12 @@ import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.config.Services
-import org.jetbrains.kotlin.descriptors.PackagePartProvider
 import org.jetbrains.kotlin.diagnostics.PsiDiagnosticUtils
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.kapt3.base.KaptPaths
+import org.jetbrains.kotlin.load.kotlin.PackagePartProvider
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -95,10 +95,10 @@ class KotlinCore(
             put(CommonConfigurationKeys.MODULE_NAME, moduleName)
             addJvmClasspathRoots(PathUtil.getJdkClassesRootsFromCurrentJre())
             addJvmClasspathRoots(compileClasspath)
+            put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
             if (javaFiles.isNotEmpty()) {
                 put(JVMConfigurationKeys.USE_JAVAC, true)
                 put(JVMConfigurationKeys.COMPILE_JAVA, true)
-                put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
             }
         }
         val env = KotlinCoreEnvironment.createForTests(createDisposable(testDir.name) {}, config, EnvironmentConfigFiles.JVM_CONFIG_FILES)
