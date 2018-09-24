@@ -6,13 +6,9 @@ import com.nextfaze.devfun.compiler.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionContainer
-import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.kotlin.gradle.internal.KaptVariantData
-import org.jetbrains.kotlin.gradle.plugin.KaptExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin
-import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
-import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
+import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
@@ -87,10 +83,10 @@ class DevFunKotlinGradlePlugin : KotlinGradleSubplugin<AbstractCompile> {
     override fun apply(
         project: Project,
         kotlinCompile: AbstractCompile,
-        javaCompile: AbstractCompile,
+        javaCompile: AbstractCompile?,
         variantData: Any?,
         androidProjectHandler: Any?,
-        javaSourceSet: SourceSet?
+        kotlinCompilation: KotlinCompilation?
     ): List<SubpluginOption> {
         //
         // TODO? Currently the kotlinExt value is not invoked for the first variant for some reason (which is typically the debug variant)
