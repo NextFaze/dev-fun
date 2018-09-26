@@ -15,7 +15,6 @@ import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap
 import kotlin.reflect.jvm.internal.impl.name.FqName
-import kotlin.reflect.jvm.internal.impl.resolve.jvm.JvmPrimitiveType
 
 internal inline val Element.isPublic get() = modifiers.contains(Modifier.PUBLIC)
 internal inline val Element.isStatic get() = modifiers.contains(Modifier.STATIC)
@@ -66,8 +65,6 @@ internal operator fun <K : KClass<*>> AnnotationMirror.get(
 internal fun Name.stripInternal() = toString().substringBefore("\$")
 internal fun CharSequence.escapeDollar() = toString().replace("\$", "\\\$")
 
-private fun PrimitiveType.toKType() = JvmPrimitiveType.get(toString()).primitiveType
-
 val TypeMirror.isPublic: Boolean
     get() = when (this) {
         is PrimitiveType -> true
@@ -108,7 +105,7 @@ internal fun TypeMirror.toKClassBlock(
                 is PrimitiveType -> asTypeName()
                 is DeclaredType -> toClassName()
                 is ArrayType -> when {
-                    componentType.isPrimitive -> ClassName.bestGuess((componentType as PrimitiveType).toKType().arrayTypeName.asString())
+                    componentType.isPrimitive -> (componentType as PrimitiveType).arrayTypeName
                     else -> TypeNames.array.parameterizedBy(componentType.toType())
                 }
                 else -> throw NotImplementedError("TypeMirror.toTypeName not implemented for this=$this (${this::class})")
@@ -154,7 +151,7 @@ private val TypeMirror.isPrimitiveObject
 internal fun TypeMirror.toTypeName(subtypeArrayVariance: Boolean = false): TypeName = when (this) {
     is PrimitiveType -> asTypeName()
     is ArrayType -> when {
-        componentType.isPrimitive -> ClassName.bestGuess((componentType as PrimitiveType).toKType().arrayTypeName.asString())
+        componentType.isPrimitive -> (componentType as PrimitiveType).arrayTypeName
         // We need this when getting the typeName for use as a property return type as we can't actually know the
         // variance because we see it as Java "ArrayType[]", not Kotlin "Array<VARIANCE Type>".
         // Thus by using "out" in the property's return type, it will always be accepted (though could technically be wrong under certain circumstances)
