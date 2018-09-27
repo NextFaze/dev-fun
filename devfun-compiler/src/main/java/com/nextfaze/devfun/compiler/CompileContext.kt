@@ -155,7 +155,7 @@ internal class CompileContext @Inject constructor(
                 buildType = buildTypeRegex.find(text)?.groupValues?.getOrNull(1) ?: "",
                 flavor = flavorRegex.find(text)?.groupValues?.getOrNull(1) ?: ""
             )
-        }
+        }.toSet()
 
         buildConfigs.singleOrNull {
             it.variantDir.equals(buildVariant, true) || it.variantDir.replace(File.separator, "").equals(buildVariant, true)
