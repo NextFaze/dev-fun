@@ -370,22 +370,26 @@ annotation class DeveloperFunction(
 annotation class DeveloperReference
 
 /**
- * Annotation used to by DevFun to "tag" references to some other annotations.
+ * Annotation used to by DevFun to "tag" references to other DevFun/developer -related annotations.
  *
- * By default usages of the annotated annotations result in generated [ReferenceDefinition] instances.
+ * By default usages of the annotated annotations result in generating [ReferenceDefinition] instances.
  *
  * However, if [developerFunction] is set to `true` then the compiler will treat it as if it was an @[DeveloperFunction] annotation.
  * In this state the compiler will check for the same fields of `@DeveloperFunction`.
  *
  * If you have different defaults defined compared to [DeveloperFunction] then these values will be written as if you had used
- * `@DeveloperFunction(field = value)` at the declaration site - this behaviour is somewhat experimental. Please report any issues you have.
+ * `@DeveloperFunction(field = value)` at the declaration site - this behaviour is somewhat experimental. Please report any issues you encounter.
  *
  * An example of this can be seen with @[DeveloperProperty].
  *
  * # Custom Properties
- * If your annotation declares custom properties, these will be serialized and available at run-time during function transformation.
+ * If your annotation declares custom properties, these will be "serialized" and available at run-time during function transformation.
+ * DevFun will generate a "Properties" interface for the annotation as `MyAnnotationProperties` in the same package (e.g. [DeveloperLoggerProperties]
  *
- * Function definitions will implement [ReferenceDefinition] with the properties available as a map via [ReferenceDefinition.propertyMap].
+ * Function definitions will implement [ReferenceDefinition] and [WithProperties]. Use convenience extension methods [withProperties] or
+ * [getProperties] to get an instance of an object the declares your custom properties.
+ *
+ * Example of this can be seen with [DeveloperProperty]/[DeveloperPropertyProperties] and [DeveloperLogger]/[DeveloperLoggerProperties].
  *
  * ## Contextual Vars
  * _(experimental)_ At compile time the follow vars are available for use in `String` properties:
@@ -405,10 +409,10 @@ annotation class DeveloperReference
  * ```
  *
  * @param developerFunction Set to `true` to have the compiler treat the annotation as a @[DeveloperFunction]. _(experimental)_
+ * @param developerCategory Set to `true` to have the compiler treat the annotation as a @[DeveloperCategory]. _(experimental)_
+ * @param developerReference Set to `true` to have the compiler treat the annotation as a @[DeveloperReference]. _(experimental)_
  *
  * @see Dagger2Component
- * @see DeveloperProperty
- * @see DeveloperLogger
  * @see DeveloperArguments
  */
 @Retention(BINARY)

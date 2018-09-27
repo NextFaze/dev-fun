@@ -141,6 +141,13 @@ annotation class DeveloperArguments(
     val transformer: KClass<out FunctionTransformer> = ArgumentsTransformer::class
 )
 
+/**
+ * Nested annotation for declaring the arguments of a function invocation.
+ *
+ * @param value The arguments of the invocation. At present only primitive types are supported (`.toType()` will be used on the entry).
+ *
+ * @see DeveloperArguments
+ */
 annotation class Args(
     val value: Array<String>
 )
