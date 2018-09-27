@@ -5,26 +5,20 @@ import com.nextfaze.devfun.compiler.isClassPublic
 import com.nextfaze.devfun.compiler.toKClassBlock
 import com.nextfaze.devfun.compiler.toTypeName
 import com.squareup.kotlinpoet.CodeBlock
+import kotlinx.metadata.ClassName
+import kotlinx.metadata.Flag
+import kotlinx.metadata.Flags
+import kotlinx.metadata.KmClassVisitor
+import kotlinx.metadata.jvm.KotlinClassHeader
+import kotlinx.metadata.jvm.KotlinClassMetadata
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.lang.model.element.AnnotationValue
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
-import kotlin.reflect.jvm.internal.impl.descriptors.SourceElement
-import kotlin.reflect.jvm.internal.impl.load.java.JvmAnnotationNames
-import kotlin.reflect.jvm.internal.impl.load.kotlin.header.KotlinClassHeader
-import kotlin.reflect.jvm.internal.impl.load.kotlin.header.ReadKotlinClassHeaderAnnotationVisitor
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf
-import kotlin.reflect.jvm.internal.impl.metadata.deserialization.Flags.CLASS_KIND
-import kotlin.reflect.jvm.internal.impl.metadata.jvm.deserialization.JvmProtoBufUtil
-import kotlin.reflect.jvm.internal.impl.name.ClassId
 
 @Singleton
 internal class KElements @Inject constructor(
@@ -55,69 +49,48 @@ internal class KElements @Inject constructor(
         val typeBlock: CodeBlock by lazy { CodeBlock.of("%T", typeName) }
         val klassBlock: CodeBlock by lazy { type.toKClassBlock(elements = elements) }
 
-        val isKtFile by lazy {
-            isClass && metaDataAnnotation?.get<Int>("k")?.let { KotlinClassHeader.Kind.getById(it) } == KotlinClassHeader.Kind.FILE_FACADE
-        }
+        val isKtFile by lazy { isClass && metaDataAnnotation?.get<Int>("k") == KotlinClassHeader.FILE_FACADE_KIND }
 
         private val header: KotlinClassHeader? by lazy {
             val annotation = metaDataAnnotation ?: return@lazy null
+            KotlinClassHeader(
+                kind = annotation["k"],
+                metadataVersion = annotation["mv"],
+                bytecodeVersion = annotation["bv"],
+                data1 = annotation["d1"],
+                data2 = annotation["d2"],
+                extraString = annotation["xs"],
+                packageName = annotation["pn"],
+                extraInt = annotation["xi"]
+            )
+        }
 
-            val headerVisitor = ReadKotlinClassHeaderAnnotationVisitor()
-            val visitor = headerVisitor.visitAnnotation(
-                ClassId.topLevel(JvmAnnotationNames.METADATA_FQ_NAME),
-                SourceElement.NO_SOURCE
-            )!!
+        private val metadata by lazy { header?.let { KotlinClassMetadata.read(it) } }
 
-            annotation.elementValues.forEach { (executableElement, annotationValue) ->
-                val value = annotationValue.value
-                val valueType = executableElement.returnType
-                val name = kotlin.reflect.jvm.internal.impl.name.Name.identifier(executableElement.simpleName.toString())
-                when (valueType) {
-                    is PrimitiveType -> visitor.visit(name, value)
-                    is ArrayType -> {
-                        @Suppress("UNCHECKED_CAST")
-                        value as List<AnnotationValue>
-                        when (valueType.componentType) {
-                            is PrimitiveType -> visitor.visit(name, value.map { it.value as Int }.toTypedArray().toIntArray())
-                            is DeclaredType -> visitor.visitArray(name)!!.apply {
-                                value.forEach { visit(it.value as String) }
-                                visitEnd()
-                            }
-                            else -> throw RuntimeException("executableElement=${executableElement.simpleName}, v=$value, (${value::class})")
-                        }
+        val isKObject by lazy {
+            var flag = false
+            val metadata = metadata
+            if (isClass && !isKtFile && metadata is KotlinClassMetadata.Class) {
+                metadata.accept(object : KmClassVisitor() {
+                    override fun visit(flags: Flags, name: ClassName) {
+                        flag = Flag.Class.IS_OBJECT(flags)
                     }
-                    else -> throw RuntimeException("Unexpected type: ${executableElement.returnType} (${executableElement.returnType::class}")
-                }
-                visitor.visitEnd()
+                })
             }
-
-            headerVisitor.createHeader()!!
+            return@lazy flag
         }
 
-        private val classData by lazy {
-            header?.let { JvmProtoBufUtil.readClassDataFrom(it.data!!, it.strings!!) }
-        }
-
-        private val protoBufClass by lazy { classData?.second }
-
-        private val kind: ProtoBuf.Class.Kind by lazy {
-            when (element.kind) {
-                ElementKind.ENUM -> ProtoBuf.Class.Kind.ENUM_CLASS
-                ElementKind.ENUM_CONSTANT -> ProtoBuf.Class.Kind.ENUM_ENTRY
-                ElementKind.ANNOTATION_TYPE -> ProtoBuf.Class.Kind.ANNOTATION_CLASS
-                ElementKind.INTERFACE -> ProtoBuf.Class.Kind.INTERFACE
-                ElementKind.CLASS -> {
-                    if (protoBufClass != null) {
-                        CLASS_KIND.get(protoBufClass!!.flags)!!
-                    } else {
-                        ProtoBuf.Class.Kind.CLASS
+        val isCompanionObject by lazy {
+            var flag = false
+            val metadata = metadata
+            if (isClass && !isKtFile && metadata is KotlinClassMetadata.Class) {
+                metadata.accept(object : KmClassVisitor() {
+                    override fun visit(flags: Flags, name: ClassName) {
+                        flag = Flag.Class.IS_COMPANION_OBJECT(flags)
                     }
-                }
-                else -> throw RuntimeException("Unexpected element kind ${element.kind} for $element")
+                })
             }
+            return@lazy flag
         }
-
-        val isKObject by lazy { isClass && !isKtFile && kind == ProtoBuf.Class.Kind.OBJECT }
-        val isCompanionObject by lazy { isClass && !isKtFile && kind == ProtoBuf.Class.Kind.COMPANION_OBJECT }
     }
 }

@@ -8,6 +8,8 @@ import javax.lang.model.type.TypeKind
 import kotlin.reflect.jvm.internal.impl.name.ClassId
 import kotlin.reflect.jvm.internal.impl.name.FqName
 
+// TODO use KotlinClassMetadata etc. to get the *real* type - at the moment these conversions will technically be wrong if the code uses Java types
+
 private val primitiveTypeArrays by lazy {
     mapOf(
         TypeKind.BOOLEAN to ClassName("kotlin", "BooleanArray"),

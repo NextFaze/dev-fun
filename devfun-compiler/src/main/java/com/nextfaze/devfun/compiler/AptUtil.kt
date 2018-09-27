@@ -45,8 +45,18 @@ internal inline val TypeElement.isClassPublic: Boolean
 internal inline operator fun <reified T : Any> AnnotationMirror.get(callable: KCallable<T>) =
     elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as T?
 
-internal inline operator fun <reified T : Any> AnnotationMirror.get(name: String) =
-    elementValues.filter { it.key.simpleName.toString() == name }.values.singleOrNull()?.value as T?
+internal inline operator fun <reified T : Any> AnnotationMirror.get(name: String): T? {
+    val v = elementValues.filter { it.key.simpleName.toString() == name }.values.singleOrNull()?.value
+    return if (v is List<*>) {
+        when {
+            T::class == IntArray::class -> v.map { (it as AnnotationValue).value as Int }.toTypedArray().toIntArray() as T
+            T::class == Array<String>::class -> v.map { (it as AnnotationValue).value as String }.toTypedArray() as T
+            else -> throw NotImplementedError("$this.get($name) for ${T::class} not implemented.")
+        }
+    } else {
+        v as T?
+    }
+}
 
 internal inline operator fun <reified T : Annotation> AnnotationMirror.get(callable: KCallable<T>) =
     elementValues.filter { it.key.simpleName.toString() == callable.name }.values.singleOrNull()?.value as AnnotationMirror?

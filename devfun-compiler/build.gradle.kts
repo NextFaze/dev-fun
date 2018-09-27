@@ -18,6 +18,7 @@ dependencies {
     // Kotlin
     compile(Dependency.kotlinStdLib)
     compile(Dependency.kotlinReflect)
+    compile("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.0.4")
 
     // Kotlin Poet
 //    compile("com.squareup:kotlinpoet:1.0.0-RC1")

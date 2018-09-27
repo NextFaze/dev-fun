@@ -43,6 +43,7 @@ allprojects {
         maven { setUrl("https://dl.bintray.com/kotlin/kotlin-dev") }
         jcenter()
         google()
+        maven { setUrl("https://kotlin.bintray.com/kotlinx/") }
         maven { setUrl("https://jitpack.io") }
     }
 
