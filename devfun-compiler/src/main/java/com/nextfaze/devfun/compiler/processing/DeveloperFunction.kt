@@ -273,20 +273,22 @@ internal class DeveloperFunctionHandler @Inject constructor(
             ).build()
         )
 
-        // Generate any properties
-        val properties = implementationGenerator.processAnnotatedElement(annotatedElement, env)
-        if (properties != null) {
-            val (typeName, impl) = properties
-            def.addSuperinterface(ReferenceDefinition::class)
-                .addProperty(
-                    ReferenceDefinition::annotation.let {
-                        it.toPropertySpec( // The meta annotation class (e.g. Dagger2Component)
-                            initBlock = annotatedElement.annotationElement.type.toKClassBlock(castIfNotPublic = it.returnType.asTypeName())
-                        ).build()
-                    }
-                )
-                .addSuperinterface(WithProperties::class.asTypeName().parameterizedBy(typeName))
-                .addProperty(WithProperties<Any>::properties.toPropertySpec(returns = typeName, init = impl).build())
+        // Generate any properties - but not if it's a @DeveloperFunction as we map those to FunctionDefinition elements directly
+        if (annotatedElement.annotationElement.toString() != "com.nextfaze.devfun.annotations.DeveloperFunction") {
+            val properties = implementationGenerator.processAnnotatedElement(annotatedElement, env)
+            if (properties != null) {
+                val (typeName, impl) = properties
+                def.addSuperinterface(ReferenceDefinition::class)
+                    .addProperty(
+                        ReferenceDefinition::annotation.let {
+                            it.toPropertySpec( // The meta annotation class (e.g. Dagger2Component)
+                                initBlock = annotatedElement.annotationElement.type.toKClassBlock(castIfNotPublic = it.returnType.asTypeName())
+                            ).build()
+                        }
+                    )
+                    .addSuperinterface(WithProperties::class.asTypeName().parameterizedBy(typeName))
+                    .addProperty(WithProperties<Any>::properties.toPropertySpec(returns = typeName, init = impl).build())
+            }
         }
 
         // Generate definition
