@@ -3,10 +3,10 @@ package com.nextfaze.devfun.inject.dagger2
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
-import android.app.Fragment
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.*
