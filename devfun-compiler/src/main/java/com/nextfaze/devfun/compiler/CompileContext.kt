@@ -118,7 +118,7 @@ internal class CompileContext @Inject constructor(
     private val resourcePathMatch by lazy {
         servicesPathRegex.matchEntire(servicesPath) ?: run {
             log.error { "Failed to match resources path from $servicesPath" }
-            throw BuildContextException("Failed to locate active BuildConfig.java")
+            throwBuildConfigException("Failed to locate active BuildConfig.java")
         }
     }
 
@@ -126,7 +126,7 @@ internal class CompileContext @Inject constructor(
         File(resourcePathMatch.groupValues[1]).also {
             if (!it.exists()) {
                 log.error { "buildDir $it does not exist!" }
-                throw BuildContextException("Failed to locate active BuildConfig.java - buildDir $it does not exist!")
+                throwBuildConfigException("Failed to locate active BuildConfig.java - buildDir $it does not exist!")
             }
         }
     }
@@ -136,7 +136,7 @@ internal class CompileContext @Inject constructor(
         val buildConfigsDir = File(buildDir, "generated/source/buildConfig/")
         if (!buildConfigsDir.exists()) {
             log.error { "Build configs directory does not exist at $buildConfigsDir (buildDir=$buildDir, servicesPath=$servicesPath)" }
-            throw BuildContextException("Failed to locate active BuildConfig.java")
+            throwBuildConfigException("Failed to locate active BuildConfig.java")
         }
 
         val buildConfigFiles = buildConfigsDir
@@ -144,7 +144,7 @@ internal class CompileContext @Inject constructor(
             .filter { !it.canonicalPath.contains("androidTest") }
         if (buildConfigFiles.isEmpty()) {
             log.error { "Failed to find any BuildConfig.java files int buildConfig directory $buildConfigsDir (buildDir=$buildDir, servicesPath=$servicesPath)" }
-            throw BuildContextException("Failed to locate active BuildConfig.java")
+            throwBuildConfigException("Failed to locate active BuildConfig.java")
         }
 
         val buildConfigs = buildConfigFiles.map {
@@ -161,9 +161,32 @@ internal class CompileContext @Inject constructor(
             it.variantDir.equals(buildVariant, true) || it.variantDir.replace(File.separator, "").equals(buildVariant, true)
         } ?: run failedToMatch@{
             log.error { "Failed to match single build variant '$buildVariant' to any buildConfigs: $buildConfigs" }
-            throw BuildContextException("Failed to locate active BuildConfig.java")
+            throwBuildConfigException("Failed to locate active BuildConfig.java")
         }
     }
+
+    private fun throwBuildConfigException(reason: String): Nothing =
+        throw BuildContextException(
+            """$reason
+
+If your project uses an unusual setup you can specify the output package manually via:
+
+Gradle Plugin:
+devFun {
+    packageOverride = "my.app.devfun.generated"
+}
+
+-- or --
+
+APT Args:
+android.defaultConfig.javaCompileOptions.annotationProcessorOptions {
+    argument("devfun.package.override", "my.app.devfun.generated")
+}
+
+For more options see: https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.compiler/#properties
+Submitting an issue would also be appreciated!
+"""
+        )
 
     private val packageRoot get() = options.packageRoot
     private val packageSuffix get() = options.packageSuffix
