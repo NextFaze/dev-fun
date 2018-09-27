@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.inject
 
-import android.support.annotation.RestrictTo
+import androidx.annotation.RestrictTo
 import com.nextfaze.devfun.internal.log.*
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.inject
 
-import android.support.annotation.RestrictTo
+import androidx.annotation.RestrictTo
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.core.Composite

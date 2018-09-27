@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.demo
 
 import android.content.Context
-import android.support.multidex.MultiDex
+import androidx.multidex.MultiDex
 import com.nextfaze.devfun.demo.inject.DaggerApplication
 
 class DemoApplication : DaggerApplication() {

@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.demo.inject
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 
 abstract class DaggerFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {

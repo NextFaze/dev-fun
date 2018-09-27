@@ -87,7 +87,7 @@ private abstract class KNullablePreferenceImpl<TValue : Any>(
 private class KStringPref(preferences: SharedPreferences, key: String, default: String) :
     KPreferenceImpl<String>(preferences, key, default) {
     override var value: String
-        get() = preferences.getString(key, default)
+        get() = preferences.getString(key, default)!!
         set(value) = preferences.edit().putString(key, value).apply()
 }
 
@@ -152,7 +152,7 @@ private class KEnumPref<E : Enum<E>>(preferences: SharedPreferences, key: String
     private val enumClass = default::class as KClass<E>
 
     override var value: E
-        get() = enumClass.enumValueOf(preferences.getString(key, default.name)) ?: default
+        get() = enumClass.enumValueOf(preferences.getString(key, default.name)!!) ?: default
         set(value) {
             val before = if (onChange != null) this.value else null
             preferences.edit().putString(key, value.name).apply()

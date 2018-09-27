@@ -129,7 +129,7 @@ internal class DefinitionsProcessor(private val devFun: DevFun) {
         get() = resolvedCategoryClasses[clazz]
                 ?: try {
                     when {
-                        clazz.java.enclosingClass != null && clazz.isCompanion -> clazz.java.enclosingClass.kotlin
+                        clazz.java.enclosingClass != null && clazz.isCompanion -> clazz.java.enclosingClass!!.kotlin
                         else -> clazz
                     }
                 } catch (ignore: UnsupportedOperationException) {

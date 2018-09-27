@@ -10,8 +10,8 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.RestrictTo
-import android.support.v7.app.AlertDialog
+import androidx.annotation.RestrictTo
+import androidx.appcompat.app.AlertDialog
 import com.nextfaze.devfun.annotations.*
 import com.nextfaze.devfun.core.loader.DefinitionsLoader
 import com.nextfaze.devfun.core.loader.ModuleLoader
@@ -55,7 +55,7 @@ class DevFunInitializerProvider : ContentProvider() {
         _devFun = DevFun()
 
         // Post to next loop; initialize after Application.onCreate so logging frameworks etc. are ready
-        Handler(Looper.getMainLooper()).postAtFrontOfQueue { _devFun?.initialize(context) }
+        Handler(Looper.getMainLooper()).postAtFrontOfQueue { _devFun?.initialize(context!!) }
         return true
     }
 

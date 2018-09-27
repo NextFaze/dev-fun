@@ -1,13 +1,13 @@
 package com.nextfaze.devfun.demo.kotlin
 
 import android.graphics.Typeface
-import android.support.annotation.ColorInt
 import android.text.ParcelableSpan
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import androidx.annotation.ColorInt
 
 typealias Span = Pair<CharSequence, List<ParcelableSpan>>
 

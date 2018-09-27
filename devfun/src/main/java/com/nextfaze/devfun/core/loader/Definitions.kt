@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.core.loader
 
 import android.content.Context
-import android.support.annotation.Keep
+import androidx.annotation.Keep
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*

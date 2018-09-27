@@ -5,7 +5,7 @@ plugins {
     id("com.nextfaze.devfun")
 }
 
-description = """Adds an instance provider (and/or user helper functions) to reflectively locate instances from Dagger 2.x Compoenents.
+description = """Adds an instance provider (and/or user helper functions) to reflectively locate instances from Dagger 2.x Components.
     |
     |Should only be used if you are using Dagger 2.x. Should be on your debug configuration 'debugImplementation'.""".trimMargin()
 

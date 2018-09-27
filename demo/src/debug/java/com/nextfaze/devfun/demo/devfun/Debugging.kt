@@ -6,9 +6,9 @@ import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
 import android.os.Process
-import android.support.annotation.RequiresApi
-import android.support.v7.app.AlertDialog
 import android.util.DisplayMetrics
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import com.nextfaze.devfun.annotations.DeveloperFunction
 
 object Debugging {

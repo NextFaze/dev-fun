@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.internal.exception
 
-import android.support.annotation.Keep
+import androidx.annotation.Keep
 import com.nextfaze.devfun.core.*
 import java.lang.reflect.Method
 

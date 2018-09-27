@@ -2,9 +2,9 @@ package com.nextfaze.devfun.core
 
 import android.app.Activity
 import android.os.Build
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
 import android.text.SpannableStringBuilder
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.nextfaze.devfun.annotations.ArgumentsTransformer
 import com.nextfaze.devfun.annotations.DeveloperArgumentsProperties
 import com.nextfaze.devfun.annotations.DeveloperCategory
@@ -91,7 +91,7 @@ internal class ContextTransformer(
         if (functionDefinition.clazz.isSubclassOf<Fragment>()) {
             val activity = activityProvider() ?: return emptyList()
             return if (activity is FragmentActivity) {
-                if (activity.supportFragmentManager.fragments.orEmpty().any {
+                if (activity.supportFragmentManager.fragments.any {
                         // not sure how/why, but under some circumstances some of them are null
                         it != null && it.isAdded && functionDefinition.clazz.java.isAssignableFrom(it::class.java)
                     }) {

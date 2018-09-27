@@ -11,16 +11,16 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.support.annotation.RequiresApi
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.FragmentActivity
-import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
@@ -223,7 +223,7 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
 
     var deniedCallback: ((neverAskAgain: Boolean) -> Unit)? = null
 
-    private val permissions by lazy { PermissionState.valueOf(arguments!!.getString(PERMISSIONS)) }
+    private val permissions by lazy { PermissionState.valueOf(arguments!!.getString(PERMISSIONS)!!) }
     private val reason by lazy { arguments!!.getCharSequence(REASON) }
 
     override fun onCreate(savedInstanceState: Bundle?) {

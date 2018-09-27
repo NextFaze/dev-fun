@@ -2,10 +2,11 @@ package com.nextfaze.devfun.test
 
 import android.os.Build
 import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.compiler.FLAG_DEBUG_VERBOSE
+import com.nextfaze.devfun.compiler.PACKAGE_ROOT
+import com.nextfaze.devfun.compiler.PACKAGE_SUFFIX
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.internal.android.*
-import com.nextfaze.devfun.internal.log.*
 import org.jetbrains.kotlin.utils.PathUtil
 import org.testng.ITestResult
 import org.testng.annotations.AfterMethod
@@ -53,10 +54,9 @@ fun devFunKaptOptions(
     }
 
 abstract class AbstractKotlinKapt3Tester {
-    private val log = logger()
-
     protected val processors: List<Processor>
-        get() = listOf<Processor>(DevFunProcessor(), DevAnnotationProcessor())
+        get() = listOf("com.nextfaze.devfun.compiler.DevFunProcessor", "com.nextfaze.devfun.compiler.DevAnnotationProcessor")
+            .map { Class.forName(it).newInstance() as Processor }
 
     private val kotlinStdLib = PathUtil.getResourcePathForClass(AnnotationRetention::class.java)
     private val kotlinReflectLib = PathUtil.getResourcePathForClass(NoSuchPropertyException::class.java)

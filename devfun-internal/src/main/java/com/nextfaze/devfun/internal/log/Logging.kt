@@ -2,8 +2,8 @@
 
 package com.nextfaze.devfun.internal.log
 
-import android.support.annotation.Keep
-import android.support.annotation.RestrictTo
+import androidx.annotation.Keep
+import androidx.annotation.RestrictTo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

@@ -1,14 +1,13 @@
 package com.nextfaze.devfun.inject
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-import android.support.v4.app.FragmentManager
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.internal.android.*
 import java.util.ArrayDeque
@@ -78,9 +77,6 @@ private val peekChildFragmentManagerMethod =
 private val Fragment.hasChildFragmentManager get() = peekChildFragmentManagerMethod.invoke(this) != null
 
 private fun FragmentManager.iterateChildren(): Iterator<Fragment?> {
-    @SuppressLint("RestrictedApi")
-    val fragments = this.fragments ?: return EmptyIterator()
-
     class FragmentManagerIterator : Iterator<Fragment?> {
         private val iterators = ArrayDeque<Iterator<Fragment?>>().apply { push(fragments.iterator()) }
 
@@ -106,11 +102,6 @@ private fun FragmentManager.iterateChildren(): Iterator<Fragment?> {
     }
 
     return FragmentManagerIterator()
-}
-
-private class EmptyIterator<out E> : Iterator<E> {
-    override fun hasNext() = false
-    override fun next() = throw NoSuchElementException()
 }
 
 //

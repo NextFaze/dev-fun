@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.inject
 
-import android.support.annotation.RestrictTo
+import androidx.annotation.RestrictTo
 import kotlin.reflect.KClass
 
 /**
@@ -23,9 +23,9 @@ class KObjectInstanceProvider : InstanceProvider {
             clazz.objectInstance?.let { return it }
         } catch (t: IllegalAccessException) {
             if (clazz.isCompanion) { // the companion object is "public" but the outer class is private
-                val outerClass = clazz.java.declaringClass
+                val outerClass = clazz.java.declaringClass!!
                 try {
-                    outerClass.getDeclaredField(clazz.simpleName).apply { isAccessible = true }.get(null) as T
+                    outerClass.getDeclaredField(clazz.simpleName!!).apply { isAccessible = true }.get(null) as T
                 } catch (t: NoSuchFieldException) {
                     throw RuntimeException(
                         "Failed to get companion class $clazz instance field from outer class $outerClass - please report this!",

@@ -6,15 +6,15 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Parcelable
-import android.support.constraint.ConstraintLayout
-import android.support.constraint.ConstraintSet
-import android.support.v4.app.FragmentActivity
 import android.util.AttributeSet
 import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.fragment.app.FragmentActivity
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.internal.android.*
@@ -55,7 +55,7 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        errors = arguments!!.getParcelableArrayList<RenderedError>(ERRORS).apply { sortBy { it.nanoTime } }
+        errors = arguments!!.getParcelableArrayList<RenderedError>(ERRORS)!!.apply { sortBy { it.nanoTime } }
         currentErrorIdx = errors.indexOfFirst { !it.seen }.takeIf { it >= 0 } ?: errors.size - 1
         setStyle(STYLE_NO_TITLE, 0)
     }

@@ -6,10 +6,10 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 
 object Android {
-    const val compileSdkVersion = 27
+    const val compileSdkVersion = 28
 
     const val minSdkVersion = 15
-    const val targetSdkVersion = 27
+    const val targetSdkVersion = 28
     const val versionCode = 1
 }
 

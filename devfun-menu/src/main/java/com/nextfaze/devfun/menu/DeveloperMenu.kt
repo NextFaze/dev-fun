@@ -2,9 +2,9 @@ package com.nextfaze.devfun.menu
 
 import android.app.Activity
 import android.content.Context
-import android.support.v4.app.FragmentActivity
-import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.FragmentActivity
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.DeveloperAnnotation
 import com.nextfaze.devfun.annotations.DeveloperFunction

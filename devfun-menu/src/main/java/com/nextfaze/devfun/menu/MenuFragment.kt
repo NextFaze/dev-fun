@@ -6,17 +6,16 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper.getMainLooper
-import android.support.annotation.DrawableRes
-import android.support.v4.app.FragmentActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.LinearLayoutManager.VERTICAL
-import android.support.v7.widget.RecyclerView
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.LayoutInflater.from
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.DrawableRes
+import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.internal.WithSubGroup
@@ -81,7 +80,7 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
         // categories
         categoriesRecyclerView.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(activity, VERTICAL, false)
+            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
             class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
             adapter = object : RecyclerView.Adapter<ViewHolder>() {
@@ -110,7 +109,7 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
 
         categoryItemsRecyclerView.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(activity, VERTICAL, false)
+            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
             class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
             adapter = object : RecyclerView.Adapter<ViewHolder>() {
@@ -163,7 +162,7 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
         } catch (t: Throwable) {
             devFun.get<ErrorHandler>().onError(t, "Category Generation", "Failed to generate category '${category.name}' items.")
             categoryItems = listOf(FunctionListItem(ExceptionFunctionItem(t.toString())))
-            categoryItemsRecyclerView.adapter.notifyDataSetChanged()
+            categoryItemsRecyclerView.adapter!!.notifyDataSetChanged()
         }
     }
 
@@ -173,9 +172,9 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
         val prevSelected = selectedCategoryIdx
         selectedCategoryIdx = index
 
-        categoriesRecyclerView.adapter.notifyItemChanged(index)
+        categoriesRecyclerView.adapter!!.notifyItemChanged(index)
         if (prevSelected >= 0) {
-            categoriesRecyclerView.adapter.notifyItemChanged(prevSelected)
+            categoriesRecyclerView.adapter!!.notifyItemChanged(prevSelected)
         }
 
         categoryItems = run generateCategoryItems@{
@@ -209,7 +208,7 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
                 }
             }
         }
-        categoryItemsRecyclerView.adapter.notifyDataSetChanged()
+        categoryItemsRecyclerView.adapter!!.notifyDataSetChanged()
     }
 
     private fun onCategoryItemClick(functionItem: FunctionItem) {

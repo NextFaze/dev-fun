@@ -2,7 +2,7 @@ package com.nextfaze.devfun.demo.test
 
 import android.app.Activity
 import android.content.Context
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.inject.RetainedScope
 import dagger.Module

@@ -4,10 +4,10 @@ import android.app.Application
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.LayoutRes
 import android.text.SpannableStringBuilder
 import android.view.Display
 import android.view.WindowManager
+import androidx.annotation.LayoutRes
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider

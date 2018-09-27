@@ -1,9 +1,9 @@
 package com.nextfaze.devfun.invoke.view.simple
 
 import android.content.Context
-import android.support.v7.widget.AppCompatTextView
 import android.text.SpannableStringBuilder
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatTextView
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.view.WithValue
 import kotlin.reflect.KClass

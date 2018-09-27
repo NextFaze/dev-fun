@@ -4,8 +4,8 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.support.v7.app.AlertDialog
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*
@@ -38,8 +38,8 @@ internal class AppUtils {
                 app.showToast("Clearing and restarting...\nFull procedure may take ~5 seconds.", Toast.LENGTH_LONG)
                 launch {
                     delay(1000L)
-                    val launchIntent = app.packageManager.getLaunchIntentForPackage(app.packageName)
-                    val n = "${launchIntent.component.packageName}/${launchIntent.component.className}"
+                    val component = app.packageManager.getLaunchIntentForPackage(app.packageName)!!.component!!
+                    val n = "${component.packageName}/${component.className}"
                     exec("am start --user 0 -n $n -f ${Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK}")
                     exec("pm clear ${app.packageName}")
                 }

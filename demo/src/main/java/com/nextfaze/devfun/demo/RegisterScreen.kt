@@ -75,7 +75,7 @@ class RegisterFragment : BaseFragment() {
         // date of birth
         val dob by lazy {
             try {
-                DateTime.parse(dateOfBirthEditText.text.trim().toString())
+                DateTime.parse(dateOfBirthEditText.value.toString())
             } catch (ignore: Throwable) {
                 DateTime.now()
             }
@@ -89,7 +89,7 @@ class RegisterFragment : BaseFragment() {
         }
 
         // email
-        val email = emailEditText.text.trim()
+        val email = emailEditText.value
         emailEditText.apply {
             when {
                 email.isBlank() -> focusRequired()
@@ -99,7 +99,7 @@ class RegisterFragment : BaseFragment() {
         }
 
         // password
-        val password = passwordEditText.text.trim()
+        val password = passwordEditText.value
         passwordEditText.apply {
             when {
                 password.isBlank() -> focusRequired()
@@ -109,7 +109,7 @@ class RegisterFragment : BaseFragment() {
         }
 
         // user
-        val userName = userNameEditText.text.trim()
+        val userName = userNameEditText.value
         userNameEditText.apply {
             when {
                 userName.isBlank() -> focusRequired()
@@ -119,7 +119,7 @@ class RegisterFragment : BaseFragment() {
         }
 
         // family name
-        val familyName = familyNameEditText.text.trim()
+        val familyName = familyNameEditText.value
         familyNameEditText.apply {
             when {
                 familyName.isBlank() -> focusRequired()
@@ -128,7 +128,7 @@ class RegisterFragment : BaseFragment() {
         }
 
         // given name
-        val givenName = givenNameEditText.text.trim()
+        val givenName = givenNameEditText.value
         givenNameEditText.apply {
             when {
                 givenName.isBlank() -> focusRequired()

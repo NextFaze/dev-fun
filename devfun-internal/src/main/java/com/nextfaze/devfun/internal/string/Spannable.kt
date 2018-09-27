@@ -1,11 +1,11 @@
 package com.nextfaze.devfun.internal.string
 
 import android.graphics.Typeface
-import android.support.annotation.ColorInt
 import android.text.ParcelableSpan
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.*
+import androidx.annotation.ColorInt
 
 typealias Span = Pair<CharSequence, List<ParcelableSpan>>
 

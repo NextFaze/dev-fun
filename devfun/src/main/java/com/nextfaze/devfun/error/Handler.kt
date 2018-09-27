@@ -3,8 +3,8 @@ package com.nextfaze.devfun.error
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
-import android.support.v4.app.FragmentActivity
 import android.text.SpannableStringBuilder
+import androidx.fragment.app.FragmentActivity
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.*

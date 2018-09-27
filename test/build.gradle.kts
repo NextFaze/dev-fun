@@ -14,7 +14,7 @@ android {
         versionCode = Android.versionCode
         versionName = project.versionName
 
-        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.MonitoringInstrumentation"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -32,6 +32,10 @@ android {
 
     sourceSets {
         getByName("test").java.srcDirs("src/testData/kotlin")
+    }
+
+    testOptions {
+        unitTests.setReturnDefaultValues(true)
     }
 }
 
@@ -65,11 +69,6 @@ dependencies {
         throw RuntimeException("Tools jar not found at ${toolsJar.canonicalPath}")
     }
     testImplementation(files(toolsJar.canonicalPath))
-
-    // Full Java
-    val bootJars = System.getProperty("sun.boot.class.path").toString().split(File.pathSeparator)
-    val jars = bootJars.filter { it.endsWith("rt.jar") }.map { File(it) }
-    testImplementation(files(jars))
 }
 
 project.afterEvaluate {

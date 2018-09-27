@@ -4,11 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.view.GravityCompat
+import com.google.android.material.snackbar.Snackbar
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.inject.ActivityInjector
 import com.nextfaze.devfun.demo.kotlin.startActivity
@@ -44,7 +44,7 @@ class MainActivity : BaseActivity() {
             syncState()
         }
 
-        navigationView.setNavigationItemSelectedListener setSelected@ {
+        navigationView.setNavigationItemSelectedListener setSelected@{
             when (it.itemId) {
                 R.id.nav_camera -> {
                 }

@@ -5,9 +5,9 @@ import android.app.AlertDialog
 import android.app.Application
 import android.app.Fragment
 import android.content.Context
-import android.support.v4.app.FragmentActivity
 import android.text.SpannableStringBuilder
 import android.view.View
+import androidx.fragment.app.FragmentActivity
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.annotations.*
 import com.nextfaze.devfun.core.*

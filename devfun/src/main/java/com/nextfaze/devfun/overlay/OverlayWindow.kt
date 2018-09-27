@@ -9,10 +9,10 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.LayoutRes
-import android.support.v4.math.MathUtils.clamp
 import android.view.*
 import android.view.animation.OvershootInterpolator
+import androidx.annotation.LayoutRes
+import androidx.core.math.MathUtils.clamp
 import com.nextfaze.devfun.annotations.DeveloperLogger
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.ForegroundTracker

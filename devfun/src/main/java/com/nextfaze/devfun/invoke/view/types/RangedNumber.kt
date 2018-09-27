@@ -1,9 +1,9 @@
 package com.nextfaze.devfun.invoke.view.types
 
 import android.content.Context
-import android.support.v7.widget.AppCompatSeekBar
 import android.util.AttributeSet
 import android.view.View
+import androidx.appcompat.widget.AppCompatSeekBar
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.invoke.Parameter
 import com.nextfaze.devfun.invoke.ParameterViewFactoryProvider
@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
 internal class RangedNumberInputView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.support.v7.appcompat.R.attr.seekBarStyle
+    defStyleAttr: Int = androidx.appcompat.R.attr.seekBarStyle
 ) : AppCompatSeekBar(context, attrs, defStyleAttr), WithValue<Number> {
 
     override var value: Number

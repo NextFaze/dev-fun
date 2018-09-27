@@ -6,15 +6,14 @@ import android.app.Application
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.StringRes
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks
 import android.text.SpannableStringBuilder
 import android.view.KeyEvent
 import android.view.Window
+import androidx.annotation.StringRes
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.string.*
@@ -90,8 +89,9 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
 
     private fun onActivityCreated(activity: Activity) {
         if (activity is FragmentActivity) {
-            activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentLifecycleCallbacks() {
-                override fun onFragmentStarted(fm: FragmentManager?, f: Fragment?) {
+            activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentStarted(fm: FragmentManager, f: Fragment) {
+                    @Suppress("DEPRECATION")
                     when (f) {
                         is DialogFragment -> f.dialog?.window?.wrapCallbackIfNecessary()
                         is android.app.DialogFragment -> f.dialog?.window?.wrapCallbackIfNecessary()
@@ -135,7 +135,7 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
     }
 
     @SuppressLint("RestrictedApi")
-    private inner class WindowCallbackWrapper(callback: Window.Callback) : android.support.v7.view.WindowCallbackWrapper(callback) {
+    private inner class WindowCallbackWrapper(callback: Window.Callback) : androidx.appcompat.view.WindowCallbackWrapper(callback) {
         @SuppressLint("RestrictedApi")
         override fun dispatchKeyEvent(event: KeyEvent): Boolean =
             when {

@@ -122,7 +122,7 @@ class AuthenticateFragment : BaseFragment() {
         }
 
         // password
-        val password = passwordEditText.text.trim()
+        val password = passwordEditText.value
         passwordEditText.apply {
             when {
                 password.isBlank() -> focusRequired()

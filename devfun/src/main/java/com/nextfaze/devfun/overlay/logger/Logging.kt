@@ -2,10 +2,10 @@ package com.nextfaze.devfun.overlay.logger
 
 import android.app.Activity
 import android.app.Application
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-import android.support.v4.app.FragmentManager
 import android.text.SpannableStringBuilder
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.annotations.DeveloperLogger
@@ -75,8 +75,8 @@ internal class OverlayLoggingImpl(
                 if (activity is FragmentActivity) {
                     activity.supportFragmentManager.registerFragmentLifecycleCallbacks(
                         object : FragmentManager.FragmentLifecycleCallbacks() {
-                            override fun onFragmentResumed(fm: FragmentManager?, f: Fragment?) = updateContextualLoggers()
-                            override fun onFragmentDetached(fm: FragmentManager?, f: Fragment?) = updateContextualLoggers()
+                            override fun onFragmentResumed(fm: FragmentManager, f: Fragment) = updateContextualLoggers()
+                            override fun onFragmentDetached(fm: FragmentManager, f: Fragment) = updateContextualLoggers()
                         },
                         true
                     )

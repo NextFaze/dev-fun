@@ -7,14 +7,14 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
-import android.support.v4.app.FragmentActivity
-import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
-import android.support.v4.view.ViewCompat
-import android.support.v7.app.AlertDialog
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.ViewCompat
+import androidx.fragment.app.FragmentActivity
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.devFun
@@ -281,7 +281,7 @@ class CogOverlay constructor(
 
             try {
                 // otherwise use app accent color if defined
-                val ta = activity.theme.obtainStyledAttributes(intArrayOf(android.support.v7.appcompat.R.attr.colorAccent))
+                val ta = activity.theme.obtainStyledAttributes(intArrayOf(androidx.appcompat.R.attr.colorAccent))
                 try {
                     if (ta.hasValue(0)) {
                         ta.getColor(0, defaultTint).let {

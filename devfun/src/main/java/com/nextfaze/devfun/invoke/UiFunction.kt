@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.invoke
 
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 
 typealias SimpleInvoke = (args: List<Any?>) -> Any?
 typealias OnClick = () -> Unit

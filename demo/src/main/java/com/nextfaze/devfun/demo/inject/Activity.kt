@@ -2,7 +2,7 @@ package com.nextfaze.devfun.demo.inject
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.nextfaze.devfun.annotations.Dagger2Component
 import com.nextfaze.devfun.annotations.Dagger2Scope.RETAINED_FRAGMENT
 import com.nextfaze.devfun.demo.test.ActivityScopedTestModule

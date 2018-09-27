@@ -73,7 +73,7 @@ dependencies {
     implementation(Dependency.supportAppCompat)
     implementation(Dependency.supportDesign)
     implementation(Dependency.supportConstraintLayout)
-    implementation("com.android.support:multidex:1.0.3")
+    implementation("androidx.multidex:multidex:2.0.0")
 
     // Logging - https://github.com/tony19/logback-android
     implementation(Dependency.slf4jApi)
@@ -89,7 +89,7 @@ dependencies {
     compileOnly(Dependency.daggerAnnotations)
 
     // OkHttp - https://github.com/square/okhttp
-    implementation("com.squareup.okhttp3:okhttp:3.10.0")
+    implementation("com.squareup.okhttp3:okhttp:3.11.0")
 
     // Joda Time - https://github.com/dlew/joda-time-android
     implementation("net.danlew:android.joda:2.9.9.4")
@@ -101,7 +101,7 @@ dependencies {
 
     // Glide - https://github.com/bumptech/glide
     implementation(Dependency.glide)
-    implementation("com.github.bumptech.glide:okhttp3-integration:4.6.1@aar")
+    implementation("com.github.bumptech.glide:okhttp3-integration:4.7.1@aar")
     debugImplementation(project(":devfun-util-glide"))
 
     // Leak Canary - https://github.com/square/leakcanary
@@ -109,13 +109,13 @@ dependencies {
     debugImplementation(project(":devfun-util-leakcanary"))
 
     // RxJava: Reactive Extensions for the JVM - https://github.com/ReactiveX/RxJava
-    implementation("io.reactivex.rxjava2:rxjava:2.1.14")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.2")
 
     // RxJava bindings for Android - https://github.com/ReactiveX/RxAndroid
-    implementation("io.reactivex.rxjava2:rxandroid:2.0.2")
+    implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
 
     // RxKotlin
-    implementation("io.reactivex.rxjava2:rxkotlin:2.2.0")
+    implementation("io.reactivex.rxjava2:rxkotlin:2.3.0")
 
     // Auto Disposable
     implementation("com.uber.autodispose:autodispose-kotlin:0.8.0")
@@ -125,9 +125,9 @@ dependencies {
     // Instrumentation tests
     androidTestImplementation(Dependency.kotlinTest)
 
-    androidTestImplementation("androidx.test:rules:1.1.0-alpha3")
-    androidTestImplementation("androidx.test:runner:1.1.0-alpha3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.1.0-alpha3")
+    androidTestImplementation("androidx.test:rules:1.1.0-alpha4")
+    androidTestImplementation("androidx.test:runner:1.1.0-alpha4")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.1.0-alpha4")
 }
 
 project.afterEvaluate {

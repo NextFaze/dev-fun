@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.demo
 
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.test.rule.ActivityTestRule
 import com.nextfaze.devfun.demo.kotlin.defaultTag
 import kotlin.reflect.KClass
