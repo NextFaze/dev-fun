@@ -1,6 +1,5 @@
 package com.nextfaze.devfun.compiler
 
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
@@ -13,8 +12,6 @@ import javax.lang.model.type.*
 import javax.lang.model.util.Elements
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
-import kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap
-import kotlin.reflect.jvm.internal.impl.name.FqName
 
 internal inline val Element.isPublic get() = modifiers.contains(Modifier.PUBLIC)
 internal inline val Element.isStatic get() = modifiers.contains(Modifier.STATIC)
@@ -80,13 +77,6 @@ val TypeMirror.isPublic: Boolean
 internal fun Element.getAnnotation(typeElement: TypeElement): AnnotationMirror? =
     annotationMirrors.singleOrNull { it.annotationType.toString() == typeElement.qualifiedName.toString() }
 
-private fun DeclaredType.toClassName(): ClassName {
-    val name = (asElement() as QualifiedNameable).qualifiedName
-    val fqName = FqName(name.toString())
-    val resolved = JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(fqName)?.asSingleFqName() ?: fqName
-    return ClassName(resolved.parent().asString(), resolved.shortName().asString())
-}
-
 internal fun TypeMirror.toKClassBlock(
     kotlinClass: Boolean = true,
     isKtFile: Boolean = false,
@@ -103,7 +93,7 @@ internal fun TypeMirror.toKClassBlock(
         fun TypeMirror.toType(): TypeName =
             when (this) {
                 is PrimitiveType -> asTypeName()
-                is DeclaredType -> toClassName()
+                is DeclaredType -> className
                 is ArrayType -> when {
                     componentType.isPrimitive -> (componentType as PrimitiveType).arrayTypeName
                     else -> TypeNames.array.parameterizedBy(componentType.toType())
@@ -158,21 +148,9 @@ internal fun TypeMirror.toTypeName(subtypeArrayVariance: Boolean = false): TypeN
         subtypeArrayVariance -> TypeNames.array.parameterizedBy(subtypeOf(componentType.toTypeName(subtypeArrayVariance)))
         else -> TypeNames.array.parameterizedBy(componentType.toTypeName(subtypeArrayVariance))
     }
-    is DeclaredType -> {
-        val name = (asElement() as QualifiedNameable).qualifiedName
-        val typeName = if (name.toString() == "java.lang.Class") { // mapJavaToKotlin to not consider Class -> KClass
-            TypeNames.kClass
-        } else {
-            val fqName = FqName(name.toString())
-            val resolved = JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(fqName)?.asSingleFqName() ?: fqName
-            ClassName(resolved.parent().asString(), resolved.shortName().asString())
-        }
-
-        if (typeArguments.isEmpty()) {
-            typeName
-        } else {
-            typeName.parameterizedBy(*typeArguments.map { it.toTypeName(subtypeArrayVariance) }.toTypedArray())
-        }
+    is DeclaredType -> when {
+        typeArguments.isEmpty() -> className
+        else -> className.parameterizedBy(*typeArguments.map { it.toTypeName(subtypeArrayVariance) }.toTypedArray())
     }
     is WildcardType -> extendsBound?.toTypeName(subtypeArrayVariance)?.let { subtypeOf(it) }
             ?: superBound?.toTypeName(subtypeArrayVariance)?.let { supertypeOf(it) }
