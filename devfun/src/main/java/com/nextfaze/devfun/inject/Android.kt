@@ -2,6 +2,7 @@ package com.nextfaze.devfun.inject
 
 import android.app.Activity
 import android.app.Application
+import android.app.Service
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,11 @@ internal class AndroidInstanceProviderImpl(context: Context, private val activit
 
         // Application
         if (clazz.isSubclassOf<Application>()) {
+            return applicationContext as T
+        }
+
+        // Service
+        if (clazz.isSubclassOf<Service>()) {
             return applicationContext as T
         }
 
