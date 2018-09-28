@@ -24,10 +24,10 @@ internal data class ResolvedComponent(val componentType: KClass<*>) {
     private val moduleProviders: MutableMap<KClass<*>, Pair<Field, Method>> = mutableMapOf()
 
     init {
-        log.d { "Resolving types for component $componentType ..." }
+        log.t { "Resolving types for component $componentType ..." }
         componentType.java.declaredFields.forEach { field ->
             if (field.type == Provider::class.java) {
-                log.d { "Found provider: $field" }
+                log.t { "Found provider: $field" }
                 field.isAccessible = true
 
                 val genericType = field.genericType
@@ -39,7 +39,7 @@ internal data class ResolvedComponent(val componentType: KClass<*>) {
                     untypedProviders[field] = field.name.removeSuffix("Provider").toLowerCase()
                 }
             } else if (field.type.hasAnnotation<Module>()) {
-                log.d { "Found module: $field" }
+                log.t { "Found module: $field" }
                 field.isAccessible = true
 
                 field.type.declaredMethods.forEach {
@@ -55,7 +55,7 @@ internal data class ResolvedComponent(val componentType: KClass<*>) {
         // Component getters (@Inject on constructor, but not @Singleton types)
         componentType.java.declaredMethods.forEach {
             if (it.name.startsWith("get")) {
-                log.d { "Found getter: $it" }
+                log.t { "Found getter: $it" }
                 it.isAccessible = true
 
                 if (it.returnType == Any::class.java) { // package private
