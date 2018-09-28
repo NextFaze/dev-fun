@@ -18,13 +18,22 @@ import javax.xml.parsers.DocumentBuilderFactory
  * Attempts to automatically determine the application package and build variant.
  * Also passes though the script configuration options.
  *
+ * @see DevFunGradlePlugin
  * @see DevFunExtension
  */
 @AutoService(KotlinGradleSubplugin::class)
 class DevFunKotlinGradlePlugin : KotlinGradleSubplugin<AbstractCompile> {
+    /** The Gradle sub-plugin compiler plugin ID `com.nextfaze.devfun`. */
     override fun getCompilerPluginId() = DEVFUN_GROUP_NAME
+
+    /** The Gradle sub-plugin artifact details. */
     override fun getPluginArtifact() = SubpluginArtifact(DEVFUN_GROUP_NAME, DEVFUN_ARTIFACT_NAME, DEVFUN_VERSION_NAME)
 
+    /**
+     * Determine if this plugin can be applied to this [project] and compile [task].
+     *
+     * For some reason the [apply] call never receives the first variant so most of the logic is performed in here instead.
+     */
     override fun isApplicable(project: Project, task: AbstractCompile): Boolean {
         if (project.plugins.findPlugin(DevFunGradlePlugin::class.java) == null) return false
         if (task !is KotlinCompile) return false // we generate Kotlin code so definitely need this
@@ -68,6 +77,7 @@ class DevFunKotlinGradlePlugin : KotlinGradleSubplugin<AbstractCompile> {
         return true
     }
 
+    /** Apply this plugin to the project. _(is current a NOP due to never receiving first variant bug?)_ */
     override fun apply(
         project: Project,
         kotlinCompile: AbstractCompile,
@@ -133,9 +143,7 @@ class DevFunKotlinGradlePlugin : KotlinGradleSubplugin<AbstractCompile> {
 
 private const val DEVFUN_GROUP_NAME = "com.nextfaze.devfun"
 private const val DEVFUN_ARTIFACT_NAME = "devfun-gradle-plugin"
-
-// TODO this is just annoying - package with JAR or something so we can set at build time from build state and get it dynamically at run time
-private const val DEVFUN_VERSION_NAME = "1.3.0-SNAPSHOT"
+private const val DEVFUN_VERSION_NAME = versionName
 
 private val ExtensionContainer.android get() = findByType(BaseExtension::class.java)
 private val ExtensionContainer.kapt get() = findByType(KaptExtension::class.java)

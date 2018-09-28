@@ -54,6 +54,7 @@ open class DevFunExtension {
  * @see DevFunExtension
  */
 class DevFunGradlePlugin : Plugin<Project> {
+    /** Apply this gradle plugin to the [project] registering [DevFunExtension] as `devFun`. */
     override fun apply(project: Project) {
         project.extensions.create("devFun", DevFunExtension::class.java)
     }
