@@ -20,9 +20,9 @@ internal interface Logger {
 internal val Throwable.stackTraceAsString get() = StringWriter().apply { printStackTrace(PrintWriter(this)) }.toString()
 
 @Singleton
-internal class Logging @Inject constructor(private val env: ProcessingEnvironment) {
+internal class Logging @Inject constructor(private val env: ProcessingEnvironment, private val options: Options) {
 
-    fun create(ref: Any): Logger = LoggerImpl(env, ref::class.qualifiedName.toString())
+    fun create(ref: Any): Logger = LoggerImpl(env, ref::class.qualifiedName.toString(), options.promoteNoteMessages)
 
     operator fun invoke() =
         object : ReadOnlyProperty<Any, Logger> {
@@ -30,10 +30,10 @@ internal class Logging @Inject constructor(private val env: ProcessingEnvironmen
         }
 }
 
-private class LoggerImpl(private val env: ProcessingEnvironment, private val ref: String) : Logger {
+private class LoggerImpl(private val env: ProcessingEnvironment, private val ref: String, private val noteAsWarning: Boolean) : Logger {
     override fun note(element: Element?, annotationMirror: AnnotationMirror?, body: () -> String) =
         env.messager.printMessage(
-            Diagnostic.Kind.NOTE,
+            if (noteAsWarning) Diagnostic.Kind.MANDATORY_WARNING else Diagnostic.Kind.NOTE,
             "$ref: ${body()}",
             element,
             annotationMirror

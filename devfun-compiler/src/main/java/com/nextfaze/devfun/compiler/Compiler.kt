@@ -30,12 +30,12 @@ import kotlin.math.roundToInt
  * reflection failed with `IllegalAccessViolation`, even though `isAccessible = true` was clearly being called.*
  *
  * Set using APT options:
- * ```gradle
+ * ```kotlin
  * android {
  *      defaultConfig {
  *          javaCompileOptions {
  *              annotationProcessorOptions {
- *                  argument 'devfun.kotlin.reflection', 'true'
+ *                  argument("devfun.kotlin.reflection", "true")
  *              }
  *          }
  *      }
@@ -57,7 +57,7 @@ const val FLAG_USE_KOTLIN_REFLECTION = "devfun.kotlin.reflection"
  *      defaultConfig {
  *          javaCompileOptions {
  *              annotationProcessorOptions {
- *                  argument 'devfun.debug.comments', 'true'
+ *                  argument("devfun.debug.comments", "true")
  *              }
  *          }
  *      }
@@ -70,12 +70,12 @@ const val FLAG_DEBUG_COMMENTS = "devfun.debug.comments"
  * Flag to enable additional compile/processing log output. _(default: `false`)_
  *
  * Set using APT options:
- * ```gradle
+ * ```kotlin
  * android {
  *      defaultConfig {
  *          javaCompileOptions {
  *              annotationProcessorOptions {
- *                  argument 'devfun.debug.verbose', 'true'
+ *                  argument("devfun.debug.verbose", "true")
  *              }
  *          }
  *      }
@@ -96,12 +96,12 @@ const val FLAG_DEBUG_VERBOSE = "devfun.debug.verbose"
  * `<variant?>` will be omitted if both `packageRoot` and `packageSuffix` are provided.
  *
  * Set using APT options:
- * ```gradle
+ * ```kotlin
  * android {
  *      defaultConfig {
  *          javaCompileOptions {
  *              annotationProcessorOptions {
- *                  argument 'devfun.package.suffix', 'custom.suffix'
+ *                  argument("devfun.package.suffix", "custom.suffix")
  *              }
  *          }
  *      }
@@ -121,12 +121,12 @@ const val PACKAGE_SUFFIX = "devfun.package.suffix"
  * `<variant?>` will be omitted if both `packageRoot` and `packageSuffix` are provided.
  *
  * Set using APT options:
- * ```gradle
+ * ```kotlin
  * android {
  *      defaultConfig {
  *          javaCompileOptions {
  *              annotationProcessorOptions {
- *                  argument 'devfun.package.root', 'com.your.application'
+ *                  argument("devfun.package.root", "com.your.application")
  *              }
  *          }
  *      }
@@ -141,7 +141,7 @@ const val PACKAGE_ROOT = "devfun.package.root"
  * This will override [PACKAGE_ROOT] and [PACKAGE_SUFFIX].
  *
  * Set using APT options:
- * ```gradle
+ * ```kotlin
  * android {
  *      defaultConfig {
  *          javaCompileOptions {
@@ -204,7 +204,7 @@ const val EXT_PACKAGE_OVERRIDE = "devfun.ext.package.override"
 const val PACKAGE_SUFFIX_DEFAULT = "devfun_generated"
 
 /**
- * Restrict DevFun to only process elements matching filter `elementFQN.startsWith(it)`.
+ * Restrict DevFun to only process elements matching filter `elementFQN.startsWith(it)`.  _(default: `<none>`)_
  *
  * Value can be a comma separated list. Whitespace will be trimmed.
  *
@@ -228,7 +228,7 @@ const val PACKAGE_SUFFIX_DEFAULT = "devfun_generated"
 const val ELEMENTS_FILTER_INCLUDE = "devfun.elements.include"
 
 /**
- * Restrict DevFun to only process elements matching filter `elementFQN.startsWith(it)`.
+ * Restrict DevFun to only process elements matching filter `elementFQN.startsWith(it)`. _(default: `<none>`)_
  *
  * Value can be a comma separated list. Whitespace will be trimmed.
  *
@@ -252,12 +252,45 @@ const val ELEMENTS_FILTER_INCLUDE = "devfun.elements.include"
 const val ELEMENTS_FILTER_EXCLUDE = "devfun.elements.exclude"
 
 /**
- * Flag to disable DevFun from generating implementations of [DevFunGenerated]. Useful for testing or if you only want to generate
- * annotation interfaces.
+ * Flag to control generation of implementations of [DevFunGenerated]. _(default: `<true>`)_
+ *
+ * Useful for testing or if you only want to generate annotation interfaces.
+ *
+ * Set using APT options:
+ * ```kotlin
+ * android {
+ *      defaultConfig {
+ *          javaCompileOptions {
+ *              annotationProcessorOptions {
+ *                  argument("devfun.definitions.generate", "false")
+ *              }
+ *          }
+ *      }
+ * }
+ * ```
  *
  * @see GENERATE_INTERFACES
+ * @see DevFunProcessor
  */
 const val GENERATE_DEFINITIONS = "devfun.definitions.generate"
+
+/**
+ * Flag to have all `note` messages output as `warning` - workaround for various KAPT logging implementations and for debugging purposes.  _(default: `<false>`)_
+ *
+ * Set using APT options:
+ * ```kotlin
+ * android {
+ *      defaultConfig {
+ *          javaCompileOptions {
+ *              annotationProcessorOptions {
+ *                  argument("devfun.logging.note.promote", "true")
+ *              }
+ *          }
+ *      }
+ * }
+ * ```
+ */
+const val PROMOTE_NOTE_LOG_MESSAGES = "devfun.logging.note.promote"
 
 internal const val META_INF_SERVICES = "META-INF/services"
 private const val DEFINITIONS_FILE_NAME = "DevFunDefinitions.kt"
@@ -322,7 +355,10 @@ class DevFunProcessor : DaggerProcessor() {
     private fun generateKSource(): String {
         val annotations = AnnotationSpec.builder(Suppress::class)
             .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE)
-            .addMember("%L", """"UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "REDUNDANT_PROJECTION", "USELESS_CAST", "PackageDirectoryMismatch", "PackageName"""")
+            .addMember(
+                "%L",
+                """"UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "REDUNDANT_PROJECTION", "USELESS_CAST", "PackageDirectoryMismatch", "PackageName""""
+            )
             .build()
 
         val def = TypeSpec.classBuilder(DEFINITIONS_CLASS_NAME)

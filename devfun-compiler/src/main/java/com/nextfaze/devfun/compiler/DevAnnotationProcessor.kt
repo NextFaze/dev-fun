@@ -15,14 +15,27 @@ import javax.lang.model.element.TypeElement
 import javax.tools.StandardLocation.SOURCE_OUTPUT
 
 /**
- * Flag to disable DevFun from generating interfaces of [DeveloperAnnotation] annotations. Useful for testing or if you only want to
- * generate [DevFunGenerated] implementations.
+ * Flag to control generation of [DeveloperAnnotation] properties `AnnotationProperties` interfaces. _(default: `<true>`)_
+ *
+ * Useful for testing or if you only want to generate [DevFunGenerated] implementations.
+ *
+ * Set using APT options:
+ * ```kotlin
+ * android {
+ *      defaultConfig {
+ *          javaCompileOptions {
+ *              annotationProcessorOptions {
+ *                  argument("devfun.interfaces.generate", "false")
+ *              }
+ *          }
+ *      }
+ * }
+ * ```
  *
  * @see GENERATE_DEFINITIONS
+ * @see DevAnnotationProcessor
  */
 const val GENERATE_INTERFACES = "devfun.interfaces.generate"
-const val GENERATE_INTERFACES_NON_SOURCE = "devfun.interfaces.generate.external" // TODO
-const val GENERATE_INTERFACES_DESTINATION_DIR = "devfun.interfaces.destinationDir" // TODO
 
 /**
  * Annotation processor for [DeveloperAnnotation] to generate properties interfaces.
@@ -31,8 +44,6 @@ const val GENERATE_INTERFACES_DESTINATION_DIR = "devfun.interfaces.destinationDi
  */
 @SupportedOptions(
     GENERATE_INTERFACES,
-    GENERATE_INTERFACES_NON_SOURCE,
-    GENERATE_INTERFACES_DESTINATION_DIR,
     ELEMENTS_FILTER_INCLUDE,
     ELEMENTS_FILTER_EXCLUDE
 )

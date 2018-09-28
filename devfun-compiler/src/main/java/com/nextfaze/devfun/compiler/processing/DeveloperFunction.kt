@@ -122,7 +122,7 @@ internal class DeveloperFunctionHandler @Inject constructor(
         }
 
         val clazz = element.classElement
-        log.warn { "Processing $clazz::$element..." }
+        log.note { "Processing $clazz::$element..." }
 
         if (clazz.isInterface) {
             log.error(element) { "Due to kapt issue @${DeveloperFunction::class.simpleName} is not supported in interfaces yet." }

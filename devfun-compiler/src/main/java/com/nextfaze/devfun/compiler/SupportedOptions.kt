@@ -16,7 +16,7 @@ internal class Options @Inject constructor(
     private fun String.booleanOf(default: Boolean = false): Boolean = optionOf()?.toBoolean() ?: default
 
     val useKotlinReflection = FLAG_USE_KOTLIN_REFLECTION.booleanOf()
-    val isDebugVerbose = FLAG_DEBUG_VERBOSE.booleanOf()
+    private val isDebugVerbose = FLAG_DEBUG_VERBOSE.booleanOf()
     val isDebugCommentsEnabled = isDebugVerbose || FLAG_DEBUG_COMMENTS.booleanOf()
 
     val packageRoot = PACKAGE_ROOT.optionOf()
@@ -32,6 +32,8 @@ internal class Options @Inject constructor(
 
     val generateInterfaces = GENERATE_INTERFACES.booleanOf(true)
     val generateDefinitions = GENERATE_DEFINITIONS.booleanOf(true)
+
+    val promoteNoteMessages = PROMOTE_NOTE_LOG_MESSAGES.booleanOf(false)
 
     private val elementFilterInclude = ELEMENTS_FILTER_INCLUDE.optionOf()?.split(",")?.map { it.trim() } ?: emptyList()
     private val elementFilterExclude = ELEMENTS_FILTER_EXCLUDE.optionOf()?.split(",")?.map { it.trim() } ?: emptyList()

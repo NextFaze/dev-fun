@@ -36,6 +36,7 @@ android {
                 includeCompileClasspath = false
                 if (project.isSnapshot) {
                     argument("devfun.debug.verbose", "true")
+                    argument("devfun.logging.note.promote", "true")
                 }
             }
         }
