@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Process
 import android.os.SystemClock
+import androidx.annotation.RequiresApi
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.prop.*
@@ -160,14 +161,22 @@ internal class AppStateTracker(context: Context) : ActivityTracker, ActivityProv
     }
 
     private fun getForegroundStatus(): Boolean {
-        if (keyguardManager.inKeyguardRestrictedInputMode()) return false
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            @Suppress("DEPRECATION")
+            if (keyguardManager.inKeyguardRestrictedInputMode()) return false
+        } else {
+            if (isKeyguardLocked()) return false
+        }
 
-        if (Build.VERSION.SDK_INT < 21) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             SystemClock.sleep(10L)
         }
 
         return activityManager.runningAppProcesses?.any { it.pid == myPid && it.importance == IMPORTANCE_FOREGROUND } == true
     }
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    private fun isKeyguardLocked(): Boolean = keyguardManager.isKeyguardLocked
 
     fun dispose() {
         callbacks.unregister(application)
