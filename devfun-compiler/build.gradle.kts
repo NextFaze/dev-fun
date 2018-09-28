@@ -8,7 +8,7 @@ description = """Annotation processor that handles @DeveloperFunction and @Devel
     |This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.""".trimMargin()
 
 kapt {
-    generateStubs = true
+    correctErrorTypes = true
 }
 
 dependencies {
