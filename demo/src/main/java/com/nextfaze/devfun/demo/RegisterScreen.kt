@@ -14,7 +14,7 @@ import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.*
 import kotlinx.android.synthetic.main.register_fragment.*
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.android.Main
 import org.joda.time.DateTime
 import java.util.Random
 import java.util.concurrent.TimeUnit
@@ -154,14 +154,14 @@ class RegisterFragment : BaseFragment() {
         email: CharSequence,
         dateOfBirth: DateTime,
         gender: Gender
-    ) = launch(CommonPool) {
+    ) = GlobalScope.launch {
         try {
             asyncShowProgress(true)
 
-            delay(2, TimeUnit.SECONDS) // simulate network delay
+            delay(TimeUnit.SECONDS.toMillis(2)) // simulate network delay
             val createdUser = User(givenName, familyName, userName, password, email, dateOfBirth, gender)
 
-            withContext(UI) {
+            withContext(Dispatchers.Main) {
                 session.user = createdUser
                 activity?.finish()
                 activity?.let { MainActivity.start(it) }
@@ -173,7 +173,7 @@ class RegisterFragment : BaseFragment() {
         }
     }
 
-    private suspend fun asyncShowProgress(show: Boolean) = withContext(UI) { updateProgressView(show) }
+    private suspend fun asyncShowProgress(show: Boolean) = withContext(Dispatchers.Main) { updateProgressView(show) }
     private fun updateProgressView(show: Boolean) {
         val shortAnimTime = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
         registrationForm.apply {

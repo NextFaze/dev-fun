@@ -97,6 +97,7 @@ class WelcomeFragment : BaseFragment() {
         Toast.makeText(context, "You entered: $anIntParam, $anEnumParam, '$aStringParam'", Toast.LENGTH_LONG).show()
 
     @DeveloperFunction
+    @Suppress("UNUSED_PARAMETER")
     private fun invokeUiWithMissingType(context: Context, anIntParam: Int, anEnumParam: SomeEnum, someType: SomeType) = Unit
 }
 

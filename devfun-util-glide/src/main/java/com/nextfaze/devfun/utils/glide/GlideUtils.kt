@@ -9,7 +9,7 @@ import com.bumptech.glide.load.engine.cache.MemoryCache
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.internal.log.*
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -67,7 +67,7 @@ object GlideUtils {
      */
     @DeveloperFunction
     fun clearDiskCache(context: Context): String {
-        launch(CommonPool) {
+        GlobalScope.launch {
             Glide.get(context).clearDiskCache()
         }
         return "Glide disk cache cleared!".also {
@@ -85,7 +85,7 @@ object GlideUtils {
     fun clearDiskAndMemoryCache(context: Context): String {
         Glide.get(context).clearMemory()
         System.gc()
-        launch(CommonPool) {
+        GlobalScope.launch {
             Glide.get(context).clearDiskCache()
         }
         return "Glide bitmap pool, memory cache, and disk cache cleared!".also {

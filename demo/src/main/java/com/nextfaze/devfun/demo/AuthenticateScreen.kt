@@ -23,7 +23,7 @@ import com.nextfaze.devfun.demo.kotlin.*
 import com.nextfaze.devfun.inject.Constructable
 import kotlinx.android.synthetic.main.authenticate_fragment.*
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.android.Main
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -138,14 +138,14 @@ class AuthenticateFragment : BaseFragment() {
         }
     }
 
-    private fun asyncPerformLogin(email: CharSequence, password: CharSequence) = launch(CommonPool) {
+    private fun asyncPerformLogin(email: CharSequence, password: CharSequence) = GlobalScope.launch {
         try {
             asyncShowProgress(true)
 
-            delay(2, TimeUnit.SECONDS) // simulate network delay
+            delay(TimeUnit.SECONDS.toMillis(2)) // simulate network delay
             val isValid = normalUsers.contains("$email:$password")
 
-            withContext(UI) {
+            withContext(Dispatchers.Main) {
                 if (isValid) {
                     session.user = User("givenName", "familyName", "userName", password, email, DateTime.now(), Gender.OTHER)
                     activity?.finish()
@@ -162,7 +162,7 @@ class AuthenticateFragment : BaseFragment() {
         }
     }
 
-    private suspend fun asyncShowProgress(show: Boolean) = withContext(UI) { updateProgressView(show) }
+    private suspend fun asyncShowProgress(show: Boolean) = withContext(Dispatchers.Main) { updateProgressView(show) }
     private fun updateProgressView(show: Boolean) {
         val shortAnimTime = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
         authenticationForm.apply {

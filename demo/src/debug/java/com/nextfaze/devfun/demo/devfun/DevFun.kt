@@ -36,6 +36,7 @@ class DevFunModule {
 //    }
 
     @Provides @IntoSet @Singleton
+    @Suppress("UNUSED_PARAMETER")
     fun initializeDevFun(application: Application, session: Session): Initializer = {
         //DevFun().initialize(application, DevMenu(), DevHttpD(), DevHttpIndex(), DevStetho(), useServiceLoader = false)
         devFun += onInitialized@{

@@ -14,8 +14,7 @@ import com.nextfaze.devfun.internal.WithSubGroup
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.*
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.*
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -36,7 +35,7 @@ internal class AppUtils {
         app.registerActivityLifecycleCallbacks(object : AbstractActivityLifecycleCallbacks() {
             override fun onActivityStopped(activity: Activity) {
                 app.showToast("Clearing and restarting...\nFull procedure may take ~5 seconds.", Toast.LENGTH_LONG)
-                launch {
+                GlobalScope.launch {
                     delay(1000L)
                     val component = app.packageManager.getLaunchIntentForPackage(app.packageName)!!.component!!
                     val n = "${component.packageName}/${component.className}"
@@ -58,8 +57,8 @@ internal class AppUtils {
         }
 
         if (delayTime > 0) {
-            launch {
-                delay(1000L, timeUnit)
+            GlobalScope.launch {
+                delay(timeUnit.toMillis(1000L))
                 exec()
             }
         } else {

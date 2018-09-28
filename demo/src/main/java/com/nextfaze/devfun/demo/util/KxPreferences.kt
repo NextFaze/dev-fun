@@ -94,7 +94,7 @@ private abstract class KxNullablePreferenceImpl<TValue : Any>(
 private class KxStringPref(preferences: SharedPreferences, key: String, default: String, keyChanges: Observable<String>) :
     KxPreferenceImpl<String, String>(preferences, key, default, keyChanges) {
     override var value: String
-        get() = preferences.getString(key, default)
+        get() = preferences.getString(key, default)!!
         set(value) = preferences.edit().putString(key, value).apply()
 }
 

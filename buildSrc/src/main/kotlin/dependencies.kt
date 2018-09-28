@@ -20,7 +20,7 @@ object Dependency {
     val androidPlugin by lazy { "com.android.tools.build:gradle:$agpVersion" }
 
     lateinit var kotlinVersion: String
-    fun kotlinPlugin(version: String = kotlinVersion) = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    fun kotlinPlugin(version: String = kotlinVersion) = "org.jetbrains.kotlin:kotlin-gradle-plugin:$version"
     val kotlinPlugin by lazy { kotlinPlugin() }
     fun kotlinPluginApi(version: String = kotlinVersion) = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$version"
     val kotlinPluginApi by lazy { kotlinPluginApi() }
@@ -30,7 +30,7 @@ object Dependency {
     val kotlinTest by lazy { "org.jetbrains.kotlin:kotlin-test:$kotlinVersion" }
     val kotlinAndroidExtensions by lazy { "org.jetbrains.kotlin:kotlin-android-extensions:$kotlinVersion" }
 
-    const val kotlinCoroutinesVersion = "0.23.3"
+    const val kotlinCoroutinesVersion = "0.27.0"
     const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     const val kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
