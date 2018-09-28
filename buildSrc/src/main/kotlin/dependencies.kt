@@ -44,7 +44,7 @@ object Dependency {
 
     const val javaxInject = "javax.inject:javax.inject:1"
 
-    const val daggerVersion = "2.16"
+    const val daggerVersion = "2.17"
     fun dagger(version: String = daggerVersion) = "com.google.dagger:dagger:$version"
     fun daggerCompiler(version: String = daggerVersion) = "com.google.dagger:dagger-compiler:$version"
     val dagger = dagger()

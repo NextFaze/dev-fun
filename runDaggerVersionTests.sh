@@ -19,6 +19,7 @@ versions=(
     "2.14.1"
     "2.15"
     "2.16"
+    "2.17"
 )
 outDir="_dagger-test-results/`date +%s`"
 
