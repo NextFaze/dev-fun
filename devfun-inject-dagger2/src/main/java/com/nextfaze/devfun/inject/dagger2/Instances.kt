@@ -417,7 +417,7 @@ private class Dagger2AnnotatedInstanceProvider(
                             annotation.isFragmentActivityRequired
                         )
                     }
-                    else -> bestGuess@ { // scope is UNDEFINED and priority is 0
+                    else -> { // Best-guess; scope is UNDEFINED and priority is 0
                         if (method.isStatic) {
                             val receiverType = method.parameterTypes.firstOrNull()
                             when (receiverType) {
@@ -607,7 +607,7 @@ private fun tryGetComponents(instance: Any, required: Boolean): List<Any> {
             return components
         }
 
-        objClass = objClass.superclass
+        objClass = objClass.superclass ?: ANY_CLASS
     }
     when {
         required && !foundLazy -> throw RuntimeException("Failed to find field with type annotated with @Component")
