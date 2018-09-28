@@ -59,9 +59,9 @@ object Dependency {
     const val stetho = "com.facebook.stetho:stetho:$stethoVersion"
     const val stethoJsRhino = "com.facebook.stetho:stetho-js-rhino:$stethoVersion"
 
-    const val glide = "com.github.bumptech.glide:glide:4.7.1"
+    const val glide = "com.github.bumptech.glide:glide:4.8.0"
 
-    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.5.4"
+    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.1"
 
     lateinit var dokkaVersion: String
     val dokkaFatJar by lazy { "org.jetbrains.dokka:dokka-fatjar:$dokkaVersion" }
