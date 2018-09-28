@@ -26,6 +26,7 @@ import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.BuildConfig
 import com.nextfaze.devfun.core.R
+import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.isInstrumentationTest
@@ -223,8 +224,9 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
 
     var deniedCallback: ((neverAskAgain: Boolean) -> Unit)? = null
 
-    private val permissions by lazy { PermissionState.valueOf(arguments!!.getString(PERMISSIONS)!!) }
+    private val permissionsState by lazy { PermissionState.valueOf(arguments!!.getString(PERMISSIONS)!!) }
     private val reason by lazy { arguments!!.getCharSequence(REASON) }
+    private val permissions by lazy { devFun.get<OverlayPermissions>() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -247,7 +249,7 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
             .run {
                 findViewById<TextView>(R.id.messageTextView).text = msg
                 findViewById<CheckBox>(R.id.neverAskAgainCheckBox).apply {
-                    isChecked = permissions != PermissionState.NEVER_REQUESTED
+                    isChecked = permissionsState != PermissionState.NEVER_REQUESTED
                 } to this
             }
 
@@ -264,6 +266,13 @@ internal class OverlayPermissionsDialogFragment : DialogFragment() {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (permissions.canDrawOverlays) {
+            dismiss()
+        }
     }
 
     override fun onDestroyView() {
