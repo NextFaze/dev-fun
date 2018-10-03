@@ -42,7 +42,12 @@ fun Project.configureMavenPublishing() {
                         artifact(tasks["bundleReleaseAar"])
                     }
                 } else {
-                    from(components["java"])
+                    val shadowJarTask = tasks.findByName("shadowJar")
+                    if (shadowJarTask != null) {
+                        artifact(shadowJarTask)
+                    } else {
+                        from(components["java"])
+                    }
                 }
 
                 artifact(tasks["sourcesJar"])

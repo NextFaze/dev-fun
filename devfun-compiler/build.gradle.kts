@@ -1,6 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id("kotlin")
     kotlin("kapt")
+    id("com.github.johnrengelman.shadow")
 }
 
 description = """Annotation processor that handles @DeveloperFunction and @DeveloperCategory annotations.
@@ -9,6 +12,17 @@ description = """Annotation processor that handles @DeveloperFunction and @Devel
 
 kapt {
     correctErrorTypes = true
+}
+
+task<ShadowJar> {
+    configurations = listOf(project.configurations.shadow)
+    relocate("com.squareup.kotlinpoet", "com.squareup.kotlinpoet.devfun")
+    classifier = ""
+}
+
+tasks.findByName("jar")!!.apply {
+    enabled = false
+    dependsOn("shadowJar")
 }
 
 dependencies {
@@ -21,8 +35,9 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.0.4")
 
     // Kotlin Poet
-//    compile("com.squareup:kotlinpoet:1.0.0-RC1")
-    compile("com.github.alex2069:kotlinpoet:01d85d37883895b913e547ead8828dcd75889bf0")
+    shadow("com.github.alex2069:kotlinpoet:01d85d37883895b913e547ead8828dcd75889bf0") {
+        isTransitive = false // just Kotlin libs we already declare
+    }
 
     // Dagger
     kapt(Dependency.daggerCompiler)

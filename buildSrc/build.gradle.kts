@@ -57,4 +57,7 @@ dependencies {
 
     // Bintray
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
+
+    // ShadowJar
+    implementation("com.github.jengelman.gradle.plugins:shadow:4.0.1")
 }
