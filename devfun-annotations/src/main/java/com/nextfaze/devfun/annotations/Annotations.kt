@@ -372,41 +372,31 @@ annotation class DeveloperReference
 /**
  * Annotation used to by DevFun to "tag" references to other DevFun/developer -related annotations.
  *
- * By default usages of the annotated annotations result in generating [ReferenceDefinition] instances.
+ * # Behaviour
+ * By default this annotation will do nothing - you must set one of the flags to `true` to take effect.
  *
- * However, if [developerFunction] is set to `true` then the compiler will treat it as if it was an @[DeveloperFunction] annotation.
- * In this state the compiler will check for the same fields of `@DeveloperFunction`.
+ * _This is a somewhat experimental annotation - though DevFun uses it directly now (`@DeveloperFunction` is annotated `@DeveloperAnnotation(developerFunction = true)`).
+ * Having said that, attempts have been made for it to be quite versatile but it is still quite a recent aspect._
+ *
+ * ## [developerFunction]
+ * When `true` the compiler will treat it as if it was an @[DeveloperFunction] annotation. In this state the compiler will check for the
+ * same fields of `@DeveloperFunction`, falling back to the standard defaults if they are absent.
  *
  * If you have different defaults defined compared to [DeveloperFunction] then these values will be written as if you had used
  * `@DeveloperFunction(field = value)` at the declaration site - this behaviour is somewhat experimental. Please report any issues you encounter.
  *
  * An example of this can be seen with @[DeveloperProperty].
  *
- * # Custom Properties
- * If your annotation declares custom properties, these will be "serialized" and available at run-time during function transformation.
- * DevFun will generate a "Properties" interface for the annotation as `MyAnnotationProperties` in the same package (e.g. [DeveloperLoggerProperties]
+ * ## [developerCategory]
+ * When `true` the compiler will treat it as if it was an @[DeveloperCategory] annotation. In this state the compiler will check for the
+ * same fields of `@DeveloperCategory`, falling back to the standard defaults if they are absent.
  *
- * Function definitions will implement [ReferenceDefinition] and [WithProperties]. Use convenience extension methods [withProperties] or
- * [getProperties] to get an instance of an object the declares your custom properties.
+ * An example of this can be seen with [`@MenuCategory`](https://github.com/NextFaze/dev-fun/blob/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L197).
  *
- * Example of this can be seen with [DeveloperProperty]/[DeveloperPropertyProperties] and [DeveloperLogger]/[DeveloperLoggerProperties].
+ * ## [developerReference]
+ * When `true` the compiler will treat it as if it was an @[DeveloperReference] annotation.
  *
- * ## Contextual Vars
- * _(experimental)_ At compile time the follow vars are available for use in `String` properties:
- * - `%CLASS_SN%` → The simple name of the class
- * - `%CLASS_QN%` → The fully qualified name of the class
- * - `%FUN_SN%` → The simple name of the annotated function
- * - `%FUN_QN%` → The qualified name of the annotated function. "fun myFunction(param1: String)" becomes "myFunction(java.lang.String)"
- * - `%VAR_SN%` → The simple name of the annotated variable
- * - `%VAR_QN%` → The qualified name of the annotated variable
- *
- * e.g.
- * ```kotlin
- * class MyClass {
- *     @DeveloperFunction("I am in %CLASS_SN%")
- *     fun someFun() = Unit // name="I am in MyClass"
- * }
- * ```
+ * An example of this can be seen with @[Dagger2Component].
  *
  * @param developerFunction Set to `true` to have the compiler treat the annotation as a @[DeveloperFunction]. _(experimental)_
  * @param developerCategory Set to `true` to have the compiler treat the annotation as a @[DeveloperCategory]. _(experimental)_

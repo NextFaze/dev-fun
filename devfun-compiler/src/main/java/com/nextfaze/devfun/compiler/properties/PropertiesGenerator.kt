@@ -29,12 +29,7 @@ internal abstract class PropertiesGenerator(
             .addSuperinterface(ClassName.bestGuess(annotationElement.interfaceFqn))
 
         annotation.elementValues.forEach { (element: ExecutableElement, annotationValue: AnnotationValue) ->
-            log.note { "Processing (element: $element, annotationValue: $annotationValue (${annotationValue::class})" }
-
-            val value = annotationValue.value!!
-            log.note { "value=$value (${value::class})" }
-            val valueType: TypeMirror = element.returnType
-            log.note { "valueType=$valueType (${valueType::class})" }
+            log.note { "Processing (element: ${element.enclosingElement}.$element, annotationValue: $annotationValue (${annotationValue::class}) [value=${annotationValue.value} (${annotationValue.value?.let { it::class }}), valueType=${element.returnType} (${element.returnType?.let { it::class }})]" }
 
             val property = element.toPropertySpec(annotationValue, ValueInitType.INITIALIZER)
             builder.addProperty(property.addModifiers(KModifier.OVERRIDE).build())
@@ -71,7 +66,7 @@ internal abstract class PropertiesGenerator(
     ): PropertySpec.Builder {
         val value = annotationValue?.value
         val valueType: TypeMirror = returnType
-        log.note(element = this) { "${this.enclosingElement}.$this.toPropertySpec($annotationValue: ${annotationValue?.let { it::class }}, valueInitType=$valueInitType), value=$value (${value?.let { it::class }}), valueType=$valueType (${valueType::class})" }
+        log.note(element = this) { "$enclosingElement.$this.toPropertySpec($annotationValue (${annotationValue?.let { it::class }}), valueInitType=$valueInitType), value=$value (${value?.let { it::class }}), valueType=$valueType (${valueType::class})" }
 
         val returnTypeName = valueType.toReturnTypeName()
         val property = PropertySpec.builder(simpleName.toString(), returnTypeName)
@@ -99,7 +94,7 @@ internal abstract class PropertiesGenerator(
             is PrimitiveType -> CodeBlock.of("%V", value)
             is DeclaredType ->
                 when (value) {
-                    is String -> CodeBlock.of("%V", value)
+                    is String -> CodeBlock.of("%V", value.toValue(this))
                     is TypeMirror -> value.toKClassBlock(castIfNotPublic = returnTypeName)
                     is VariableElement -> value.toEnumBlock()
                     is AnnotationMirror -> CodeBlock.of("%L", generateImplementation(value))

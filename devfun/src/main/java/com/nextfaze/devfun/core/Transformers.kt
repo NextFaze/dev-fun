@@ -12,13 +12,10 @@ import com.nextfaze.devfun.annotations.PropertyTransformer
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.RequiringInstanceProvider
 import com.nextfaze.devfun.inject.isSubclassOf
-import com.nextfaze.devfun.internal.ReflectedProperty
-import com.nextfaze.devfun.internal.WithSubGroup
+import com.nextfaze.devfun.internal.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
-import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
-import com.nextfaze.devfun.internal.toReflected
 import com.nextfaze.devfun.invoke.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -207,7 +204,9 @@ internal class ArgumentsTransformerImpl : ArgumentsTransformer {
                         else -> str.replace(match.value, args.elementAtOrElse(index) { "<$index,OUT_OF_BOUNDS>" })
                     }
                 }
-                return str
+
+                // TODO ideally this should be done at compile time like the rest of the special vars
+                return str.replace("%FUN_SN%", functionDefinition.method.name.splitCamelCase())
             }
 
             val nameValue = name.takeIf { it.isNotBlank() }?.replaceArgs()
