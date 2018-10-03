@@ -1,9 +1,12 @@
 package com.nextfaze.devfun.error
 
 import android.app.Application
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.text.SpannableStringBuilder
+import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperFunction
@@ -109,6 +112,20 @@ interface ErrorHandler {
 
     /** Clears all errors, seen or otherwise. */
     fun clearAll()
+}
+
+/**
+ * Used during the initialization phase for if/when we can't get an instance of [ErrorHandler].
+ *
+ * Logs using [Log]
+ */
+internal object BasicErrorLogger {
+    fun onError(context: Context?, ref: Any, message: String, t: Throwable) {
+        Log.e(ref::class.java.name, message, t)
+        if (context != null) {
+            Toast.makeText(context.applicationContext, "$message (see logs):\n${t.message}", Toast.LENGTH_LONG).show()
+        }
+    }
 }
 
 @DeveloperCategory("DevFun")

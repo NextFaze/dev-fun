@@ -5,6 +5,7 @@ import com.nextfaze.devfun.annotations.DeveloperCategory
 import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
+import com.nextfaze.devfun.error.BasicErrorLogger
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.inject.CacheLevel.*
 import com.nextfaze.devfun.internal.log.*
@@ -110,11 +111,15 @@ internal class DefaultCompositeInstanceProvider(cacheLevel: CacheLevel) : Compos
                 // we got to the lowest provider (ConstructingInstanceProvider) and still couldn't get it
                 return tryGetInstanceOfInstanceProvider() ?: throw t
             } catch (t: Throwable) {
-                errorHandler.onError(
-                    t,
-                    "Instance Provider",
-                    "The instance provider $provider threw an exception when trying to get type $clazz."
-                )
+                try {
+                    errorHandler.onError(
+                        t,
+                        "Instance Provider",
+                        "The instance provider $provider threw an exception when trying to get type $clazz."
+                    )
+                } catch (t: Throwable) {
+                    BasicErrorLogger.onError(null, this, "Instance provider $provider threw an exception when trying to get type $clazz", t)
+                }
             } finally {
                 crumbs -= crumb
             }

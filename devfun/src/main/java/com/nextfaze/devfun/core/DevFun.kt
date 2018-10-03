@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog
 import com.nextfaze.devfun.annotations.*
 import com.nextfaze.devfun.core.loader.DefinitionsLoader
 import com.nextfaze.devfun.core.loader.ModuleLoader
+import com.nextfaze.devfun.error.BasicErrorLogger
 import com.nextfaze.devfun.error.DefaultErrorHandler
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.generated.DevFunGenerated
@@ -50,12 +51,28 @@ import kotlin.reflect.KClass
  * @see DevFun.initialize
  */
 class DevFunInitializerProvider : ContentProvider() {
+    @SuppressLint("LongLogTag")
     override fun onCreate(): Boolean {
         // Create instance so we can manipulate it in user-code before initialize runs
-        _devFun = DevFun()
+        val devFun = DevFun()
+        _devFun = devFun
 
+        val context = context!!.applicationContext
         // Post to next loop; initialize after Application.onCreate so logging frameworks etc. are ready
-        Handler(Looper.getMainLooper()).postAtFrontOfQueue { _devFun?.initialize(context!!) }
+        Handler(Looper.getMainLooper()).postAtFrontOfQueue {
+            try {
+                devFun.initialize(context)
+            } catch (t: Throwable) {
+                try {
+                    BasicErrorLogger.onError(context, this@DevFunInitializerProvider, "DevFun initialization failure", t)
+                    devFun.dispose()
+                } catch (t: Throwable) {
+                    BasicErrorLogger.onError(context, this@DevFunInitializerProvider, "DevFun disposal failure", t)
+                } finally {
+                    _devFun = null
+                }
+            }
+        }
         return true
     }
 
