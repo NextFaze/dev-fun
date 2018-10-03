@@ -34,11 +34,10 @@ object Dependency {
     const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     const val kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
-    private const val supportVersion = "28.0.0"
-    const val supportRecyclerView = "com.android.support:recyclerview-v7:$supportVersion"
-    const val supportAppCompat = "com.android.support:appcompat-v7:$supportVersion"
-    const val supportDesign = "com.android.support:design:$supportVersion"
-    const val supportAnnotations = "com.android.support:support-annotations:$supportVersion"
+    const val supportRecyclerView = "androidx.recyclerview:recyclerview:1.0.0"
+    const val supportAppCompat = "androidx.appcompat:appcompat:1.0.0"
+    const val supportDesign = "com.google.android.material:material:1.0.0"
+    const val supportAnnotations = "androidx.annotation:annotation:1.0.0"
     const val supportConstraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
     const val androidX = "androidx.core:core-ktx:1.0.0"
 
