@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.nextfaze.devfun.internal.android
 
 import android.app.ActivityManager
@@ -30,6 +32,7 @@ val Context.connectivityManager: ConnectivityManager by lazier {
 
 private fun <T : Any, R> lazier(initializer: T.() -> R) = UnsafeLazyImpl(initializer)
 
+@Suppress("ClassName")
 private object UNINITIALIZED_VALUE
 
 private class UnsafeLazyImpl<in T, out R>(initializer: T.() -> R) {

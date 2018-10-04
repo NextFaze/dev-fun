@@ -57,7 +57,7 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
         val annotations by lazy(NONE) { clazz.java.annotations }
         val constructable by lazy(NONE) { annotations.firstOrNull { it is Constructable } as Constructable? }
         if (requireConstructable && constructable == null) {
-            if (clazz.java.declaredConstructors.any { it.annotations.any { it is Inject } }) {
+            if (clazz.java.declaredConstructors.any { ctor -> ctor.annotations.any { it is Inject } }) {
                 throw ConstructableException(
                     """
                         |

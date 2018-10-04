@@ -19,7 +19,7 @@ import com.nextfaze.devfun.function.PropertyTransformer
 import com.nextfaze.devfun.function.SimpleFunctionItem
 import com.nextfaze.devfun.function.SingleFunctionTransformer
 import com.nextfaze.devfun.inject.Constructable
-import com.nextfaze.devfun.inject.RequiringInstanceProvider
+import com.nextfaze.devfun.inject.ThrowingInstanceProvider
 import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.internal.ReflectedProperty
 import com.nextfaze.devfun.internal.WithSubGroup
@@ -62,7 +62,7 @@ internal object RequiresApiTransformer : FunctionTransformer {
 }
 
 @Constructable(singleton = true)
-internal class CustomProviderTransformer(private val instanceProvider: RequiringInstanceProvider) : FunctionTransformer {
+internal class CustomProviderTransformer(private val instanceProvider: ThrowingInstanceProvider) : FunctionTransformer {
     override fun accept(functionDefinition: FunctionDefinition) =
         functionDefinition.transformer != SingleFunctionTransformer::class &&
                 instanceProvider[functionDefinition.transformer].accept(functionDefinition)
@@ -87,7 +87,7 @@ internal data class ContextFunctionItem(private val functionItem: FunctionItem, 
 @Constructable(singleton = true)
 internal class ContextTransformer(
     private val activityProvider: ActivityProvider,
-    private val instanceProvider: RequiringInstanceProvider
+    private val instanceProvider: ThrowingInstanceProvider
 ) : FunctionTransformer {
     // if the method is static then we don't care about context
     // however we also need to check if the method is a "property" (Kotlin creates a synthetic static method to hold annotations)

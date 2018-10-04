@@ -17,13 +17,13 @@ interface TestInstanceProviders {
 }
 
 internal object NOPFunctionItem : FunctionItem {
-    override val function get() = TODO("not implemented")
-    override val category get() = TODO("not implemented")
+    override val function get() = throw NotImplementedError()
+    override val category get() = throw NotImplementedError()
 }
 
 internal object NOPCategoryItem : CategoryItem {
-    override val name: CharSequence get() = TODO("not implemented")
-    override val items: List<FunctionItem> get() = TODO("not implemented")
+    override val name: CharSequence get() = throw NotImplementedError()
+    override val items: List<FunctionItem> get() = throw NotImplementedError()
 }
 
 internal class SimpleTypesInstanceProvider : InstanceProvider {

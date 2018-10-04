@@ -16,11 +16,11 @@ import androidx.annotation.DrawableRes
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.nextfaze.devfun.DebugException
 import com.nextfaze.devfun.category.CategoryItem
 import com.nextfaze.devfun.core.call
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.error.ErrorHandler
-import com.nextfaze.devfun.DebugException
 import com.nextfaze.devfun.function.FunctionItem
 import com.nextfaze.devfun.internal.WithSubGroup
 import com.nextfaze.devfun.internal.android.*
@@ -193,21 +193,21 @@ internal class DeveloperMenuDialogFragment : BaseDialogFragment() {
                 .toSortedMap(compareBy { it.text.toString() })
 
             ArrayList<WithText>().apply {
-                groups.forEach {
-                    add(it.key)
-                    if (it.value.any { it is WithSubGroup }) {
-                        it.value.groupBy { if (it is WithSubGroup) it.subGroup else null }
-                            .mapKeys { it.key?.let { SubGroupHeaderItem(it) } }
+                groups.forEach { (header, functionItems) ->
+                    add(header)
+                    if (functionItems.any { it is WithSubGroup }) {
+                        functionItems.groupBy { if (it is WithSubGroup) it.subGroup else null }
+                            .mapKeys { (text, _) -> text?.let { SubGroupHeaderItem(it) } }
                             .toSortedMap(compareBy { it?.text?.toString() })
-                            .forEach {
-                                val indent = it.key?.let {
+                            .forEach { (subHeader, subItems) ->
+                                val indent = subHeader?.let {
                                     add(it)
                                     "\t"
                                 }
-                                addAll(it.value.map { FunctionListItem(it, indent) }.sortedBy { it.text.toString() })
+                                addAll(subItems.map { FunctionListItem(it, indent) }.sortedBy { it.text.toString() })
                             }
                     } else {
-                        addAll(it.value.map { FunctionListItem(it) }.sortedBy { it.text.toString() })
+                        addAll(functionItems.map { FunctionListItem(it) }.sortedBy { it.text.toString() })
                     }
                 }
             }

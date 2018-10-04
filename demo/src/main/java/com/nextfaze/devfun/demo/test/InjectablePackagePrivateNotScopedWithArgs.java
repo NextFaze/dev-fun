@@ -10,7 +10,7 @@ import javax.inject.Inject;
 @TestCat
 class InjectablePackagePrivateNotScopedWithArgs {
 
-    private Context context;
+    private final Context context;
 
     @Inject
     InjectablePackagePrivateNotScopedWithArgs(Context context) {

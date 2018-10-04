@@ -32,7 +32,7 @@ import kotlin.reflect.KClass
  *
  * _Be aware of leaks! The lambda could implicitly hold a local `this` reference._
  *
- * @see RequiringInstanceProvider
+ * @see ThrowingInstanceProvider
  */
 interface InstanceProvider {
     /**
@@ -40,17 +40,13 @@ interface InstanceProvider {
      *
      * @return An instance of [clazz], or `null` if this provider can not handle the type
      *
-     * @see RequiringInstanceProvider.get
+     * @see ThrowingInstanceProvider.get
      */
     operator fun <T : Any> get(clazz: KClass<out T>): T?
 }
 
-/**
- * Same as [InstanceProvider], but throws [ClassInstanceNotFoundException] instead of returning `null`.
- *
- * _(TODO: Think of better nomenclature?)_
- */
-interface RequiringInstanceProvider : InstanceProvider {
+/** Same as [InstanceProvider], but throws [ClassInstanceNotFoundException] instead of returning `null`. */
+interface ThrowingInstanceProvider : InstanceProvider {
     /**
      * Get an instance of some [clazz].
      *

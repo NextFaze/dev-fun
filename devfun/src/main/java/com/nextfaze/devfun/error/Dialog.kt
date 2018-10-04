@@ -7,9 +7,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.view.*
+import android.view.InflateException
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.Window
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -112,8 +117,8 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
 
         clearButton.text = getString(if (errors.size > 1) R.string.df_devfun_clear_all else R.string.df_devfun_clear)
         clearButton.setOnClickListener {
-            errors.forEach {
-                errorHandler.remove(it.nanoTime)
+            errors.forEach { error ->
+                errorHandler.remove(error.nanoTime)
             }
             dismiss()
         }

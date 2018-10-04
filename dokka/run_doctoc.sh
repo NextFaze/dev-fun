@@ -1,4 +1,4 @@
-#/bin/bash
+#!/usr/bin/env bash
 
 # need to source nvm environment for non-interactive environment
 . ~/.nvm/nvm.sh

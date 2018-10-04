@@ -21,6 +21,7 @@ fun Project.configureDokka() {
     }
 
     val dokkaJavadoc = task<DokkaTask>("dokkaJavadoc") {
+        enabled = !isPublishToMavenLocal
         includes = listOf("Module.md")
         linkMapping {
             dir = "src/main/java"
@@ -37,6 +38,7 @@ fun Project.configureDokka() {
     }
 
     task<Jar>("javadocJar") {
+        enabled = !isPublishToMavenLocal
         group = "publishing"
         classifier = "javadoc"
         dependsOn(dokkaJavadoc)

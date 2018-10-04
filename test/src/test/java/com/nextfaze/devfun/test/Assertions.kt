@@ -42,17 +42,17 @@ data class ExpectedNamesTest(val expectedItemNames: List<String>) : Assertable {
 
 data class SingleItemRequiresApiTest(val requiresApi: Int?) : Assertable {
     override fun invoke(receiver: FunctionDefinition, items: List<FunctionItem>): Any? {
-        if (items.isEmpty()) {
+        return if (items.isEmpty()) {
             assertTrue("Fun with requiresApi $requiresApi was not visible but should have been. SDK_INT=${Build.VERSION.SDK_INT}") {
                 requiresApi != null && requiresApi > Build.VERSION.SDK_INT
             }
-            return "Definition with requiresApi $requiresApi did not have an item due to SDK_INT of ${Build.VERSION.SDK_INT}"
+            "Definition with requiresApi $requiresApi did not have an item due to SDK_INT of ${Build.VERSION.SDK_INT}"
         } else {
             expect(1, "Only single item expected") { items.size }
             assertTrue("Fun with requiresApi $requiresApi was unexpected. SDK_INT=${Build.VERSION.SDK_INT}") {
                 requiresApi == null || requiresApi <= 0 || requiresApi <= Build.VERSION.SDK_INT
             }
-            return "Definition with requiresApi $requiresApi had an item due to SDK_INT of ${Build.VERSION.SDK_INT}"
+            "Definition with requiresApi $requiresApi had an item due to SDK_INT of ${Build.VERSION.SDK_INT}"
         }
     }
 }

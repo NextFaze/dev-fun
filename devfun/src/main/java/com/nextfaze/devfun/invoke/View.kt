@@ -126,9 +126,9 @@ internal class DefaultCompositeParameterViewFactoryProvider : CompositeParameter
     }
 
     override fun get(parameter: Parameter): ViewFactory<View>? {
-        iterator().forEach {
-            log.t { "Try-get view for ${parameter.name} from $it" }
-            it[parameter]?.let {
+        iterator().forEach { factory ->
+            log.t { "Try-get view for ${parameter.name} from $factory" }
+            factory[parameter]?.let {
                 log.t { "> Got $it" }
                 return it
             }

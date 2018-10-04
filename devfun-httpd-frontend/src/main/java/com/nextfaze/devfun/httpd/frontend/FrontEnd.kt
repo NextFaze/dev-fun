@@ -13,7 +13,9 @@ import com.nextfaze.devfun.httpd.DevHttpD
 import com.nextfaze.devfun.httpd.devHttpD
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
-import fi.iki.elonen.NanoHTTPD.*
+import fi.iki.elonen.NanoHTTPD.IHTTPSession
+import fi.iki.elonen.NanoHTTPD.Response
+import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import fi.iki.elonen.router.RouterNanoHTTPD
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource
 
@@ -134,9 +136,9 @@ internal class IndexHandler : AbstractUriHandler() {
 
         var bodyTitle: CharSequence? = null
         val body = session.parameters["c"]?.firstOrNull()?.toIntOrNull().let { c ->
-            categories.firstOrNull { it.name.hashCode() == c }?.let {
-                bodyTitle = it.name
-                val groups = it.items.groupBy { it.group }
+            categories.firstOrNull { it.name.hashCode() == c }?.let { category ->
+                bodyTitle = category.name
+                val groups = category.items.groupBy { it.group }
                 val hasGroups = groups.size != 1 || groups.keys.single() != null
 
                 groups.entries.sortedBy { it.key.toString() }.joinToString("\n") { (group, items) ->
@@ -158,14 +160,14 @@ ${if (hasGroups) """
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-        ${items.joinToString("\n") {
+        ${items.joinToString("\n") { item ->
                         val funDef =
-                            "${it.function.clazz.java.name}::${it.function.method.name}(${it.function.method.parameterTypes.joinToString { it.simpleName }})"
+                            "${item.function.clazz.java.name}::${item.function.method.name}(${item.function.method.parameterTypes.joinToString { it.simpleName }})"
                         """
                                                     <tr>
-                                                        <td>${it.name}<br /><small class="text-muted">$funDef</small></td>
-                                                        <td>[${it.args.orEmpty().joinToString().takeIf { it.isNotBlank() } ?: " "}]</td>
-                                                        <td><button type="button" class="btn btn-primary" onClick="postInvoke('${it.hashCode()}', '$funDef')">Invoke</button></td>
+                                                        <td>${item.name}<br /><small class="text-muted">$funDef</small></td>
+                                                        <td>[${item.args.orEmpty().joinToString().takeIf { it.isNotBlank() } ?: " "}]</td>
+                                                        <td><button type="button" class="btn btn-primary" onClick="postInvoke('${item.hashCode()}', '$funDef')">Invoke</button></td>
                                                     </tr>
         """
                     }}

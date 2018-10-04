@@ -65,9 +65,9 @@ internal class DefaultCompositeViewFactory :
     }
 
     override operator fun get(clazz: KClass<*>): ViewFactory<View>? {
-        iterator().forEach {
-            log.t { "Try-get view for $clazz from $it" }
-            it[clazz]?.let {
+        iterator().forEach { factory ->
+            log.t { "Try-get view for $clazz from $factory" }
+            factory[clazz]?.let {
                 log.t { "> Got $it" }
                 return it
             }

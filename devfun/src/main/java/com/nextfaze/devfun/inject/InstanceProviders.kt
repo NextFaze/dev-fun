@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
  * Checks in reverse order of added.
  * i.e. most recently added is checked first.
  */
-interface CompositeInstanceProvider : RequiringInstanceProvider, Composite<InstanceProvider>
+interface CompositeInstanceProvider : ThrowingInstanceProvider, Composite<InstanceProvider>
 
 /**
  * Creates an instance provider that delegates to other providers.
@@ -133,7 +133,7 @@ internal class DefaultCompositeInstanceProvider(cacheLevel: CacheLevel) : Compos
     override fun onComponentsChanged() = aggressiveCachingProvider.onComponentsChanged()
 }
 
-private class AggressiveTypeCachingProvider(private val parent: DefaultCompositeInstanceProvider) : RequiringInstanceProvider {
+private class AggressiveTypeCachingProvider(private val parent: DefaultCompositeInstanceProvider) : ThrowingInstanceProvider {
     private val log = logger()
 
     private val typeCacheLock = Any()
@@ -185,7 +185,7 @@ private class AggressiveTypeCachingProvider(private val parent: DefaultComposite
     fun onComponentsChanged() = synchronized(typeCacheLock) { typeCache.clear() }
 }
 
-private class SingleLoopTypeCachingProvider(private val parent: DefaultCompositeInstanceProvider) : RequiringInstanceProvider {
+private class SingleLoopTypeCachingProvider(private val parent: DefaultCompositeInstanceProvider) : ThrowingInstanceProvider {
     private val log = logger()
 
     private var loopProviderCache: MutableMap<KClass<*>, InstanceProvider>? by threadLocal { null }

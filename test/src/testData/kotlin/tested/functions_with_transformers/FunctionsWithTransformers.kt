@@ -16,7 +16,7 @@ import com.nextfaze.devfun.test.SingleItemExpectedNameTest
 internal annotation class FunctionsWithTransformers
 
 class NullTransformer : FunctionTransformer {
-    override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition) = null
+    override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? = null
 }
 
 class NoItemGeneratedTransformer : FunctionTransformer {

@@ -86,6 +86,8 @@ internal class DeveloperFunctionHandler @Inject constructor(
             .build()
     }
 
+    private val devFunClassElement = elements.getTypeElement(DeveloperFunction::class.qualifiedName).toClassElement()
+
     override fun applyToFileSpec(fileSpec: FileSpec.Builder) {
         if (abstractFunctionDefinitionUsed) {
             fileSpec.addType(abstractFunctionDefinition)
@@ -274,7 +276,7 @@ internal class DeveloperFunctionHandler @Inject constructor(
         )
 
         // Generate any properties - but not if it's a @DeveloperFunction as we map those to FunctionDefinition elements directly
-        if (annotatedElement.annotationElement.toString() != "com.nextfaze.devfun.annotations.DeveloperFunction") {
+        if (annotatedElement.annotationElement != devFunClassElement) {
             val properties = implementationGenerator.processAnnotatedElement(annotatedElement, env)
             if (properties != null) {
                 val (typeName, impl) = properties

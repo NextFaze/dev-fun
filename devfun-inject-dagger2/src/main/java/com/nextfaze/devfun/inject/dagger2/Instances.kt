@@ -164,14 +164,14 @@ fun <T : Any> tryGetInstanceFromComponentReflection(component: Any, clazz: KClas
     // Get from Provider
     log.t { "Trying to get $clazz from $component providers..." }
     val providerFieldName by lazy(NONE) { clazz.java.simpleName.toLowerCase() }
-    component::class.java.declaredFields.forEach {
-        if (it.type != Provider::class.java) return@forEach
+    component::class.java.declaredFields.forEach { field: Field ->
+        if (field.type != Provider::class.java) return@forEach
 
-        val providerField = providerFields.getOrPut(it) { ProviderField(it) }
+        val providerField = providerFields.getOrPut(field) { ProviderField(field) }
         val genericType = providerField.genericType
         if (genericType is ParameterizedType) {
             if (genericType.actualTypeArguments[0] == clazz.java) {
-                return it.apply { isAccessible = true }.get(component)?.let { (it as Provider<T>).get() }
+                return field.apply { isAccessible = true }.get(component)?.let { (it as Provider<T>).get() }
             }
         }
 
@@ -179,12 +179,12 @@ fun <T : Any> tryGetInstanceFromComponentReflection(component: Any, clazz: KClas
         // since we can't know the type until we get it, we at least check the name matches first
         if (providerFieldName == providerField.providerFieldName) {
             try {
-                val instance = it.apply { isAccessible = true }.get(component)?.let { (it as Provider<*>).get() }
+                val instance = field.apply { isAccessible = true }.get(component)?.let { (it as Provider<*>).get() }
                 if (instance?.javaClass == clazz.java) {
                     return instance as T
                 }
             } catch (t: Throwable) {
-                log.d(t) { "Exception when trying to get $clazz from raw-type Provider $it (package private non-singleton type) - skipping provider." }
+                log.d(t) { "Exception when trying to get $clazz from raw-type Provider $field (package private non-singleton type) - skipping provider." }
             }
         }
     }
@@ -538,13 +538,13 @@ private class Dagger2ReflectiveInstanceProvider(
 
         resolveApplicationComponents()
 
-        applicationComponents?.forEach {
-            tryGetInstanceFromComponent(it, clazz)?.let { return it }
+        applicationComponents?.forEach { component ->
+            tryGetInstanceFromComponent(component, clazz)?.let { return it }
         }
 
         activityProvider()?.let { activity ->
-            tryGetComponents(activity, required = false).forEach {
-                tryGetInstanceFromComponent(it, clazz)?.let { return it }
+            tryGetComponents(activity, required = false).forEach { component ->
+                tryGetInstanceFromComponent(component, clazz)?.let { return it }
             }
         }
 
@@ -591,8 +591,8 @@ private fun tryGetComponents(instance: Any, required: Boolean): List<Any> {
     var objClass: Class<*> = instance::class.java
     while (objClass != ANY_CLASS) {
         components.addAll(
-            objClass.declaredFields.filter {
-                it.type.hasAnnotation<Component>() || it.type.interfaces.any { it.hasAnnotation<Component>() }
+            objClass.declaredFields.filter { field: Field ->
+                field.type.hasAnnotation<Component>() || field.type.interfaces.any { it.hasAnnotation<Component>() }
             }.mapNotNull {
                 it.isAccessible = true
                 it.get(instance)
@@ -602,9 +602,9 @@ private fun tryGetComponents(instance: Any, required: Boolean): List<Any> {
         components.addAll(
             objClass.declaredFields.filter {
                 it.name.endsWith("\$delegate") && Lazy::class.java.isAssignableFrom(it.type)
-            }.map {
-                it.isAccessible = true
-                val delegatedField = it.get(instance) as Lazy<*>
+            }.map { field: Field ->
+                field.isAccessible = true
+                val delegatedField = field.get(instance) as Lazy<*>
                 if (delegatedField.isInitialized()) {
                     delegatedField.value?.run {
                         if (javaClass.hasAnnotation<Component>() || javaClass.interfaces.any { it.hasAnnotation<Component>() }) {

@@ -47,7 +47,8 @@ private fun logKotlinPaths(kotlinPaths: KotlinPaths?, name: String) {
 }
 
 internal inline val <T : Any> T.srcLocation: URL get() = this::class.java.srcLocation
-internal inline val <T : Any> KClass<T>.srcLocation: URL get() = this.java.srcLocation
-internal inline val <T : Any> Class<T>.srcLocation: URL get() = this.protectionDomain.codeSource.location
+internal inline val <T : Any> KClass<T>.srcLocation: URL get() = java.srcLocation
+internal inline val <T : Any> Class<T>.srcLocation: URL get() = protectionDomain!!.codeSource.location
+internal inline val <T : Any> KClass<T>.pkg: Package get() = java.`package`!!
 
 internal fun List<*>.combine(other: List<*>): List<Pair<*, *>> = this.mapIndexed { i, s -> s to other[i] }

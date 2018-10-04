@@ -4,4 +4,6 @@ import kotlin.reflect.KClass
 
 annotation class TestUtil
 
-internal val KClass<*>.srcLocation get() = java.protectionDomain.codeSource?.location?.file
+@Suppress("unused")
+internal val KClass<*>.srcLocation
+    get() = java.protectionDomain?.codeSource?.location?.file

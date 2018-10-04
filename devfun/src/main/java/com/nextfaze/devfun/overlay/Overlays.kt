@@ -392,9 +392,9 @@ private class FullScreenUsageTracker(private val activityProvider: ActivityProvi
     fun notifyFinishUsingFullScreen(who: Any): Boolean {
         val display = activityProvider()?.defaultDisplay ?: return true
         val nowUnused = synchronized(usagesLock) {
-            usages[display]?.let {
-                it.remove(who)
-                it.isEmpty().also { if (it) usages.remove(display) }
+            usages[display]?.let { refs ->
+                refs.remove(who)
+                refs.isEmpty().also { if (it) usages.remove(display) }
             } ?: true
         }
         log.t {

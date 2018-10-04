@@ -52,8 +52,7 @@ internal class ActivityTracker @Inject constructor() : Initializer {
     var activity by weak<Activity?> { null }
         private set
 
-    var isResumed = false
-        private set
+    private var isResumed = false
 
     override fun invoke(application: Application) {
         application.registerActivityCallbacks(

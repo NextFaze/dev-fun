@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.view.View
 import android.view.ViewPropertyAnimator
-import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.TextView
 
@@ -13,15 +12,15 @@ import android.widget.TextView
 //
 
 inline var View.enabled: Boolean
-    get() = this.isEnabled
+    get() = isEnabled
     set(value) {
-        this.isEnabled = value
+        isEnabled = value
     }
 
 inline var View.visible: Boolean
-    get() = this.visibility == View.VISIBLE
+    get() = visibility == View.VISIBLE
     set(value) {
-        this.visibility = if (value) View.VISIBLE else View.GONE
+        visibility = if (value) View.VISIBLE else View.GONE
     }
 
 //
@@ -29,20 +28,20 @@ inline var View.visible: Boolean
 //
 
 fun TextView.clearError() {
-    this.error = null
+    error = null
 }
 
 //
 // EditText
 //
 
-fun EditText.isBlank() = this.text.isBlank()
+fun EditText.isBlank() = text.isBlank()
 
 //
 // ViewPropertyAnimator
 //
 
 inline fun ViewPropertyAnimator.onAnimationEnd(crossinline body: () -> Unit): ViewPropertyAnimator =
-        this.setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) = body.invoke()
-        })
+    setListener(object : AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator) = body.invoke()
+    })

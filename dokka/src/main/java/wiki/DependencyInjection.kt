@@ -8,12 +8,19 @@ import android.content.Context
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.nextfaze.devfun.annotations.Dagger2Component
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
-import com.nextfaze.devfun.core.FunctionTransformer
-import com.nextfaze.devfun.inject.*
+import com.nextfaze.devfun.function.FunctionTransformer
+import com.nextfaze.devfun.inject.CapturingInstanceProvider
+import com.nextfaze.devfun.inject.ClassInstanceNotFoundException
+import com.nextfaze.devfun.inject.CompositeInstanceProvider
+import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.inject.ConstructingInstanceProvider
+import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.inject.KObjectInstanceProvider
+import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.inject.dagger2.InjectFromDagger2
+import com.nextfaze.devfun.reference.Dagger2Component
 import kotlin.reflect.KClass
 
 /**

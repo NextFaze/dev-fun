@@ -40,6 +40,8 @@ import com.nextfaze.devfun.overlay.OverlayPermissions
 import com.nextfaze.devfun.overlay.OverlayPermissionsImpl
 import com.nextfaze.devfun.overlay.logger.OverlayLogging
 import com.nextfaze.devfun.overlay.logger.OverlayLoggingImpl
+import com.nextfaze.devfun.reference.Dagger2Component
+import com.nextfaze.devfun.reference.DeveloperReference
 import com.nextfaze.devfun.reference.ReferenceDefinition
 import com.nextfaze.devfun.view.CompositeViewFactoryProvider
 import com.nextfaze.devfun.view.DefaultCompositeViewFactory
@@ -292,7 +294,7 @@ class DevFun {
             this += KObjectInstanceProvider()
             this += captureInstance { this@DevFun }
             this += captureInstance<InstanceProvider> { this }
-            this += captureInstance<RequiringInstanceProvider> { this }
+            this += captureInstance<ThrowingInstanceProvider> { this }
             this += captureInstance { definitionsLoader }
             this += captureInstance<ActivityTracker> { appStateTracker }
             this += captureInstance<ForegroundTracker> { appStateTracker }
@@ -352,6 +354,7 @@ class DevFun {
      *
      * Modules without dependencies will fail to initialize. Add them and call this again.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     fun tryInitModules() = moduleLoader.tryInitModules()
 
     /**
@@ -442,8 +445,8 @@ class DevFun {
      * @see getDeveloperReferences
      */
     inline fun <reified T : Annotation> developerReferences(): List<ReferenceDefinition> =
-        definitions.flatMap {
-            it.developerReferences.filter { it.annotation == T::class }
+        definitions.flatMap { generated ->
+            generated.developerReferences.filter { it.annotation == T::class }
         }
 
     /**
@@ -456,9 +459,9 @@ class DevFun {
      *
      * @see developerReferences
      */
-    fun getDeveloperReferences(clazz: KClass<out Annotation>) =
-        definitions.flatMap {
-            it.developerReferences.filter { it.annotation == clazz }
+    fun getDeveloperReferences(clazz: KClass<out Annotation>): List<ReferenceDefinition> =
+        definitions.flatMap { generated ->
+            generated.developerReferences.filter { it.annotation == clazz }
         }
 
     /**

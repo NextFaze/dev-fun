@@ -15,7 +15,6 @@
     <string name="df_menu_cog_overlay_hidden">Cog Overlay Hidden</string>
     <string name="df_menu_cog_overlay_no_permissions"><font color="red">Overlay permissions not provided</font></string>
     <string name="df_menu_cog_overlay_hidden_by_user">Overlay hidden by user</string>
-    <string name="df_menu_cog_hide_message">Available menu controllers:\n<xliff:g id="menu_controllers" notranslate="true">%1$s</xliff:g></string>
     <string name="df_menu_cog_tap_to_show">Tapping cog overlay</string>
 
     <!-- Key Sequence Controller -->

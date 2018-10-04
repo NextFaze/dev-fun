@@ -19,15 +19,15 @@ import com.facebook.stetho.inspector.protocol.module.Page as StethoPage
 class DevStetho : AbstractDevFunModule() {
     override fun init(context: Context) {
         val initializer = Stetho.newInitializerBuilder(context)
-                .enableDumpapp(Stetho.defaultDumperPluginsProvider(context))
-                .enableWebKitInspector({
-                    Stetho.DefaultInspectorModulesBuilder(context)
-                            .runtimeRepl { buildJsRuntime(context, get(), devFun).newInstance() }
-                            .finish()
-                            .filter { it::class != StethoPage::class }
-                            .plus(Page(context, this))
-                })
-                .build()
+            .enableDumpapp(Stetho.defaultDumperPluginsProvider(context))
+            .enableWebKitInspector {
+                Stetho.DefaultInspectorModulesBuilder(context)
+                    .runtimeRepl { buildJsRuntime(context, get(), devFun).newInstance() }
+                    .finish()
+                    .filter { it::class != StethoPage::class }
+                    .plus(Page(context, this))
+            }
+            .build()
 
         Stetho.initialize(initializer)
         ContextFactory.initGlobal(AdvancedShellContextFactory().apply { setGeneratingDebug(true) })
@@ -36,14 +36,16 @@ class DevStetho : AbstractDevFunModule() {
 
 val DevFun.stetho get() = get<DevStetho>()
 
-class Page(context: Context, internal val devStetho: DevStetho) : StethoPage(context) {
+class Page(context: Context, private val devStetho: DevStetho) : StethoPage(context) {
     @ChromeDevtoolsMethod
     override fun enable(peer: JsonRpcPeer, params: JSONObject?) {
         super.enable(peer, params)
         writeConsoleText(peer, "DevFun REPL support is enabled.")
         writeConsoleText(peer, "DevFun REPL support is extremely experimental/buggy.", Console.MessageLevel.WARNING)
 
-        writeConsoleText(peer, """Scope Info:
+        writeConsoleText(
+            peer,
+            """Scope Info:
 
 handler
     Main Looper Handler
@@ -70,12 +72,12 @@ scope();
 
 help();
     Help message.
-""")
+"""
+        )
 
         val allItems = devStetho.devFun.categories
-                .flatMap { cat -> cat.items.map { cat to it } }
-                .map { (cat, item) -> "${cat.name} - ${item.name}: ${generateFunctionName(cat, item)}()" }
-                .joinToString("\n")
+            .flatMap { cat -> cat.items.map { cat to it } }
+            .joinToString("\n") { (cat, item) -> "${cat.name} - ${item.name}: ${generateFunctionName(cat, item)}()" }
         writeConsoleText(peer, "Available functions:\n\n$allItems")
     }
 
@@ -91,18 +93,19 @@ help();
     }
 
     @ChromeDevtoolsMethod override fun disable(peer: JsonRpcPeer, params: JSONObject?) = super.disable(peer, params)
-    @ChromeDevtoolsMethod override fun getResourceTree(peer: JsonRpcPeer, params: JSONObject?): JsonRpcResult = super.getResourceTree(peer, params)
-    @ChromeDevtoolsMethod override fun canScreencast(peer: JsonRpcPeer, params: JSONObject?): JsonRpcResult = super.canScreencast(peer, params)
-    @ChromeDevtoolsMethod override fun hasTouchInputs(peer: JsonRpcPeer, params: JSONObject?): JsonRpcResult = super.hasTouchInputs(peer, params)
-    @ChromeDevtoolsMethod override fun setDeviceMetricsOverride(peer: JsonRpcPeer, params: JSONObject?) = super.setDeviceMetricsOverride(peer, params)
-    @ChromeDevtoolsMethod override fun clearDeviceOrientationOverride(peer: JsonRpcPeer, params: JSONObject?) = super.clearDeviceOrientationOverride(peer, params)
+    @ChromeDevtoolsMethod override fun getResourceTree(p: JsonRpcPeer, o: JSONObject?): JsonRpcResult = super.getResourceTree(p, o)
+    @ChromeDevtoolsMethod override fun canScreencast(p: JsonRpcPeer, o: JSONObject?): JsonRpcResult = super.canScreencast(p, o)
+    @ChromeDevtoolsMethod override fun hasTouchInputs(p: JsonRpcPeer, o: JSONObject?): JsonRpcResult = super.hasTouchInputs(p, o)
+    @ChromeDevtoolsMethod override fun setDeviceMetricsOverride(p: JsonRpcPeer, o: JSONObject?) = super.setDeviceMetricsOverride(p, o)
     @ChromeDevtoolsMethod override fun startScreencast(peer: JsonRpcPeer, params: JSONObject?) = super.startScreencast(peer, params)
     @ChromeDevtoolsMethod override fun stopScreencast(peer: JsonRpcPeer, params: JSONObject?) = super.stopScreencast(peer, params)
     @ChromeDevtoolsMethod override fun screencastFrameAck(peer: JsonRpcPeer, params: JSONObject?) = super.screencastFrameAck(peer, params)
-    @ChromeDevtoolsMethod override fun clearGeolocationOverride(peer: JsonRpcPeer, params: JSONObject?) = super.clearGeolocationOverride(peer, params)
-    @ChromeDevtoolsMethod override fun setTouchEmulationEnabled(peer: JsonRpcPeer, params: JSONObject?) = super.setTouchEmulationEnabled(peer, params)
+    @ChromeDevtoolsMethod override fun clearGeolocationOverride(p: JsonRpcPeer, o: JSONObject?) = super.clearGeolocationOverride(p, o)
+    @ChromeDevtoolsMethod override fun setTouchEmulationEnabled(p: JsonRpcPeer, o: JSONObject?) = super.setTouchEmulationEnabled(p, o)
     @ChromeDevtoolsMethod override fun setEmulatedMedia(peer: JsonRpcPeer, params: JSONObject?) = super.setEmulatedMedia(peer, params)
-    @ChromeDevtoolsMethod override fun setShowViewportSizeOnResize(peer: JsonRpcPeer, params: JSONObject?) = super.setShowViewportSizeOnResize(peer, params)
+    @ChromeDevtoolsMethod override fun setShowViewportSizeOnResize(p: JsonRpcPeer, o: JSONObject?) = super.setShowViewportSizeOnResize(p, o)
+    @ChromeDevtoolsMethod override fun clearDeviceOrientationOverride(p: JsonRpcPeer, o: JSONObject?) =
+        super.clearDeviceOrientationOverride(p, o)
 }
 
 private class AdvancedShellContextFactory : ShellContextFactory() {

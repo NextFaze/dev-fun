@@ -8,7 +8,7 @@ import com.nextfaze.devfun.inject.ClassInstanceNotFoundException
 import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.KObjectInstanceProvider
-import com.nextfaze.devfun.inject.RequiringInstanceProvider
+import com.nextfaze.devfun.inject.ThrowingInstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.inject.createDefaultCompositeInstanceProvider
 import com.nextfaze.devfun.inject.singletonInstance
@@ -26,8 +26,8 @@ class TestInstanceProviders {
 
     fun testKObjectVisibilities() {
         val kObjectProvider = KObjectInstanceProvider()
-        classes.forEach {
-            assertNotNull(kObjectProvider[it]) { "$it was null!" }
+        classes.forEach { kClass ->
+            assertNotNull(kObjectProvider[kClass]) { "$it was null!" }
         }
     }
 
@@ -35,7 +35,7 @@ class TestInstanceProviders {
     fun testRecursion() {
         class ClassProvidedByHigherLevelProvider
 
-        class RecursiveInstanceProvider(private val root: RequiringInstanceProvider) : InstanceProvider {
+        class RecursiveInstanceProvider(private val root: ThrowingInstanceProvider) : InstanceProvider {
             override fun <T : Any> get(clazz: KClass<out T>): T? {
 
                 if (clazz == ClassProvidedByHigherLevelProvider::class) {

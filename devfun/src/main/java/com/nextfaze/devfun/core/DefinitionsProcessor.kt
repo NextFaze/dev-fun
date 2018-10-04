@@ -92,14 +92,14 @@ internal class DefinitionsProcessor(private val devFun: DevFun) {
         log.t { "Processing ${clazz.java.simpleName}::$name" }
 
         val resolvedCategory = resolveCategoryDefinition()
-        transformers.forEach {
-            if (!it.accept(this)) {
-                log.t { "Transformer $it ignored item" }
+        transformers.forEach { transformer ->
+            if (!transformer.accept(this)) {
+                log.t { "Transformer $transformer ignored item" }
                 return@forEach
             }
 
-            val items = it.apply(this, resolvedCategory)
-            log.t { "Transformer $it accepted item and returned ${items?.size} items: ${items?.joinToString { it.name }}" }
+            val items = transformer.apply(this, resolvedCategory)
+            log.t { "Transformer $transformer accepted item and returned ${items?.size} items: ${items?.joinToString { it.name }}" }
             if (items != null) {
                 functionItems.addAll(items)
                 return // accepted and transformed by transformer - halt further transformations

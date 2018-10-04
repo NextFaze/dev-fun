@@ -6,9 +6,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoSet
 
-@Module(includes = arrayOf(
-        JodaTimeModule::class
-))
+@Module(includes = [JodaTimeModule::class])
 class MainModule {
     @Provides @IntoSet
     internal fun activityTracker(activityTracker: ActivityTracker): Initializer = activityTracker

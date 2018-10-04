@@ -51,6 +51,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:typeface="monospace"
             android:visibility="gone"
+            tools:ignore="HardcodedText"
             tools:visibility="visible" />
 
     </LinearLayout>

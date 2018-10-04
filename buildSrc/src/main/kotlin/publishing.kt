@@ -206,3 +206,5 @@ private val gitTagRef
         .trim()
 
 private val Project.pomIssuesUrl get() = getStringProperty("POM_ISSUES_URL", "")
+
+val Project.isPublishToMavenLocal get() = gradle.startParameter.taskRequests.toString().contains("publishToMavenLocal")

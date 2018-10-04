@@ -5,7 +5,7 @@ plugins {
 
 description = """Provides common functionality used across various DevFun modules, but not exposed to consumers.
     |
-    |You should not use this directly, but if you do, do so knowing there are no compatabiltiy or stability guarantees.""".trimMargin()
+    |You should not use this directly, but if you do, do so knowing there are no compatibility or stability guarantees.""".trimMargin()
 
 configureAndroidLib()
 

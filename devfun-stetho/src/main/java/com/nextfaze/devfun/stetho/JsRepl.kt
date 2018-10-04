@@ -61,15 +61,19 @@ fun buildJsRuntime(context: Context, activityProvider: ActivityProvider, devFun:
             val resPackage: String
             val resName: String
             val rDotId = idString.indexOf("R.id.")
-            if (rDotId < 0) { // Format: name
-                resPackage = context.packageName
-                resName = idString
-            } else if (rDotId == 0) { // Format: R.id.name
-                resPackage = context.packageName
-                resName = idString.substring(rDotId + 5)
-            } else { // Format: com.package.R.id.drawer_layout
-                resPackage = idString.substring(0, rDotId - 1)
-                resName = idString.substring(rDotId + 5)
+            when {
+                rDotId < 0 -> { // Format: name
+                    resPackage = context.packageName
+                    resName = idString
+                }
+                rDotId == 0 -> { // Format: R.id.name
+                    resPackage = context.packageName
+                    resName = idString.substring(rDotId + 5)
+                }
+                else -> { // Format: com.package.R.id.drawer_layout
+                    resPackage = idString.substring(0, rDotId - 1)
+                    resName = idString.substring(rDotId + 5)
+                }
             }
 
             val id = context.resources.getIdentifier(resName, "id", resPackage)
@@ -144,11 +148,11 @@ private class JsBaseFunction(inline val body: JsFunctionBody, val invokeOnMain: 
             val waiting = CountDownLatch(1)
             var result: Any? = null
             handler.post {
-                try {
-                    result = body.invoke(cx, scope, thisObj, args)
+                result = try {
+                    body.invoke(cx, scope, thisObj, args)
                 } catch (t: Throwable) {
                     log.w(t) { "Call exception" }
-                    result = t.stackTraceAsString
+                    t.stackTraceAsString
                 } finally {
                     waiting.countDown()
                 }

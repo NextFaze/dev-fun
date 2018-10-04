@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.LazyThreadSafetyMode.NONE
 
 private const val DEFAULT_PORT = 0x5A23 // 23075
-private val AVD_IP = "10.0.2.15"
+private const val AVD_IP = "10.0.2.15"
 
 private const val PRIVILEGED_PORTS_END = 1023
 private const val EPHEMERAL_PORTS_START = 49152
@@ -55,9 +55,10 @@ class DevHttpD : AbstractDevFunModule() {
     private val log = logger()
     internal val handler = Handler(Looper.getMainLooper())
 
-    var port = devDefaultPort
+    private var port = devDefaultPort
+
     lateinit var nano: HttpDRouter
-    lateinit var captured: InstanceProvider
+    private lateinit var captured: InstanceProvider
 
     override fun init(context: Context) {
         port = context.resources.getInteger(R.integer.df_httpd_default_port).takeUnless { it <= 0 } ?: devDefaultPort
@@ -238,7 +239,7 @@ ${serverInfoTlDr()}
 
         // Dump all possible network address
         val addresses = NetworkInterface.getNetworkInterfaces().asSequence()
-            .flatMap { it.inetAddresses.asSequence().filter { it.address != null && it.address.isNotEmpty() } }
+            .flatMap { it.inetAddresses.asSequence().filter { inet -> inet.address != null && inet.address.isNotEmpty() } }
             .map { if (it.address.size == 4) it.hostAddress else "[${it.hostAddress}]" }
             .filter { it != AVD_IP }
             .toSet()
@@ -257,9 +258,7 @@ ${addresses.joinToString("\n") { "http://$it:$port/" }}""".also {
 
     private val isAvd by lazy(NONE) hasAvdIp@{
         NetworkInterface.getNetworkInterfaces().asSequence().any {
-            it.inetAddresses.asSequence().any {
-                it.hostAddress == AVD_IP
-            }
+            it.inetAddresses.asSequence().any { inet -> inet.hostAddress == AVD_IP }
         }
     }
 
@@ -315,10 +314,10 @@ internal class InvokeHandler : AbstractUriHandler() {
             }
             invokeWait.await(5, TimeUnit.SECONDS)
 
-            if (result != null && result?.exception == null) {
-                return response(OK, "${result?.value}")
+            return if (result != null && result?.exception == null) {
+                response(OK, "${result?.value}")
             } else {
-                return response(INTERNAL_ERROR, "Unexpected error ${result?.exception}")
+                response(INTERNAL_ERROR, "Unexpected error ${result?.exception}")
             }
         } catch (ignore: InterruptedException) {
             return response(REQUEST_TIMEOUT, "Timed out waiting for $item")

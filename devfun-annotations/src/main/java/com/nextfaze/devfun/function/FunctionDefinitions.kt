@@ -1,5 +1,6 @@
 package com.nextfaze.devfun.function
 
+import com.nextfaze.devfun.DebugException
 import com.nextfaze.devfun.category.CategoryDefinition
 import java.lang.reflect.Method
 import kotlin.reflect.KClass

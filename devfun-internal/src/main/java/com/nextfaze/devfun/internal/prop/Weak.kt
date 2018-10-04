@@ -12,5 +12,4 @@ class WeakProperty<T : Any>(initialValue: T?) {
     }
 }
 
-inline fun <reified T : Any> weak(body: () -> T?): WeakProperty<T> = WeakProperty(body.invoke())
 inline fun <reified T : Any> weak(): WeakProperty<T> = WeakProperty(null)

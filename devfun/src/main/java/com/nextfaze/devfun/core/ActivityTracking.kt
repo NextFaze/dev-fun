@@ -119,7 +119,7 @@ internal class AppStateTracker(context: Context) : ActivityTracker, ActivityProv
         }
     override val isAppInForeground: Boolean get() = _appInForeground
 
-    var logCallbacks = false
+    private var logCallbacks = false
 
     private val loggingCallbacks = application.registerActivityCallbacks(
         onCreated = { it, _ -> log.d(predicate = logCallbacks) { "onCreated($it)" } },

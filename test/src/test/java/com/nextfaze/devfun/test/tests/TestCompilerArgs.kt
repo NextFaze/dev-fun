@@ -1,9 +1,14 @@
 package com.nextfaze.devfun.test.tests
 
-import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.compiler.FLAG_DEBUG_VERBOSE
+import com.nextfaze.devfun.compiler.PACKAGE_OVERRIDE
+import com.nextfaze.devfun.compiler.PACKAGE_ROOT
+import com.nextfaze.devfun.compiler.PACKAGE_SUFFIX
+import com.nextfaze.devfun.compiler.PACKAGE_SUFFIX_DEFAULT
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.test.AbstractKotlinKapt3Tester
 import com.nextfaze.devfun.test.TestContext
+import com.nextfaze.devfun.test.pkg
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 import tested.kapt_and_compile.simple_functions_in_classes.SimpleFunctionsInClasses
@@ -39,7 +44,7 @@ class TestCompilerArgs : AbstractKotlinKapt3Tester() {
     ).apply { createGenerated() }
         .use {
             val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()
-            expect("$applicationId.$buildType.$PACKAGE_SUFFIX_DEFAULT") { devFun::class.java.`package`.name }
+            expect("$applicationId.$buildType.$PACKAGE_SUFFIX_DEFAULT") { devFun::class.pkg.name }
         }
 
     fun testRootPackage(method: Method) = TestContext(
@@ -52,7 +57,7 @@ class TestCompilerArgs : AbstractKotlinKapt3Tester() {
     ).apply { createGenerated() }
         .use {
             val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()
-            val actualPackage = devFun::class.java.`package`.name
+            val actualPackage = devFun::class.pkg.name
             expect("custom_package_root.$buildType.$PACKAGE_SUFFIX_DEFAULT") { actualPackage }
             assertFalse(
                 actualPackage.startsWith(applicationId),
@@ -70,8 +75,8 @@ class TestCompilerArgs : AbstractKotlinKapt3Tester() {
     ).apply { createGenerated() }
         .use {
             val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()
-            val actualPackage = devFun::class.java.`package`.name
-            expect("$applicationId.$buildType.custom_suffix") { devFun::class.java.`package`.name }
+            val actualPackage = devFun::class.pkg.name
+            expect("$applicationId.$buildType.custom_suffix") { devFun::class.pkg.name }
             assertTrue(
                 actualPackage.startsWith(applicationId),
                 "Actual package '$actualPackage' should start with applicationId=$applicationId"
@@ -93,8 +98,8 @@ class TestCompilerArgs : AbstractKotlinKapt3Tester() {
     ).apply { createGenerated() }
         .use {
             val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()
-            val actualPackage = devFun::class.java.`package`.name
-            expect("another.custom.pkg.root.custom.suffix") { devFun::class.java.`package`.name }
+            val actualPackage = devFun::class.pkg.name
+            expect("another.custom.pkg.root.custom.suffix") { devFun::class.pkg.name }
             assertFalse(
                 actualPackage.startsWith(applicationId),
                 "Actual package '$actualPackage' should not start with applicationId=$applicationId"
@@ -115,8 +120,8 @@ class TestCompilerArgs : AbstractKotlinKapt3Tester() {
     ).apply { }
         .use {
             val devFun = ServiceLoader.load(DevFunGenerated::class.java).single()
-            val actualPackage = devFun::class.java.`package`.name
-            expect("com.example.application.generated") { devFun::class.java.`package`.name }
+            val actualPackage = devFun::class.pkg.name
+            expect("com.example.application.generated") { devFun::class.pkg.name }
             assertFalse(
                 actualPackage.startsWith(applicationId),
                 "Actual package '$actualPackage' should not start with applicationId=$applicationId"

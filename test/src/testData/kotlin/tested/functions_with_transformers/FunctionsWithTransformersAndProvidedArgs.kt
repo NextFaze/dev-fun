@@ -53,7 +53,7 @@ private class fta_OneToOneWithProvidedAndInjectedArgsTransformer : FunctionTrans
     }
 
     override fun equals(other: Any?) = other is fta_OneToOneWithProvidedAndInjectedArgsTransformer
-    override fun hashCode() = super.hashCode()
+    override fun hashCode(): Int = javaClass.hashCode()
 }
 
 internal class fta_1IsProvided_2IsInjected_3IsProvided_4IsInjected_Transformer : FunctionTransformer {

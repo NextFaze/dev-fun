@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import kotlin.reflect.KClass
 
+@Suppress("unused")
 val Fragment.defaultTag: String
     get() = this::class.java.defaultTag
 

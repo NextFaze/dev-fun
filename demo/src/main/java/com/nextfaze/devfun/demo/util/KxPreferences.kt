@@ -23,7 +23,7 @@ interface KxObservablePreference<TValue : Any?, TObservable : Any> {
 }
 
 
-class KxSharedPreferences(val preferences: SharedPreferences) {
+class KxSharedPreferences(private val preferences: SharedPreferences) {
     private val keyChanges = Observable.create<String> { emitter: ObservableEmitter<String> ->
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key -> emitter.onNext(key) }
         preferences.registerOnSharedPreferenceChangeListener(listener)

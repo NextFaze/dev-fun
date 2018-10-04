@@ -60,8 +60,8 @@ object Debugging {
         }
 
         val processIds = intArrayOf(Process.myPid())
-        val memoryInfos = context.activityManager.getProcessMemoryInfo(processIds)
-        memoryInfos.firstOrNull()?.run {
+        val memoryInfo = context.activityManager.getProcessMemoryInfo(processIds)
+        memoryInfo.firstOrNull()?.run {
             append("\nMemoryInfo.dalvikPss=").append(dalvikPss)
             append("\nMemoryInfo.dalvikPrivateDirty=").append(dalvikPrivateDirty)
             append("\nMemoryInfo.dalvikSharedDirty=").append(dalvikSharedDirty)

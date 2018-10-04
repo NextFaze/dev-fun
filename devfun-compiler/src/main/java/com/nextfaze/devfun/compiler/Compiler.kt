@@ -52,7 +52,7 @@ const val FLAG_USE_KOTLIN_REFLECTION = "devfun.kotlin.reflection"
  * Will show various class/function enclosing types, arg types, modifiers, etc.
  *
  * Set using APT options:
- * ```gradle
+ * ```kotlin
  * android {
  *      defaultConfig {
  *          javaCompileOptions {

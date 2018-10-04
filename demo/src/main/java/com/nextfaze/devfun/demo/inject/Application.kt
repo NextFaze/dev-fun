@@ -64,15 +64,15 @@ abstract class DaggerApplication : Application() {
         createComponent().apply { initializer()(this@DaggerApplication) }
     }
 
-    /** The [RunningAppProcessInfo] of the current process. */
-    protected val currentProcessInfo: ActivityManager.RunningAppProcessInfo by lazy {
+    /** The [ActivityManager.RunningAppProcessInfo] of the current process. */
+    private val currentProcessInfo: ActivityManager.RunningAppProcessInfo by lazy {
         val pid = Process.myPid()
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         activityManager.runningAppProcesses.orEmpty().first { it.pid == pid }
     }
 
     /** Indicates if this process is the main process. */
-    protected val isMainProcess by lazy { !currentProcessInfo.processName.contains(":") }
+    private val isMainProcess by lazy { !currentProcessInfo.processName.contains(":") }
 
     /**
      * Create the application component. Subclasses, as needed for tests for example, can override this to supply an

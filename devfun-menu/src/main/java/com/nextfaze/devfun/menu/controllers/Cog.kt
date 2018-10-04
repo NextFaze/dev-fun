@@ -74,9 +74,9 @@ class CogOverlay constructor(
             prefsName = "DevMenuCog",
             reason = ::generateCogDescriptionState,
             onClick = ::onOverlayClick,
-            onLongClick = {
+            onLongClick = { window ->
                 overlays.configureOverlay(
-                    overlayWindow = it,
+                    overlayWindow = window,
                     additionalOptions = listOf(uiField("Color", cogColor, colorPickerAnnotation) { setColor(it) }),
                     onResetClick = { activity?.let { resetPositionAndState(it) } }
                 )

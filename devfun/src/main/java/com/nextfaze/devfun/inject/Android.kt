@@ -64,8 +64,8 @@ internal class AndroidInstanceProviderImpl(context: Context, private val activit
         if (activity != null && clazz.isSubclassOf<View>()) {
             activity.findViewById<ViewGroup>(android.R.id.content)?.let { traverseViewHierarchy(it, clazz) }?.let { return it }
             if (activity is FragmentActivity) {
-                activity.supportFragmentManager.iterateChildren().forEach {
-                    (it?.view as? ViewGroup)?.let { traverseViewHierarchy(it, clazz) }?.let { return it }
+                activity.supportFragmentManager.iterateChildren().forEach { fragment ->
+                    (fragment?.view as? ViewGroup)?.let { traverseViewHierarchy(it, clazz) }?.let { return it }
                 }
             }
         }
