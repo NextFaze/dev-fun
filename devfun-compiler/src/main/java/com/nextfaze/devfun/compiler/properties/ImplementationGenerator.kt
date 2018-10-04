@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.compiler.properties
 
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
+import com.nextfaze.devfun.DeveloperAnnotation
 import com.nextfaze.devfun.compiler.Logging
 import com.nextfaze.devfun.compiler.Options
 import com.nextfaze.devfun.compiler.StringPreprocessor

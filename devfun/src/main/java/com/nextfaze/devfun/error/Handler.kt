@@ -8,9 +8,15 @@ import android.text.SpannableStringBuilder
 import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.category.CategoryDefinition
+import com.nextfaze.devfun.category.DeveloperCategory
+import com.nextfaze.devfun.core.ActivityProvider
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.FunctionDefinition
+import com.nextfaze.devfun.function.FunctionItem
+import com.nextfaze.devfun.function.FunctionTransformer
+import com.nextfaze.devfun.function.SimpleFunctionItem
+import com.nextfaze.devfun.function.SingleFunctionTransformer
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.exception.stackTraceAsString
@@ -216,7 +222,7 @@ internal class DefaultErrorHandler(application: Application, private val activit
 
     private fun showErrorDialogIfHaveUnseen(force: Boolean = false) {
         val dialogErrors = synchronized(errorLock) {
-            errors.takeIf { it.isNotEmpty() }?.takeIf { force || it.values.any { !it.seen } }?.values?.mapTo(ArrayList()) { it }
+            errors.takeIf { it.isNotEmpty() }?.takeIf { force || it.values.any { e -> !e.seen } }?.values?.mapTo(ArrayList()) { it }
         } ?: return
         activity?.also {
             ErrorDialogFragment.show(it, dialogErrors)

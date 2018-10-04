@@ -1,6 +1,6 @@
-package com.nextfaze.devfun.core
+package com.nextfaze.devfun.function
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.category.CategoryDefinition
 
 /**
  * Function transformers filter and/or convert a [FunctionDefinition] to [FunctionItem].

@@ -3,7 +3,7 @@
 package tested.requires_api
 
 import android.os.Build
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.test.ExpectedItemCount
 import com.nextfaze.devfun.test.SingleItemRequiresApiTest
 

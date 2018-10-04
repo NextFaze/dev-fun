@@ -2,7 +2,7 @@ package com.nextfaze.devfun.demo.test;
 
 import android.app.Activity;
 import androidx.appcompat.app.AlertDialog;
-import com.nextfaze.devfun.annotations.DeveloperFunction;
+import com.nextfaze.devfun.function.DeveloperFunction;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

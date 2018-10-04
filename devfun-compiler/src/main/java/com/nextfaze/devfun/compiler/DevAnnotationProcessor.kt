@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.compiler
 
 import com.google.auto.service.AutoService
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
+import com.nextfaze.devfun.DeveloperAnnotation
 import com.nextfaze.devfun.compiler.properties.InterfaceGenerator
 import com.nextfaze.devfun.generated.DevFunGenerated
 import java.io.IOException

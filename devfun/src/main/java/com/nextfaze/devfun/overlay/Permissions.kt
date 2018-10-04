@@ -21,12 +21,12 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.BuildConfig
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.isInstrumentationTest

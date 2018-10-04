@@ -2,8 +2,8 @@ package com.nextfaze.devfun.compiler.processing
 
 import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
-import com.nextfaze.devfun.core.*
 import com.nextfaze.devfun.generated.DevFunGenerated
+import com.nextfaze.devfun.reference.*
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec

@@ -15,9 +15,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
-import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.devFun
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
@@ -28,7 +28,11 @@ import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.Ranged
 import com.nextfaze.devfun.invoke.view.ValueSource
-import com.nextfaze.devfun.menu.*
+import com.nextfaze.devfun.menu.DeveloperMenu
+import com.nextfaze.devfun.menu.MenuCategory
+import com.nextfaze.devfun.menu.MenuController
+import com.nextfaze.devfun.menu.R
+import com.nextfaze.devfun.menu.devMenu
 import com.nextfaze.devfun.overlay.Dock
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.overlay.OverlayWindow

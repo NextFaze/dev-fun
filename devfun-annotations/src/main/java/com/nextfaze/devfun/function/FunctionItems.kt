@@ -1,5 +1,6 @@
-package com.nextfaze.devfun.core
+package com.nextfaze.devfun.function
 
+import com.nextfaze.devfun.category.CategoryDefinition
 import com.nextfaze.devfun.inject.InstanceProvider
 
 /**
@@ -96,32 +97,4 @@ open class SimpleFunctionItem(
 
     override fun toString() =
         "SimpleFunctionItem(name='$name', group=$group, args=${args?.filter { it !== this }}, function=$function, category=$category)"
-}
-
-/**
- * Items are derived from [CategoryDefinition] at run-time during [FunctionDefinition] processing.
- *
- * Undefined categories will be derived from a definition's enclosing class.
- */
-interface CategoryItem {
-    /**
-     * Categories with the same name will be merged at runtime (case-sensitive).
-     *
-     * @see CategoryDefinition.name
-     */
-    val name: CharSequence
-
-    /**
-     * Categories are ordered by [order] (top->bottom is lowest->highest), then alphabetically by [name].
-     *
-     * @see CategoryDefinition.order
-     */
-    val order: Int get() = 0
-
-    /**
-     * List of items for this category.
-     *
-     * Categories with no items will be ignored at run-time.
-     */
-    val items: List<FunctionItem>
 }

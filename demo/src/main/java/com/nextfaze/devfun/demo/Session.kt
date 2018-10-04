@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.demo
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 import org.joda.time.DateTime
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -1,6 +1,8 @@
-package com.nextfaze.devfun.core
+package com.nextfaze.devfun.reference
 
-import com.nextfaze.devfun.annotations.*
+import com.nextfaze.devfun.DeveloperAnnotation
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.FunctionDefinition
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import kotlin.reflect.KClass

@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "ClassName", "PackageName", "TestFunctionName")
 
 package tested.no_annotations
 

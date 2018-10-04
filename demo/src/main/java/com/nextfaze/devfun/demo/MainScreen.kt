@@ -9,9 +9,9 @@ import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import com.google.android.material.snackbar.Snackbar
-import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.demo.inject.ActivityInjector
 import com.nextfaze.devfun.demo.kotlin.startActivity
+import com.nextfaze.devfun.function.DeveloperFunction
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.main_activity.*

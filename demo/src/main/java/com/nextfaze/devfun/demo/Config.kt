@@ -3,17 +3,17 @@ package com.nextfaze.devfun.demo
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.widget.Toast
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.annotations.DeveloperLogger
-import com.nextfaze.devfun.annotations.DeveloperProperty
+import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.demo.util.KxSharedPreferences
 import com.nextfaze.devfun.demo.util.toOptional
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperProperty
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.Ranged
 import com.nextfaze.devfun.invoke.view.ValueSource
 import com.nextfaze.devfun.overlay.Dock
+import com.nextfaze.devfun.reference.DeveloperLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 

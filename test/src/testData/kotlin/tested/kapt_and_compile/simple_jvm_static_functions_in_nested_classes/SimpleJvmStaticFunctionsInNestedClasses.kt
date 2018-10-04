@@ -1,8 +1,8 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "PackageName")
 
 package tested.kapt_and_compile.simple_jvm_static_functions_in_nested_classes
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 
 annotation class SimpleJvmStaticFunctionsInNestedClasses
 

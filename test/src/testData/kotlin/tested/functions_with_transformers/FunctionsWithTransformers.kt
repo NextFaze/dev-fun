@@ -1,9 +1,14 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "PackageName")
 
 package tested.functions_with_transformers
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.category.CategoryDefinition
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.FunctionDefinition
+import com.nextfaze.devfun.function.FunctionItem
+import com.nextfaze.devfun.function.FunctionTransformer
+import com.nextfaze.devfun.function.SimpleFunctionItem
+import com.nextfaze.devfun.function.SingleFunctionTransformer
 import com.nextfaze.devfun.test.ExpectedItemCount
 import com.nextfaze.devfun.test.ExpectedNamesTest
 import com.nextfaze.devfun.test.SingleItemExpectedNameTest

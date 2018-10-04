@@ -1,9 +1,11 @@
 package com.nextfaze.devfun.invoke.view
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.Constructable
 import kotlin.annotation.AnnotationRetention.RUNTIME
-import kotlin.annotation.AnnotationTarget.*
+import kotlin.annotation.AnnotationTarget.FIELD
+import kotlin.annotation.AnnotationTarget.PROPERTY
+import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 
 /**
  * Annotated `Int` value parameters will render a color picker view rather than an input/edit for use with invoke UI.

@@ -2,9 +2,9 @@
 
 package tested.developer_reference
 
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.core.MethodReference
-import com.nextfaze.devfun.core.getProperties
+import com.nextfaze.devfun.DeveloperAnnotation
+import com.nextfaze.devfun.reference.MethodReference
+import com.nextfaze.devfun.reference.getProperties
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.test.expect

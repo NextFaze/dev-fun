@@ -6,12 +6,17 @@ import android.text.SpannableStringBuilder
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.annotations.DeveloperLogger
-import com.nextfaze.devfun.annotations.DeveloperLoggerProperties
-import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.category.CategoryDefinition
+import com.nextfaze.devfun.category.DeveloperCategory
+import com.nextfaze.devfun.core.ActivityProvider
+import com.nextfaze.devfun.core.R
+import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.FunctionDefinition
+import com.nextfaze.devfun.function.FunctionItem
+import com.nextfaze.devfun.function.FunctionTransformer
+import com.nextfaze.devfun.function.SimpleFunctionItem
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.internal.ReflectedMethod
@@ -23,6 +28,11 @@ import com.nextfaze.devfun.internal.toReflected
 import com.nextfaze.devfun.overlay.Dock
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.overlay.OverlayWindow
+import com.nextfaze.devfun.reference.DeveloperLogger
+import com.nextfaze.devfun.reference.DeveloperLoggerProperties
+import com.nextfaze.devfun.reference.MethodReference
+import com.nextfaze.devfun.reference.TypeReference
+import com.nextfaze.devfun.reference.getProperties
 import kotlin.reflect.KClass
 
 /** Handles the creation, maintenance, and permissions of [OverlayLogger] instances. */
@@ -118,7 +128,7 @@ internal class OverlayLoggingImpl(
             get() = when {
                 isInActivity -> activityProvider()?.let { it::class.isSubclassOf(clazz) } == true
                 isInFragment -> activityProvider()?.let { it as? FragmentActivity }?.let { activity ->
-                    activity.supportFragmentManager.fragments.orEmpty().any {
+                    activity.supportFragmentManager.fragments.any {
                         // not sure how/why, but under some circumstances some of them are null
                         it != null && it.isAdded && clazz.java.isAssignableFrom(it::class.java)
                     }

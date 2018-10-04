@@ -7,8 +7,8 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
+import com.nextfaze.devfun.DebugException
 import com.nextfaze.devfun.core.ActivityProvider
-import com.nextfaze.devfun.core.DebugException
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.demo.R
 import com.nextfaze.devfun.demo.Session

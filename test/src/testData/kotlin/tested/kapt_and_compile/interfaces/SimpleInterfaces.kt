@@ -2,7 +2,7 @@
 
 package tested.kapt_and_compile.interfaces
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.test.ExpectedItemCount
 import com.nextfaze.devfun.test.TestInstanceProviders

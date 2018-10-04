@@ -1,7 +1,12 @@
 package com.nextfaze.devfun.compiler.processing
 
-import com.nextfaze.devfun.compiler.*
-import com.nextfaze.devfun.core.CategoryDefinition
+import com.nextfaze.devfun.category.CategoryDefinition
+import com.nextfaze.devfun.compiler.AnnotationElements
+import com.nextfaze.devfun.compiler.DevFunCategory
+import com.nextfaze.devfun.compiler.Logging
+import com.nextfaze.devfun.compiler.Options
+import com.nextfaze.devfun.compiler.StringPreprocessor
+import com.nextfaze.devfun.compiler.applyNotNull
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -10,6 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
+import kotlin.collections.set
 import kotlin.reflect.KClass
 
 @Singleton

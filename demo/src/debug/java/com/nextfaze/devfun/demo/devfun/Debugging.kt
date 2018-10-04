@@ -9,7 +9,7 @@ import android.os.Process
 import android.util.DisplayMetrics
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 
 object Debugging {
     @DeveloperFunction("Force GC") fun forceGarbageCollection() = System.gc()

@@ -1,10 +1,17 @@
 package com.nextfaze.devfun.test.tests
 
-import com.nextfaze.devfun.core.FunctionItem
 import com.nextfaze.devfun.core.devFunVerbose
 import com.nextfaze.devfun.error.ErrorDetails
 import com.nextfaze.devfun.error.ErrorHandler
-import com.nextfaze.devfun.inject.*
+import com.nextfaze.devfun.function.FunctionItem
+import com.nextfaze.devfun.inject.ClassInstanceNotFoundException
+import com.nextfaze.devfun.inject.ConstructingInstanceProvider
+import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.inject.KObjectInstanceProvider
+import com.nextfaze.devfun.inject.RequiringInstanceProvider
+import com.nextfaze.devfun.inject.captureInstance
+import com.nextfaze.devfun.inject.createDefaultCompositeInstanceProvider
+import com.nextfaze.devfun.inject.singletonInstance
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.test.PrimitivesInstanceProvider
 import com.nextfaze.devfun.test.SimpleTypesInstanceProvider

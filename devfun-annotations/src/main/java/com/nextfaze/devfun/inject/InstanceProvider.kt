@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.inject
 
-import com.nextfaze.devfun.core.FunctionTransformer
+import com.nextfaze.devfun.function.FunctionTransformer
 import javax.inject.Singleton
 import kotlin.reflect.KClass
 

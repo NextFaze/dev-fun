@@ -1,12 +1,12 @@
 package com.nextfaze.devfun.compiler.processing
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
 import com.nextfaze.devfun.compiler.*
 import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
-import com.nextfaze.devfun.core.FunctionDefinition
-import com.nextfaze.devfun.core.ReferenceDefinition
-import com.nextfaze.devfun.core.WithProperties
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.FunctionDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
+import com.nextfaze.devfun.reference.ReferenceDefinition
+import com.nextfaze.devfun.reference.WithProperties
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import javax.annotation.processing.RoundEnvironment
@@ -38,7 +38,7 @@ internal class DeveloperFunctionHandler @Inject constructor(
     private val isDebugCommentsEnabled get() = options.isDebugCommentsEnabled
 
     private val functionInvokeName =
-        ClassName.bestGuess("com.nextfaze.devfun.core.${FunctionDefinition::class.simpleName!!.replace("Definition", "Invoke")}")
+        ClassName.bestGuess(FunctionDefinition::class.qualifiedName!!.replace("Definition", "Invoke"))
 
     private val functionDefinitions = sortedMapOf<String, TypeSpec>()
     override val willGenerateSource get() = functionDefinitions.isNotEmpty()

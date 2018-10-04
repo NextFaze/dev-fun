@@ -2,8 +2,8 @@
 
 package tested.categories
 
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.category.DeveloperCategory
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.test.ExpectedCategoryName
 import com.nextfaze.devfun.test.ExpectedItemGroup
 

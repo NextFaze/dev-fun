@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.DeveloperAnnotation
 import com.nextfaze.devfun.demo.BaseActivity
 import com.nextfaze.devfun.demo.BaseFragment
 import com.nextfaze.devfun.demo.R
 import com.nextfaze.devfun.demo.inject.ActivityInjector
 import com.nextfaze.devfun.demo.inject.FragmentInjector
+import com.nextfaze.devfun.function.DeveloperFunction
 import javax.inject.Inject
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.CLASS

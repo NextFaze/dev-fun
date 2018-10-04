@@ -1,11 +1,11 @@
 package com.nextfaze.devfun.generated
 
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.annotations.DeveloperReference
-import com.nextfaze.devfun.core.CategoryDefinition
-import com.nextfaze.devfun.core.FunctionDefinition
-import com.nextfaze.devfun.core.ReferenceDefinition
+import com.nextfaze.devfun.category.CategoryDefinition
+import com.nextfaze.devfun.category.DeveloperCategory
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.FunctionDefinition
+import com.nextfaze.devfun.reference.DeveloperReference
+import com.nextfaze.devfun.reference.ReferenceDefinition
 import java.util.ServiceLoader
 
 /**

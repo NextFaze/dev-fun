@@ -1,4 +1,4 @@
-package com.nextfaze.devfun.core
+package com.nextfaze.devfun.function
 
 private val SPLIT_REGEX = Regex("(?<=[a-z0-9])(?=[A-Z])|[\\s]")
 

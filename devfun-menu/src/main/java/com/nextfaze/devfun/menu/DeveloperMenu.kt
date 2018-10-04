@@ -6,13 +6,13 @@ import android.text.SpannableStringBuilder
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import com.google.auto.service.AutoService
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.DeveloperAnnotation
 import com.nextfaze.devfun.core.AbstractDevFunModule
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.string.*

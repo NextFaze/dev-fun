@@ -2,11 +2,11 @@
 
 package com.nextfaze.devfun.test
 
-import com.nextfaze.devfun.core.CategoryItem
-import com.nextfaze.devfun.core.FieldReference
-import com.nextfaze.devfun.core.FunctionItem
-import com.nextfaze.devfun.core.TypeReference
+import com.nextfaze.devfun.category.CategoryItem
+import com.nextfaze.devfun.function.FunctionItem
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.reference.FieldReference
+import com.nextfaze.devfun.reference.TypeReference
 import java.lang.reflect.Array
 import java.util.ArrayDeque
 import kotlin.reflect.KClass

@@ -2,7 +2,7 @@
 
 package tested.kapt_and_compile.package_private
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 
 annotation class PackagePrivate
 

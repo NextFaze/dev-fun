@@ -1,7 +1,7 @@
 package com.nextfaze.devfun.test
 
 import android.os.Build
-import com.nextfaze.devfun.annotations.DeveloperCategory
+import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.compiler.FLAG_DEBUG_VERBOSE
 import com.nextfaze.devfun.compiler.PACKAGE_ROOT
 import com.nextfaze.devfun.compiler.PACKAGE_SUFFIX

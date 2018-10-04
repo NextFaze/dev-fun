@@ -2,7 +2,12 @@ package com.nextfaze.devfun.core
 
 import android.os.Debug
 import android.text.SpannableStringBuilder
+import com.nextfaze.devfun.category.CategoryDefinition
+import com.nextfaze.devfun.category.CategoryItem
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.function.FunctionDefinition
+import com.nextfaze.devfun.function.FunctionItem
+import com.nextfaze.devfun.function.FunctionTransformer
 import com.nextfaze.devfun.internal.exception.ExceptionCategoryItem
 import com.nextfaze.devfun.internal.exception.stackTraceAsString
 import com.nextfaze.devfun.internal.log.*

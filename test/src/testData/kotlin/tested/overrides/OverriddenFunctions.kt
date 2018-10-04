@@ -2,7 +2,7 @@
 
 package tested.overrides
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.test.ExpectedItemCount
 import com.nextfaze.devfun.test.NeverRun

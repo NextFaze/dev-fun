@@ -22,6 +22,10 @@ androidExtensions {
     isExperimental = true
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 dependencies {
     // DevFun
     kapt(project(":devfun-compiler"))

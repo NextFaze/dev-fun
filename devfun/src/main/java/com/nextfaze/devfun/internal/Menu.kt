@@ -1,6 +1,6 @@
 package com.nextfaze.devfun.internal
 
-import com.nextfaze.devfun.core.FunctionItem
+import com.nextfaze.devfun.function.FunctionItem
 
 /**
  * When implemented by a [FunctionItem] the DevMenu will render a sub-group for it. _Not explicitly intended for public use - primarily

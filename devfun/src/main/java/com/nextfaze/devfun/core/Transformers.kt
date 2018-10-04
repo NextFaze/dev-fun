@@ -5,18 +5,37 @@ import android.os.Build
 import android.text.SpannableStringBuilder
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.nextfaze.devfun.annotations.ArgumentsTransformer
-import com.nextfaze.devfun.annotations.DeveloperArgumentsProperties
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.PropertyTransformer
+import com.nextfaze.devfun.category.CONTEXT_CAT_NAME
+import com.nextfaze.devfun.category.CONTEXT_CAT_ORDER
+import com.nextfaze.devfun.category.CategoryDefinition
+import com.nextfaze.devfun.category.ContextCategory
+import com.nextfaze.devfun.function.ArgumentsTransformer
+import com.nextfaze.devfun.function.DeveloperArgumentsProperties
+import com.nextfaze.devfun.function.FunctionDefinition
+import com.nextfaze.devfun.function.FunctionInvoke
+import com.nextfaze.devfun.function.FunctionItem
+import com.nextfaze.devfun.function.FunctionTransformer
+import com.nextfaze.devfun.function.PropertyTransformer
+import com.nextfaze.devfun.function.SimpleFunctionItem
+import com.nextfaze.devfun.function.SingleFunctionTransformer
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.RequiringInstanceProvider
 import com.nextfaze.devfun.inject.isSubclassOf
-import com.nextfaze.devfun.internal.*
+import com.nextfaze.devfun.internal.ReflectedProperty
+import com.nextfaze.devfun.internal.WithSubGroup
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
+import com.nextfaze.devfun.internal.splitCamelCase
+import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.string.*
-import com.nextfaze.devfun.invoke.*
+import com.nextfaze.devfun.internal.toReflected
+import com.nextfaze.devfun.invoke.Invoker
+import com.nextfaze.devfun.invoke.Parameter
+import com.nextfaze.devfun.invoke.WithInitialValue
+import com.nextfaze.devfun.invoke.WithNullability
+import com.nextfaze.devfun.invoke.uiFunction
+import com.nextfaze.devfun.reference.ReferenceDefinition
+import com.nextfaze.devfun.reference.withProperties
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -52,12 +71,12 @@ internal class CustomProviderTransformer(private val instanceProvider: Requiring
         instanceProvider[functionDefinition.transformer].apply(functionDefinition, categoryDefinition)
 }
 
-@DeveloperCategory("Context", order = -10_000)
+@ContextCategory
 internal data class ContextFunctionItem(private val functionItem: FunctionItem, override val group: CharSequence?) :
     FunctionItem by functionItem, WithSubGroup {
     private object ContextCategory : CategoryDefinition {
-        override val name = "Context"
-        override val order = -10_000
+        override val name = CONTEXT_CAT_NAME
+        override val order = CONTEXT_CAT_ORDER
         override fun toString() = "ContextCategory"
     }
 

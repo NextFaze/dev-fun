@@ -1,8 +1,8 @@
-@file:Suppress("UNUSED_PARAMETER", "unused")
+@file:Suppress("UNUSED_PARAMETER", "unused", "PackageName")
 
 package tested.kapt_and_compile.functions_with_primitive_args
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 
 annotation class FunctionsWithPrimitiveArgs
 

@@ -1,8 +1,8 @@
-@file:Suppress("UNUSED_PARAMETER", "unused")
+@file:Suppress("UNUSED_PARAMETER", "unused", "PackageName")
 
 package tested.kapt_and_compile.functions_with_complex_types
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 import java.util.ArrayDeque
 import kotlin.reflect.KClass
 
@@ -68,9 +68,11 @@ internal class ComplexTypesClass {
     fun various8(arg1: Double, arg2: List<Iterable<Array<SimpleTypedClass<Float>>>>) = Unit
 
     @DeveloperFunction
-    fun various9(arg1: Short, arg2: Int, arg3: Long, arg4: Byte, arg5: Char, arg6: Boolean, arg7: Float, arg8: Double,
-                 arg9: Array<ComplexTypesClass>,
-                 arg10: List<Iterable<Array<TypedTypedClass<in Float, SimpleTypedClass<Float>>>>>) = Unit
+    fun various9(
+        arg1: Short, arg2: Int, arg3: Long, arg4: Byte, arg5: Char, arg6: Boolean, arg7: Float, arg8: Double,
+        arg9: Array<ComplexTypesClass>,
+        arg10: List<Iterable<Array<TypedTypedClass<in Float, SimpleTypedClass<Float>>>>>
+    ) = Unit
 }
 
 private class PrivateComplexTypesClass {
@@ -130,7 +132,9 @@ private class PrivateComplexTypesClass {
     fun various8(arg1: Double, arg2: List<Iterable<Array<SimpleTypedClass<Float>>>>) = Unit
 
     @DeveloperFunction
-    fun various9(arg1: Short, arg2: Int, arg3: Long, arg4: Byte, arg5: Char, arg6: Boolean, arg7: Float, arg8: Double,
-                 arg9: Array<ComplexTypesClass>,
-                 arg10: List<Iterable<Array<TypedTypedClass<Float, SimpleTypedClass<Float>>>>>) = Unit
+    fun various9(
+        arg1: Short, arg2: Int, arg3: Long, arg4: Byte, arg5: Char, arg6: Boolean, arg7: Float, arg8: Double,
+        arg9: Array<ComplexTypesClass>,
+        arg10: List<Iterable<Array<TypedTypedClass<Float, SimpleTypedClass<Float>>>>>
+    ) = Unit
 }

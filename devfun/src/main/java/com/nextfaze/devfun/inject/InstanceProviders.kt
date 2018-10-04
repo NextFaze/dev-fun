@@ -1,13 +1,15 @@
 package com.nextfaze.devfun.inject
 
 import androidx.annotation.RestrictTo
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperProperty
+import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
 import com.nextfaze.devfun.error.BasicErrorLogger
 import com.nextfaze.devfun.error.ErrorHandler
-import com.nextfaze.devfun.inject.CacheLevel.*
+import com.nextfaze.devfun.function.DeveloperProperty
+import com.nextfaze.devfun.inject.CacheLevel.AGGRESSIVE
+import com.nextfaze.devfun.inject.CacheLevel.NONE
+import com.nextfaze.devfun.inject.CacheLevel.SINGLE_LOOP
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.prop.*
 import kotlin.reflect.KClass

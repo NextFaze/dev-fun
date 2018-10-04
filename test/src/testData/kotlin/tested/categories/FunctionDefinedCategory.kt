@@ -1,9 +1,9 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "ClassName")
 
 package tested.categories
 
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.category.DeveloperCategory
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.test.ExpectedCategoryName
 
 annotation class FunctionDefinedCategory

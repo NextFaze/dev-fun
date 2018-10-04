@@ -1,10 +1,18 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "ClassName", "PackageName")
 
 package tested.functions_with_transformers
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.*
-import com.nextfaze.devfun.test.*
+import com.nextfaze.devfun.category.CategoryDefinition
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.FunctionDefinition
+import com.nextfaze.devfun.function.FunctionItem
+import com.nextfaze.devfun.function.FunctionTransformer
+import com.nextfaze.devfun.function.SimpleFunctionItem
+import com.nextfaze.devfun.test.ExpectedArgs
+import com.nextfaze.devfun.test.ExpectedItemCount
+import com.nextfaze.devfun.test.ExpectedNamesTest
+import com.nextfaze.devfun.test.SingleItemExpectedNameTest
+import com.nextfaze.devfun.test.TestableTest
 import kotlin.test.assertNotNull
 import kotlin.test.expect
 
@@ -64,60 +72,70 @@ private object fta_SomePrivateObject
 class fta_FunctionsWithTransformersAndArgs {
     @DeveloperFunction(transformer = fta_OneToOneWithOneArgTransformer::class)
     fun oneToOneWithOneArgTransformed(arg1: String) = listOf(
-            ExpectedItemCount(1)
+        ExpectedItemCount(1)
     ) to listOf(
-            ExpectedArgs(listOf(arg1 to "Single Arg"))
+        ExpectedArgs(listOf(arg1 to "Single Arg"))
     )
 
     @DeveloperFunction(transformer = fta_OneToOneWithMultipleArgsTransformer::class)
     private fun oneToOneWithMultipleArgsTransformed(arg1: String, arg2: Int, arg3: CharSequence) = listOf(
-            ExpectedItemCount(1)
+        ExpectedItemCount(1)
     ) to listOf(
-            ExpectedArgs(listOf(arg1 to "First Arg", arg2 to 2, arg3 to "My 3rd arg is a CharSequence"))
+        ExpectedArgs(listOf(arg1 to "First Arg", arg2 to 2, arg3 to "My 3rd arg is a CharSequence"))
     )
 
     @DeveloperFunction(transformer = fta_OneToFiveTransformerWithArgs::class)
     fun oneToFiveTransformedWithArgs(item: FunctionItem, number: Int) = listOf(
-            ExpectedItemCount(5),
-            ExpectedNamesTest((0..4).map { "OneToFiveTransformerWithArgs: 1 🠒 ? no. $it: One To Five Transformed With Args" })
+        ExpectedItemCount(5),
+        ExpectedNamesTest((0..4).map { "OneToFiveTransformerWithArgs: 1 🠒 ? no. $it: One To Five Transformed With Args" })
     ) to listOf(
-            TestableTest { _, _ ->
-                val args = item.args
-                assertNotNull(args, "No args provided"); args!!
-                expect(2, "Only two args expected") { args.size }
-                val arg = args.last() as? Int
-                assertNotNull(arg, "Arg as not an Int")
-                expect(arg, "Arg value did not match item arg") { number }
-                "Item was supplied with $item and $number"
-            }
+        TestableTest { _, _ ->
+            val args = item.args
+            assertNotNull(args, "No args provided"); args!!
+            expect(2, "Only two args expected") { args.size }
+            val arg = args.last() as? Int
+            assertNotNull(arg, "Arg as not an Int")
+            expect(arg, "Arg value did not match item arg") { number }
+            "Item was supplied with $item and $number"
+        }
     )
 
     @DeveloperFunction(value = "My Custom Name", transformer = fta_OneToOneWithProvidedAndInjectedArgsTransformer::class)
-    private fun oneToOneWithProvidedAndInjectedArgsTransformed(providedArg1: String,
-                                                               providedArg2: Float,
-                                                               injectedArg1: fta_SomePrivateObject,
-                                                               injectedArg2: fta_OneToOneWithProvidedAndInjectedArgsTransformer) = listOf(
-            ExpectedItemCount(1),
-            SingleItemExpectedNameTest("My Custom Name")
+    private fun oneToOneWithProvidedAndInjectedArgsTransformed(
+        providedArg1: String,
+        providedArg2: Float,
+        injectedArg1: fta_SomePrivateObject,
+        injectedArg2: fta_OneToOneWithProvidedAndInjectedArgsTransformer
+    ) = listOf(
+        ExpectedItemCount(1),
+        SingleItemExpectedNameTest("My Custom Name")
     ) to listOf(
-            ExpectedArgs(listOf(
-                    providedArg1 to "Provided arg1",
-                    providedArg2 to 2.0f,
-                    injectedArg1 to fta_SomePrivateObject,
-                    injectedArg2 to fta_OneToOneWithProvidedAndInjectedArgsTransformer()))
+        ExpectedArgs(
+            listOf(
+                providedArg1 to "Provided arg1",
+                providedArg2 to 2.0f,
+                injectedArg1 to fta_SomePrivateObject,
+                injectedArg2 to fta_OneToOneWithProvidedAndInjectedArgsTransformer()
+            )
+        )
     )
 
     @DeveloperFunction(transformer = fta_1IsProvided_2IsInjected_3IsProvided_4IsInjected_Transformer::class)
-    internal fun secondArgShouldBeInjected(providedArg1: String,
-                                           injectedArg1: fta_1IsProvided_2IsInjected_3IsProvided_4IsInjected_Transformer.NestedObject,
-                                           providedArg2: Float,
-                                           injectedArg2: fta_SomePublicObject) = listOf(
-            ExpectedItemCount(1)
+    internal fun secondArgShouldBeInjected(
+        providedArg1: String,
+        injectedArg1: fta_1IsProvided_2IsInjected_3IsProvided_4IsInjected_Transformer.NestedObject,
+        providedArg2: Float,
+        injectedArg2: fta_SomePublicObject
+    ) = listOf(
+        ExpectedItemCount(1)
     ) to listOf(
-            ExpectedArgs(listOf(
-                    providedArg1 to "1IsProvided_2IsInjected_3IsProvided_4IsInjected",
-                    injectedArg1 to fta_1IsProvided_2IsInjected_3IsProvided_4IsInjected_Transformer.NestedObject,
-                    providedArg2 to 2.1f,
-                    injectedArg2 to fta_SomePublicObject))
+        ExpectedArgs(
+            listOf(
+                providedArg1 to "1IsProvided_2IsInjected_3IsProvided_4IsInjected",
+                injectedArg1 to fta_1IsProvided_2IsInjected_3IsProvided_4IsInjected_Transformer.NestedObject,
+                providedArg2 to 2.1f,
+                injectedArg2 to fta_SomePublicObject
+            )
+        )
     )
 }

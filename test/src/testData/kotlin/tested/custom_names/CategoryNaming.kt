@@ -2,9 +2,9 @@
 
 package tested.custom_names
 
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
-import com.nextfaze.devfun.core.FunctionItem
+import com.nextfaze.devfun.category.DeveloperCategory
+import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.function.FunctionItem
 import com.nextfaze.devfun.test.NOPFunctionItem
 import kotlin.test.expect
 

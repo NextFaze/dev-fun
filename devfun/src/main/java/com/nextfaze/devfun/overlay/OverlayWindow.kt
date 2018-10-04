@@ -13,7 +13,6 @@ import android.view.*
 import android.view.animation.OvershootInterpolator
 import androidx.annotation.LayoutRes
 import androidx.core.math.MathUtils.clamp
-import com.nextfaze.devfun.annotations.DeveloperLogger
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.ForegroundTracker
 import com.nextfaze.devfun.core.R
@@ -26,6 +25,7 @@ import com.nextfaze.devfun.invoke.UiField
 import com.nextfaze.devfun.invoke.uiField
 import com.nextfaze.devfun.overlay.VisibilityScope.ALWAYS
 import com.nextfaze.devfun.overlay.VisibilityScope.FOREGROUND_ONLY
+import com.nextfaze.devfun.reference.DeveloperLogger
 import java.lang.Math.abs
 
 private const val MIN_ANIMATION_MILLIS = 250L

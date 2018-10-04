@@ -1,8 +1,8 @@
 package com.nextfaze.devfun.utils.leakcanary
 
 import android.app.Application
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.category.DeveloperCategory
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.squareup.leakcanary.internal.DisplayLeakActivity
 
 /**

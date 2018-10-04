@@ -4,11 +4,10 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.widget.TextView
-import com.nextfaze.devfun.annotations.DeveloperLogger
-import com.nextfaze.devfun.annotations.DeveloperProperty
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.function.DeveloperProperty
 import com.nextfaze.devfun.internal.pref.*
 import com.nextfaze.devfun.invoke.UiField
 import com.nextfaze.devfun.invoke.uiField
@@ -18,6 +17,7 @@ import com.nextfaze.devfun.overlay.OverlayWindow
 import com.nextfaze.devfun.overlay.VisibilityScope
 import com.nextfaze.devfun.overlay.VisibilityScope.ALWAYS
 import com.nextfaze.devfun.overlay.VisibilityScope.FOREGROUND_ONLY
+import com.nextfaze.devfun.reference.DeveloperLogger
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0

@@ -6,7 +6,11 @@ import android.os.Looper
 import android.widget.Toast
 import com.facebook.stetho.inspector.console.RuntimeReplFactory
 import com.facebook.stetho.rhino.JsRuntimeReplFactoryBuilder
-import com.nextfaze.devfun.core.*
+import com.nextfaze.devfun.category.CategoryItem
+import com.nextfaze.devfun.core.ActivityProvider
+import com.nextfaze.devfun.core.DevFun
+import com.nextfaze.devfun.core.call
+import com.nextfaze.devfun.function.FunctionItem
 import com.nextfaze.devfun.internal.exception.stackTraceAsString
 import com.nextfaze.devfun.internal.log.*
 import org.mozilla.javascript.BaseFunction

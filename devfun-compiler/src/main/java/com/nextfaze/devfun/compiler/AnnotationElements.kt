@@ -1,8 +1,8 @@
 package com.nextfaze.devfun.compiler
 
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.annotations.DeveloperCategory
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.DeveloperAnnotation
+import com.nextfaze.devfun.category.DeveloperCategory
+import com.nextfaze.devfun.function.DeveloperFunction
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.AnnotationMirror

@@ -4,8 +4,8 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.os.Process
-import com.nextfaze.devfun.annotations.Dagger2Component
 import com.nextfaze.devfun.demo.test.SingletonScopedTestModule
+import com.nextfaze.devfun.reference.Dagger2Component
 import dagger.Component
 import dagger.Lazy
 import dagger.Module
@@ -14,7 +14,11 @@ import dagger.multibindings.ElementsIntoSet
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlin.annotation.AnnotationRetention.BINARY
-import kotlin.annotation.AnnotationTarget.*
+import kotlin.annotation.AnnotationTarget.FIELD
+import kotlin.annotation.AnnotationTarget.FUNCTION
+import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
+import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
+import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 
 @Singleton
 @Component(modules = [ApplicationModule::class])

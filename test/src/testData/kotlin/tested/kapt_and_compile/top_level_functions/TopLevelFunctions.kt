@@ -1,8 +1,8 @@
-@file:Suppress("UNUSED_PARAMETER", "unused")
+@file:Suppress("UNUSED_PARAMETER", "unused", "PackageName")
 
 package tested.kapt_and_compile.top_level_functions
 
-import com.nextfaze.devfun.annotations.DeveloperFunction
+import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.Constructable
 
 annotation class TopLevelFunctions

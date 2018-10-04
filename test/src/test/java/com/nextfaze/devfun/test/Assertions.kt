@@ -1,8 +1,8 @@
 package com.nextfaze.devfun.test
 
 import android.os.Build
-import com.nextfaze.devfun.core.FunctionDefinition
-import com.nextfaze.devfun.core.FunctionItem
+import com.nextfaze.devfun.function.FunctionDefinition
+import com.nextfaze.devfun.function.FunctionItem
 import kotlin.test.assertTrue
 import kotlin.test.expect
 import kotlin.test.fail

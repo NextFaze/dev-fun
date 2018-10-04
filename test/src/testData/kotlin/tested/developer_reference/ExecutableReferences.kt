@@ -2,8 +2,8 @@
 
 package tested.developer_reference
 
-import com.nextfaze.devfun.annotations.DeveloperReference
-import com.nextfaze.devfun.core.MethodReference
+import com.nextfaze.devfun.reference.DeveloperReference
+import com.nextfaze.devfun.reference.MethodReference
 import kotlin.reflect.jvm.javaMethod
 import kotlin.test.expect
 

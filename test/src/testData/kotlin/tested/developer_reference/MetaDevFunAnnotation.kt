@@ -2,8 +2,8 @@
 
 package tested.developer_reference
 
-import com.nextfaze.devfun.annotations.DeveloperAnnotation
-import com.nextfaze.devfun.annotations.DeveloperCategory
+import com.nextfaze.devfun.DeveloperAnnotation
+import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.test.ExpectedCategoryName
 import com.nextfaze.devfun.test.ExpectedItemGroup
 import com.nextfaze.devfun.test.ExpectedNamesTest
