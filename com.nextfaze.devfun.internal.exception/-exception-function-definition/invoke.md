@@ -2,9 +2,9 @@
 
 # invoke
 
-`val invoke: `[`FunctionInvoke`](../../com.nextfaze.devfun.core/-function-invoke.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L14)
+`val invoke: `[`FunctionInvoke`](../../com.nextfaze.devfun.function/-function-invoke.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L19)
 
-Overrides [FunctionDefinition.invoke](../../com.nextfaze.devfun.core/-function-definition/invoke.md)
+Overrides [FunctionDefinition.invoke](../../com.nextfaze.devfun.function/-function-definition/invoke.md)
 
 Called when this item is to be invoked.
 

@@ -2,7 +2,7 @@
 
 # doInvoke
 
-`fun `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html)`.doInvoke(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders, suppliedArgs: `[`FunctionArgs`](../../com.nextfaze.devfun.core/-function-args.md)` = null): `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L163)
+`fun `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html)`.doInvoke(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders, suppliedArgs: `[`FunctionArgs`](../../com.nextfaze.devfun.function/-function-args.md)` = null): `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L167)
 
 Invokes a Method using DevFun to source instances.
 

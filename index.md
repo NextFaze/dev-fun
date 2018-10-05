@@ -11,10 +11,12 @@ For an overview of all the components and libraries see [wiki/components](wiki/-
 
 | Name | Summary |
 |---|---|
-| [com.nextfaze.devfun.annotations](com.nextfaze.devfun.annotations/index.md) | Contains the annotations and interface definitions. |
-| [com.nextfaze.devfun.compiler](com.nextfaze.devfun.compiler/index.md) | Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-function/)  and [DeveloperCategory](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-category/) annotations. |
+| [com.nextfaze.devfun](com.nextfaze.devfun/index.md) |  |
+| [com.nextfaze.devfun.category](com.nextfaze.devfun.category/index.md) |  |
+| [com.nextfaze.devfun.compiler](com.nextfaze.devfun.compiler/index.md) | Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.function/-developer-function/)  and [DeveloperCategory](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.category/-developer-category/) annotations. |
 | [com.nextfaze.devfun.core](com.nextfaze.devfun.core/index.md) | Core [DevFun](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.core/-dev-fun/) package - handles loading and processing of modules and definitions. |
 | [com.nextfaze.devfun.error](com.nextfaze.devfun.error/index.md) |  |
+| [com.nextfaze.devfun.function](com.nextfaze.devfun.function/index.md) |  |
 | [com.nextfaze.devfun.generated](com.nextfaze.devfun.generated/index.md) |  |
 | [com.nextfaze.devfun.gradle.plugin](com.nextfaze.devfun.gradle.plugin/index.md) |  |
 | [com.nextfaze.devfun.httpd](com.nextfaze.devfun.httpd/index.md) | Adds a local HTTP server (uses [NanoHttpD](https://github.com/NanoHttpd/nanohttpd)). |
@@ -36,6 +38,7 @@ For an overview of all the components and libraries see [wiki/components](wiki/-
 | [com.nextfaze.devfun.menu.controllers](com.nextfaze.devfun.menu.controllers/index.md) |  |
 | [com.nextfaze.devfun.overlay](com.nextfaze.devfun.overlay/index.md) |  |
 | [com.nextfaze.devfun.overlay.logger](com.nextfaze.devfun.overlay.logger/index.md) |  |
+| [com.nextfaze.devfun.reference](com.nextfaze.devfun.reference/index.md) |  |
 | [com.nextfaze.devfun.stetho](com.nextfaze.devfun.stetho/index.md) | Allows generated methods to be invoked from Chrome's Dev Tools JavaScript console. |
 | [com.nextfaze.devfun.utils.glide](com.nextfaze.devfun.utils.glide/index.md) | Provides some utility functions when using Glide. |
 | [com.nextfaze.devfun.utils.leakcanary](com.nextfaze.devfun.utils.leakcanary/index.md) | Provides some utility functions when using Leak Canary. |

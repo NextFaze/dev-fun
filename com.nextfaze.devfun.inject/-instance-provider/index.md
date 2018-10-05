@@ -35,7 +35,7 @@ val provider = captureInstance<BaseType> { someObject.someType } // triggers onl
 
 **See Also**
 
-[RequiringInstanceProvider](../-requiring-instance-provider/index.md)
+[ThrowingInstanceProvider](../-throwing-instance-provider/index.md)
 
 ### Functions
 
@@ -52,4 +52,4 @@ val provider = captureInstance<BaseType> { someObject.someType } // triggers onl
 | [ConstructingInstanceProvider](../-constructing-instance-provider/index.md) | `class ConstructingInstanceProvider : `[`InstanceProvider`](./index.md)<br>Provides objects via instance construction. Type must be annotated with [Constructable](../-constructable/index.md). |
 | [Dagger2InstanceProvider](../../com.nextfaze.devfun.inject.dagger2/-dagger2-instance-provider/index.md) | `abstract class Dagger2InstanceProvider : `[`InstanceProvider`](./index.md) |
 | [KObjectInstanceProvider](../-k-object-instance-provider/index.md) | `class KObjectInstanceProvider : `[`InstanceProvider`](./index.md)<br>Handles Kotlin `object` and `companion object` types. |
-| [RequiringInstanceProvider](../-requiring-instance-provider/index.md) | `interface RequiringInstanceProvider : `[`InstanceProvider`](./index.md)<br>Same as [InstanceProvider](./index.md), but throws [ClassInstanceNotFoundException](../-class-instance-not-found-exception/index.md) instead of returning `null`. |
+| [ThrowingInstanceProvider](../-throwing-instance-provider/index.md) | `interface ThrowingInstanceProvider : `[`InstanceProvider`](./index.md)<br>Same as [InstanceProvider](./index.md), but throws [ClassInstanceNotFoundException](../-class-instance-not-found-exception/index.md) instead of returning `null`. |

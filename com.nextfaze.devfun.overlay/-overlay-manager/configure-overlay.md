@@ -2,7 +2,7 @@
 
 # configureOverlay
 
-`abstract fun configureOverlay(overlayWindow: `[`OverlayWindow`](../-overlay-window/index.md)`, additionalOptions: `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`UiField`](../../com.nextfaze.devfun.invoke/-ui-field/index.md)`<*>> = emptyList(), onResetClick: `[`OnClick`](../../com.nextfaze.devfun.invoke/-on-click.md)` = { overlayWindow.resetPositionAndState() }): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L107)
+`abstract fun configureOverlay(overlayWindow: `[`OverlayWindow`](../-overlay-window/index.md)`, additionalOptions: `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`UiField`](../../com.nextfaze.devfun.invoke/-ui-field/index.md)`<*>> = emptyList(), onResetClick: `[`OnClick`](../../com.nextfaze.devfun.invoke/-on-click.md)` = { overlayWindow.resetPositionAndState() }): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L111)
 
 Show a configuration dialog for an overlay.
 

@@ -2,4 +2,4 @@
 
 # AGGRESSIVE
 
-`AGGRESSIVE` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L50)
+`AGGRESSIVE` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L53)

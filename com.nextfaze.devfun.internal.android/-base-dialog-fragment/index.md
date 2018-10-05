@@ -32,11 +32,11 @@
 
 | Name | Summary |
 |---|---|
-| [defaultTag](../android.support.v4.app.-fragment/default-tag.md) | `val Fragment.defaultTag: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |
+| [defaultTag](../androidx.fragment.app.-fragment/default-tag.md) | `val Fragment.defaultTag: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |
 
 ### Extension Functions
 
 | Name | Summary |
 |---|---|
-| [show](../android.support.v4.app.-dialog-fragment/show.md) | `fun DialogFragment.show(fragmentManager: FragmentManager): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
-| [showNow](../android.support.v4.app.-dialog-fragment/show-now.md) | `fun DialogFragment.showNow(fragmentManager: FragmentManager): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
+| [show](../androidx.fragment.app.-dialog-fragment/show.md) | `fun DialogFragment.show(fragmentManager: FragmentManager): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |
+| [showNow](../androidx.fragment.app.-dialog-fragment/show-now.md) | `fun DialogFragment.showNow(fragmentManager: FragmentManager): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) |

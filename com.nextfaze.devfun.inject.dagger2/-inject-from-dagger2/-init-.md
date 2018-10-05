@@ -20,13 +20,13 @@ that [Provides](#) the requested type *(or subclasses the type)*.
 
 ### Annotation Based
 
-Use [Dagger2Component](../../com.nextfaze.devfun.annotations/-dagger2-component/index.md) on functions/properties/getters that return components.
+Use [Dagger2Component](../../com.nextfaze.devfun.reference/-dagger2-component/index.md) on functions/properties/getters that return components.
 
 Provides some level of support for manually specifying scopes (any/or attempts to guess them based on the context).
 
 ### Complex Object Graphs
 
-A simple object graph is one that is linear; [Singleton](#) -&gt; [Activity](https://developer.android.com/reference/android/app/Activity.html) -&gt; [Fragment](https://developer.android.com/reference/android/app/Fragment.html) -&gt; etc., or one that only ever
+A simple object graph is one that is linear; [Singleton](#) -&gt; [Activity](https://developer.android.com/reference/android/app/Activity.html) -&gt; [Fragment](#) -&gt; etc., or one that only ever
 has a single type of some scope active at once. i.e. for the example below `MyChildScope1` and `MyChildScope2` - if
 only one of the `ChildScope` is active at a time. It should also work for branched scopes *as long as the requested type iseffectively unique across scopes*.
 
@@ -75,5 +75,5 @@ Add/remove providers using [DevFun.instanceProviders](../../com.nextfaze.devfun.
 
 **See Also**
 
-[Dagger2Component](../../com.nextfaze.devfun.annotations/-dagger2-component/index.md)
+[Dagger2Component](../../com.nextfaze.devfun.reference/-dagger2-component/index.md)
 

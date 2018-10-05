@@ -2,7 +2,7 @@
 
 # ClassInstanceNotFoundException
 
-`class ClassInstanceNotFoundException : `[`Exception`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-exception/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L66)
+`class ClassInstanceNotFoundException : `[`Exception`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-exception/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L62)
 
 Exception thrown when attempting to provide a type that was not found from any [InstanceProvider](../-instance-provider/index.md).
 

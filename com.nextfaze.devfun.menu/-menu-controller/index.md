@@ -2,7 +2,7 @@
 
 # MenuController
 
-`interface MenuController` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L41)
+`interface MenuController` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L43)
 
 ### Properties
 

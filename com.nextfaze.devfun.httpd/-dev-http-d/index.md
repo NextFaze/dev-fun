@@ -2,7 +2,7 @@
 
 # DevHttpD
 
-`class DevHttpD : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L44)
+`class DevHttpD : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L54)
 
 ### Constructors
 
@@ -14,9 +14,7 @@
 
 | Name | Summary |
 |---|---|
-| [captured](captured.md) | `lateinit var captured: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md) |
 | [nano](nano.md) | `lateinit var nano: `[`HttpDRouter`](../-http-d-router/index.md) |
-| [port](port.md) | `var port: `[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) |
 
 ### Inherited Properties
 

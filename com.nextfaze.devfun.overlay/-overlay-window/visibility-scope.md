@@ -2,7 +2,7 @@
 
 # visibilityScope
 
-`abstract var visibilityScope: `[`VisibilityScope`](../-visibility-scope/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L83)
+`abstract var visibilityScope: `[`VisibilityScope`](../-visibility-scope/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L81)
 
 Determines when the overlay can be visible.
 

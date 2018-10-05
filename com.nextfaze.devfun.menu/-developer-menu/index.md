@@ -2,7 +2,7 @@
 
 # DeveloperMenu
 
-`interface DeveloperMenu : `[`MenuController`](../-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L28)
+`interface DeveloperMenu : `[`MenuController`](../-menu-controller/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/DeveloperMenu.kt#L30)
 
 ### Properties
 

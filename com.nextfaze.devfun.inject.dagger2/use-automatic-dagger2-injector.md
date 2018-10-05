@@ -2,7 +2,7 @@
 
 # useAutomaticDagger2Injector
 
-`var useAutomaticDagger2Injector: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-inject-dagger2/src/main/java/com/nextfaze/devfun/inject/dagger2/Instances.kt#L56)
+`var useAutomaticDagger2Injector: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-inject-dagger2/src/main/java/com/nextfaze/devfun/inject/dagger2/Instances.kt#L67)
 
 Flag to indicate if the default heavy-reflection based Dagger 2 injector should be used.
 
@@ -19,5 +19,5 @@ activity class, etc).
 
 [InjectFromDagger2](-inject-from-dagger2/index.md)
 
-[Dagger2Component](../com.nextfaze.devfun.annotations/-dagger2-component/index.md)
+[Dagger2Component](../com.nextfaze.devfun.reference/-dagger2-component/index.md)
 

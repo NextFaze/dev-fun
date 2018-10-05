@@ -2,15 +2,15 @@
 
 # category
 
-`val category: `[`ExceptionCategoryDefinition`](../-exception-category-definition/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L24)
+`val category: `[`ExceptionCategoryDefinition`](../-exception-category-definition/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L29)
 
-Overrides [FunctionItem.category](../../com.nextfaze.devfun.core/-function-item/category.md)
+Overrides [FunctionItem.category](../../com.nextfaze.devfun.function/-function-item/category.md)
 
 The resolved category definition.
 
-This may be the same from [function](../../com.nextfaze.devfun.core/-function-item/function.md), as declared on the class, or a combination of both.
+This may be the same from [function](../../com.nextfaze.devfun.function/-function-item/function.md), as declared on the class, or a combination of both.
 
 **See Also**
 
-[FunctionDefinition.category](../../com.nextfaze.devfun.core/-function-definition/category.md)
+[FunctionDefinition.category](../../com.nextfaze.devfun.function/-function-definition/category.md)
 

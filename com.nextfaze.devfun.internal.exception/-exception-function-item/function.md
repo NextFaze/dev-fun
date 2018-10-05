@@ -2,9 +2,9 @@
 
 # function
 
-`val function: `[`ExceptionFunctionDefinition`](../-exception-function-definition/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L23)
+`val function: `[`ExceptionFunctionDefinition`](../-exception-function-definition/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L28)
 
-Overrides [FunctionItem.function](../../com.nextfaze.devfun.core/-function-item/function.md)
+Overrides [FunctionItem.function](../../com.nextfaze.devfun.function/-function-item/function.md)
 
 The original definition this item was derived from.
 

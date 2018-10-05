@@ -35,5 +35,5 @@ private fun setColor(@ColorPicker @From(CurrentColor::class) color: Int) {
 
 [Constructable](../../com.nextfaze.devfun.inject/-constructable/index.md)
 
-[DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md)
+[DeveloperFunction](../../com.nextfaze.devfun.function/-developer-function/index.md)
 

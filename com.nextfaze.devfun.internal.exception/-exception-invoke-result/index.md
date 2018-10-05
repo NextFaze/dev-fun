@@ -2,7 +2,7 @@
 
 # ExceptionInvokeResult
 
-`object ExceptionInvokeResult : `[`InvokeResult`](../../com.nextfaze.devfun.core/-invoke-result/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L7)
+`object ExceptionInvokeResult : `[`InvokeResult`](../../com.nextfaze.devfun.function/-invoke-result/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L12)
 
 ### Properties
 

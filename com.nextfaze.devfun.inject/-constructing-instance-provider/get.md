@@ -13,6 +13,6 @@ An instance of [clazz](../-instance-provider/get.md#com.nextfaze.devfun.inject.I
 
 **See Also**
 
-[RequiringInstanceProvider.get](../-requiring-instance-provider/get.md)
+[ThrowingInstanceProvider.get](../-throwing-instance-provider/get.md)
 
 `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> get(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`T`](get.md#T)`>, requireConstructable: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)`): `[`T`](get.md#T)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/Constructable.kt#L40)

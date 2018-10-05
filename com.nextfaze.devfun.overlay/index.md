@@ -10,7 +10,7 @@
 | [Dock](-dock/index.md) | `enum class Dock` |
 | [OverlayManager](-overlay-manager/index.md) | `interface OverlayManager`<br>Handles creation, destruction, and visibility of overlays. |
 | [OverlayPermissions](-overlay-permissions/index.md) | `interface OverlayPermissions`<br>Handles overlay permissions. |
-| [OverlayWindow](-overlay-window/index.md) | `interface OverlayWindow`<br>Overlay windows are used by DevFun to display the loggers [DeveloperLogger](../com.nextfaze.devfun.annotations/-developer-logger/index.md) and DevMenu cog. |
+| [OverlayWindow](-overlay-window/index.md) | `interface OverlayWindow`<br>Overlay windows are used by DevFun to display the loggers [DeveloperLogger](../com.nextfaze.devfun.reference/-developer-logger/index.md) and DevMenu cog. |
 | [VisibilityScope](-visibility-scope/index.md) | `enum class VisibilityScope`<br>Determines when an overlay can be visible. |
 
 ### Type Aliases

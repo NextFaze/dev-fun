@@ -28,9 +28,9 @@
 |---|---|
 | [android.app.Application.ActivityLifecycleCallbacks](android.app.-application.-activity-lifecycle-callbacks/index.md) |  |
 | [android.content.Context](android.content.-context/index.md) |  |
-| [android.support.v4.app.DialogFragment](android.support.v4.app.-dialog-fragment/index.md) |  |
-| [android.support.v4.app.Fragment](android.support.v4.app.-fragment/index.md) |  |
-| [android.support.v4.app.FragmentActivity](android.support.v4.app.-fragment-activity/index.md) |  |
-| [android.support.v4.app.FragmentManager](android.support.v4.app.-fragment-manager/index.md) |  |
+| [androidx.fragment.app.DialogFragment](androidx.fragment.app.-dialog-fragment/index.md) |  |
+| [androidx.fragment.app.Fragment](androidx.fragment.app.-fragment/index.md) |  |
+| [androidx.fragment.app.FragmentActivity](androidx.fragment.app.-fragment-activity/index.md) |  |
+| [androidx.fragment.app.FragmentManager](androidx.fragment.app.-fragment-manager/index.md) |  |
 | [java.lang.Class](java.lang.-class/index.md) |  |
 | [kotlin.reflect.KClass](kotlin.reflect.-k-class/index.md) |  |

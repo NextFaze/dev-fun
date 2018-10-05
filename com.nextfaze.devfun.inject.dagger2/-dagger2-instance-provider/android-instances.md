@@ -2,4 +2,4 @@
 
 # androidInstances
 
-`val androidInstances: `[`AndroidInstanceProviderInternal`](../../com.nextfaze.devfun.internal.android/-android-instance-provider-internal/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-inject-dagger2/src/main/java/com/nextfaze/devfun/inject/dagger2/Instances.kt#L329)
+`val androidInstances: `[`AndroidInstanceProviderInternal`](../../com.nextfaze.devfun.internal.android/-android-instance-provider-internal/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-inject-dagger2/src/main/java/com/nextfaze/devfun/inject/dagger2/Instances.kt#L340)

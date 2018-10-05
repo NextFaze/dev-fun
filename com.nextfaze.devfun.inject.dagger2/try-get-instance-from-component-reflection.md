@@ -2,7 +2,7 @@
 
 # tryGetInstanceFromComponentReflection
 
-`fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> tryGetInstanceFromComponentReflection(component: `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`, clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<`[`T`](try-get-instance-from-component-reflection.md#T)`>): `[`T`](try-get-instance-from-component-reflection.md#T)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-inject-dagger2/src/main/java/com/nextfaze/devfun/inject/dagger2/Instances.kt#L132)
+`fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> tryGetInstanceFromComponentReflection(component: `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`, clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<`[`T`](try-get-instance-from-component-reflection.md#T)`>): `[`T`](try-get-instance-from-component-reflection.md#T)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-inject-dagger2/src/main/java/com/nextfaze/devfun/inject/dagger2/Instances.kt#L143)
 
 Helper function to be used on Dagger 2.x [Component](#) implementations.
 
@@ -19,5 +19,5 @@ activity class, etc) - which will end up using this method anyway.
 
 **See Also**
 
-[Dagger2Component](../com.nextfaze.devfun.annotations/-dagger2-component/index.md)
+[Dagger2Component](../com.nextfaze.devfun.reference/-dagger2-component/index.md)
 

@@ -3,3 +3,6 @@
 # getCompilerPluginId
 
 `fun getCompilerPluginId(): `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)
+
+The Gradle sub-plugin compiler plugin ID `com.nextfaze.devfun`.
+

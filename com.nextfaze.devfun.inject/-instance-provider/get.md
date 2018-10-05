@@ -11,5 +11,5 @@ An instance of [clazz](get.md#com.nextfaze.devfun.inject.InstanceProvider$get(ko
 
 **See Also**
 
-[RequiringInstanceProvider.get](../-requiring-instance-provider/get.md)
+[ThrowingInstanceProvider.get](../-throwing-instance-provider/get.md)
 

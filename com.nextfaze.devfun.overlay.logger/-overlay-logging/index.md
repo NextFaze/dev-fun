@@ -2,7 +2,7 @@
 
 # OverlayLogging
 
-`interface OverlayLogging` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/logger/Logging.kt#L26)
+`interface OverlayLogging` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/logger/Logging.kt#L39)
 
 Handles the creation, maintenance, and permissions of [OverlayLogger](../-overlay-logger/index.md) instances.
 

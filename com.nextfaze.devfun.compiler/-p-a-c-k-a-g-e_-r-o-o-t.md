@@ -2,7 +2,7 @@
 
 # PACKAGE_ROOT
 
-`const val PACKAGE_ROOT: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L135)
+`const val PACKAGE_ROOT: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L136)
 
 Sets the package root for the generated code. *(default: `<application package>`)*
 
@@ -15,12 +15,12 @@ Final output package will be: `PACKAGE_ROOT`.`<variant?>`.[PACKAGE_SUFFIX](-p-a-
 
 Set using APT options:
 
-``` gradle
+``` kotlin
 android {
      defaultConfig {
          javaCompileOptions {
              annotationProcessorOptions {
-                 argument 'devfun.package.root', 'com.your.application'
+                 argument("devfun.package.root", "com.your.application")
              }
          }
      }

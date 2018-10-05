@@ -23,5 +23,5 @@ i.e. Only use this if the outer class is an object/singleton.
 
 **See Also**
 
-[FunctionTransformer](../../com.nextfaze.devfun.core/-function-transformer/index.md)
+[FunctionTransformer](../../com.nextfaze.devfun.function/-function-transformer/index.md)
 

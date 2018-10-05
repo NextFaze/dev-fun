@@ -2,7 +2,7 @@
 
 # addOverlayPermissionListener
 
-`abstract fun addOverlayPermissionListener(listener: `[`OverlayPermissionListener`](../-overlay-permission-listener.md)`): `[`OverlayPermissionListener`](../-overlay-permission-listener.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Permissions.kt#L80)
+`abstract fun addOverlayPermissionListener(listener: `[`OverlayPermissionListener`](../-overlay-permission-listener.md)`): `[`OverlayPermissionListener`](../-overlay-permission-listener.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Permissions.kt#L81)
 
 Add a listener for when overlay permissions have changed.
 

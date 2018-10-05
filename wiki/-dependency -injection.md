@@ -2,7 +2,7 @@
 
 # Dependency Injection
 
-`object Dependency Injection` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/DependencyInjection.kt#L119)
+`object Dependency Injection` [(source)](https://github.com/NextFaze/dev-fun/tree/master/dokka/src/main/java/wiki/DependencyInjection.kt#L126)
 
 DevFun supports a rudimentary form of dependency injection using an [InstanceProvider](../com.nextfaze.devfun.inject/-instance-provider/index.md) (a
 [CompositeInstanceProvider](../com.nextfaze.devfun.inject/-composite-instance-provider.md) at [DevFun.instanceProviders](../com.nextfaze.devfun.core/-dev-fun/instance-providers.md)).
@@ -12,7 +12,7 @@ Dependency injection is used for:
 * The receiver object - i.e. the object the function will be called upon `injectMe.someFun()`
 * Parameters of the calling functions; `myActivity.updateSomething(injectThis: SomeObject, andThis: AnotherType)`
 * Construction of objects annotated [Constructable](../com.nextfaze.devfun.inject/-constructable/index.md) (see [below](#Constructable)
-* A [FunctionTransformer](../com.nextfaze.devfun.core/-function-transformer/index.md) can inject/supply dynamically generated argument values *(see demo [AuthenticateFragment.signInAs](https://github.com/NextFaze/dev-fun/blob/master/demo/src/main/java/com/nextfaze/devfun/demo/AuthenticateScreen.kt#L225))*
+* A [FunctionTransformer](../com.nextfaze.devfun.function/-function-transformer/index.md) can inject/supply dynamically generated argument values *(see demo [AuthenticateFragment.signInAs](https://github.com/NextFaze/dev-fun/blob/master/demo/src/main/java/com/nextfaze/devfun/demo/AuthenticateScreen.kt#L225))*
 * Effectively any time something in DevFun requests an object of some type - in general nothing in DevFun is static
 (except for the occasional `object`, but even then that is usually an implementation and uses DI).
 
@@ -35,7 +35,7 @@ In short, it is a module that adds an instance provider. Your application (and i
 object that has an `@Component` annotation. This instance is then traversed for type providers or modules that
 provide the type. This may fail or be insufficient if your application has non-trivial object graphs.
 
-The annotation [Dagger2Component](../com.nextfaze.devfun.annotations/-dagger2-component/index.md) can also be used to tell DevFun how to get your components.
+The annotation [Dagger2Component](../com.nextfaze.devfun.reference/-dagger2-component/index.md) can also be used to tell DevFun how to get your components.
 
 See [InjectFromDagger2](../com.nextfaze.devfun.inject.dagger2/-inject-from-dagger2/index.md) for more details and limitations, or for details and examples on implementing your own.
 

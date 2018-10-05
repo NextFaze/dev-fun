@@ -2,9 +2,9 @@
 
 # OverlayWindow
 
-`interface OverlayWindow` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L61)
+`interface OverlayWindow` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L59)
 
-Overlay windows are used by DevFun to display the loggers [DeveloperLogger](../../com.nextfaze.devfun.annotations/-developer-logger/index.md) and DevMenu cog.
+Overlay windows are used by DevFun to display the loggers [DeveloperLogger](../../com.nextfaze.devfun.reference/-developer-logger/index.md) and DevMenu cog.
 
 **See Also**
 

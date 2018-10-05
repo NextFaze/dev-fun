@@ -2,7 +2,7 @@
 
 # HttpFrontEnd
 
-`class HttpFrontEnd : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd-frontend/src/main/java/com/nextfaze/devfun/httpd/frontend/FrontEnd.kt#L26)
+`class HttpFrontEnd : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd-frontend/src/main/java/com/nextfaze/devfun/httpd/frontend/FrontEnd.kt#L28)
 
 ### Constructors
 

@@ -2,7 +2,7 @@
 
 # notifyFinishUsingFullScreen
 
-`abstract fun notifyFinishUsingFullScreen(who: `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L151)
+`abstract fun notifyFinishUsingFullScreen(who: `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L155)
 
 Notify that you are done with your full-screen/dialog usage to signal the overlays they can be visible (if nothing else is using it).
 

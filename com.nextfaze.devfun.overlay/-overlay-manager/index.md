@@ -2,7 +2,7 @@
 
 # OverlayManager
 
-`interface OverlayManager` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L42)
+`interface OverlayManager` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L46)
 
 Handles creation, destruction, and visibility of overlays.
 

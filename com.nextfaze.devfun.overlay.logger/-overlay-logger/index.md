@@ -6,11 +6,11 @@
 
 An overlay logger is a floating semi-transparent `TextView` that will display the `.toString()` of a function, property, or class.
 
-They are contextually aware if created via @[DeveloperLogger](../../com.nextfaze.devfun.annotations/-developer-logger/index.md) (managed by [OverlayLogging](../-overlay-logging/index.md)) and will appear/disappear when in context (if
+They are contextually aware if created via @[DeveloperLogger](../../com.nextfaze.devfun.reference/-developer-logger/index.md) (managed by [OverlayLogging](../-overlay-logging/index.md)) and will appear/disappear when in context (if
 the annotation is within an Activity or Fragment).
 
 * By default it will update every second (see [refreshRate](refresh-rate.md)).
-* If the annotation is on a property also annotated with @[DeveloperProperty](../../com.nextfaze.devfun.annotations/-developer-property/index.md) then a single click will allow you to edit the value (opens
+* If the annotation is on a property also annotated with @[DeveloperProperty](../../com.nextfaze.devfun.function/-developer-property/index.md) then a single click will allow you to edit the value (opens
 the standard DevFun invoker dialog).
 * The overlay's floating behaviour can be configured with a long click (snapping, refresh rate, etc.)
 * Overlays can also be configured via. DevFun &gt; Overlays

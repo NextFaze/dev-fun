@@ -2,7 +2,7 @@
 
 # shouldRequestPermission
 
-`abstract val shouldRequestPermission: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Permissions.kt#L63)
+`abstract val shouldRequestPermission: `[`Boolean`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Permissions.kt#L64)
 
 Flag indicating if we should request overlay permissions - i.e. we don't have them and the user has not denied them.
 

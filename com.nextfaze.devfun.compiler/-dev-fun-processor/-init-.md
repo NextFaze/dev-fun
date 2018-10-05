@@ -4,5 +4,7 @@
 
 `DevFunProcessor()`
 
-Annotation processor for [DeveloperFunction](../../com.nextfaze.devfun.annotations/-developer-function/index.md) and [DeveloperCategory](../../com.nextfaze.devfun.annotations/-developer-category/index.md).
+Annotation processor for [DeveloperAnnotation](../../com.nextfaze.devfun/-developer-annotation/index.md) annotated annotations.
+
+*Visible for testing purposes only! Use at your own risk.*
 

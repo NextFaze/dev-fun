@@ -2,7 +2,7 @@
 
 # plusAssign
 
-`open operator fun plusAssign(listener: `[`ForegroundChangeListener`](../-foreground-change-listener.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/ActivityTracking.kt#L76)
+`open operator fun plusAssign(listener: `[`ForegroundChangeListener`](../-foreground-change-listener.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/ActivityTracking.kt#L77)
 
 Add a listener for when the app foreground status changes.
 

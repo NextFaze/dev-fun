@@ -2,7 +2,7 @@
 
 # inset
 
-`abstract var inset: `[`Rect`](https://developer.android.com/reference/android/graphics/Rect.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L96)
+`abstract var inset: `[`Rect`](https://developer.android.com/reference/android/graphics/Rect.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L94)
 
 Insets the overlay window. For a docked window, a pos
 

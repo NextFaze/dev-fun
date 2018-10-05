@@ -2,7 +2,7 @@
 
 # receiverInstance
 
-`fun `[`FunctionDefinition`](../com.nextfaze.devfun.core/-function-definition/index.md)`.receiverInstance(instanceProvider: `[`InstanceProvider`](../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders): `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L42)
+`fun `[`FunctionDefinition`](../com.nextfaze.devfun.function/-function-definition/index.md)`.receiverInstance(instanceProvider: `[`InstanceProvider`](../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders): `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L46)
 
 Get the receiver instance for this function definition to be used for invocation.
 
@@ -12,7 +12,7 @@ Get the receiver instance for this function definition to be used for invocation
 
 [Method.receiverInstance](java.lang.reflect.-method/receiver-instance.md)
 
-`fun `[`FunctionItem`](../com.nextfaze.devfun.core/-function-item/index.md)`.receiverInstance(instanceProvider: `[`InstanceProvider`](../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders): `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L79)
+`fun `[`FunctionItem`](../com.nextfaze.devfun.function/-function-item/index.md)`.receiverInstance(instanceProvider: `[`InstanceProvider`](../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders): `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L83)
 
 Get the receiver instance for this function item to be used for invocation.
 

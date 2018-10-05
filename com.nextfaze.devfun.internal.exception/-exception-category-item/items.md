@@ -2,9 +2,9 @@
 
 # items
 
-`val items: `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`FunctionItem`](../../com.nextfaze.devfun.core/-function-item/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L30)
+`val items: `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`FunctionItem`](../../com.nextfaze.devfun.function/-function-item/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L35)
 
-Overrides [CategoryItem.items](../../com.nextfaze.devfun.core/-category-item/items.md)
+Overrides [CategoryItem.items](../../com.nextfaze.devfun.category/-category-item/items.md)
 
 List of items for this category.
 

@@ -2,4 +2,4 @@
 
 # connectivityManager
 
-`val `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.connectivityManager: `[`ConnectivityManager`](https://developer.android.com/reference/android/net/ConnectivityManager.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/android/ContextExtensions.kt#L25)
+`val `[`Context`](https://developer.android.com/reference/android/content/Context.html)`.connectivityManager: `[`ConnectivityManager`](https://developer.android.com/reference/android/net/ConnectivityManager.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/android/ContextExtensions.kt#L27)

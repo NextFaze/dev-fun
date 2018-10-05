@@ -2,7 +2,7 @@
 
 # CacheLevel
 
-`enum class CacheLevel` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L50)
+`enum class CacheLevel` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/InstanceProviders.kt#L53)
 
 Controls how aggressively the [CompositeInstanceProvider](../-composite-instance-provider.md) caches the sources of class instances.
 

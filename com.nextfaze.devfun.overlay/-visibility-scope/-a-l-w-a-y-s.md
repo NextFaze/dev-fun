@@ -2,7 +2,7 @@
 
 # ALWAYS
 
-`ALWAYS` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L52)
+`ALWAYS` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L50)
 
 Visible even if the app has no active activities. *App cannot be swipe-closed if you have one of these.*
 

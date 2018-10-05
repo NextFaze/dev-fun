@@ -2,9 +2,9 @@
 
 # method
 
-`val method: `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L13)
+`val method: `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-internal/src/main/java/com/nextfaze/devfun/internal/exception/ExceptionTypes.kt#L18)
 
-Overrides [FunctionDefinition.method](../../com.nextfaze.devfun.core/-function-definition/method.md)
+Overrides [FunctionDefinition.method](../../com.nextfaze.devfun.function/-function-definition/method.md)
 
 The method of this function was defined.
 

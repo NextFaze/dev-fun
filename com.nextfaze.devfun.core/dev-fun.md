@@ -2,7 +2,7 @@
 
 # devFun
 
-`val devFun: `[`DevFun`](-dev-fun/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L93)
+`val devFun: `[`DevFun`](-dev-fun/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L131)
 
 Currently active/initialized instance of [DevFun](-dev-fun/index.md)
 

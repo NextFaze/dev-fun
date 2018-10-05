@@ -2,7 +2,7 @@
 
 # activity
 
-`abstract val activity: `[`Activity`](https://developer.android.com/reference/android/app/Activity.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/ActivityTracking.kt#L33)
+`abstract val activity: `[`Activity`](https://developer.android.com/reference/android/app/Activity.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/ActivityTracking.kt#L34)
 
 The current activity - may not be in a resumed state.
 

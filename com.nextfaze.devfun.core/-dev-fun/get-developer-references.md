@@ -2,15 +2,15 @@
 
 # getDeveloperReferences
 
-`fun getDeveloperReferences(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`Annotation`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-annotation/index.html)`>): `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`DeveloperReference`](../-developer-reference/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L422)
+`fun getDeveloperReferences(clazz: `[`KClass`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)`<out `[`Annotation`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-annotation/index.html)`>): `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`ReferenceDefinition`](../../com.nextfaze.devfun.reference/-reference-definition/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L462)
 
-Get references to annotations that are annotated by meta annotation [DeveloperAnnotation](../../com.nextfaze.devfun.annotations/-developer-annotation/index.md).
+Get references to annotations that were annotated as [DeveloperReference](../../com.nextfaze.devfun.reference/-developer-reference/index.md).
 
 **Experimental API**
 
 ### Parameters
 
-`clazz` - The annotation class that was annotation with [DeveloperAnnotation](../../com.nextfaze.devfun.annotations/-developer-annotation/index.md).
+`clazz` - The annotation class that was annotation with [DeveloperReference](../../com.nextfaze.devfun.reference/-developer-reference/index.md).
 
 **Return**
 A list of references across all modules annotated with [clazz](get-developer-references.md#com.nextfaze.devfun.core.DevFun$getDeveloperReferences(kotlin.reflect.KClass((kotlin.Annotation)))/clazz).

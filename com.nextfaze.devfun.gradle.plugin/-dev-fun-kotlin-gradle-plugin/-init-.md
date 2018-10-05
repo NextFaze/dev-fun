@@ -11,5 +11,7 @@ Also passes though the script configuration options.
 
 **See Also**
 
+[DevFunGradlePlugin](../-dev-fun-gradle-plugin/index.md)
+
 [DevFunExtension](../-dev-fun-extension/index.md)
 

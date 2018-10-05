@@ -2,7 +2,7 @@
 
 # OverlayPermissions
 
-`interface OverlayPermissions` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Permissions.kt#L45)
+`interface OverlayPermissions` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Permissions.kt#L46)
 
 Handles overlay permissions.
 

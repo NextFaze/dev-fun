@@ -2,7 +2,7 @@
 
 # PACKAGE_OVERRIDE
 
-`const val PACKAGE_OVERRIDE: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L155)
+`const val PACKAGE_OVERRIDE: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L156)
 
 Sets the package for the generated code. *(default: `<none>`)*
 
@@ -10,7 +10,7 @@ This will override [PACKAGE_ROOT](-p-a-c-k-a-g-e_-r-o-o-t.md) and [PACKAGE_SUFFI
 
 Set using APT options:
 
-``` gradle
+``` kotlin
 android {
      defaultConfig {
          javaCompileOptions {

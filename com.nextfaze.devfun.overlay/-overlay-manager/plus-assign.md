@@ -2,7 +2,7 @@
 
 # plusAssign
 
-`open operator fun plusAssign(listener: `[`FullScreenUsageStateListener`](../-full-screen-usage-state-listener.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L185)
+`open operator fun plusAssign(listener: `[`FullScreenUsageStateListener`](../-full-screen-usage-state-listener.md)`): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/Overlays.kt#L189)
 
 Add a listener for the current full-screen status. This callback may be called multiple times with the same value.
 

@@ -2,7 +2,7 @@
 
 # Constructable
 
-`@Target([AnnotationTarget.CLASS]) annotation class Constructable` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L191)
+`@Target([AnnotationTarget.CLASS]) annotation class Constructable` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L187)
 
 Tag to allow classes to be instantiated when no other [InstanceProvider](../-instance-provider/index.md) was able to provide the class.
 
@@ -23,7 +23,7 @@ i.e. Only use this if the outer class is an object/singleton.
 
 **See Also**
 
-[FunctionTransformer](../../com.nextfaze.devfun.core/-function-transformer/index.md)
+[FunctionTransformer](../../com.nextfaze.devfun.function/-function-transformer/index.md)
 
 ### Constructors
 

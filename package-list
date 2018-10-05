@@ -1,5 +1,7 @@
 $dokka.format:gfm
 $dokka.linkExtension:md
+$dokka.location:com.nextfaze.devfun.compiler$arrayTypeName#javax.lang.model.type.PrimitiveTypecom.nextfaze.devfun.compiler/javax.lang.model.type.-primitive-type/array-type-name.md
+$dokka.location:com.nextfaze.devfun.compiler$className#javax.lang.model.type.DeclaredTypecom.nextfaze.devfun.compiler/javax.lang.model.type.-declared-type/class-name.md
 $dokka.location:com.nextfaze.devfun.compiler$isPublic#javax.lang.model.type.TypeMirrorcom.nextfaze.devfun.compiler/javax.lang.model.type.-type-mirror/is-public.md
 $dokka.location:com.nextfaze.devfun.inject$isSubclassOf(kotlin.reflect.KClass((kotlin.Any)))com.nextfaze.devfun.inject/kotlin.reflect.-k-class/is-subclass-of.md
 $dokka.location:com.nextfaze.devfun.inject$isSubclassOf(kotlin.reflect.KClass((kotlin.Any)), kotlin.reflect.KClass((com.nextfaze.devfun.inject.isSubclassOf.T)))com.nextfaze.devfun.inject/kotlin.reflect.-k-class/is-subclass-of.md
@@ -10,17 +12,17 @@ $dokka.location:com.nextfaze.devfun.internal$splitSimpleName#kotlin.reflect.KCla
 $dokka.location:com.nextfaze.devfun.internal$toReflected(java.lang.reflect.Method)com.nextfaze.devfun.internal/java.lang.reflect.-method/to-reflected.md
 $dokka.location:com.nextfaze.devfun.internal.android$activityManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/activity-manager.md
 $dokka.location:com.nextfaze.devfun.internal.android$connectivityManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/connectivity-manager.md
-$dokka.location:com.nextfaze.devfun.internal.android$defaultTag#android.support.v4.app.Fragmentcom.nextfaze.devfun.internal.android/android.support.v4.app.-fragment/default-tag.md
-$dokka.location:com.nextfaze.devfun.internal.android$defaultTag#java.lang.Class((android.support.v4.app.Fragment))com.nextfaze.devfun.internal.android/java.lang.-class/default-tag.md
-$dokka.location:com.nextfaze.devfun.internal.android$defaultTag#kotlin.reflect.KClass((android.support.v4.app.Fragment))com.nextfaze.devfun.internal.android/kotlin.reflect.-k-class/default-tag.md
-$dokka.location:com.nextfaze.devfun.internal.android$find(android.support.v4.app.FragmentManager)com.nextfaze.devfun.internal.android/android.support.v4.app.-fragment-manager/find.md
+$dokka.location:com.nextfaze.devfun.internal.android$defaultTag#androidx.fragment.app.Fragmentcom.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment/default-tag.md
+$dokka.location:com.nextfaze.devfun.internal.android$defaultTag#java.lang.Class((androidx.fragment.app.Fragment))com.nextfaze.devfun.internal.android/java.lang.-class/default-tag.md
+$dokka.location:com.nextfaze.devfun.internal.android$defaultTag#kotlin.reflect.KClass((androidx.fragment.app.Fragment))com.nextfaze.devfun.internal.android/kotlin.reflect.-k-class/default-tag.md
+$dokka.location:com.nextfaze.devfun.internal.android$find(androidx.fragment.app.FragmentManager)com.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment-manager/find.md
 $dokka.location:com.nextfaze.devfun.internal.android$keyguardManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/keyguard-manager.md
-$dokka.location:com.nextfaze.devfun.internal.android$obtain(android.support.v4.app.FragmentActivity, kotlin.Function0((com.nextfaze.devfun.internal.android.obtain.T)))com.nextfaze.devfun.internal.android/android.support.v4.app.-fragment-activity/obtain.md
-$dokka.location:com.nextfaze.devfun.internal.android$obtain(android.support.v4.app.FragmentManager, kotlin.Function0((com.nextfaze.devfun.internal.android.obtain.T)))com.nextfaze.devfun.internal.android/android.support.v4.app.-fragment-manager/obtain.md
+$dokka.location:com.nextfaze.devfun.internal.android$obtain(androidx.fragment.app.FragmentActivity, kotlin.Function0((com.nextfaze.devfun.internal.android.obtain.T)))com.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment-activity/obtain.md
+$dokka.location:com.nextfaze.devfun.internal.android$obtain(androidx.fragment.app.FragmentManager, kotlin.Function0((com.nextfaze.devfun.internal.android.obtain.T)))com.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment-manager/obtain.md
 $dokka.location:com.nextfaze.devfun.internal.android$registerActivityCallbacks(android.content.Context, kotlin.Function2((android.app.Activity, android.os.Bundle, kotlin.Unit)), kotlin.Function1((android.app.Activity, kotlin.Unit)), kotlin.Function1((android.app.Activity, kotlin.Unit)), kotlin.Function1((android.app.Activity, kotlin.Unit)), kotlin.Function1((android.app.Activity, kotlin.Unit)), kotlin.Function2((android.app.Activity, android.os.Bundle, kotlin.Unit)), kotlin.Function1((android.app.Activity, kotlin.Unit)))com.nextfaze.devfun.internal.android/android.content.-context/register-activity-callbacks.md
 $dokka.location:com.nextfaze.devfun.internal.android$registerActivityLifecycleCallbacks(android.content.Context, android.app.Application.ActivityLifecycleCallbacks)com.nextfaze.devfun.internal.android/android.content.-context/register-activity-lifecycle-callbacks.md
-$dokka.location:com.nextfaze.devfun.internal.android$show(android.support.v4.app.DialogFragment, android.support.v4.app.FragmentManager)com.nextfaze.devfun.internal.android/android.support.v4.app.-dialog-fragment/show.md
-$dokka.location:com.nextfaze.devfun.internal.android$showNow(android.support.v4.app.DialogFragment, android.support.v4.app.FragmentManager)com.nextfaze.devfun.internal.android/android.support.v4.app.-dialog-fragment/show-now.md
+$dokka.location:com.nextfaze.devfun.internal.android$show(androidx.fragment.app.DialogFragment, androidx.fragment.app.FragmentManager)com.nextfaze.devfun.internal.android/androidx.fragment.app.-dialog-fragment/show.md
+$dokka.location:com.nextfaze.devfun.internal.android$showNow(androidx.fragment.app.DialogFragment, androidx.fragment.app.FragmentManager)com.nextfaze.devfun.internal.android/androidx.fragment.app.-dialog-fragment/show-now.md
 $dokka.location:com.nextfaze.devfun.internal.android$unregister(android.app.Application.ActivityLifecycleCallbacks, android.content.Context)com.nextfaze.devfun.internal.android/android.app.-application.-activity-lifecycle-callbacks/unregister.md
 $dokka.location:com.nextfaze.devfun.internal.android$wifiManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/wifi-manager.md
 $dokka.location:com.nextfaze.devfun.internal.android$windowManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/window-manager.md
@@ -39,10 +41,12 @@ $dokka.location:com.nextfaze.devfun.invoke$parameterInstances(java.lang.reflect.
 $dokka.location:com.nextfaze.devfun.invoke$receiverClass#java.lang.reflect.Methodcom.nextfaze.devfun.invoke/java.lang.reflect.-method/receiver-class.md
 $dokka.location:com.nextfaze.devfun.invoke$receiverClassForInvocation#java.lang.reflect.Methodcom.nextfaze.devfun.invoke/java.lang.reflect.-method/receiver-class-for-invocation.md
 $dokka.location:com.nextfaze.devfun.invoke$receiverInstance(java.lang.reflect.Method, com.nextfaze.devfun.inject.InstanceProvider)com.nextfaze.devfun.invoke/java.lang.reflect.-method/receiver-instance.md
-com.nextfaze.devfun.annotations
+com.nextfaze.devfun
+com.nextfaze.devfun.category
 com.nextfaze.devfun.compiler
 com.nextfaze.devfun.core
 com.nextfaze.devfun.error
+com.nextfaze.devfun.function
 com.nextfaze.devfun.generated
 com.nextfaze.devfun.gradle.plugin
 com.nextfaze.devfun.httpd
@@ -64,6 +68,7 @@ com.nextfaze.devfun.menu
 com.nextfaze.devfun.menu.controllers
 com.nextfaze.devfun.overlay
 com.nextfaze.devfun.overlay.logger
+com.nextfaze.devfun.reference
 com.nextfaze.devfun.stetho
 com.nextfaze.devfun.utils.glide
 com.nextfaze.devfun.utils.leakcanary
