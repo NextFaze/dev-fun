@@ -78,7 +78,7 @@ See the documentation for advanced usage, including custom names, custom argumen
 - Compiled with `minSdkVersion` >= 15
 - Built against **AndroidX 1.0.0** (this is equivalent to Android Support libraries 28.0.0)  
   See [Migrating to AndroidX](https://developer.android.com/jetpack/androidx/migrate) for more information (it's actually quite easy).  
-  Also, despite the migration docs above mentioning `-rc01` for some things - most things have final releases (Google's Maven Repo)[https://maven.google.com].
+  Also, despite the migration docs above mentioning `-rc01` for some things - most things have final releases [Google's Maven Repo](https://maven.google.com)
 
 #### Build File `build.gradle`
 Add the DevFun Gradle plugin to your build script.
