@@ -1,9 +1,6 @@
-# Package com.nextfaze.devfun.annotations
-Contains the annotations and interface definitions.
-
 # Package com.nextfaze.devfun.compiler
-Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-function/)
- and [DeveloperCategory](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-category/) annotations.
+Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.function/-developer-function/)
+ and [DeveloperCategory](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.category/-developer-category/) annotations.
 
 # Package com.nextfaze.devfun.core
 Core [DevFun](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.core/-dev-fun/) package - handles loading and processing of modules and definitions.

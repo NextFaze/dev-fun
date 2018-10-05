@@ -1,11 +1,8 @@
 # Module annotations
-The shared DevFun library - should be put in your `compile` dependency.
+The shared DevFun library - should be put in your `implementation` dependency.
 
 Contains the annotations and interfaces that can be referenced from your main code without leaking their implementation
 details into your final release build.
-
-# Package com.nextfaze.devfun.annotations
-Main annotations package.
 
 # Package com.nextfaze.devfun.core
 Contains interfaces and default implementations.

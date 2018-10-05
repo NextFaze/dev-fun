@@ -25,6 +25,11 @@ number of means - such as an automatically generated "Developer Menu".
       - [Overlay Loggers](#overlay-loggers)
       - [Local HTTP Server (experimental)](#local-http-server-experimental)
       - [Stetho Integration (experimental)](#stetho-integration-experimental)
+  - [Annotations Overview and Custom Annotations/Properties](#annotations-overview-and-custom-annotationsproperties)
+    - [Functions](#functions)
+    - [References](#references)
+    - [Categories](#categories)
+    - [Custom Annotations](#custom-annotations)
 - [Dependency Injection](#dependency-injection)
   - [Dagger 2.x Support](#dagger-2x-support)
     - [Supported Versions](#supported-versions)
@@ -36,8 +41,8 @@ number of means - such as an automatically generated "Developer Menu".
   - [Logging](#logging)
   - [Kotlin `stdlib` Conflict](#kotlin-stdlib-conflict)
   - [Gradle Plugin and APT Options](#gradle-plugin-and-apt-options)
+  - [Gradle Sync `AbstractMethodError`](#gradle-sync-abstractmethoderror)
   - [Proguard](#proguard)
-    - [`RUNTIME` Retained Meta Annotations](#runtime-retained-meta-annotations)
   - [Getting `ClassInstanceNotFoundException`](#getting-classinstancenotfoundexception)
   - [Missing Items](#missing-items)
 - [Build](#build)
@@ -52,7 +57,7 @@ While developing some feature `Z`, there's nothing more annoying than having to 
  leads to your humiliation when your colleagues notice you committed said shortcut.
 
 **Example**  
-Simply adding the [`@DeveloperFunction`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-function/) annotation to a function/method is all that is needed.
+Simply adding the [`@DeveloperFunction`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.function/-developer-function/) annotation to a function/method is all that is needed.
 ```kotlin
 class MyClass {
     @DeveloperFunction
@@ -68,34 +73,38 @@ See the documentation for advanced usage, including custom names, custom argumen
 ## Quick Start
 #### Project Setup
 - **REQUIRED** Android Gradle 3.0.0+ (due to [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589))
-- Recommended to use Kotlin 1.2.51, though should work down to 1.1.1 _(somewhat untested)_
-- Recommended to use KAPT3 (`apply plugin: 'kotlin-kapt'`), though KAPT1 also works
+- Recommended to use Kotlin 1.2.71, though should work down to 1.1.1 _(somewhat untested)_
+- Recommended to use KAPT3 (`plugins { kotlin("kapt") }`), though KAPT1 also works
 - Compiled with `minSdkVersion` >= 15
-- Built against Android Support libraries 27.1.1
+- Built against **AndroidX 1.0.0** (this is equivalent to Android Support libraries 28.0.0)  
+  See [Migrating to AndroidX](https://developer.android.com/jetpack/androidx/migrate) for more information (it's actually quite easy).  
+  Also, despite the migration docs above mentioning `-rc01` for some things - most things have final releases (Google's Maven Repo)[https://maven.google.com].
 
 #### Build File `build.gradle`
 Add the DevFun Gradle plugin to your build script.
 
-If you can use the Gradle `plugins` block (which you should be able to do - this locates and downloads it for you):
-```groovy
+If you can use the Gradle `plugins` block (which locates and downloads it for you):
+```kotlin
 plugins {
-    id 'com.nextfaze.devfun' version '2.0.0-RC1'
+    id("com.nextfaze.devfun") version "2.0.0-RC1"
 }
 ```
 
 **Or** the legacy method using `apply`;  
 Add the plugin to your classpath (found in the `jcenter()` repository):
-```groovy
+```kotlin
 buildscript {
     dependencies {
-        classpath 'com.nextfaze.devfun:devfun-gradle-plugin:2.0.0-RC1'
+        classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.0.0-RC1")
     }
 }
 ```
 
 And in your `build.gradle`:
-```groovy
-apply plugin: 'com.nextfaze.devfun'
+```kotlin
+apply {
+    plugin("com.nextfaze.devfun")
+}
 ```
 
 #### Modules
@@ -107,49 +116,51 @@ Can be categorized into 5 types:
 - Invoke UI: provide additional views for the invocation UI (e.g. a color picker for `int` args)
 
 Add `jcenter()` repository or via bintray directly: _(will be put on MavenCentral eventually)_
-```gradle
+```kotlin
 repositories {
-    maven { url 'https://dl.bintray.com/nextfaze/dev-fun' }
+    maven { setUrl("https://dl.bintray.com/nextfaze/dev-fun") }
 }
 ```
 
 Add dependencies to build.gradle:
-```gradle
+```kotlin
+dependencies {
     // Annotations, Compiler, and Developer Menu
-    kaptDebug 'com.nextfaze.devfun:devfun-compiler:2.0.0-RC1'
-    implementation 'com.nextfaze.devfun:devfun-annotations:2.0.0-RC1'
-    debugImplementation 'com.nextfaze.devfun:devfun-menu:2.0.0-RC1'
+    kaptDebug("com.nextfaze.devfun:devfun-compiler:2.0.0-RC1")
+    implementation("com.nextfaze.devfun:devfun-annotations:2.0.0-RC1")
+    debugImplementation("com.nextfaze.devfun:devfun-menu:2.0.0-RC1")
     
     // Dagger 2.x component inspector - only if using Dagger 2.x!
-    debugImplementation 'com.nextfaze.devfun:devfun-inject-dagger2:2.0.0-RC1'
+    debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.0.0-RC1")
     
     // Chrome Dev Tools JavaScript console integration
-    debugImplementation 'com.nextfaze.devfun:devfun-stetho:2.0.0-RC1'
+    debugImplementation("com.nextfaze.devfun:devfun-stetho:2.0.0-RC1")
         
     // HTTP server and simple index page
-    debugImplementation 'com.nextfaze.devfun:devfun-httpd:2.0.0-RC1'
-    debugImplementation 'com.nextfaze.devfun:devfun-httpd-frontend:2.0.0-RC1'
+    debugImplementation("com.nextfaze.devfun:devfun-httpd:2.0.0-RC1")
+    debugImplementation("com.nextfaze.devfun:devfun-httpd-frontend:2.0.0-RC1")
     
     // Glide util functions
-    debugImplementation 'com.nextfaze.devfun:devfun-util-glide:2.0.0-RC1'
+    debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.0.0-RC1")
     
     // Leak Canary util functions
-    debugImplementation 'com.nextfaze.devfun:devfun-util-leakcanary:2.0.0-RC1'
+    debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.0.0-RC1")
     
     /*
-     * Transitively included libs - in general you don't need to add these explicitly (except maybe for custom module libs).
+     * Transitively included libs - in general you don"t need to add these explicitly (except maybe for custom module libs).
      */
     
     // Adds view factory handler for @ColorPicker for invoke UI - transitively included via devfun-menu
-    // debugImplementation 'com.nextfaze.devfun:devfun-invoke-view-colorpicker:2.0.0-RC1'
+    // debugImplementation("com.nextfaze.devfun:devfun-invoke-view-colorpicker:2.0.0-RC1")
     
     // DevFun core - transitive included from menu et al.
-    // debugImplementation 'com.nextfaze.devfun:devfun:2.0.0-RC1' 
+    // debugImplementation("com.nextfaze.devfun:devfun:2.0.0-RC1")
+}
 ```
 
 That's it!
 
-Start adding [`@DeveloperFunction`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-function/)
+Start adding [`@DeveloperFunction`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.function/-developer-function/)
 annotations to methods (can be private, and arguments will be injected or rendered as needed), and these will be added to the menu.
 
 For advanced uses and configuration such as custom categories, item groups, argument providers, etc.
@@ -208,14 +219,14 @@ An example of this is the [`@ColorPicker`](https://nextfaze.github.io/dev-fun/co
  by the menu cog overlay (second right) the renders a color picker view for an int parameter.
 
 #### Overlay Loggers
-Adding [`@DeveloperLogger`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-logger/) to a property, type, or
+Adding [`@DeveloperLogger`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-developer-logger/) to a property, type, or
 function will generate a floating text overlay that (by default) updates once a second with the `.toString()` of that reference.
 The loggers are context-aware with additional configuration options available with a long-press.
 
 This feature is somewhat experimental in that it's quite new and has not been used extensively beyond the demo app and a few in-house
 apps so please report any issues you have with it.
 
-Adding [`@DeveloperProperty`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-developer-property/) as well will allow you
+Adding [`@DeveloperProperty`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.function/-developer-property/) as well will allow you
 to tap on the overlay to edit its value using the invocation UI system.
 
 #### Local HTTP Server (experimental)  
@@ -228,6 +239,50 @@ and accessed via http://localhost:23075 where you can invoke functions from your
 With the `devfun-stetho` module functions are exported and available to be invoked directly from Chrome's Developer Tools console:  
 <img src="https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/images/stetho-auth.png" alt="Stetho integration function list" width="60%"/>
 
+
+## Annotations Overview and Custom Annotations/Properties
+DevFun has three types of annotations. "Functions", "References", and "Categories". These are defined using the meta
+annotation [`@DeveloperAnnotation`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun/-developer-annotation/).
+
+- Function: intended to be invoked
+- References: allows "tagging" elements
+- Categories: purely for naming/grouping/ordering
+
+The majority of DevFun's annotations are `SOURCE` retained. If for some reason you want a `RUNTIME` retained or whatever then copy-paste
+an existing annotation and change the retention.
+
+### Functions
+- [`@DeveloperFunction`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.function/-developer-function/)
+  Annotating a function allows you to invoke it at run-time using best-effort DI and/or a UI for value entry.
+- [`@DeveloperArguments`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.function/-developer-arguments/)
+  The same as `@DeveloperFunction` but allows you to supply a list of default argument values. Each entry is like adding another `@DeveloperFunction` with default arguments.
+- [`@DeveloperProperty`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.function/-developer-property/)
+  Allows you to set a property value (only simple types supported at the moment)
+
+### References
+- [`@DeveloperReference`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-developer-reference/)
+  Tags the element - retrieve later at run-time via `devFun.developerReferences<DeveloperReference>()` - in general you'll want to create
+  your own annotation "tag".
+- [`@[Dagger2Component`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-dagger2-component/)
+  Used in conjunction with dagger2 inject lib. Use it to tag functions/properties/extensions to tell DevFun how/where to get your components.
+- [`@DeveloperLogger`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-developer-logger/)
+  Results in a floating overlay they calls the function every 1 second (by default - long-press to change) showing the `.toString()` of the
+  return value. When used in conjunction with `@DeveloperProperty` tapping the overlay shows the edit dialog.
+
+### Categories
+As mentioned above, they are for naming/grouping/ordering. There is just the standard one by default, however you could create one that has
+different default values or whatever.
+- [`@DeveloperCategory`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.category/-developer-category/)
+  Used to override default category names/groups/ordering
+- [`@ContextCategory`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.category/-context-category/)
+  Used to manually flag an item into the "Context" category (usually reserved for Android "scoped" items such as Activity/Fragment/etc)
+
+### Custom Annotations
+As mentioned, DevFun annotations are defined using `@DeveloperAnnotation`. Properties named the same as the DevFun supplied defaults have
+the same meaning/behaviour.
+
+Other properties will be "serialized" and available during the transformation phase (or from the definition object) - the definition will
+implement `WithProperties`
 
 
 # Dependency Injection
@@ -247,7 +302,7 @@ For more details see wiki entry [Dependency Injection](https://nextfaze.github.i
 Easiest method is to use `devfun-inject-dagger2` module - by default it should work just by adding the dependency depending on your setup
  (if the components are located in the Application and/or Activity classes). However if you use extension functions to retrieve your
  components (or you put them in weird places for whatever reason), then you can annotate the functions/properties/getters with
- [`@Dagger2Component`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.annotations/-dagger2-component/).
+ [`@Dagger2Component`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-dagger2-component/).
 
 If all else fails you can define your own instance provider with utility functions from `devfun-inject-dagger2` (see the demo for an example). 
 
@@ -301,7 +356,7 @@ This can also be toggled at any time via [devFunVerbose](https://nextfaze.github
 
 
 ## Kotlin `stdlib` Conflict 
-DevFun was compiled using Kotlin 1.2.51.  
+DevFun was compiled using Kotlin 1.2.71.  
 *Earlier versions of Kotlin are largely untested and unsupported (this is unlikely to change unless explicitly requested).*  
 
 Thus if you receive a dependency conflict error such as:  
@@ -309,7 +364,7 @@ Thus if you receive a dependency conflict error such as:
 The simplest resolution is updating your Kotlin version to match.
 
 If this is not possible, you can force Gradle to use a specific version of Kotlin:
-```gradle
+```kotlin
 // Force specific Kotlin version
 configurations.all {
     resolutionStrategy.force(
@@ -322,8 +377,8 @@ configurations.all {
 
 ## Gradle Plugin and APT Options
 The gradle plugin `com.nextfaze.devfun` should automatically handle/provide the annotation processor with your project build configuration,
- but can also be configured within your build file ([DevFunExtension](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.gradle.plugin/-dev-fun-extension)):
-```groovy
+ but can also be configured within your build file ([DevFunExtension](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.gradle.plugin/-dev-fun-extension/)):
+```kotlin
 devFun {
     packageSuffix = "..."
     packageRoot = "..."
@@ -342,19 +397,38 @@ If your build system has been customised or for whatever reason the processor ca
  you can manually specify the required information using annotation processor options (values via APT args will override `devFun {}` gradle 
  plugin values).  
 Apply using Android DSL:
-```gradle
- android {
-      defaultConfig {
-          javaCompileOptions {
-              annotationProcessorOptions {
-                  argument 'devfun.argument', 'value'
-              }
+```kotlin
+android {
+  defaultConfig {
+      javaCompileOptions {
+          annotationProcessorOptions {
+              argument("devfun.argument", "value")
           }
       }
- }
+  }
+}
 ```
 
 See [com.nextfaze.devfun.compiler](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.compiler/#properties) for list of options.
+
+
+## Gradle Sync `AbstractMethodError`
+The DevFun Gradle plugin is used to tell DevFun your build variant information. It does this by setting APT values via
+[`DevFunKotlinGradlePlugin`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.gradle.plugin/-dev-fun-kotlin-gradle-plugin/) which
+implements `KotlinGradleSubplugin`, which is a part of Kotlin's `kotlin-gradle-plugin-api` package. Unfortunately Kotlin have been changing
+their interface definition for recent minor versions (<1.2.5x, 1.2.6x, and 1.2.7x), so if another plugin is using a different version
+of `KotlinGradleSubplugin` one of them will fail.
+
+Most of the time you don't not *need* the Gradle plugin - without it DevFun will attempt to "guess" your variant information using various
+file naming and path regex hacks during the APT phase directly (and generally it's pretty good at it).  
+TLDR; If you can remove the plugin and it still works than that's fine.
+
+Wost case scenario you can explicitly tell DevFun where (the package) you want the generated files using APT args:
+```kotlin
+android.defaultConfig.javaCompileOptions.annotationProcessorOptions {
+    argument("devfun.package.override", "my.app.devfun.generated")
+}
+```
 
 
 ## Proguard
@@ -370,19 +444,6 @@ As one of the goals of DevFun is to keep your production code clean, most of Dev
  referenced in your proguard rules. However if an annotated element is `public` or `internal` DevFun will reference the element directly in
  its generated code (rather than via reflection). Exceptions to this are (at the moment); `@Constructable`, `@ColorPicker`, `@Ranged`,
  and `@From`, which are all `RUNTIME` retained - it is desirable in the future that these too become `SOURCE` retained. 
-
-### `RUNTIME` Retained Meta Annotations
-DevFun has experimental support for various kinds of meta annotating.
-
-- Creating an annotation annotated with `@DeveloperCategory` results in that annotation being treated as such (allowing you to declare that
- one as `BINARY` or `RUNTIME` retained).
-- Creating an annotation with `@DeveloperAnnotation(developerFunction = true)` declares the annotation as a `DeveloperFunction` analogue
- (again, allowing you to set your own retain value).
-
-For examples of this see [MetaDevFunctions.kt](https://github.com/NextFaze/dev-fun/blob/master/test/src/testData/kotlin/tested/meta_annotations/MetaDevFunctions.kt)
- et al. in tests. It is being considered that these become a part of DevFun leveraging `typealias` or the like. It is also being considered
- to have DevFun generate a `proguard-rules.pro` file at compile time that can be used during the build. At present however no further work
- is being done in this area. Feel free to create an issue if simpler/built-in Proguard compatibility is desired.
 
 
 ## Getting `ClassInstanceNotFoundException`
