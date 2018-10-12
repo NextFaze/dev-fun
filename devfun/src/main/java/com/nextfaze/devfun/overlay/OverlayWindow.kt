@@ -223,7 +223,12 @@ internal class OverlayWindowImpl(
     }
 
     private fun updateVisibility() {
-        if (!isAdded) return
+        if (!isAdded) {
+            if (addToWindow) {
+                addToWindow()
+            }
+            return
+        }
 
         val visible = shouldBeVisible()
         val visibility = view.visibility
