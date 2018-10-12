@@ -9,7 +9,12 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewConfiguration
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.animation.OvershootInterpolator
 import androidx.annotation.LayoutRes
 import androidx.core.math.MathUtils.clamp
@@ -168,11 +173,12 @@ internal class OverlayWindowImpl(
     override var onAttachListener: AttachListener? = null,
     private val visibilityPredicate: VisibilityPredicate? = null,
     visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
-    initialDock: Dock = Dock.TOP_LEFT,
-    initialDelta: Float = 0f,
+    dock: Dock = Dock.TOP_LEFT,
+    delta: Float = 0f,
     snapToEdge: Boolean = true,
-    initialLeft: Float = 0f,
-    initialTop: Float = 0f
+    left: Float = 0f,
+    top: Float = 0f,
+    enabled: Boolean = true
 ) : OverlayWindow {
     private val log = logger()
     private val windowManager = application.windowManager
@@ -180,12 +186,12 @@ internal class OverlayWindowImpl(
 
     private val preferences = KSharedPreferences.named(application, prefsName)
     override val name by preferences["name", name]
-    private var dock by preferences["dock", initialDock]
-    private var delta by preferences["delta", initialDelta]
-    private var left by preferences["left", initialLeft]
-    private var top by preferences["top", initialTop]
+    private var dock by preferences["dock", dock]
+    private var delta by preferences["delta", delta]
+    private var left by preferences["left", left]
+    private var top by preferences["top", top]
     override var snapToEdge: Boolean by preferences["snapToEdge", snapToEdge, { _, _ -> updatePosition(false) }]
-    override var enabled: Boolean by preferences["enabled", true, { _, _ -> updateVisibility() }]
+    override var enabled: Boolean by preferences["enabled", enabled, { _, _ -> updateVisibility() }]
     override var visibilityScope: VisibilityScope by preferences["visibilityScope", visibilityScope, { _, _ -> updateVisibility() }]
     override var hideWhenDialogsPresent: Boolean by preferences["hideWhenDialogsPresent", true, { _, _ -> updateVisibility() }]
 

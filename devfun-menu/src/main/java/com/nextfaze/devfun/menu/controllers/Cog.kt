@@ -82,8 +82,8 @@ class CogOverlay constructor(
                 )
             },
             visibilityPredicate = { it is FragmentActivity },
-            initialDock = Dock.RIGHT,
-            initialDelta = 0.7f
+            dock = Dock.RIGHT,
+            delta = 0.7f
         ).apply {
             val padding = application.resources.getDimension(R.dimen.df_menu_cog_padding).toInt()
             val halfSize = ((padding * 2 + application.resources.getDimension(R.dimen.df_menu_cog_size)) / 2).toInt()

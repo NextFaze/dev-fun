@@ -263,11 +263,12 @@ internal class OverlayLoggingImpl(
         prefsName = prefsName,
         reason = { "Show overlay logger for $prefsName" },
         snapToEdge = snapToEdge,
-        initialDock = dock,
-        initialDelta = delta,
-        initialTop = top,
-        initialLeft = left
-    ).also { it.enabled = enabled }
+        dock = dock,
+        delta = delta,
+        top = top,
+        left = left,
+        enabled = enabled
+    )
 
     private fun createLogger(
         overlay: OverlayWindow,

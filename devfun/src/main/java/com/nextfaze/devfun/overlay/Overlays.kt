@@ -70,11 +70,11 @@ interface OverlayManager {
      * @param onAttachChange Callback when overlay is added/removed to the window.
      * @param visibilityPredicate Predicate that determines if/when the overlay should be visible (e.g. DevMenu uses `context is FragmentActivity`).
      * @param visibilityScope The [VisibilityScope] defaults to `FOREGROUND_ONLY`. i.e. When the app is visible and resumed to the user.
-     * @param initialDock The initial edge of the screen to dock to (see [snapToEdge]).
-     * @param initialDelta The percentage down/across the screen (e.g. An [initialDock] of `RIGHT` and delta of 0.7 (DevMenu cog) puts it at 70% down the right-hand side of the screen).
+     * @param dock The edge of the screen to dock to (see [snapToEdge]).
+     * @param delta The percentage down/across the screen (e.g. An [dock] of `RIGHT` and delta of 0.7 (DevMenu cog) puts it at 70% down the right-hand side of the screen).
      * @param snapToEdge `true` to enable edge docking, `false` to allow it to sit/drag anywhere on the screen.
-     * @param initialLeft Used when [snapToEdge] is `true` - the initial left position (percentage of screen).
-     * @param initialTop Used when [snapToEdge] is `true` - the initial top position (percentage of screen).
+     * @param left Used when [snapToEdge] is `true` - the left position (percentage of screen).
+     * @param top Used when [snapToEdge] is `true` - the top position (percentage of screen).
      */
     fun createOverlay(
         @LayoutRes layoutId: Int,
@@ -87,11 +87,12 @@ interface OverlayManager {
         onAttachChange: AttachListener? = null,
         visibilityPredicate: VisibilityPredicate? = null,
         visibilityScope: VisibilityScope = VisibilityScope.FOREGROUND_ONLY,
-        initialDock: Dock = Dock.TOP_LEFT,
-        initialDelta: Float = 0f,
+        dock: Dock = Dock.TOP_LEFT,
+        delta: Float = 0f,
         snapToEdge: Boolean = true,
-        initialLeft: Float = 0f,
-        initialTop: Float = 0f
+        left: Float = 0f,
+        top: Float = 0f,
+        enabled: Boolean = true
     ): OverlayWindow
 
     /**
@@ -250,11 +251,12 @@ internal class OverlayManagerImpl(
         onAttachChange: AttachListener?,
         visibilityPredicate: VisibilityPredicate?,
         visibilityScope: VisibilityScope,
-        initialDock: Dock,
-        initialDelta: Float,
+        dock: Dock,
+        delta: Float,
         snapToEdge: Boolean,
-        initialLeft: Float,
-        initialTop: Float
+        left: Float,
+        top: Float,
+        enabled: Boolean
     ): OverlayWindow {
         synchronized(overlaysLock) {
             if (overlays.containsKey(prefsName)) {
@@ -279,11 +281,12 @@ internal class OverlayManagerImpl(
             onAttachChange,
             visibilityPredicate,
             visibilityScope,
-            initialDock,
-            initialDelta,
+            dock,
+            delta,
             snapToEdge,
-            initialLeft,
-            initialTop
+            left,
+            top,
+            enabled
         ).apply {
             if (onLongClick == null) {
                 this.onLongClickListener = { configureOverlay(this) }
