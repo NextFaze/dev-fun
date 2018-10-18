@@ -407,10 +407,10 @@ private class Dagger2AnnotatedInstanceProvider(
                 val method = if (origMethod.name.endsWith("\$annotations")) {
                     // user has annotated a property
                     val getterName = "get${origMethod.name.substringBeforeLast('$').capitalize()}"
-                    origMethod.declaringClass.getMethod(getterName, *origMethod.parameterTypes)
+                    origMethod.declaringClass.getDeclaredMethod(getterName, *origMethod.parameterTypes)
                 } else {
                     origMethod
-                }
+                }.apply { isAccessible = true }
 
                 val annotation = ref.withProperties<Dagger2ComponentProperties>() ?: return@map null
 

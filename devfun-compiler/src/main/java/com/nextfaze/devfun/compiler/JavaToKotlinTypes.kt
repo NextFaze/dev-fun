@@ -32,7 +32,7 @@ private val classMapInstance: (declaredType: DeclaredType) -> ClassName by lazy 
         Class.forName("kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap")
     }
 
-    val function = clazz.getMethod("mapJavaToKotlin", FqName::class.java)
+    val function = clazz.getDeclaredMethod("mapJavaToKotlin", FqName::class.java)
     val instance = clazz.getDeclaredField("INSTANCE").get(null)
 
     val cache = mutableMapOf<String, ClassName>()
