@@ -51,7 +51,9 @@ fun Project.configureMavenPublishing() {
                 }
 
                 artifact(tasks["sourcesJar"])
-                artifact(tasks["javadocJar"])
+                if (!isPublishToMavenLocal) {
+                    artifact(tasks["javadocJar"])
+                }
 
                 pom {
                     name.set("${project.group}:${project.name}")
