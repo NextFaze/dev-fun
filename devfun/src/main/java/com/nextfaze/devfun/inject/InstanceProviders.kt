@@ -76,6 +76,7 @@ internal class DefaultCompositeInstanceProvider(cacheLevel: CacheLevel) : Compos
     internal fun <T : Any> getInstance(clazz: KClass<out T>, onFound: ((clazz: KClass<*>, provider: InstanceProvider) -> Unit)?): T {
         fun tryGetInstanceOfInstanceProvider(): T? {
             if (clazz.isSubclassOf<InstanceProvider>()) {
+                log.t { "Checking instance providers for InstanceProvider $clazz" }
                 if (clazz.isSubclassOf<DefaultCompositeInstanceProvider>()) {
                     @Suppress("UNCHECKED_CAST")
                     return this as T
@@ -88,6 +89,11 @@ internal class DefaultCompositeInstanceProvider(cacheLevel: CacheLevel) : Compos
                 }
             }
             return null
+        }
+
+        tryGetInstanceOfInstanceProvider()?.let {
+            log.t { "> Got $it" }
+            return it
         }
 
         forEach { provider ->
