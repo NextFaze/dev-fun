@@ -119,3 +119,11 @@ fun String.testPublicTopLevelExtensionFunction(ref: MethodReference) {
 private fun String.testPrivateTopLevelExtensionFunction(ref: MethodReference) {
     expect(ref.method, ::testPrivateTopLevelExtensionFunction::javaMethod)
 }
+
+@DeveloperReference
+val String.testTopLevelExtensionFunctionProperty
+    get() = "Hello World from public"
+
+@DeveloperReference
+private val String.testPrivateTopLevelExtensionFunctionProperty
+    get() = "Hello World from private"

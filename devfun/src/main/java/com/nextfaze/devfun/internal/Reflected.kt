@@ -1,14 +1,20 @@
 package com.nextfaze.devfun.internal
 
 import com.nextfaze.devfun.core.devFun
+import com.nextfaze.devfun.function.FunctionArgs
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
 import com.nextfaze.devfun.invoke.doInvoke
+import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
 import java.lang.reflect.Field
 import java.lang.reflect.Method
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty1
 import kotlin.reflect.full.IllegalPropertyDelegateAccessException
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
@@ -37,18 +43,20 @@ private fun KProperty<*>.isUninitialized(receiver: Any?): Boolean {
     return tryGet() ?: tryGet() ?: false // try it again if it first fails
 }
 
-interface ReflectedMethod {
+interface ReflectedMethod : Function0<Any?>, Function1<InstanceProvider, Any?> {
     val method: Method
     val clazz: KClass<*>
     val name: String
     val isProperty: Boolean
+    val isStatic: Boolean
     val fieldName: String
+    val parameterTypes: List<KClass<*>>
 
     fun receiverInstance(instanceProvider: InstanceProvider): Any?
     val receiver: Any?
 
-    fun invoke(instanceProvider: InstanceProvider): Any?
-    fun invoke(): Any?
+    fun parameterInstances(instanceProvider: InstanceProvider, suppliedArgs: FunctionArgs = null): FunctionArgs
+    val parameters: FunctionArgs
 }
 
 interface ReflectedProperty {
@@ -72,16 +80,20 @@ interface ReflectedProperty {
     val isUninitialized: Boolean
 }
 
-fun Method.toReflected(): ReflectedMethod =
-    ReflectedMethodImpl(this).let {
+fun Method.toReflected(instanceProviders: InstanceProvider = devFun.instanceProviders): ReflectedMethod =
+    ReflectedMethodImpl(this, instanceProviders).let {
         when {
-            it.isProperty -> ReflectedPropertyImpl(it)
+            it.isProperty -> ReflectedPropertyImpl(it, instanceProviders)
             else -> it
         }
     }
 
-private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod) : ReflectedProperty,
+private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod, val instanceProviders: InstanceProvider) : ReflectedProperty,
     ReflectedMethod by reflectedMethod {
+
+    override fun invoke() = value
+    override fun invoke(instanceProvider: InstanceProvider) = getValue(instanceProvider)
+
     override val field by lazy {
         try {
             clazz.java.getDeclaredField(fieldName).apply { isAccessible = true }
@@ -97,10 +109,24 @@ private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod) : Refl
         }.apply { isAccessible = true }
     }
 
-    override val getter by lazy { property.getter.javaMethod?.apply { isAccessible = true } }
+    override val getter by lazy {
+        try {
+            property.getter.javaMethod
+        } catch (t: UnsupportedOperationException) { // "Packages and file facades are not yet supported in Kotlin reflection"
+            // file-level property
+            val getterName = "get${method.name.substringBeforeLast('$').capitalize()}"
+            method.declaringClass.getDeclaredMethod(getterName, *method.parameterTypes)
+        }?.apply { isAccessible = true }
+    }
     override val setter by lazy {
-        val property = property
-        if (property is KMutableProperty<*>) property.setter.javaMethod?.apply { isAccessible = true } else null
+        try {
+            val property = property
+            if (property is KMutableProperty<*>) property.setter.javaMethod else null
+        } catch (t: UnsupportedOperationException) { // "Packages and file facades are not yet supported in Kotlin reflection"
+            // file-level property
+            val setterName = "set${method.name.substringBeforeLast('$').capitalize()}"
+            method.declaringClass.getDeclaredMethod(setterName, *method.parameterTypes)
+        }?.apply { isAccessible = true }
     }
 
     override val desc by lazy { getDesc(false) }
@@ -117,20 +143,20 @@ private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod) : Refl
 
     override fun getValue(instanceProvider: InstanceProvider) =
         when {
-            getter != null -> getter!!.invoke(receiverInstance(instanceProvider))
+            getter != null -> getter!!.doInvoke(instanceProvider)
             else -> this.field?.get(receiverInstance(instanceProvider))
         }
 
     override fun setValue(instanceProvider: InstanceProvider, value: Any?) =
         when {
-            setter != null -> setter!!.invoke(receiverInstance(instanceProvider), value)
+            setter != null -> setter!!.doInvoke(instanceProvider, listOf(value))
             else -> this.field?.set(receiverInstance(instanceProvider), value)
         }
 
     override var value: Any?
-        get() = getValue(devFun.instanceProviders)
+        get() = getValue(instanceProviders)
         set(value) {
-            setValue(devFun.instanceProviders, value)
+            setValue(instanceProviders, value)
         }
 
     override fun isUninitialized(receiver: Any?) = property.isUninitialized(receiver)
@@ -157,16 +183,26 @@ private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod) : Refl
     override fun toString() = "ReflectedProperty(reflected=$reflectedMethod)"
 }
 
-private data class ReflectedMethodImpl(override val method: Method) : ReflectedMethod {
+private data class ReflectedMethodImpl(override val method: Method, val instanceProviders: InstanceProvider) : ReflectedMethod {
+    init {
+        method.isAccessible = true
+    }
+
     override val clazz = method.declaringClass.kotlin
     override val name: String = method.name
     override val isProperty = method.isProperty
-
+    override val isStatic = method.isStatic
     override val fieldName by lazy { method.name.substringBefore('$') }
+    override val parameterTypes by lazy { method.parameterTypes.map { it.kotlin } }
 
     override fun receiverInstance(instanceProvider: InstanceProvider) = method.receiverInstance(instanceProvider)
-    override val receiver get() = receiverInstance(devFun.instanceProviders)
+    override val receiver get() = receiverInstance(instanceProviders)
+
+    override fun parameterInstances(instanceProvider: InstanceProvider, suppliedArgs: FunctionArgs) =
+        method.parameterInstances(instanceProvider, suppliedArgs)
+
+    override val parameters get() = parameterInstances(instanceProviders)
 
     override fun invoke(instanceProvider: InstanceProvider) = method.doInvoke(instanceProvider)
-    override fun invoke() = invoke(devFun.instanceProviders)
+    override fun invoke() = invoke(instanceProviders)
 }

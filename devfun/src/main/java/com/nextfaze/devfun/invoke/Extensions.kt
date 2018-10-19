@@ -145,7 +145,10 @@ fun Method.receiverInstance(instanceProvider: InstanceProvider = devFun.instance
  * @see FunctionDefinition.parameterInstances
  * @see FunctionItem.parameterInstances
  */
-fun Method.parameterInstances(instanceProvider: InstanceProvider = devFun.instanceProviders, suppliedArgs: FunctionArgs = null) =
+fun Method.parameterInstances(
+    instanceProvider: InstanceProvider = devFun.instanceProviders,
+    suppliedArgs: FunctionArgs = null
+): FunctionArgs =
     parameterTypes.takeIf { it.isNotEmpty() }?.mapIndexed { index: Int, clazz: Class<*> ->
         suppliedArgs.getNonNullOrElse(index) { instanceProvider[clazz.kotlin] }
     }

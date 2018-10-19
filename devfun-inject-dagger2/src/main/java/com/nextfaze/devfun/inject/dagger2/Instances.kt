@@ -20,12 +20,11 @@ import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.isSubclassOf
+import com.nextfaze.devfun.internal.ReflectedMethod
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.internal.reflect.*
 import com.nextfaze.devfun.internal.string.*
-import com.nextfaze.devfun.invoke.parameterInstances
-import com.nextfaze.devfun.invoke.receiverInstance
+import com.nextfaze.devfun.internal.toReflected
 import com.nextfaze.devfun.reference.Dagger2Component
 import com.nextfaze.devfun.reference.Dagger2ComponentProperties
 import com.nextfaze.devfun.reference.Dagger2Scope
@@ -36,7 +35,6 @@ import dagger.Module
 import dagger.Provides
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Field
-import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import javax.inject.Inject
@@ -359,7 +357,7 @@ private class Dagger2AnnotatedInstanceProvider(
 
     private data class ComponentReference(
         val annotation: Dagger2ComponentProperties,
-        val method: Method,
+        val method: ReflectedMethod,
         val scope: Int,
         val isActivityRequired: Boolean,
         val isFragmentActivityRequired: Boolean
@@ -375,7 +373,7 @@ private class Dagger2AnnotatedInstanceProvider(
                 |    isFragmentActivityRequired: ${annotation.isFragmentActivityRequired}
                 |  },
                 |  resolved {
-                |    scope: $scope,
+                |    scope: ${scope.let { Dagger2Scope.values().getOrNull(scope)?.name ?: "CUSTOM" }} #$scope,
                 |    isActivityRequired: $isActivityRequired,
                 |    isFragmentActivityRequired: $isFragmentActivityRequired
                 |  }
@@ -403,15 +401,7 @@ private class Dagger2AnnotatedInstanceProvider(
             .also { log.d { "Dagger2Component references: $it" } }
             .filterIsInstance<MethodReference>()
             .map { ref ->
-                val origMethod = ref.method
-                val method = if (origMethod.name.endsWith("\$annotations")) {
-                    // user has annotated a property
-                    val getterName = "get${origMethod.name.substringBeforeLast('$').capitalize()}"
-                    origMethod.declaringClass.getDeclaredMethod(getterName, *origMethod.parameterTypes)
-                } else {
-                    origMethod
-                }.apply { isAccessible = true }
-
+                val method = ref.method.toReflected(devFun.instanceProviders)
                 val annotation = ref.withProperties<Dagger2ComponentProperties>() ?: return@map null
 
                 fun Dagger2Scope.toComponentReference() =
@@ -437,12 +427,12 @@ private class Dagger2AnnotatedInstanceProvider(
                             val receiverType = method.parameterTypes.firstOrNull()
                             when (receiverType) {
                                 null -> Dagger2Scope.APPLICATION.toComponentReference()
-                                else -> receiverType.kotlin.toScope().toComponentReference()
+                                else -> receiverType.toScope().toComponentReference()
                             }.also {
                                 log.t { "Assuming scope of $it for static $method as receiver type is $receiverType" }
                             }
                         } else {
-                            val declaringClass = method.declaringClass.kotlin
+                            val declaringClass = method.clazz
                             declaringClass.toScope().toComponentReference().also {
                                 log.t { "Assuming scope of $it for $method as receiver type is declaringClass is $declaringClass" }
                             }
@@ -485,19 +475,7 @@ private class Dagger2AnnotatedInstanceProvider(
 
             try {
                 log.t { "Check for $clazz from component reference $ref" }
-
-                val receiver = when {
-                    ref.method.isStatic -> null
-                    else -> ref.method.receiverInstance(devFun.instanceProviders)
-                }
-                val args = ref.method.parameterInstances(devFun.instanceProviders)
-                log.t { "Component receiver instance: $receiver, args: $args" }
-
-                val component = when {
-                    args != null -> ref.method.invoke(receiver, *args.toTypedArray())
-                    else -> ref.method.invoke(receiver)
-                } ?: return@forEach
-
+                val component = ref.method() ?: return@forEach
                 tryGetInstanceFromComponentCache(component, clazz)?.let { return it }
                 componentInstances += component
             } catch (t: Throwable) {

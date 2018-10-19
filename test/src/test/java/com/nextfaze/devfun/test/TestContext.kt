@@ -24,7 +24,7 @@ import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.inject.singletonInstance
 import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.invoke.doInvoke
+import com.nextfaze.devfun.internal.toReflected
 import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
 import com.nextfaze.devfun.reference.FieldReference
@@ -320,11 +320,11 @@ class TestContext(
                 is MethodReference -> {
                     logger.d { "Invoke developer reference ${ref.method} ..." }
                     if (ref.method.isTestMethod) {
-                        ref.method.doInvoke(devFun.instanceProviders)
+                        ref.method.toReflected(devFun.instanceProviders).invoke()
                     } else {
                         assertEquals(
                             true,
-                            ref.method.doInvoke(devFun.instanceProviders),
+                            ref.method.toReflected(devFun.instanceProviders).invoke(),
                             "Unexpected return value for dev method reference."
                         )
                     }
