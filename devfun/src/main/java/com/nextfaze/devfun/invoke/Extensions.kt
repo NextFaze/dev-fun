@@ -103,6 +103,20 @@ fun FunctionItem.parameterInstances(instanceProvider: InstanceProvider = devFun.
  */
 inline val Method.receiverClass: KClass<*> get() = declaringClass.kotlin
 
+private val Annotation.getKind: Annotation.() -> Int by lazy {
+    val method = Class.forName("kotlin.Metadata").getDeclaredMethod("k")
+    return@lazy { annotation: Annotation -> method.invoke(annotation) as Int }
+}
+
+private val Annotation.isKtFile get() = getKind() == 2
+
+private val ktFileClassCache = mutableMapOf<KClass<*>, Boolean>()
+
+private val Method.isReceiverClassKtFile
+    get() = ktFileClassCache.getOrPut(receiverClass) {
+        declaringClass.annotations.firstOrNull { it.annotationClass.toString().endsWith("Metadata") }
+            ?.isKtFile == true
+    }
 
 /**
  * Get the receiver class for this function definition if you intend to invoke it. That is, it will return `null` if the type isn't needed.
@@ -112,10 +126,18 @@ inline val Method.receiverClass: KClass<*> get() = declaringClass.kotlin
  * @see FunctionItem.receiverClassForInvocation
  */
 inline val Method.receiverClassForInvocation: KClass<*>?
-    get() = when {
-        isProperty -> receiverClass
-        isStatic -> null
-        else -> receiverClass
+    get() {
+        // not ideal but cannot perform reflection on top-level entities: UnsupportedOperationException
+        if (isProperty && receiverClass.simpleName!!.endsWith("Kt")) {
+            @Suppress("NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
+            if (isReceiverClassKtFile) return null
+        }
+
+        return when {
+            isProperty -> receiverClass
+            isStatic -> null
+            else -> receiverClass
+        }
     }
 
 /**
