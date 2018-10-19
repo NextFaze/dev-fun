@@ -272,7 +272,8 @@ class DevFun {
      *
      * @see initialize
      */
-    val isInitialized: Boolean get() = _application != null
+    var isInitialized: Boolean = false
+        private set
 
     /**
      * Initialize the static [devFun] reference to `this`, [context] to [Context.getApplicationContext], build
@@ -333,6 +334,8 @@ class DevFun {
 
         initializationCallbacks.forEach { it.invokeSafely() }
         initializationCallbacks.clear()
+
+        isInitialized = true
     }
 
     /**
