@@ -2,7 +2,7 @@
 
 # parameterInstances
 
-`fun `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html)`.parameterInstances(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders, suppliedArgs: `[`FunctionArgs`](../../com.nextfaze.devfun.function/-function-args.md)` = null): `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L148)
+`fun `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html)`.parameterInstances(instanceProvider: `[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)` = devFun.instanceProviders, suppliedArgs: `[`FunctionArgs`](../../com.nextfaze.devfun.function/-function-args.md)` = null): `[`FunctionArgs`](../../com.nextfaze.devfun.function/-function-args.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Extensions.kt#L170)
 
 Get the parameter instances for this method for invocation.
 

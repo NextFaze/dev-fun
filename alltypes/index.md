@@ -54,7 +54,6 @@ Documentation is generated using Dokka.
 | [com.nextfaze.devfun.generated.DevFunGenerated](../com.nextfaze.devfun.generated/-dev-fun-generated/index.md) | Generated classes will implement this, which will be loaded using Java's [ServiceLoader](https://developer.android.com/reference/java/util/ServiceLoader.html). |
 | [com.nextfaze.devfun.gradle.plugin.DevFunGradlePlugin](../com.nextfaze.devfun.gradle.plugin/-dev-fun-gradle-plugin/index.md) | The DevFun Gradle plugin. Allows use of the script configuration DSL. |
 | [com.nextfaze.devfun.core.DevFunInitializerProvider](../com.nextfaze.devfun.core/-dev-fun-initializer-provider/index.md) | Used to automatically initialize [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md) without user input. |
-| [com.nextfaze.devfun.gradle.plugin.DevFunKotlinGradlePlugin](../com.nextfaze.devfun.gradle.plugin/-dev-fun-kotlin-gradle-plugin/index.md) | The DevFun Kotlin Gradle plugin. Configures the KAPT options. |
 | [com.nextfaze.devfun.core.DevFunModule](../com.nextfaze.devfun.core/-dev-fun-module/index.md) | Modules that extend/use the functionality of [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md). |
 | [com.nextfaze.devfun.compiler.DevFunProcessor](../com.nextfaze.devfun.compiler/-dev-fun-processor/index.md) | Annotation processor for [DeveloperAnnotation](../com.nextfaze.devfun/-developer-annotation/index.md) annotated annotations. |
 | [com.nextfaze.devfun.httpd.DevHttpD](../com.nextfaze.devfun.httpd/-dev-http-d/index.md) |  |
@@ -117,6 +116,7 @@ Documentation is generated using Dokka.
 | [com.nextfaze.devfun.internal.pref.KPreference](../com.nextfaze.devfun.internal.pref/-k-preference/index.md) |  |
 | [com.nextfaze.devfun.internal.pref.KSharedPreferences](../com.nextfaze.devfun.internal.pref/-k-shared-preferences/index.md) |  |
 | [com.nextfaze.devfun.menu.controllers.KeySequence](../com.nextfaze.devfun.menu.controllers/-key-sequence/index.md) | Allows toggling the Developer Menu using button/key sequences. |
+| [com.nextfaze.devfun.gradle.plugin.KotlinGradlePlugin](../com.nextfaze.devfun.gradle.plugin/-kotlin-gradle-plugin/index.md) | The DevFun Kotlin Gradle plugin. Configures the KAPT options. |
 | [com.nextfaze.devfun.utils.leakcanary.LeakCanaryUtils](../com.nextfaze.devfun.utils.leakcanary/-leak-canary-utils/index.md) | Utility functions for [Leak Canary](https://github.com/square/leakcanary). |
 | [wiki.Lifecycle](../wiki/-lifecycle.md) | An overview of the lifecycle of the KAPT generation to runtime transformation and function invocation process. |
 | [org.slf4j.Logger](../com.nextfaze.devfun.internal.log/org.slf4j.-logger/index.md) (extensions in package com.nextfaze.devfun.internal.log) |  |

@@ -2,4 +2,4 @@
 
 # method
 
-`abstract val method: `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/Reflected.kt#L41)
+`abstract val method: `[`Method`](https://developer.android.com/reference/java/lang/reflect/Method.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/Reflected.kt#L47)

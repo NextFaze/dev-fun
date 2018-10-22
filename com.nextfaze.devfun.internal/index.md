@@ -6,7 +6,7 @@
 
 | Name | Summary |
 |---|---|
-| [ReflectedMethod](-reflected-method/index.md) | `interface ReflectedMethod` |
+| [ReflectedMethod](-reflected-method/index.md) | `interface ReflectedMethod : () -> `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?, (`[`InstanceProvider`](../com.nextfaze.devfun.inject/-instance-provider/index.md)`) -> `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` |
 | [ReflectedProperty](-reflected-property/index.md) | `interface ReflectedProperty` |
 | [WithSubGroup](-with-sub-group/index.md) | `interface WithSubGroup`<br>When implemented by a [FunctionItem](../com.nextfaze.devfun.function/-function-item/index.md) the DevMenu will render a sub-group for it. *Not explicitly intended for public use - primarilyhere as a "fix/workaround" for #19 (where Context overrides the user defined group)* |
 

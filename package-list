@@ -9,7 +9,7 @@ $dokka.location:com.nextfaze.devfun.inject$isSuperclassOf(kotlin.reflect.KClass(
 $dokka.location:com.nextfaze.devfun.inject$isSuperclassOf(kotlin.reflect.KClass((kotlin.Any)), kotlin.reflect.KClass((com.nextfaze.devfun.inject.isSuperclassOf.T)))com.nextfaze.devfun.inject/kotlin.reflect.-k-class/is-superclass-of.md
 $dokka.location:com.nextfaze.devfun.internal$splitCamelCase(kotlin.String)com.nextfaze.devfun.internal/kotlin.-string/split-camel-case.md
 $dokka.location:com.nextfaze.devfun.internal$splitSimpleName#kotlin.reflect.KClass((kotlin.Any))com.nextfaze.devfun.internal/kotlin.reflect.-k-class/split-simple-name.md
-$dokka.location:com.nextfaze.devfun.internal$toReflected(java.lang.reflect.Method)com.nextfaze.devfun.internal/java.lang.reflect.-method/to-reflected.md
+$dokka.location:com.nextfaze.devfun.internal$toReflected(java.lang.reflect.Method, com.nextfaze.devfun.inject.InstanceProvider)com.nextfaze.devfun.internal/java.lang.reflect.-method/to-reflected.md
 $dokka.location:com.nextfaze.devfun.internal.android$activityManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/activity-manager.md
 $dokka.location:com.nextfaze.devfun.internal.android$connectivityManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/connectivity-manager.md
 $dokka.location:com.nextfaze.devfun.internal.android$defaultTag#androidx.fragment.app.Fragmentcom.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment/default-tag.md

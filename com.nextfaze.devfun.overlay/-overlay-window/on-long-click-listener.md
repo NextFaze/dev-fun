@@ -2,7 +2,7 @@
 
 # onLongClickListener
 
-`abstract var onLongClickListener: `[`ClickListener`](../-click-listener.md)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L145)
+`abstract var onLongClickListener: `[`ClickListener`](../-click-listener.md)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L150)
 
 Callback when user long-presses the overlay (defaults to showing overlay config dialog).
 

@@ -2,7 +2,7 @@
 
 # VisibilityScope
 
-`enum class VisibilityScope` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L46)
+`enum class VisibilityScope` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L51)
 
 Determines when an overlay can be visible.
 
