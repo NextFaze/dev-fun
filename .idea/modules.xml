@@ -23,6 +23,7 @@
       <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1251/kotlin-plugin-1251.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1251/kotlin-plugin-1251.iml" />
       <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1261/kotlin-plugin-1261.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1261/kotlin-plugin-1261.iml" />
       <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1271/kotlin-plugin-1271.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1271/kotlin-plugin-1271.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1300/kotlin-plugin-1300.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1300/kotlin-plugin-1300.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
     </modules>
   </component>

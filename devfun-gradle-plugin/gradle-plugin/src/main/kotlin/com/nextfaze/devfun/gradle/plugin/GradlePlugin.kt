@@ -7,6 +7,7 @@ import com.nextfaze.devfun.compiler.PACKAGE_SUFFIX
 import com.nextfaze.devfun.compiler.PACKAGE_SUFFIX_DEFAULT
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.logging.LogLevel
 import org.gradle.internal.classloader.ClassLoaderHierarchy
 import org.gradle.internal.classloader.ClassLoaderVisitor
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
@@ -83,21 +84,32 @@ Falling back to compile-time path introspection.""",
         }
     }
 
+    private enum class JarVersion(val kotlinVersion: KotlinVersion, val version: String) {
+        JAR_1251(KotlinVersion(1, 2, 50), "1251"),
+        JAR_1261(KotlinVersion(1, 2, 60), "1261"),
+        JAR_1271(KotlinVersion(1, 2, 70), "1271"),
+        JAR_1300(KotlinVersion(1, 3, 0), "1300")
+    }
+
     private fun addKotlinPluginToClassPath(project: Project) {
-        val kotlinVersion = PluginApiVersionFromClassPath.tryGetVersion()
-                ?: PluginApiVersionFromSignatures.tryGetVersion()
-                ?: PluginApiVersionFromCompileVersion.tryGetVersion()
-                ?: KotlinVersion.CURRENT
-        project.logger.debug("Detected Kotlin plugin API version: $kotlinVersion")
-        when {
-            kotlinVersion.isAtLeast(1, 2, 70) -> addJarToClassLoader(project, "1271")
-            kotlinVersion.isAtLeast(1, 2, 60) -> addJarToClassLoader(project, "1261")
-            kotlinVersion.isAtLeast(1, 2, 50) -> addJarToClassLoader(project, "1251")
-            else -> {
-                project.logger.warn("Failed to detect Kotlin version - assuming latest.")
-                addJarToClassLoader(project, "1271")
-            }
+        val kotlinVersion = PluginApiVersionFromClassPath.tryGetVersion(project)
+                ?: PluginApiVersionFromSignatures.tryGetVersion(project)
+                ?: PluginApiVersionFromCompileVersion.tryGetVersion(project)
+                ?: run {
+                    project.logger.warn("Failed to determine Kotlin Gradle Plugin API version - assuming builtin: ${KotlinVersion.CURRENT}.")
+                    KotlinVersion.CURRENT
+                }
+        project.logger.log(logLevel, "Assuming Kotlin Gradle Plugin API version: $kotlinVersion")
+
+        val jarVersions = JarVersion.values().reversed()
+        val jarVersion = jarVersions.firstOrNull {
+            kotlinVersion.isAtLeast(it.kotlinVersion.major, it.kotlinVersion.minor, it.kotlinVersion.patch)
+        } ?: run {
+            project.logger.warn("Failed to identify suitable Kotlin version - assuming latest.")
+            jarVersions.first()
         }
+
+        addJarToClassLoader(project, jarVersion.version)
     }
 
     /**
@@ -112,15 +124,15 @@ Falling back to compile-time path introspection.""",
         val jarFile = File(tmpDir, "kotlin-plugin-$version.jar")
         jarFile.outputStream().use { jarStream.copyTo(it) }
         addUrlMethod.invoke(Thread.currentThread().contextClassLoader, jarFile.toURI().toURL())
-        project.logger.debug("Added to class-loader: jarFile=$jarFileName")
-        println("Added to class-loader: jarFile=$jarFile")
+        project.logger.log(logLevel, "Added to class-loader: jarFile=$jarFileName")
     }
 }
 
 private object PluginApiVersionFromClassPath {
-    private val pluginApiJarNameRegex = Regex("""kotlin-gradle-plugin-api-(\d+)\.(\d+)\.(\d+)\.jar""")
+    private val pluginApiJarNameRegex = Regex("""kotlin-gradle-plugin-api-(\d+)\.(\d+)\.(\d+).*\.jar""")
 
-    fun tryGetVersion(): KotlinVersion? {
+    fun tryGetVersion(project: Project): KotlinVersion? {
+        project.logger.log(logLevel, "Attempting to resolve version from classpath...")
         var kotlinVersion: KotlinVersion? = null
 
         try {
@@ -131,6 +143,9 @@ private object PluginApiVersionFromClassPath {
                         if (kotlinVersion != null) return
 
                         classPath?.forEach {
+                            if (isSnapshot && it.toString().contains("kotlin-gradle-plugin-api")) {
+                                project.logger.log(logLevel, "Kotlin Gradle Plugin API JAR: $it")
+                            }
                             val match = pluginApiJarNameRegex.find(it.toString())
                             if (match != null && match.groups.size == 4) {
                                 val g = match.groups
@@ -141,7 +156,8 @@ private object PluginApiVersionFromClassPath {
                     }
                 })
             }
-        } catch (ignore: Throwable) {
+        } catch (t: Throwable) {
+            project.logger.log(logLevel, "Exception during search from class path.", t)
         }
 
         return kotlinVersion
@@ -173,7 +189,31 @@ private object PluginApiVersionFromSignatures {
     // present from 1.2.7x+ (true for Kotlin <= 1.2.7x)
     private val applyUsesKotlinCompilation by lazy { applyMethod?.contains("KotlinCompilation") == true }
 
-    fun tryGetVersion(): KotlinVersion? {
+    // added version 1.3.0
+    private val hasGetNativeCompilerPluginArtifactMethod by lazy {
+        try {
+            KotlinGradleSubplugin::class.java.getDeclaredMethod("getNativeCompilerPluginArtifact")
+            true
+        } catch (t: Throwable) {
+            false
+        }
+    }
+
+    fun tryGetVersion(project: Project): KotlinVersion? {
+        project.logger.log(logLevel, "Attempting to resolve version from signatures...")
+        if (isSnapshot) {
+            project.logger.log(
+                logLevel,
+                """{
+  hasGroupNameMethod: $hasGroupNameMethod,
+  applyMethod: $applyMethod,
+  applyUsesSourceSet: $applyUsesSourceSet,
+  applyUsesKotlinCompilation: $applyUsesKotlinCompilation,
+  hasGetNativeCompilerPluginArtifactMethod: $hasGetNativeCompilerPluginArtifactMethod
+}"""
+            )
+        }
+        if (hasGetNativeCompilerPluginArtifactMethod) return KotlinVersion(1, 3, 0)
         if (hasGroupNameMethod) return KotlinVersion(1, 2, 51)
         if (applyUsesSourceSet) return KotlinVersion(1, 2, 61)
         if (applyUsesKotlinCompilation) return KotlinVersion(1, 2, 71)
@@ -182,9 +222,10 @@ private object PluginApiVersionFromSignatures {
 }
 
 private object PluginApiVersionFromCompileVersion {
-    private val versionRegex = Regex("""(\d+)\.(\d+)\.(\d+)""")
+    private val versionRegex = Regex("""(\d+)\.(\d+)\.(\d+).*""")
 
-    fun tryGetVersion(): KotlinVersion? {
+    fun tryGetVersion(project: Project): KotlinVersion? {
+        project.logger.log(logLevel, "Attempting to resolve version from compile version...")
         try {
             // The compiler version seems to be more representative of the plugin API version
             val match = versionRegex.find(KotlinCompilerVersion.VERSION)
@@ -192,9 +233,13 @@ private object PluginApiVersionFromCompileVersion {
                 val g = match.groups
                 return KotlinVersion(g[1]!!.value.toInt(), g[2]!!.value.toInt(), g[3]!!.value.toInt())
             }
-        } catch (ignore: Throwable) {
+        } catch (t: Throwable) {
+            project.logger.log(logLevel, "Exception during parsing of compile version.", t)
         }
 
         return null
     }
 }
+
+private val isSnapshot by lazy { versionName.endsWith("-SNAPSHOT") }
+private val logLevel by lazy { if (isSnapshot) LogLevel.LIFECYCLE else LogLevel.DEBUG }
