@@ -19,6 +19,10 @@
       <module fileurl="file://$PROJECT_DIR$/devfun-util-glide/devfun-util-glide.iml" filepath="$PROJECT_DIR$/devfun-util-glide/devfun-util-glide.iml" />
       <module fileurl="file://$PROJECT_DIR$/devfun-util-leakcanary/devfun-util-leakcanary.iml" filepath="$PROJECT_DIR$/devfun-util-leakcanary/devfun-util-leakcanary.iml" />
       <module fileurl="file://$PROJECT_DIR$/dokka/dokka.iml" filepath="$PROJECT_DIR$/dokka/dokka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/gradle-plugin/gradle-plugin.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/gradle-plugin/gradle-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1251/kotlin-plugin-1251.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1251/kotlin-plugin-1251.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1261/kotlin-plugin-1261.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1261/kotlin-plugin-1261.iml" />
+      <module fileurl="file://$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1271/kotlin-plugin-1271.iml" filepath="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1271/kotlin-plugin-1271.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
     </modules>
   </component>

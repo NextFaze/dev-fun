@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":devfun"))
     implementation(project(":devfun-annotations"))
     implementation(project(":devfun-compiler"))
+    implementation(project(":devfun-gradle-plugin:gradle-plugin"))
     implementation(project(":devfun-httpd"))
     implementation(project(":devfun-httpd-frontend"))
     implementation(project(":devfun-inject-dagger2"))

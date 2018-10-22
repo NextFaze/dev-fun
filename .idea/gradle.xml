@@ -14,6 +14,10 @@
             <option value="$PROJECT_DIR$/devfun-annotations" />
             <option value="$PROJECT_DIR$/devfun-compiler" />
             <option value="$PROJECT_DIR$/devfun-gradle-plugin" />
+            <option value="$PROJECT_DIR$/devfun-gradle-plugin/gradle-plugin" />
+            <option value="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1251" />
+            <option value="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1261" />
+            <option value="$PROJECT_DIR$/devfun-gradle-plugin/kotlin-plugin-1271" />
             <option value="$PROJECT_DIR$/devfun-httpd" />
             <option value="$PROJECT_DIR$/devfun-httpd-frontend" />
             <option value="$PROJECT_DIR$/devfun-inject-dagger2" />
