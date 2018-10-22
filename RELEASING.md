@@ -92,8 +92,8 @@ thus it is necessary to do this *prior* to that (specifically, Dokka looks for t
    ```bash
    cd gh-pages
    git add .
-   git commit -m "Update for 2.0.0-RC1"
-   git tag 2.0.0-RC1-pages
+   git commit -m "Update for 2.0.0-RC2"
+   git tag 2.0.0-RC2-pages
    git push && git push --tags
    ```
 
@@ -137,7 +137,7 @@ This should be done after the artifacts are updated.
 - Ensure gradle parallel is turned off (`org.gradle.parallel=false`)
 - Run commands:
     ```bash
-    git tag 2.0.0-RC1
+    git tag 2.0.0-RC2
     ./gradlew clean
     ./gradlew assemble
     ./gradlew dokka
@@ -145,8 +145,8 @@ This should be done after the artifacts are updated.
     ./gradlew publishPlugins
    cd gh-pages
    git add .
-   git commit -m "Update for 2.0.0-RC1"
-   git tag 2.0.0-RC1-pages
+   git commit -m "Update for 2.0.0-RC2"
+   git tag 2.0.0-RC2-pages
    git push && git push --tags
    cd ..
    git push && git push --tags
