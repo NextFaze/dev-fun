@@ -54,7 +54,7 @@ This library contains primarily interface definitions and inline functions, and 
 negligible impact on your method count and dex sizes. Apply to your main `compile` configuration:
 
 ``` kotlin
-implementation("com.nextfaze.devfun:devfun-annotations:2.0.0-RC2")
+implementation("com.nextfaze.devfun:devfun-annotations:2.0.0-RC3")
 ```
 
 ### Compiler
@@ -64,7 +64,7 @@ Annotation processor [DevFunProcessor](../com.nextfaze.devfun.compiler/-dev-fun-
 This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.
 
 ``` kotlin
-kaptDebug("com.nextfaze.devfun:devfun-compiler:2.0.0-RC2")
+kaptDebug("com.nextfaze.devfun:devfun-compiler:2.0.0-RC3")
 ```
 
 Configuration options can be applied using Android DSL:
@@ -93,7 +93,7 @@ If you can use the Gradle `plugins` block (which you should be able to do - this
 
 ``` kotlin
 plugins {
-    id("com.nextfaze.devfun") version "2.0.0-RC2"
+    id("com.nextfaze.devfun") version "2.0.0-RC3"
 }
 ```
 
@@ -103,7 +103,7 @@ Add the plugin to your classpath (found in the `jcenter()` repository):
 ``` kotlin
 buildscript {
     dependencies {
-        classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.0.0-RC2")
+        classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.0.0-RC3")
     }
 }
 ```
@@ -129,7 +129,7 @@ Core of [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md). Loads modules a
 Apply to your non-main configuration:
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun:devfun:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun:devfun:2.0.0-RC3")
 ```
 
 Modules are loaded by [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md) using Java's [ServiceLoader](https://developer.android.com/reference/java/util/ServiceLoader.html).
@@ -151,7 +151,7 @@ See the demo app [DemoInstanceProvider](https://github.com/NextFaze/dev-fun/tree
 Adds a developer menu [DevMenu](../com.nextfaze.devfun.menu/-dev-menu/index.md), accessible by a floating cog [CogOverlay](../com.nextfaze.devfun.menu.controllers/-cog-overlay/index.md) (long-press to drag) or device button sequence [KeySequence](../com.nextfaze.devfun.menu.controllers/-key-sequence/index.md).
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun:menu:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun:menu:2.0.0-RC3")
 ```
 
 Button sequences: *(this are not configurable at the moment but are intended to be eventually)*
@@ -186,7 +186,7 @@ Adds module [InjectFromDagger2](../com.nextfaze.devfun.inject.dagger2/-inject-fr
 [Dagger2Component](../com.nextfaze.devfun.reference/-dagger2-component/index.md) uses. Tested from Dagger 2.4 to 2.16.
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.0.0-RC3")
 ```
 
 Simply graphs should be well supported. More complex graphs *should* work (it has been working well in-house). Please report any issues you
@@ -301,7 +301,7 @@ Adding them to modules and leveraging dependency injection allows for non-static
 Module [GlideUtils](../com.nextfaze.devfun.utils.glide/-glide-utils/index.md) provides some utility functions when using Glide.
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.0.0-RC3")
 ```
 
 Features:
@@ -315,7 +315,7 @@ Features:
 Module [LeakCanaryUtils](../com.nextfaze.devfun.utils.leakcanary/-leak-canary-utils/index.md) provides some utility functions when using Leak Canary.
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.0.0-RC3")
 ```
 
 Features:
@@ -335,7 +335,7 @@ Adds a parameter annotation [ColorPicker](../com.nextfaze.devfun.invoke.view/-co
 *Note: Only needed if you don't include `devfun-menu` (as it uses/includes the color picker transitively).*
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun-invoke-view-colorpicker:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun-invoke-view-colorpicker:2.0.0-RC3")
 ```
 
 ## Experimental Modules
@@ -358,7 +358,7 @@ Module [DevHttpD](../com.nextfaze.devfun.httpd/-dev-http-d/index.md) adds a loca
 Provides a single `POST` method `invoke` with one parameter `hashCode` (expecting [FunctionItem.hashCode](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/hash-code.html))
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun:httpd:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun:httpd:2.0.0-RC3")
 ```
 
 Use with HttpD Front-end.
@@ -396,7 +396,7 @@ Module [HttpFrontEnd](../com.nextfaze.devfun.httpd.frontend/-http-front-end/inde
 **Depends on [DevHttpD](../com.nextfaze.devfun.httpd/-dev-http-d/index.md).**
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun:httpd-frontend:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun:httpd-frontend:2.0.0-RC3")
 ```
 
 Page is rather simple at the moment, but in the future it's somewhat intended (as a learning exercise) to create a React front end using
@@ -409,7 +409,7 @@ Kotlin or something.
 Module [DevStetho](../com.nextfaze.devfun.stetho/-dev-stetho/index.md) allows generated methods to be invoked from Chrome's Dev Tools JavaScript console.
 
 ``` kotlin
-debugImplementation("com.nextfaze.devfun:devfun-stetho:2.0.0-RC2")
+debugImplementation("com.nextfaze.devfun:devfun-stetho:2.0.0-RC3")
 ```
 
 Opening console will show available functions.
