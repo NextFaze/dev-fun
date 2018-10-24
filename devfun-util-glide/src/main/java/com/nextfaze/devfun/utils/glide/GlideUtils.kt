@@ -9,8 +9,8 @@ import com.bumptech.glide.load.engine.cache.MemoryCache
 import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.internal.log.*
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Utility functions for [Glide](https://github.com/bumptech/glide).

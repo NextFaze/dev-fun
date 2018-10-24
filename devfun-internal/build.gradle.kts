@@ -14,7 +14,7 @@ dependencies {
     api(project(":devfun-annotations"))
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
+    api(Dependency.kotlin.stdLib)
 
     // Logging
     api(Dependency.slf4jApi)

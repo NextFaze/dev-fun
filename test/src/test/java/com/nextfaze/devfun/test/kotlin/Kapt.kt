@@ -46,7 +46,8 @@ internal class Kapt3ExtensionForTests(
     logger = MessageCollectorBackedKaptLogger(true),
     correctErrorTypes = true,
     mapDiagnosticLocations = true,
-    compilerConfiguration = CompilerConfiguration.EMPTY
+    compilerConfiguration = CompilerConfiguration.EMPTY,
+    strictMode = true
 ) {
     internal var savedStubs: List<String>? = null
     internal var savedBindings: Map<String, KaptJavaFileObject>? = null

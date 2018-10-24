@@ -1,6 +1,7 @@
 import com.google.common.io.Files
 import groovy.lang.Closure
 import org.gradle.kotlin.dsl.get
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.reflect.KCallable
 import kotlin.reflect.KFunction
 
@@ -27,6 +28,7 @@ dependencies {
     compileOnly(project(":devfun-gradle-plugin:kotlin-plugin-1251"))
     compileOnly(project(":devfun-gradle-plugin:kotlin-plugin-1261"))
     compileOnly(project(":devfun-gradle-plugin:kotlin-plugin-1271"))
+    compileOnly(project(":devfun-gradle-plugin:kotlin-plugin-1300"))
 }
 
 configureDokka()
@@ -51,6 +53,20 @@ afterEvaluate {
     subprojects {
         task<Jar> {
             archiveName = "${project.name}.jar"
+        }
+        // Previous versions of Kotlin are not compatible with latest daemon, so we force use of compiler-embeddable (in-process).
+        // It can work without forcing it, but it will spit out a lot of warnings.
+        task<KotlinCompile> {
+            var prevValue: String? = null
+            doFirst {
+                prevValue = System.getProperty("kotlin.compiler.execution.strategy")
+                System.setProperty("kotlin.compiler.execution.strategy", "in-process")
+            }
+            doLast {
+                if (prevValue != null) {
+                    System.setProperty("kotlin.compiler.execution.strategy", prevValue)
+                }
+            }
         }
     }
 }

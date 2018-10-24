@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
-
 plugins {
     id("com.android.library")
     kotlin("android")
@@ -14,16 +12,8 @@ description = """Core DevFun library that initializes and manages DevFun modules
 
 configureAndroidLib()
 
-kotlin {
-    experimental.coroutines = Coroutines.ENABLE
-}
-
 androidExtensions {
     isExperimental = true
-}
-
-kapt {
-    correctErrorTypes = true
 }
 
 dependencies {
@@ -33,10 +23,10 @@ dependencies {
     implementation(project(":devfun-internal"))
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
-    implementation(Dependency.kotlinReflect)
-    implementation(Dependency.kotlinCoroutines)
-    compileOnly(Dependency.kotlinAndroidExtensions) // setting 'isExperimental' doesn't seem to add dependency anymore?
+    api(Dependency.kotlin.stdLib)
+    implementation(Dependency.kotlin.reflect)
+    implementation(Dependency.kotlin.coroutines)
+    compileOnly(Dependency.kotlin.androidExtensions) // setting 'isExperimental' doesn't seem to add dependency anymore?
 
     // Support libs
     implementation(Dependency.supportAppCompat)

@@ -20,7 +20,7 @@ dependencies {
     implementation(project(":devfun-invoke-view-colorpicker"))
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
+    api(Dependency.kotlin.stdLib)
 
     // Support libs
     api(Dependency.supportAppCompat)

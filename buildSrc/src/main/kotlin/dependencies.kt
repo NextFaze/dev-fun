@@ -20,19 +20,8 @@ object Dependency {
     val androidPlugin by lazy { "com.android.tools.build:gradle:$agpVersion" }
 
     lateinit var kotlinVersion: String
-    fun kotlinPlugin(version: String = kotlinVersion) = "org.jetbrains.kotlin:kotlin-gradle-plugin:$version"
-    val kotlinPlugin by lazy { kotlinPlugin() }
-    fun kotlinPluginApi(version: String = kotlinVersion) = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$version"
-    val kotlinPluginApi by lazy { kotlinPluginApi() }
-    fun kotlinStdLib(version: String = kotlinVersion) = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$version"
-    val kotlinStdLib by lazy { kotlinStdLib() }
-    val kotlinReflect by lazy { "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion" }
-    val kotlinTest by lazy { "org.jetbrains.kotlin:kotlin-test:$kotlinVersion" }
-    val kotlinAndroidExtensions by lazy { "org.jetbrains.kotlin:kotlin-android-extensions:$kotlinVersion" }
-
-    const val kotlinCoroutinesVersion = "0.27.0"
-    const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
-    const val kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+    fun kotlin(version: String = kotlinVersion) = KotlinDependencies(version)
+    val kotlin by lazy { kotlin() }
 
     const val supportRecyclerView = "androidx.recyclerview:recyclerview:1.0.0"
     const val supportAppCompat = "androidx.appcompat:appcompat:1.0.0"
@@ -64,4 +53,17 @@ object Dependency {
 
     lateinit var dokkaVersion: String
     val dokkaFatJar by lazy { "org.jetbrains.dokka:dokka-fatjar:$dokkaVersion" }
+}
+
+data class KotlinDependencies(val version: String, val coroutinesVersion: String = "1.0.0-RC1") {
+    val gradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$version"
+    val gradlePluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$version"
+    val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$version"
+    val reflect = "org.jetbrains.kotlin:kotlin-reflect:$version"
+    val test = "org.jetbrains.kotlin:kotlin-test:$version"
+    val androidExtensions = "org.jetbrains.kotlin:kotlin-android-extensions:$version"
+    val compilerEmbeddable = "org.jetbrains.kotlin:kotlin-compiler-embeddable:$version"
+    val annotationProcessingEmbeddable = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:$version"
+    val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 }

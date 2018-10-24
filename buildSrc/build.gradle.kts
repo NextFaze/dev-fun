@@ -11,20 +11,11 @@ buildscript {
         maven { setUrl("https://plugins.gradle.org/m2/") }
         google()
     }
-
-    dependencies {
-        val buildSrcKotlinVersion: String by extra
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$buildSrcKotlinVersion")
-    }
 }
 
 println("buildSrcKotlinVersion: ${extra["buildSrcKotlinVersion"]}")
 println("buildSrc kotlin compiler version: ${org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION}")
 println("buildSrc stdlib version: ${KotlinVersion.CURRENT}")
-
-apply {
-    plugin("kotlin")
-}
 
 plugins {
     `kotlin-dsl`

@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("kotlin")
     kotlin("kapt")
 }
 
-val kotlinVersion = "1.2.51"
+val kotlin = Dependency.kotlin("1.2.51")
 
 dependencies {
     // DevFun
@@ -15,9 +17,13 @@ dependencies {
     compileOnly(gradleApi())
 
     // Kotlin
-    compileOnly(Dependency.kotlinStdLib(kotlinVersion))
-    compileOnly(Dependency.kotlinPlugin(kotlinVersion))
-    compileOnly(Dependency.kotlinPluginApi(kotlinVersion))
+    compileOnly(kotlin.stdLib)
+    compileOnly(kotlin.gradlePlugin)
+    compileOnly(kotlin.gradlePluginApi)
+
+    // Kotlin Compiler - 1.2.51 is not compatible with latest plugin versions
+    kotlinCompilerClasspath(kotlin.reflect)
+    kotlinCompilerClasspath(kotlin.compilerEmbeddable)
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt(Dependency.autoService)
@@ -26,10 +32,12 @@ dependencies {
 
 // Force specific Kotlin version
 configurations.all {
-    resolutionStrategy.force(
-        "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
-    )
+    exclude(module = "kotlin-scripting-compiler-embeddable") // not present in 1.2.51
+    resolutionStrategy {
+        eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion(kotlin.version)
+            }
+        }
+    }
 }

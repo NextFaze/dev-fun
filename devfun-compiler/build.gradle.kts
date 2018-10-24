@@ -30,8 +30,8 @@ dependencies {
     compile(project(":devfun-annotations"))
 
     // Kotlin
-    compile(Dependency.kotlinStdLib)
-    compile(Dependency.kotlinReflect)
+    compile(Dependency.kotlin.stdLib)
+    compile(Dependency.kotlin.reflect)
     compile("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.0.4")
 
     // Kotlin Poet

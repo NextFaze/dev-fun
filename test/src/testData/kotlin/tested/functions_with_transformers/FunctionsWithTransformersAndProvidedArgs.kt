@@ -91,7 +91,7 @@ class fta_FunctionsWithTransformersAndArgs {
     ) to listOf(
         TestableTest { _, _ ->
             val args = item.args
-            assertNotNull(args, "No args provided"); args!!
+            assertNotNull(args, "No args provided")
             expect(2, "Only two args expected") { args.size }
             val arg = args.last() as? Int
             assertNotNull(arg, "Arg as not an Int")

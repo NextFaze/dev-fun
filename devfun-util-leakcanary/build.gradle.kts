@@ -19,7 +19,7 @@ dependencies {
     api(project(":devfun-annotations"))
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
+    api(Dependency.kotlin.stdLib)
 
     // Leak Canary - https://github.com/square/leakcanary
     compileOnly(Dependency.leakCanary)

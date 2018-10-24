@@ -24,9 +24,9 @@ import com.nextfaze.devfun.invoke.WithInitialValue
 import com.nextfaze.devfun.invoke.WithNullability
 import com.nextfaze.devfun.invoke.uiButton
 import com.nextfaze.devfun.invoke.uiFunction
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.TimeUnit
 

@@ -19,7 +19,7 @@ dependencies {
     implementation(project(":devfun-internal"))
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
+    api(Dependency.kotlin.stdLib)
 
     // Android
     implementation(Dependency.supportAppCompat)

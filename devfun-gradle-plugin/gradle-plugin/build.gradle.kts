@@ -3,8 +3,6 @@ plugins {
     kotlin("kapt")
 }
 
-val kotlinVersion = Dependency.kotlinVersion
-
 dependencies {
     // DevFun
     compileOnly(project(":devfun-compiler")) // we only reference constants (DevFunProcessor's supported options)
@@ -13,9 +11,9 @@ dependencies {
     compileOnly(gradleApi())
 
     // Kotlin
-    compileOnly(Dependency.kotlinStdLib(kotlinVersion))
-    compileOnly(Dependency.kotlinPlugin(kotlinVersion))
-    compileOnly(Dependency.kotlinPluginApi(kotlinVersion))
+    compileOnly(Dependency.kotlin.stdLib)
+    compileOnly(Dependency.kotlin.gradlePlugin)
+    compileOnly(Dependency.kotlin.gradlePluginApi)
 
     // Android
     compileOnly(Dependency.androidPlugin) {
@@ -25,16 +23,6 @@ dependencies {
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt(Dependency.autoService)
     compileOnly(Dependency.autoService)
-}
-
-// Force specific Kotlin version
-configurations.all {
-    resolutionStrategy.force(
-        "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
-    )
 }
 
 configureDokka()

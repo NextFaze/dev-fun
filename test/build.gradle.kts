@@ -54,10 +54,10 @@ dependencies {
     testImplementation("ch.qos.logback:logback-classic:1.2.3")
 
     // Kotlin
-    testImplementation("org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:${Dependency.kotlinVersion}")
-    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:${Dependency.kotlinVersion}")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:${Dependency.kotlinVersion}")
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:${Dependency.kotlinVersion}")
+    testImplementation(Dependency.kotlin.annotationProcessingEmbeddable)
+    testImplementation(Dependency.kotlin.compilerEmbeddable)
+    testImplementation(Dependency.kotlin.test)
+    testImplementation(Dependency.kotlin.reflect)
 
     // Mockito - http://mockito.org/
     testImplementation("org.mockito:mockito-inline:2.13.0")

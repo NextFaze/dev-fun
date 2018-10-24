@@ -16,7 +16,7 @@ dependencies {
     implementation(project(":devfun-internal"))
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
+    api(Dependency.kotlin.stdLib)
 
     // Stetho
     api(Dependency.stetho)

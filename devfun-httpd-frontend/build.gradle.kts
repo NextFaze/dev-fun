@@ -18,7 +18,7 @@ dependencies {
     implementation(project(":devfun-internal"))
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
+    api(Dependency.kotlin.stdLib)
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt(Dependency.autoService)

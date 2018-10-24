@@ -3,7 +3,7 @@ plugins {
     kotlin("kapt")
 }
 
-val kotlinVersion = "1.2.61"
+val kotlin = Dependency.kotlin("1.2.61")
 
 dependencies {
     // DevFun
@@ -15,9 +15,9 @@ dependencies {
     compileOnly(gradleApi())
 
     // Kotlin
-    compileOnly(Dependency.kotlinStdLib(kotlinVersion))
-    compileOnly(Dependency.kotlinPlugin(kotlinVersion))
-    compileOnly(Dependency.kotlinPluginApi(kotlinVersion))
+    compileOnly(kotlin.stdLib)
+    compileOnly(kotlin.gradlePlugin)
+    compileOnly(kotlin.gradlePluginApi)
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt(Dependency.autoService)
@@ -26,10 +26,11 @@ dependencies {
 
 // Force specific Kotlin version
 configurations.all {
-    resolutionStrategy.force(
-        "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion",
-        "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
-    )
+    resolutionStrategy {
+        eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion(kotlin.version)
+            }
+        }
+    }
 }

@@ -16,7 +16,7 @@ configureAndroidLib()
 
 dependencies {
     // Kotlin
-    implementation(Dependency.kotlinStdLib)
+    implementation(Dependency.kotlin.stdLib)
 
     // Support libs
     implementation(Dependency.supportAppCompat)

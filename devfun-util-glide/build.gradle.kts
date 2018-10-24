@@ -13,10 +13,6 @@ description = """Module that provides some utility functions when using Glide.
 
 configureAndroidLib()
 
-kotlin {
-    experimental.coroutines = Coroutines.ENABLE
-}
-
 dependencies {
     // DevFun
     kapt(project(":devfun-compiler"))
@@ -24,8 +20,8 @@ dependencies {
     implementation(project(":devfun-internal"))
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
-    api(Dependency.kotlinCoroutines)
+    api(Dependency.kotlin.stdLib)
+    api(Dependency.kotlin.coroutines)
 
     // Glide - https://github.com/bumptech/glide
     compileOnly(Dependency.glide)

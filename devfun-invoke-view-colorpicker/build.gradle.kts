@@ -19,7 +19,7 @@ dependencies {
     implementation("com.rarepebble:colorpicker:2.3.0")
 
     // Kotlin
-    api(Dependency.kotlinStdLib)
+    api(Dependency.kotlin.stdLib)
 
     // Google AutoService
     kapt(Dependency.autoService)

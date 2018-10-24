@@ -1,15 +1,9 @@
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
-
 plugins {
     id("com.android.application")
     id("kotlin-android-extensions")
     kotlin("android")
     kotlin("kapt")
     id("com.nextfaze.devfun")
-}
-
-kotlin {
-    experimental.coroutines = Coroutines.ENABLE
 }
 
 androidExtensions {
@@ -65,10 +59,10 @@ dependencies {
     debugImplementation(project(":devfun-httpd-frontend"))
 
     // Kotlin
-    implementation(Dependency.kotlinStdLib)
-    implementation(Dependency.kotlinReflect)
-    implementation(Dependency.kotlinCoroutines)
-    implementation(Dependency.kotlinCoroutinesAndroid)
+    implementation(Dependency.kotlin.stdLib)
+    implementation(Dependency.kotlin.reflect)
+    implementation(Dependency.kotlin.coroutines)
+    implementation(Dependency.kotlin.coroutinesAndroid)
 
     // Support libs
     implementation(Dependency.supportAppCompat)
@@ -124,7 +118,7 @@ dependencies {
     implementation("com.uber.autodispose:autodispose-android-archcomponents-kotlin:0.8.0")
 
     // Instrumentation tests
-    androidTestImplementation(Dependency.kotlinTest)
+    androidTestImplementation(Dependency.kotlin.test)
 
     androidTestImplementation("androidx.test:rules:1.1.0-alpha4")
     androidTestImplementation("androidx.test:runner:1.1.0-alpha4")
