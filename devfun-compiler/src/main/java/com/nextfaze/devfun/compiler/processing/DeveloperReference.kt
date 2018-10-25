@@ -1,9 +1,17 @@
 package com.nextfaze.devfun.compiler.processing
 
-import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.compiler.Logging
+import com.nextfaze.devfun.compiler.Options
+import com.nextfaze.devfun.compiler.StringPreprocessor
+import com.nextfaze.devfun.compiler.escapeDollar
+import com.nextfaze.devfun.compiler.isPublic
 import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
 import com.nextfaze.devfun.generated.DevFunGenerated
-import com.nextfaze.devfun.reference.*
+import com.nextfaze.devfun.reference.FieldReference
+import com.nextfaze.devfun.reference.MethodReference
+import com.nextfaze.devfun.reference.ReferenceDefinition
+import com.nextfaze.devfun.reference.TypeReference
+import com.nextfaze.devfun.reference.WithProperties
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
@@ -15,6 +23,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.util.Elements
+import kotlin.collections.set
 
 @Singleton
 internal class DeveloperReferenceHandler @Inject constructor(
@@ -63,7 +72,7 @@ internal class DeveloperReferenceHandler @Inject constructor(
 
     override fun applyToTypeSpec(typeSpec: TypeSpec.Builder) {
         typeSpec.addProperty(
-            DevFunGenerated::developerReferences.toPropertySpec(
+            DevFunGenerated::referenceDefinitions.toPropertySpec(
                 initBlock = developerReferences.values.toListOfBlock(ReferenceDefinition::class)
             ).build()
         )

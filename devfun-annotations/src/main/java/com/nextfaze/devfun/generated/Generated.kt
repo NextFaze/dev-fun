@@ -38,5 +38,5 @@ interface DevFunGenerated {
      *
      * @see DeveloperReference
      */
-    val developerReferences: List<ReferenceDefinition> get() = emptyList()
+    val referenceDefinitions: List<ReferenceDefinition> get() = emptyList()
 }

@@ -449,7 +449,7 @@ class DevFun {
      */
     inline fun <reified T : Annotation> developerReferences(): List<ReferenceDefinition> =
         definitions.flatMap { generated ->
-            generated.developerReferences.filter { it.annotation == T::class }
+            generated.referenceDefinitions.filter { it.annotation == T::class }
         }
 
     /**
@@ -464,7 +464,7 @@ class DevFun {
      */
     fun getDeveloperReferences(clazz: KClass<out Annotation>): List<ReferenceDefinition> =
         definitions.flatMap { generated ->
-            generated.developerReferences.filter { it.annotation == clazz }
+            generated.referenceDefinitions.filter { it.annotation == clazz }
         }
 
     /**
