@@ -4,7 +4,12 @@ import android.graphics.Typeface
 import android.text.ParcelableSpan
 import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.text.style.*
+import android.text.style.BackgroundColorSpan
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
+import android.text.style.TypefaceSpan
+import android.text.style.UnderlineSpan
 import androidx.annotation.ColorInt
 
 typealias Span = Pair<CharSequence, List<ParcelableSpan>>
@@ -25,7 +30,8 @@ fun u(str: CharSequence) = str to listOf(UnderlineSpan())
 fun b(str: CharSequence) = str to listOf(StyleSpan(Typeface.BOLD))
 fun i(str: CharSequence) = str to listOf(StyleSpan(Typeface.ITALIC))
 fun i(span: Span) = span.first to span.second + StyleSpan(Typeface.ITALIC)
-fun pre(str: CharSequence) = str to listOf(TypefaceSpan("monospace"))
+fun pre(str: CharSequence) = str to listOf(TypefaceSpan("serif-monospace"))
 fun scale(str: CharSequence, scale: Float) = str to listOf(RelativeSizeSpan(scale))
 fun scale(span: Span, scale: Float) = span.first to span.second + RelativeSizeSpan(scale)
 fun color(span: Span, @ColorInt color: Int) = span.first to span.second + ForegroundColorSpan(color)
+fun background(span: Span, @ColorInt color: Int) = span.first to span.second + BackgroundColorSpan(color)

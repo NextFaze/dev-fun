@@ -1,10 +1,12 @@
 package com.nextfaze.devfun.httpd
 
 import android.app.Activity
+import android.content.ClipData
 import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.text.SpannableStringBuilder
 import androidx.appcompat.app.AlertDialog
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.category.DeveloperCategory
@@ -19,6 +21,7 @@ import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.captureInstance
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.string.*
 import fi.iki.elonen.NanoHTTPD.IHTTPSession
 import fi.iki.elonen.NanoHTTPD.Response
 import fi.iki.elonen.NanoHTTPD.Response.Status.BAD_REQUEST
@@ -34,6 +37,7 @@ import java.net.NetworkInterface
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.LazyThreadSafetyMode.NONE
+
 
 private const val DEFAULT_PORT = 0x5A23 // 23075
 private const val AVD_IP = "10.0.2.15"
@@ -129,27 +133,37 @@ class HttpDRouter(private val context: Context, private val port: Int) : RouterN
     override fun stop() = super.stop()
 
     @DeveloperFunction
-    private fun showServerInfoDialog(activity: Activity) =
-        logServerInfo().also {
-            AlertDialog.Builder(activity)
-                .setTitle("Server Info")
-                .setMessage(it)
-                .show()
-        }
+    private fun showServerInfoDialog(activity: Activity) = showServerInfoDialog(activity, "Server Info", logServerInfo())
 
     @DeveloperFunction("Show Server Info Dialog TL;DR;")
-    private fun showServerInfoDialogTlDr(activity: Activity) =
-        serverInfoTlDr().also {
-            log.i { "Server Info TL;DR;\n$it" }
-            AlertDialog.Builder(activity)
-                .setTitle("Server Info TL;DR;")
-                .setMessage(it)
-                .show()
+    private fun showServerInfoDialogTlDr(activity: Activity) = showServerInfoDialog(activity, "Server Info TL;DR;", serverInfoTlDr())
+
+    private fun showServerInfoDialog(activity: Activity, title: String, message: String): String {
+        val cmd = "${adbForwardCommand()} && (open ${localHostUrl()} | xdg-open ${localHostUrl()})"
+        val msg = SpannableStringBuilder(message).apply {
+            this += "\n\n"
+            this += background(pre(cmd), 0xFFCCCCCC.toInt())
         }
+        AlertDialog.Builder(activity)
+            .setTitle(title)
+            .setMessage(msg)
+            .setPositiveButton(android.R.string.ok) { d, _ -> d.dismiss() }
+            .setNeutralButton("Copy Forwarding Command") { d, _ ->
+                val clip = ClipData.newPlainText("DevFun ADB HTTPD Forward Command", cmd)
+                activity.clipboardManager.primaryClip = clip
+                d.dismiss()
+            }
+            .show()
+        return "$title\n$message" // we return this so DevFun will also log the details
+    }
 
     private fun serverInfoTlDr() = """
-Run this: adb forward tcp:$port tcp:$port
-Click this: http://127.0.0.1:$port/"""
+Run this: ${adbForwardCommand()}
+Visit this: ${localHostUrl()}"""
+
+    private fun adbForwardCommand() = "adb forward tcp:$port tcp:$port"
+
+    private fun localHostUrl() = "http://127.0.0.1:$port/"
 
     @DeveloperFunction
     private fun logServerInfo(): String {

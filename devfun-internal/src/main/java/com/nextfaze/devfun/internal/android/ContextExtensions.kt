@@ -5,6 +5,7 @@ package com.nextfaze.devfun.internal.android
 import android.app.ActivityManager
 import android.app.Application
 import android.app.KeyguardManager
+import android.content.ClipboardManager
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
@@ -20,17 +21,15 @@ internal fun Context.unregisterActivityCallbacks(callbacks: Application.Activity
     }
 }
 
-val Context.activityManager: ActivityManager by lazier { applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager }
-val Context.keyguardManager: KeyguardManager by lazier { applicationContext.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager }
-val Context.wifiManager: WifiManager by lazier { applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager }
-val Context.windowManager: WindowManager by lazier { applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
-val Context.connectivityManager: ConnectivityManager by lazier {
-    applicationContext.getSystemService(
-        Context.CONNECTIVITY_SERVICE
-    ) as ConnectivityManager
-}
+val Context.activityManager: ActivityManager by lazier { service<ActivityManager>(Context.ACTIVITY_SERVICE) }
+val Context.keyguardManager: KeyguardManager by lazier { service<KeyguardManager>(Context.KEYGUARD_SERVICE) }
+val Context.wifiManager: WifiManager by lazier { service<WifiManager>(Context.WIFI_SERVICE) }
+val Context.windowManager: WindowManager by lazier { service<WindowManager>(Context.WINDOW_SERVICE) }
+val Context.connectivityManager: ConnectivityManager by lazier { service<ConnectivityManager>(Context.CONNECTIVITY_SERVICE) }
+val Context.clipboardManager: ClipboardManager by lazier { service<ClipboardManager>(Context.CLIPBOARD_SERVICE) }
 
 private fun <T : Any, R> lazier(initializer: T.() -> R) = UnsafeLazyImpl(initializer)
+private inline fun <reified T : Any> Context.service(name: String) = applicationContext.getSystemService(name) as T
 
 @Suppress("ClassName")
 private object UNINITIALIZED_VALUE
