@@ -12,7 +12,7 @@ fun Project.sourcesJar(): Jar =
         group = "publishing"
         setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
         classifier = "sources"
-        from(mainSourceSet)
+        from(mainSourceFiles)
         addArtifact("archives", this, this)
     }
 

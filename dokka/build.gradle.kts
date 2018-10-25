@@ -60,7 +60,7 @@ project.afterEvaluate {
 
         mainDokkaTask.sourceDirs +=
                 when (libDokkaTask) {
-                    is DokkaTask -> libDokkaTask.project.mainSourceSet
+                    is DokkaTask -> libDokkaTask.project.mainSourceFiles.filter { it.isDirectory }
                     else -> throw RuntimeException("Unexpected type ${libDokkaTask::class} for libDokkaTask $libDokkaTask")
                 }
 

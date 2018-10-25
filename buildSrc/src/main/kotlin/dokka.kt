@@ -34,7 +34,7 @@ fun Project.configureDokka() {
             url = URL("https://nextfaze.github.io/dev-fun/")
         }
         dokkaFatJar = Dependency.dokkaFatJar
-        sourceDirs = mainSourceSet
+        sourceDirs = mainSourceFiles.filter { it.isDirectory }
     }
 
     task<Jar>("javadocJar") {
