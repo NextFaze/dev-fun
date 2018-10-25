@@ -122,13 +122,6 @@ repositories {
 }
 ```
 
-Add KotlinX Repository to your project:
-```kotlin
-repositories {
-    maven { setUrl("https://kotlin.bintray.com/kotlinx/") }
-}
-```
-
 Add dependencies to build.gradle:
 ```kotlin
 dependencies {

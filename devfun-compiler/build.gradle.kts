@@ -16,9 +16,11 @@ kapt {
 }
 
 task<ShadowJar> {
+    classifier = ""
     configurations = listOf(project.configurations.shadow)
     relocate("com.squareup.kotlinpoet", "com.squareup.kotlinpoet.devfun")
-    classifier = ""
+    relocate("kotlinx.metadata", "kotlinx.metadata.devfun")
+    mergeServiceFiles()
 }
 
 tasks.findByName("jar")!!.apply {
@@ -33,7 +35,9 @@ dependencies {
     // Kotlin
     compile(Dependency.kotlin.stdLib)
     compile(Dependency.kotlin.reflect)
-    compile("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.0.4")
+    shadow("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.0.4") {
+        isTransitive = false // just Kotlin libs we already declare
+    }
 
     // Kotlin Poet
     shadow("com.github.alex2069:kotlinpoet:eb0d0a9426ea1b2e3273fb4c536e35b2960d9fa6") {
