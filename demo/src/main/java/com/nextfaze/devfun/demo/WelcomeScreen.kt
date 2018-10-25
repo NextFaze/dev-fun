@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.nextfaze.devfun.demo.inject.FragmentInjector
 import com.nextfaze.devfun.demo.kotlin.enabled
 import com.nextfaze.devfun.demo.kotlin.startActivity
+import com.nextfaze.devfun.demo.test.DummyClass
 import com.nextfaze.devfun.demo.util.value
 import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.function.DeveloperProperty
@@ -41,6 +42,7 @@ class WelcomeActivity : BaseActivity() {
 
 class WelcomeFragment : BaseFragment() {
     @Inject lateinit var config: Config
+    @Inject internal lateinit var dummyClass: DummyClass
 
     @DeveloperLogger(top = 0.137f)
     @DeveloperProperty

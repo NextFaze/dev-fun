@@ -36,7 +36,7 @@ internal data class ResolvedComponent(val componentType: KClass<*>) {
                 } else {
                     // raw types (package private non-singleton types)
                     // since we can't know the type until we get it, we at least check the name matches first
-                    untypedProviders[field] = field.name.removeSuffix("Provider").toLowerCase()
+                    untypedProviders[field] = field.name.substringBefore('$').removeSuffix("Provider").toLowerCase()
                 }
             } else if (field.type.hasAnnotation<Module>()) {
                 log.t { "Found module: $field" }

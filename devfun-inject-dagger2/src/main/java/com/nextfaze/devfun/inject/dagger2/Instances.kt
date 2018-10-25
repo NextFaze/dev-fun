@@ -399,6 +399,7 @@ private class Dagger2AnnotatedInstanceProvider(
 
         components = devFun.developerReferences<Dagger2Component>()
             .also { log.d { "Dagger2Component references: $it" } }
+            .asSequence()
             .filterIsInstance<MethodReference>()
             .map { ref ->
                 val method = ref.method.toReflected(devFun.instanceProviders)
@@ -444,6 +445,7 @@ private class Dagger2AnnotatedInstanceProvider(
             }
             .filterNotNull()
             .sortedBy { it.scope }
+            .toList()
         log.d {
             "Resolved & sorted component sources (lower scope # are checked first):\n${components.toString().replace(
                 "ComponentReference",
