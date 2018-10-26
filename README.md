@@ -73,7 +73,7 @@ See the documentation for advanced usage, including custom names, custom argumen
 ## Quick Start
 #### Project Setup
 - **REQUIRED** Android Gradle 3.0.0+ (due to [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589))
-- Recommended to use Kotlin 1.2.71, though should work down to 1.1.1 _(somewhat untested)_
+- Recommended to use Kotlin 1.3.0, though should work on previous versions _(somewhat untested)_
 - Recommended to use KAPT3 (`plugins { kotlin("kapt") }`), though KAPT1 also works
 - Compiled with `minSdkVersion` >= 15
 - Built against **AndroidX 1.0.0** (this is equivalent to Android Support libraries 28.0.0)  
@@ -86,7 +86,7 @@ Add the DevFun Gradle plugin to your build script.
 If you can use the Gradle `plugins` block (which locates and downloads it for you):
 ```kotlin
 plugins {
-    id("com.nextfaze.devfun") version "2.0.0-RC3"
+    id("com.nextfaze.devfun") version "2.0.0-RC4"
 }
 ```
 
@@ -95,7 +95,7 @@ Add the plugin to your classpath (found in the `jcenter()` repository):
 ```kotlin
 buildscript {
     dependencies {
-        classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.0.0-RC3")
+        classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.0.0-RC4")
     }
 }
 ```
@@ -126,35 +126,35 @@ Add dependencies to build.gradle:
 ```kotlin
 dependencies {
     // Annotations, Compiler, and Developer Menu
-    kaptDebug("com.nextfaze.devfun:devfun-compiler:2.0.0-RC3")
-    implementation("com.nextfaze.devfun:devfun-annotations:2.0.0-RC3")
-    debugImplementation("com.nextfaze.devfun:devfun-menu:2.0.0-RC3")
+    kaptDebug("com.nextfaze.devfun:devfun-compiler:2.0.0-RC4")
+    implementation("com.nextfaze.devfun:devfun-annotations:2.0.0-RC4")
+    debugImplementation("com.nextfaze.devfun:devfun-menu:2.0.0-RC4")
     
     // Dagger 2.x component inspector - only if using Dagger 2.x!
-    debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.0.0-RC3")
+    debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.0.0-RC4")
     
     // Chrome Dev Tools JavaScript console integration
-    debugImplementation("com.nextfaze.devfun:devfun-stetho:2.0.0-RC3")
+    debugImplementation("com.nextfaze.devfun:devfun-stetho:2.0.0-RC4")
         
     // HTTP server and simple index page
-    debugImplementation("com.nextfaze.devfun:devfun-httpd:2.0.0-RC3")
-    debugImplementation("com.nextfaze.devfun:devfun-httpd-frontend:2.0.0-RC3")
+    debugImplementation("com.nextfaze.devfun:devfun-httpd:2.0.0-RC4")
+    debugImplementation("com.nextfaze.devfun:devfun-httpd-frontend:2.0.0-RC4")
     
     // Glide util functions
-    debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.0.0-RC3")
+    debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.0.0-RC4")
     
     // Leak Canary util functions
-    debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.0.0-RC3")
+    debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.0.0-RC4")
     
     /*
      * Transitively included libs - in general you don"t need to add these explicitly (except maybe for custom module libs).
      */
     
     // Adds view factory handler for @ColorPicker for invoke UI - transitively included via devfun-menu
-    // debugImplementation("com.nextfaze.devfun:devfun-invoke-view-colorpicker:2.0.0-RC3")
+    // debugImplementation("com.nextfaze.devfun:devfun-invoke-view-colorpicker:2.0.0-RC4")
     
     // DevFun core - transitive included from menu et al.
-    // debugImplementation("com.nextfaze.devfun:devfun:2.0.0-RC3")
+    // debugImplementation("com.nextfaze.devfun:devfun:2.0.0-RC4")
 }
 ```
 
@@ -307,7 +307,7 @@ Easiest method is to use `devfun-inject-dagger2` module - by default it should w
 If all else fails you can define your own instance provider with utility functions from `devfun-inject-dagger2` (see the demo for an example). 
 
 ### Supported Versions
-Dagger has been tested on the demo app from versions 2.4 to 2.16, and various in-house apps on more recent versions, and should function
+Dagger has been tested on the demo app from versions 2.4 to 2.17, and various in-house apps on more recent versions, and should function
  correctly for most simple scopes/graphs. 
 
 For reference the demo app uses three scopes; Singleton, Retained (fragments), and an Activity scope. It uses both type-annotated scoping
@@ -318,8 +318,8 @@ For reference the demo app uses three scopes; Singleton, Retained (fragments), a
 DevFun uses a number of methods iteratively to introspect the generated components/modules, however depending on scoping, visibility, and
  instantiation of a type it can be difficult to determine the source/scope in initial (but faster) introspection methods. 
 
-When all else fails DevFun will use a form of heavy reflection to introspect the generated code - types with a custom scope and no
- constructor arguments are not necessarily obtainable from Dagger (depends on the version) by any other means. To help with this ensure your
+When all else fails DevFun will use a form of heavy reflection to introspect the generated code. For older versions of dagger, types with a
+ custom scope and no constructor arguments are not necessarily obtainable from Dagger by any other means. To help with this ensure your
  scope is `@Retention(RUNTIME)` so that DevFun wont unintentionally create a new instance when it can't find it right away.
 
 Due to the way Dagger generates/injects it is not possible to obtain the instance of non-scoped types from the generated component/module
@@ -356,8 +356,8 @@ This can also be toggled at any time via [devFunVerbose](https://nextfaze.github
 
 
 ## Kotlin `stdlib` Conflict 
-DevFun was compiled using Kotlin 1.2.71.  
-*Earlier versions of Kotlin are largely untested and unsupported (this is unlikely to change unless explicitly requested).*  
+DevFun was compiled against Kotlin 1.3.0.  
+*Earlier versions of Kotlin are generally untested and unsupported (if you need support for an older version make an issue).*  
 
 Thus if you receive a dependency conflict error such as:  
 `Error: Conflict with dependency 'org.jetbrains.kotlin:kotlin-stdlib' in project ':app'. Resolved versions for app (1.1.2-3) and test app (1.1.1) differ. See http://g.co/androidstudio/app-test-app-conflict for details.`
@@ -368,9 +368,9 @@ If this is not possible, you can force Gradle to use a specific version of Kotli
 // Force specific Kotlin version
 configurations.all {
     resolutionStrategy.force(
-            "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
-            "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
-            "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+        "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion",
+        "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     )
 }
 ```
@@ -413,17 +413,20 @@ See [com.nextfaze.devfun.compiler](https://nextfaze.github.io/dev-fun/com.nextfa
 
 
 ## Gradle Sync `AbstractMethodError`
-The DevFun Gradle plugin is used to tell DevFun your build variant information. It does this by setting APT values via
-[`DevFunKotlinGradlePlugin`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.gradle.plugin/-dev-fun-kotlin-gradle-plugin/) which
-implements `KotlinGradleSubplugin`, which is a part of Kotlin's `kotlin-gradle-plugin-api` package. Unfortunately Kotlin have been changing
-their interface definition for recent minor versions (<1.2.5x, 1.2.6x, and 1.2.7x), so if another plugin is using a different version
-of `KotlinGradleSubplugin` one of them will fail.
+The DevFun Gradle plugin is used to tell DevFun your build variant information. It does this by setting APT values via 
+ `DevFunKotlinGradlePlugin` which implements `KotlinGradleSubplugin` - this is from Kotlin's `kotlin-gradle-plugin-api` package.
+  Unfortunately Kotlin have been changing their interface definition for recent minor versions (<1.2.5x, 1.2.6x, and 1.2.7x), so if another
+  plugin is using a different version of `KotlinGradleSubplugin` one of them will fail.
 
-Most of the time you don't not *need* the Gradle plugin - without it DevFun will attempt to "guess" your variant information using various
-file naming and path regex hacks during the APT phase directly (and generally it's pretty good at it).  
-TLDR; If you can remove the plugin and it still works than that's fine.
+However as of 2.0.0-RC3 the appropriate Subplugin version is dynamically injected at run-time, and DevFun's Gradle Plugin does not
+ declare any dependencies so as not to pollute/alter the plugin classpath (instead relying on the Kotlin plugin to pull them in) - so DevFun
+ itself should *not* be causing this error. *If removing the DevFun Gradle Plugin fixes this error please report this!*
 
-Wost case scenario you can explicitly tell DevFun where (the package) you want the generated files using APT args:
+Having said that, most of the time you don't not *need* the Gradle plugin - without it DevFun will attempt to "guess" your variant
+ information using various file naming/path regex magics during the APT phase directly (and generally it's pretty good at it).  
+ TLDR; If you can remove the plugin and it still works than that's fine.
+
+Worst case scenario you can explicitly tell DevFun where (the package) you want the generated files via APT args:
 ```kotlin
 android.defaultConfig.javaCompileOptions.annotationProcessorOptions {
     argument("devfun.package.override", "my.app.devfun.generated")
@@ -433,7 +436,7 @@ android.defaultConfig.javaCompileOptions.annotationProcessorOptions {
 
 ## Proguard
 Very basic support for proguard exists (libraries keep their generated sources), though it has not been tested extensively - DevFun is
- intended for Debug builds and thus support for Proguard has never been a priority.
+ intended for Debug builds and thus support for Proguard has never been much of a concern.
 
 - Rules that are supplied by DevFun libraries can be found in [proguard-rules-common.pro](https://github.com/NextFaze/dev-fun/blob/master/proguard-rules-common.pro) 
  (the Glide util module also adds a couple).
@@ -443,7 +446,7 @@ Very basic support for proguard exists (libraries keep their generated sources),
 As one of the goals of DevFun is to keep your production code clean, most of DevFun's annotations are `SOURCE` retained and cannot be
  referenced in your proguard rules. However if an annotated element is `public` or `internal` DevFun will reference the element directly in
  its generated code (rather than via reflection). Exceptions to this are (at the moment); `@Constructable`, `@ColorPicker`, `@Ranged`,
- and `@From`, which are all `RUNTIME` retained - it is desirable in the future that these too become `SOURCE` retained. 
+ and `@From`, which are `RUNTIME` retained (it is desirable in the future that these too become `SOURCE` retained). 
 
 
 ## Getting `ClassInstanceNotFoundException`
