@@ -33,9 +33,14 @@ dependencies {
     implementation(Dependency.supportDesign)
     implementation(Dependency.supportConstraintLayout)
 
+    // JavaX Inject
+    implementation(Dependency.javaxInject)
+
     // Google AutoService
     kapt(Dependency.autoService)
-    compileOnly(Dependency.autoService)
+    compileOnly(Dependency.autoService) {
+        isTransitive = false
+    }
 }
 
 configureDokka()

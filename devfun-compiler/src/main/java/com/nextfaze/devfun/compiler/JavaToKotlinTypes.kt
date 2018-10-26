@@ -23,7 +23,7 @@ private val primitiveTypeArrays by lazy {
     )
 }
 
-val PrimitiveType.arrayTypeName get() = primitiveTypeArrays[kind]!!
+internal val PrimitiveType.arrayTypeName get() = primitiveTypeArrays[kind]!!
 
 private val classMapInstance: (declaredType: DeclaredType) -> ClassName by lazy {
     val clazz = try {
@@ -50,4 +50,4 @@ private val classMapInstance: (declaredType: DeclaredType) -> ClassName by lazy 
     }
 }
 
-val DeclaredType.className get() = classMapInstance(this)
+internal val DeclaredType.className get() = classMapInstance(this)

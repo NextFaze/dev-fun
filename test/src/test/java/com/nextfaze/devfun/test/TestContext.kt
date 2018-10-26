@@ -228,7 +228,7 @@ class TestContext(
 
     val funDefs by lazy { devFun.definitions.flatMap { it.functionDefinitions }.toSet() }
     val catDefs by lazy { devFun.definitions.flatMap { it.categoryDefinitions }.toSet() }
-    val devRefs by lazy { devFun.definitions.flatMap { it.developerReferences }.toSet() }
+    val devRefs by lazy { devFun.definitions.flatMap { it.referenceDefinitions }.toSet() }
 
     private val categories by lazy { devFun.categories }
     private val funDefItems by lazy { categories.flatMap { it.items }.toSet().groupBy { it.function } }

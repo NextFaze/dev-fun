@@ -30,11 +30,11 @@ tasks.findByName("jar")!!.apply {
 
 dependencies {
     // DevFun
-    compile(project(":devfun-annotations"))
+    implementation(project(":devfun-annotations"))
 
     // Kotlin
-    compile(Dependency.kotlin.stdLib)
-    compile(Dependency.kotlin.reflect)
+    implementation(Dependency.kotlin.stdLib)
+    implementation(Dependency.kotlin.reflect)
     shadow("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.0.4") {
         isTransitive = false // just Kotlin libs we already declare
     }
@@ -46,7 +46,7 @@ dependencies {
 
     // Dagger
     kapt(Dependency.daggerCompiler)
-    compile(Dependency.dagger)
+    implementation(Dependency.dagger)
     compileOnly(Dependency.daggerAnnotations)
 
     // Google AutoService - https://github.com/google/auto/tree/master/service

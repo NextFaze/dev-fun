@@ -59,6 +59,9 @@ dependencies {
     testImplementation(Dependency.kotlin.test)
     testImplementation(Dependency.kotlin.reflect)
 
+    // AutoService
+    testImplementation(Dependency.autoService)
+
     // Mockito - http://mockito.org/
     testImplementation("org.mockito:mockito-inline:2.13.0")
     testImplementation("com.nhaarman:mockito-kotlin:1.5.0")

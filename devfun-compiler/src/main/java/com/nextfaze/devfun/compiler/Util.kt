@@ -37,7 +37,7 @@ internal interface WithElements {
         get() = if (this is KElements.ClassElement) elements.getPackageOf(element) else elements.getPackageOf(this)
 }
 
-inline fun <T : Any, V : Any> T.applyNotNull(value: V?, block: T.(V) -> Unit): T {
+internal inline fun <T : Any, V : Any> T.applyNotNull(value: V?, block: T.(V) -> Unit): T {
     if (value != null) {
         block(value)
     }

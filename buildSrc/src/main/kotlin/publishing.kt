@@ -3,6 +3,8 @@ import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
 import groovy.util.Node
 import groovy.util.NodeList
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.*
@@ -101,22 +103,22 @@ fun Project.configureMavenPublishing() {
                         // remove original if it exists (non-Android projects)
                         (node.get("dependencies") as NodeList).forEach { node.remove(it as Node) }
 
-                        val dependenciesNode = node.appendNode("dependencies")
-                        configurations.forEach { config ->
-                            // only consider apiElements and runtimeElements configurations
-                            if (!config.name.endsWith("Elements")) return@forEach
+                        val dependenciesNode by lazy { node.appendNode("dependencies") }
 
-                            config.allDependencies.forEach { dep ->
-                                if (dep.group != null && dep.version != null && dep.name != "unspecified") {
-                                    dependenciesNode.appendNode("dependency").apply {
-                                        appendNode("groupId", dep.group)
-                                        appendNode("artifactId", dep.name)
-                                        appendNode("version", dep.version)
-                                        appendNode("scope", config.name)
-                                    }
+                        fun Configuration.addDependencies() {
+                            val scope = name
+                            dependencies.forEach { dep ->
+                                dependenciesNode.appendNode("dependency").apply {
+                                    appendNode("groupId", dep.group)
+                                    appendNode("artifactId", dep.name)
+                                    appendNode("version", dep.version)
+                                    appendNode("scope", scope)
                                 }
                             }
                         }
+
+                        configurations["api"].addDependencies()
+                        configurations["implementation"].addDependencies()
                     }
                 }
             }
@@ -209,4 +211,4 @@ private val gitTagRef
 
 private val Project.pomIssuesUrl get() = getStringProperty("POM_ISSUES_URL", "")
 
-val Project.isPublishToMavenLocal get() = gradle.startParameter.taskRequests.toString().contains("publishToMavenLocal")
+internal val Project.isPublishToMavenLocal get() = gradle.startParameter.taskRequests.toString().contains("publishToMavenLocal")

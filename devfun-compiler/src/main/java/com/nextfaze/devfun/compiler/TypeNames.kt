@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.WildcardTypeName.Companion.STAR
 import com.squareup.kotlinpoet.asTypeName
 import kotlin.reflect.KClass
 
-object TypeNames {
+internal object TypeNames {
     val kClass = KClass::class.asTypeName()
     val clazz = Class::class.asTypeName()
     val kClassStar = kClass.parameterizedBy(STAR)

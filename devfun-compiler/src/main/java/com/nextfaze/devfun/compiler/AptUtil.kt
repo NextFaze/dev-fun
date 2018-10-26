@@ -7,8 +7,21 @@ import com.squareup.kotlinpoet.WildcardTypeName.Companion.STAR
 import com.squareup.kotlinpoet.WildcardTypeName.Companion.subtypeOf
 import com.squareup.kotlinpoet.WildcardTypeName.Companion.supertypeOf
 import com.squareup.kotlinpoet.asTypeName
-import javax.lang.model.element.*
-import javax.lang.model.type.*
+import javax.lang.model.element.AnnotationMirror
+import javax.lang.model.element.AnnotationValue
+import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.Name
+import javax.lang.model.element.TypeElement
+import javax.lang.model.type.ArrayType
+import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.ExecutableType
+import javax.lang.model.type.NoType
+import javax.lang.model.type.NullType
+import javax.lang.model.type.PrimitiveType
+import javax.lang.model.type.TypeMirror
+import javax.lang.model.type.TypeVariable
+import javax.lang.model.type.WildcardType
 import javax.lang.model.util.Elements
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
@@ -72,7 +85,7 @@ internal operator fun <K : KClass<*>> AnnotationMirror.get(
 internal fun Name.stripInternal() = toString().substringBefore("\$")
 internal fun CharSequence.escapeDollar() = toString().replace("\$", "\\\$")
 
-val TypeMirror.isPublic: Boolean
+internal val TypeMirror.isPublic: Boolean
     get() = when (this) {
         is PrimitiveType -> true
         is ArrayType -> this.componentType.isPublic

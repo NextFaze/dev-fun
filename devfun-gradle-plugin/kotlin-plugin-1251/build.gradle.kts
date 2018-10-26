@@ -27,7 +27,9 @@ dependencies {
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt(Dependency.autoService)
-    compileOnly(Dependency.autoService)
+    compileOnly(Dependency.autoService) {
+        isTransitive = false
+    }
 }
 
 // Force specific Kotlin version

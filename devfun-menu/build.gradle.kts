@@ -29,7 +29,9 @@ dependencies {
 
     // Google AutoService
     kapt(Dependency.autoService)
-    compileOnly(Dependency.autoService)
+    compileOnly(Dependency.autoService) {
+        isTransitive = false
+    }
 }
 
 configureDokka()

@@ -1,7 +1,6 @@
 package com.nextfaze.devfun.inject
 
 import com.nextfaze.devfun.function.FunctionTransformer
-import javax.inject.Singleton
 import kotlin.reflect.KClass
 
 /**
@@ -174,7 +173,7 @@ inline fun <reified T : Any> singletonInstance(noinline instance: () -> T?): Ins
  *
  * Note: `inner` classes will work as long as the outer class can be resolved/injected..
  *
- * Types annotated with @[Singleton] will only be created once.
+ * Types annotated with `@javax.inject.Singleton` will only be created once.
  *
  * @param singleton If `true` then a single shared instance will be constructed.
  * Be careful when using this on inner classes as it will hold a reference to its outer class.
