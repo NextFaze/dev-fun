@@ -53,18 +53,20 @@ task<DokkaAndroidTask> {
 }
 
 project.afterEvaluate {
-    // have main dokka task depend on all module Dokka tasks and have them depend on their respective assemble task
-    val mainDokkaTask = project.getTasksByName("dokka", false).first() as DokkaAndroidTask
+    // have main dokka reference other module sources
+    val mainDokkaTask = project.getTasksByName("dokka", false).single() as DokkaAndroidTask
+
+    // need to always run as the task declares @Input, not @InputFile(s)
+    mainDokkaTask.outputs.upToDateWhen { false }
+
     rootProject.getTasksByName("dokka", true).forEach { libDokkaTask ->
         if (libDokkaTask.project == rootProject) return@forEach
 
         mainDokkaTask.sourceDirs +=
                 when (libDokkaTask) {
-                    is DokkaTask -> libDokkaTask.project.mainSourceFiles.filter { it.isDirectory }
+                    is DokkaTask -> libDokkaTask.project.mainSourceFiles
                     else -> throw RuntimeException("Unexpected type ${libDokkaTask::class} for libDokkaTask $libDokkaTask")
                 }
-
-        libDokkaTask.dependsOn("assemble")
 
         mainDokkaTask.linkMappings.add(
             LinkMapping().apply {
@@ -73,19 +75,15 @@ project.afterEvaluate {
                 suffix = "#L"
             }
         )
-
-        if (libDokkaTask != mainDokkaTask) {
-            mainDokkaTask.dependsOn(libDokkaTask)
-        }
     }
 
     // cLear previously generated Dokka files -  we need to do this as Dokka doesn't remove old files
     val dokkaOutputDir = "${rootDir.absolutePath}/gh-pages"
     mainDokkaTask.dependsOn(
         task<Delete>("cleanDokka") {
-            description = "CLear previously generated Dokka files."
+            description = "Clear previously generated Dokka files."
             group = "documentation"
-            setDelete(
+            delete(
                 fileTree(
                     mapOf(
                         "dir" to dokkaOutputDir,
