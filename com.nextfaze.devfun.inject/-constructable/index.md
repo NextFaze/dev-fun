@@ -2,7 +2,7 @@
 
 # Constructable
 
-`@Target([AnnotationTarget.CLASS]) annotation class Constructable` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L187)
+`@Target([AnnotationTarget.CLASS]) annotation class Constructable` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L186)
 
 Tag to allow classes to be instantiated when no other [InstanceProvider](../-instance-provider/index.md) was able to provide the class.
 
@@ -13,7 +13,7 @@ However for quick-n-dirty uses this can make life a bit easier (e.g. function tr
 
 Note: `inner` classes will work as long as the outer class can be resolved/injected..
 
-Types annotated with @[Singleton](#) will only be created once.
+Types annotated with `@javax.inject.Singleton` will only be created once.
 
 ### Parameters
 

@@ -2,7 +2,7 @@
 
 # APPLICATION_VARIANT
 
-`const val APPLICATION_VARIANT: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L170)
+`const val APPLICATION_VARIANT: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/DevFunProcessor.kt#L170)
 
 The current build variant as sourced from the variant data/compile task via the DevFun Gradle plugin.
 

@@ -2,7 +2,7 @@
 
 # ELEMENTS_FILTER_EXCLUDE
 
-`const val ELEMENTS_FILTER_EXCLUDE: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L252)
+`const val ELEMENTS_FILTER_EXCLUDE: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/DevFunProcessor.kt#L252)
 
 Restrict DevFun to only process elements matching filter `elementFQN.startsWith(it)`. *(default: `<none>`)*
 

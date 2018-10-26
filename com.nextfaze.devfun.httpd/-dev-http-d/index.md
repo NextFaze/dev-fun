@@ -2,7 +2,7 @@
 
 # DevHttpD
 
-`class DevHttpD : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L54)
+`class DevHttpD : `[`AbstractDevFunModule`](../../com.nextfaze.devfun.core/-abstract-dev-fun-module/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-httpd/src/main/java/com/nextfaze/devfun/httpd/HttpD.kt#L58)
 
 ### Constructors
 

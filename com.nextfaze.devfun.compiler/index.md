@@ -13,15 +13,6 @@ Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io
 | [DevAnnotationProcessor](-dev-annotation-processor/index.md) | `class DevAnnotationProcessor : `[`DaggerProcessor`](-dagger-processor/index.md)<br>Annotation processor for [DeveloperAnnotation](../com.nextfaze.devfun/-developer-annotation/index.md) to generate properties interfaces. |
 | [DevFunProcessor](-dev-fun-processor/index.md) | `class DevFunProcessor : `[`DaggerProcessor`](-dagger-processor/index.md)<br>Annotation processor for [DeveloperAnnotation](../com.nextfaze.devfun/-developer-annotation/index.md) annotated annotations. |
 | [Injector](-injector/index.md) | `interface Injector`<br>Dagger injector for [DaggerProcessor](-dagger-processor/index.md). |
-| [TypeNames](-type-names/index.md) | `object TypeNames` |
-
-### Extensions for External Classes
-
-| Name | Summary |
-|---|---|
-| [javax.lang.model.type.DeclaredType](javax.lang.model.type.-declared-type/index.md) |  |
-| [javax.lang.model.type.PrimitiveType](javax.lang.model.type.-primitive-type/index.md) |  |
-| [javax.lang.model.type.TypeMirror](javax.lang.model.type.-type-mirror/index.md) |  |
 
 ### Properties
 
@@ -44,9 +35,3 @@ Annotation processor that handles [DeveloperFunction](https://nextfaze.github.io
 | [PACKAGE_SUFFIX](-p-a-c-k-a-g-e_-s-u-f-f-i-x.md) | `const val PACKAGE_SUFFIX: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>Sets the package suffix for the generated code. *(default: `devfun_generated`)* |
 | [PACKAGE_SUFFIX_DEFAULT](-p-a-c-k-a-g-e_-s-u-f-f-i-x_-d-e-f-a-u-l-t.md) | `const val PACKAGE_SUFFIX_DEFAULT: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>Default package output suffix: `devfun_generated` |
 | [PROMOTE_NOTE_LOG_MESSAGES](-p-r-o-m-o-t-e_-n-o-t-e_-l-o-g_-m-e-s-s-a-g-e-s.md) | `const val PROMOTE_NOTE_LOG_MESSAGES: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>Flag to have all `note` messages output as `warning` - workaround for various KAPT logging implementations and for debugging purposes.  *(default: `<false>`)* |
-
-### Functions
-
-| Name | Summary |
-|---|---|
-| [applyNotNull](apply-not-null.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`, V : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> `[`T`](apply-not-null.md#T)`.applyNotNull(value: `[`V`](apply-not-null.md#V)`?, block: `[`T`](apply-not-null.md#T)`.(`[`V`](apply-not-null.md#V)`) -> `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)`): `[`T`](apply-not-null.md#T) |

@@ -2,7 +2,7 @@
 
 # PROMOTE_NOTE_LOG_MESSAGES
 
-`const val PROMOTE_NOTE_LOG_MESSAGES: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Compiler.kt#L293)
+`const val PROMOTE_NOTE_LOG_MESSAGES: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/DevFunProcessor.kt#L293)
 
 Flag to have all `note` messages output as `warning` - workaround for various KAPT logging implementations and for debugging purposes.  *(default: `<false>`)*
 

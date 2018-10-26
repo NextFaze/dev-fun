@@ -13,7 +13,7 @@ However for quick-n-dirty uses this can make life a bit easier (e.g. function tr
 
 Note: `inner` classes will work as long as the outer class can be resolved/injected..
 
-Types annotated with @[Singleton](#) will only be created once.
+Types annotated with `@javax.inject.Singleton` will only be created once.
 
 ### Parameters
 

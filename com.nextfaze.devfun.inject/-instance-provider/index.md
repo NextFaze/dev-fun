@@ -2,7 +2,7 @@
 
 # InstanceProvider
 
-`interface InstanceProvider` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L37)
+`interface InstanceProvider` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/inject/InstanceProvider.kt#L36)
 
 Provides object instances for one or more types.
 
