@@ -20,8 +20,8 @@ dependencies {
     api(Dependency.slf4jApi)
 
     // Android Support Annotations
-    implementation(Dependency.supportAnnotations)
-    implementation(Dependency.supportAppCompat)
+    implementation(Dependency.android.annotations)
+    implementation(Dependency.android.appCompat)
 }
 
 configureDokka()

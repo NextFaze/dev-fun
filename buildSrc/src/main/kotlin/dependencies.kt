@@ -16,19 +16,12 @@ fun Project.registerDependencies() {
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 object Dependency {
-    lateinit var agpVersion: String
-    val androidPlugin by lazy { "com.android.tools.build:gradle:$agpVersion" }
-
     lateinit var kotlinVersion: String
     fun kotlin(version: String = kotlinVersion) = KotlinDependencies(version)
     val kotlin by lazy { kotlin() }
 
-    const val supportRecyclerView = "androidx.recyclerview:recyclerview:1.0.0"
-    const val supportAppCompat = "androidx.appcompat:appcompat:1.0.0"
-    const val supportDesign = "com.google.android.material:material:1.0.0"
-    const val supportAnnotations = "androidx.annotation:annotation:1.0.0"
-    const val supportConstraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
-    const val androidX = "androidx.core:core-ktx:1.0.0"
+    lateinit var agpVersion: String
+    val android by lazy { AndroidDependencies(agpVersion) }
 
     const val javaxInject = "javax.inject:javax.inject:1"
 
@@ -55,7 +48,23 @@ object Dependency {
     val dokkaFatJar by lazy { "org.jetbrains.dokka:dokka-fatjar:$dokkaVersion" }
 }
 
-data class KotlinDependencies(val version: String, val coroutinesVersion: String = "1.0.0-RC1") {
+data class AndroidDependencies(val agpVersion: String) {
+    val ktx = "androidx.core:core-ktx:1.0.0"
+    val recyclerView = "androidx.recyclerview:recyclerview:1.0.0"
+    val appCompat = "androidx.appcompat:appcompat:1.0.0"
+    val annotations = "androidx.annotation:annotation:1.0.0"
+    val constraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
+    val design = "com.google.android.material:material:1.0.0"
+    val multidex = "androidx.multidex:multidex:2.0.0"
+
+    val testRules = "androidx.test:rules:1.1.0"
+    val testRunner = "androidx.test:runner:1.1.0"
+    val espressoCore = "androidx.test.espresso:espresso-core:3.1.0"
+
+    val gradlePlugin = "com.android.tools.build:gradle:$agpVersion"
+}
+
+data class KotlinDependencies(val version: String, val coroutinesVersion: String = "1.0.0") {
     val gradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$version"
     val gradlePluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$version"
     val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$version"

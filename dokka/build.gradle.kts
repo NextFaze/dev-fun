@@ -19,7 +19,7 @@ dependencies {
     implementation(Dependency.kotlin.stdLib)
 
     // Support libs
-    implementation(Dependency.supportAppCompat)
+    implementation(Dependency.android.appCompat)
 
     // Dagger
     implementation(Dependency.dagger)

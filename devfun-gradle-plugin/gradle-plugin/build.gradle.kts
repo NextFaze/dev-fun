@@ -16,7 +16,7 @@ dependencies {
     compileOnly(Dependency.kotlin.gradlePluginApi)
 
     // Android
-    compileOnly(Dependency.androidPlugin) {
+    compileOnly(Dependency.android.gradlePlugin) {
         exclude(group = "org.jetbrains.kotlin")
     }
 

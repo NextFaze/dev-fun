@@ -29,9 +29,9 @@ dependencies {
     compileOnly(Dependency.kotlin.androidExtensions) // setting 'isExperimental' doesn't seem to add dependency anymore?
 
     // Support libs
-    implementation(Dependency.supportAppCompat)
-    implementation(Dependency.supportDesign)
-    implementation(Dependency.supportConstraintLayout)
+    implementation(Dependency.android.appCompat)
+    implementation(Dependency.android.design)
+    implementation(Dependency.android.constraintLayout)
 
     // JavaX Inject
     implementation(Dependency.javaxInject)

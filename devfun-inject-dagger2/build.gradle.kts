@@ -21,7 +21,7 @@ dependencies {
     api(Dependency.kotlin.stdLib)
 
     // Android
-    implementation(Dependency.supportAppCompat)
+    implementation(Dependency.android.appCompat)
 
     // Dagger 2 - https://github.com/google/dagger
     compileOnly(Dependency.dagger)

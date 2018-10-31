@@ -23,9 +23,9 @@ dependencies {
     api(Dependency.kotlin.stdLib)
 
     // Support libs
-    api(Dependency.supportAppCompat)
-    implementation(Dependency.supportRecyclerView)
-    implementation(Dependency.supportConstraintLayout)
+    api(Dependency.android.appCompat)
+    implementation(Dependency.android.recyclerView)
+    implementation(Dependency.android.constraintLayout)
 
     // Google AutoService
     kapt(Dependency.autoService)

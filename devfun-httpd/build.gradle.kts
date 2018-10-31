@@ -22,7 +22,7 @@ dependencies {
     api(Dependency.kotlin.stdLib)
 
     // Android
-    implementation(Dependency.supportAppCompat)
+    implementation(Dependency.android.appCompat)
 
     // Http Server
     api("org.nanohttpd:nanohttpd:2.3.1")

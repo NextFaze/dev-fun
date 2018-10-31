@@ -65,10 +65,10 @@ dependencies {
     implementation(Dependency.kotlin.coroutinesAndroid)
 
     // Support libs
-    implementation(Dependency.supportAppCompat)
-    implementation(Dependency.supportDesign)
-    implementation(Dependency.supportConstraintLayout)
-    implementation("androidx.multidex:multidex:2.0.0")
+    implementation(Dependency.android.appCompat)
+    implementation(Dependency.android.design)
+    implementation(Dependency.android.constraintLayout)
+    implementation(Dependency.android.multidex)
 
     // Logging - https://github.com/tony19/logback-android
     implementation(Dependency.slf4jApi)
@@ -96,7 +96,7 @@ dependencies {
 
     // Glide - https://github.com/bumptech/glide
     implementation(Dependency.glide)
-    implementation("com.github.bumptech.glide:okhttp3-integration:4.7.1@aar")
+    implementation("com.github.bumptech.glide:okhttp3-integration:4.8.0@aar")
     debugImplementation(project(":devfun-util-glide"))
 
     // Leak Canary - https://github.com/square/leakcanary
@@ -120,9 +120,9 @@ dependencies {
     // Instrumentation tests
     androidTestImplementation(Dependency.kotlin.test)
 
-    androidTestImplementation("androidx.test:rules:1.1.0-alpha4")
-    androidTestImplementation("androidx.test:runner:1.1.0-alpha4")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.1.0-alpha4")
+    androidTestImplementation(Dependency.android.testRules)
+    androidTestImplementation(Dependency.android.testRunner)
+    androidTestImplementation(Dependency.android.espressoCore)
 }
 
 project.afterEvaluate {
