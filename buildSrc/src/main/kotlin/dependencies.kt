@@ -42,7 +42,7 @@ object Dependency {
 
     const val glide = "com.github.bumptech.glide:glide:4.8.0"
 
-    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.1"
+    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.2"
 
     lateinit var dokkaVersion: String
     val dokkaFatJar by lazy { "org.jetbrains.dokka:dokka-fatjar:$dokkaVersion" }

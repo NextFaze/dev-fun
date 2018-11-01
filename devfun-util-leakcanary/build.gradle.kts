@@ -22,7 +22,7 @@ dependencies {
     api(Dependency.kotlin.stdLib)
 
     // Leak Canary - https://github.com/square/leakcanary
-    compileOnly(Dependency.leakCanary)
+    implementation(Dependency.leakCanary)
 }
 
 configureDokka()
