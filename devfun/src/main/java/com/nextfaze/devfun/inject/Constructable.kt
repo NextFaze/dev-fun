@@ -90,6 +90,7 @@ class ConstructingInstanceProvider(rootInstanceProvider: InstanceProvider? = nul
 
         // must have a single constructor
         val constructors = clazz.java.declaredConstructors
+            .filter { !it.toString().contains("com.android.tools.ir.runtime.InstantReloadException") }
         if (constructors.isEmpty()) {
             throw ConstructableException(
                 """
