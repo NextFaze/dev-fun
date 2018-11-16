@@ -34,7 +34,7 @@ interface DevFunGenerated {
     val functionDefinitions: List<FunctionDefinition> get() = emptyList()
 
     /**
-     * List of developer references.
+     * List of reference definitions.
      *
      * @see DeveloperReference
      */

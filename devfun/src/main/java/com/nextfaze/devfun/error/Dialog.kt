@@ -206,7 +206,6 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
                         stackTraceScrollView.requestLayout()
                         errorRootConstraintLayout.layoutParams = errorRootConstraintLayout.layoutParams.apply {
                             width = targetWidth
-
                         }
                     }
                 }
