@@ -3,16 +3,17 @@ package com.nextfaze.devfun.invoke
 import android.content.Context
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
+import com.nextfaze.devfun.DebugException
 import com.nextfaze.devfun.core.ActivityTracker
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.resumedActivity
 import com.nextfaze.devfun.error.ErrorHandler
-import com.nextfaze.devfun.DebugException
 import com.nextfaze.devfun.function.FunctionItem
 import com.nextfaze.devfun.function.InvokeResult
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.toSignatureString
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.kotlinFunction
@@ -138,7 +139,7 @@ internal class DefaultInvoker(
             val description = uiFunction(
                 title = item.name,
                 subtitle = if (group == null) category else "$category - $group",
-                signature = kFun.toString(),
+                signature = kFun.toSignatureString(application.packageName),
                 parameters = parameters,
                 invoke = invoke
             )

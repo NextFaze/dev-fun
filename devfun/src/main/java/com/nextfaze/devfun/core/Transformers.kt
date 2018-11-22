@@ -1,6 +1,7 @@
 package com.nextfaze.devfun.core
 
 import android.app.Activity
+import android.app.Application
 import android.os.Build
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -27,6 +28,7 @@ import com.nextfaze.devfun.internal.reflect.*
 import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.internal.splitSimpleName
 import com.nextfaze.devfun.internal.toReflected
+import com.nextfaze.devfun.internal.toSignatureString
 import com.nextfaze.devfun.internal.toStringRepresentation
 import com.nextfaze.devfun.invoke.Invoker
 import com.nextfaze.devfun.invoke.Parameter
@@ -136,7 +138,10 @@ internal class ContextTransformer(
 }
 
 @Constructable
-internal class PropertyTransformerImpl(private val invoker: Invoker) : PropertyTransformer {
+internal class PropertyTransformerImpl(
+    private val application: Application,
+    private val invoker: Invoker
+) : PropertyTransformer {
     private class Property<out T : Any?>(kProperty: KProperty<T>, override val value: T) : Parameter, WithInitialValue<T>, WithNullability {
         override val name: String = kProperty.name
         override val type = kProperty.returnType.classifier as KClass<*>
@@ -154,7 +159,7 @@ internal class PropertyTransformerImpl(private val invoker: Invoker) : PropertyT
                 invoker.invoke(
                     uiFunction(
                         title = prop.desc,
-                        signature = prop.property.toString(),
+                        signature = prop.property.toSignatureString(application.packageName),
                         parameters = listOf(Property(prop.property, prop.value)),
                         invoke = { args -> args.first().also { prop.value = it } }
                     )

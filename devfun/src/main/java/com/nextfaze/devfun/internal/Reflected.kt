@@ -14,6 +14,7 @@ import com.nextfaze.devfun.invoke.receiverInstance
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
@@ -227,4 +228,15 @@ private data class ReflectedMethodImpl(override val method: Method, val instance
 
     override fun invoke(instanceProvider: InstanceProvider) = method.doInvoke(instanceProvider)
     override fun invoke() = invoke(instanceProviders)
+}
+
+internal fun KFunction<*>.toSignatureString(removePackageString: String? = null) = toString().toSignatureString(removePackageString)
+internal fun KProperty<*>.toSignatureString(removePackageString: String? = null) = toString().toSignatureString(removePackageString)
+
+private fun String.toSignatureString(removePackageString: String? = null): String {
+    val signature = replace(" kotlin.", " ")
+    if (removePackageString == null) return signature
+
+    val regex = Regex(removePackageString.split(".").joinToString("\\.") { "($it)?" })
+    return regex.replace(signature, "")
 }
