@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.nextfaze.devfun.invoke.view.types.DateTimeInputView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <DatePicker
+        android:id="@+id/datePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TimePicker
+        android:id="@+id/timePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</com.nextfaze.devfun.invoke.view.types.DateTimeInputView>
