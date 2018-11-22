@@ -25,6 +25,7 @@ import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.internal.toReflected
+import com.nextfaze.devfun.internal.toStringRepresentation
 import com.nextfaze.devfun.overlay.Dock
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.overlay.OverlayWindow
@@ -174,25 +175,7 @@ internal class OverlayLoggingImpl(
 
         override val updateCallback: UpdateCallback by lazy {
             if (reflected is ReflectedProperty) {
-                return@lazy {
-                    val isUninitialized by lazy { reflected.isUninitialized }
-                    val value = reflected.value
-
-                    SpannableStringBuilder().apply {
-                        this += reflected.getDesc(!isContextual)
-                        this += " = "
-                        when {
-                            reflected.isLateinit && value == null -> this += i("undefined")
-                            isUninitialized -> this += i("uninitialized")
-                            reflected.type == String::class && value != null -> this += """"$value""""
-                            else -> this += "$value"
-                        }
-                        if (isUninitialized) {
-                            this += "\n"
-                            this += color(scale(i("\t(tap will initialize)"), 0.85f), 0xFFAAAAAA.toInt())
-                        }
-                    }
-                }
+                return@lazy { reflected.toStringRepresentation(!isContextual) }
             } else {
                 return@lazy { "${if (!isContextual) "${clazz.simpleName}." else ""}${reflected.name}()=${reflected.invoke().toCharSequence()}" }
             }

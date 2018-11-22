@@ -2,7 +2,6 @@ package com.nextfaze.devfun.core
 
 import android.app.Activity
 import android.os.Build
-import android.text.SpannableStringBuilder
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.nextfaze.devfun.category.CONTEXT_CAT_NAME
@@ -27,8 +26,8 @@ import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
 import com.nextfaze.devfun.internal.splitCamelCase
 import com.nextfaze.devfun.internal.splitSimpleName
-import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.internal.toReflected
+import com.nextfaze.devfun.internal.toStringRepresentation
 import com.nextfaze.devfun.invoke.Invoker
 import com.nextfaze.devfun.invoke.Parameter
 import com.nextfaze.devfun.invoke.WithInitialValue
@@ -150,26 +149,7 @@ internal class PropertyTransformerImpl(private val invoker: Invoker) : PropertyT
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
         val prop = functionDefinition.method.toReflected() as ReflectedProperty
         return listOf(object : SimpleFunctionItem(functionDefinition, categoryDefinition) {
-            private val isUninitialized by lazy { prop.isUninitialized }
-
-            override val name by lazy {
-                val value = prop.value
-                SpannableStringBuilder().apply {
-                    this += prop.desc
-                    this += " = "
-                    when {
-                        prop.isLateinit && value == null -> this += i("undefined")
-                        isUninitialized -> this += i("uninitialized")
-                        prop.type == String::class && value != null -> this += """"$value""""
-                        else -> this += "$value"
-                    }
-                    if (isUninitialized) {
-                        this += "\n"
-                        this += color(scale(i("\t(tap will initialize)"), 0.85f), 0xFFAAAAAA.toInt())
-                    }
-                }
-            }
-
+            override val name by lazy { prop.toStringRepresentation() }
             override val invoke: FunctionInvoke = { _, _ ->
                 invoker.invoke(
                     uiFunction(

@@ -1,10 +1,13 @@
 package com.nextfaze.devfun.internal
 
+import android.text.SpannableStringBuilder
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.function.FunctionArgs
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.inject.isSubclassOf
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.reflect.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.doInvoke
 import com.nextfaze.devfun.invoke.parameterInstances
 import com.nextfaze.devfun.invoke.receiverInstance
@@ -181,6 +184,25 @@ private class ReflectedPropertyImpl(val reflectedMethod: ReflectedMethod, val in
     }
 
     override fun toString() = "ReflectedProperty(reflected=$reflectedMethod)"
+}
+
+internal fun ReflectedProperty.toStringRepresentation(withDeclaringClass: Boolean = false): CharSequence {
+    val isUninitialized by lazy { isUninitialized }
+    val value = value
+    return SpannableStringBuilder().apply {
+        this += getDesc(withDeclaringClass)
+        this += " = "
+        when {
+            isLateinit && value == null -> this += i("undefined")
+            isUninitialized -> this += i("uninitialized")
+            value != null && type.isSubclassOf<CharSequence>() -> this += """"$value""""
+            else -> this += "$value"
+        }
+        if (isUninitialized) {
+            this += "\n"
+            this += color(scale(i("\t(tap will initialize)"), 0.85f), 0xFFAAAAAA.toInt())
+        }
+    }
 }
 
 private data class ReflectedMethodImpl(override val method: Method, val instanceProviders: InstanceProvider) : ReflectedMethod {
