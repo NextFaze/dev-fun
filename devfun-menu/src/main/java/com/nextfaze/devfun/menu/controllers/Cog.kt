@@ -81,6 +81,7 @@ class CogOverlay constructor(
                     onResetClick = { activity?.let { resetPositionAndState(it) } }
                 )
             },
+            onAttachChange = { if (it) activity?.also { activity -> updateAppearance(activity) } },
             visibilityPredicate = { it is FragmentActivity },
             dock = Dock.RIGHT,
             delta = 0.7f
@@ -165,12 +166,8 @@ class CogOverlay constructor(
     @DeveloperFunction
     private fun resetPositionAndState(activity: Activity) {
         preferences.clear()
-        overlay.apply {
-            resetPositionAndState()
-            removeFromWindow()
-            updateAppearance(activity)
-            addToWindow()
-        }
+        overlay.resetPositionAndState()
+        updateAppearance(activity)
     }
 
     @DeveloperFunction
