@@ -3,9 +3,11 @@ package com.nextfaze.devfun.error
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Parcelable
+import android.text.SpannableStringBuilder
 import android.util.AttributeSet
 import android.view.InflateException
 import android.view.LayoutInflater
@@ -24,6 +26,7 @@ import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
+import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.overlay.OverlayManager
 import kotlinx.android.synthetic.main.df_devfun_error_dialog_fragment.*
 import java.lang.Math.abs
@@ -54,6 +57,10 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
 
     private val errorHandler by lazy { devFun.get<ErrorHandler>() }
     private val overlays by lazy { devFun.get<OverlayManager>() }
+
+    private val isInjectModuleMissing by lazy {
+        classExists("dagger.Provides") && !classExists("com.nextfaze.devfun.inject.dagger2.InjectFromDagger2")
+    }
 
     private lateinit var errors: List<RenderedError>
     private var currentErrorIdx: Int = 0
@@ -93,7 +100,17 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
         with(error) {
             titleTextView.text = title
             timeTextView.text = SimpleDateFormat.getDateTimeInstance().format(timeMs)
-            bodyTextView.text = body
+            bodyTextView.text = if (isInjectModuleMissing && stackTrace.contains("ConstructableException")) {
+                SpannableStringBuilder().apply {
+                    this += body
+                    this += "\n"
+                    this += color(b("Dagger 2.x detected but dagger-inject module not found. Did you forgot to add  "), Color.RED)
+                    this += pre("devfun-inject-dagger2")
+                    this += color(b(" to your project?"), Color.RED)
+                }
+            } else {
+                body
+            }
             methodTextView.text = method
             methodTextView.visibility = if (method.isNullOrBlank()) View.GONE else View.VISIBLE
             stackTraceTextView.text = stackTrace
@@ -268,3 +285,11 @@ internal class HVScrollView @JvmOverloads constructor(context: Context, attrs: A
         return superHandled || hHandled
     }
 }
+
+private fun classExists(fqn: String) =
+    try {
+        Class.forName(fqn)
+        true
+    } catch (t: Throwable) {
+        false
+    }
