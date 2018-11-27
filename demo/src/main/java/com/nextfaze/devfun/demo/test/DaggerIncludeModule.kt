@@ -18,4 +18,4 @@ class DaggerIncludedModule {
     internal fun packagePrivateClass() = PackagePrivateClass()
 }
 
-internal class DummyClass(packagePrivateClass: PackagePrivateClass)
+internal class DummyClass(@Suppress("UNUSED_PARAMETER") packagePrivateClass: PackagePrivateClass)
