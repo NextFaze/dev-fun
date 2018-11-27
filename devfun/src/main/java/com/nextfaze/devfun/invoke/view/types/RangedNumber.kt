@@ -10,7 +10,7 @@ import com.nextfaze.devfun.invoke.ParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.Ranged
 import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.view.ViewFactory
-import com.nextfaze.devfun.view.inflate
+import com.nextfaze.devfun.view.viewFactory
 import kotlin.reflect.KClass
 
 internal class RangedNumberInputView @JvmOverloads constructor(
@@ -46,7 +46,7 @@ internal class RangedNumberParameterViewFactoryProvider : ParameterViewFactoryPr
         val clazz = parameter.type.takeIf { it.isNumber } ?: return null
         val annotation = parameter.annotations.getTypeOrNull<Ranged>() ?: return null
 
-        return inflate<RangedNumberInputView>(R.layout.df_devfun_range_number_input) {
+        return viewFactory<RangedNumberInputView>(R.layout.df_devfun_range_number_input) {
             type = clazz
             minValue = annotation.from
             maxValue = annotation.to

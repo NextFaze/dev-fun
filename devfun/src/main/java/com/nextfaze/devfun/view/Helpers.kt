@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
  *
  * If you also wish to adjust it after inflation:
  * ```kotlin
- * inflate<TextInputLayout>(R.layout.my_text_input_layout) {
+ * viewFactory<TextInputLayout>(R.layout.my_text_input_layout) {
  *     editText!!.apply {
  *         inputType = TYPE_CLASS_TEXT
  *         text = "Default Text"
@@ -25,11 +25,11 @@ import kotlin.reflect.KClass
  *
  * _Be aware that this creates a [ViewFactory] so inflation code could be executed at any time in any context._
  *
- * If you want to create a single-typed/keyed provider then use convenience method [viewFactory].
+ * If you want to create a single-typed/keyed provider then use convenience method [viewFactoryProvider].
  *
  * @see ViewFactoryProvider
  */
-inline fun <reified V : View> inflate(@LayoutRes layoutId: Int, crossinline apply: (V.() -> Unit) = {}): ViewFactory<V> =
+inline fun <reified V : View> viewFactory(@LayoutRes layoutId: Int, crossinline apply: (V.() -> Unit) = {}): ViewFactory<V> =
     object : ViewFactory<V> {
         override fun inflate(inflater: LayoutInflater, container: ViewGroup?): V =
             (inflater.inflate(layoutId, container, false) as V).apply(apply)
@@ -42,7 +42,7 @@ inline fun <reified V : View> inflate(@LayoutRes layoutId: Int, crossinline appl
  * ```kotlin
  * // MenuHeader is the "key" (used by DevMenu to inflate the menu header)
  * // DemoMenuHeaderView is the custom view type
- * devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+ * devFun.viewFactories += viewFactoryProvider<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
  *     setTitle(activityProvider()!!::class.splitSimpleName)
  *     setCurrentUser(session.user)
  * }
@@ -50,11 +50,11 @@ inline fun <reified V : View> inflate(@LayoutRes layoutId: Int, crossinline appl
  *
  * _Be aware that this creates a [ViewFactoryProvider] that returns a [ViewFactory] - thus inflation code could be executed at any time in any context._
  *
- * If you only need to create a [ViewFactory] then use convenience method [inflate].
+ * If you only need to create a [ViewFactory] then use convenience method [viewFactory].
  *
  * @See ViewFactory
  */
-inline fun <reified K : Any, reified V : View> viewFactory(@LayoutRes layoutId: Int, crossinline apply: (V.() -> Unit) = {}): ViewFactoryProvider =
+inline fun <reified K : Any, reified V : View> viewFactoryProvider(@LayoutRes layoutId: Int, crossinline apply: (V.() -> Unit) = {}): ViewFactoryProvider =
     object : ViewFactoryProvider {
         override fun get(clazz: KClass<*>): ViewFactory<V>? {
             if (clazz != K::class) return null

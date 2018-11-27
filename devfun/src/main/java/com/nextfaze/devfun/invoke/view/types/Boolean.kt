@@ -10,7 +10,7 @@ import com.nextfaze.devfun.invoke.ParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.WithLabel
 import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.view.ViewFactory
-import com.nextfaze.devfun.view.inflate
+import com.nextfaze.devfun.view.viewFactory
 
 internal class SwitchInputView @JvmOverloads constructor(
     context: Context,
@@ -30,6 +30,6 @@ internal class SwitchInputView @JvmOverloads constructor(
 internal class BooleanParameterViewFactoryProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? {
         parameter.type.takeIf { it == Boolean::class } ?: return null
-        return inflate(R.layout.df_devfun_switch_input)
+        return viewFactory(R.layout.df_devfun_switch_input)
     }
 }

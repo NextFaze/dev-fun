@@ -10,7 +10,7 @@ import com.nextfaze.devfun.invoke.Parameter
 import com.nextfaze.devfun.invoke.ParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.view.ViewFactory
-import com.nextfaze.devfun.view.inflate
+import com.nextfaze.devfun.view.viewFactory
 
 internal class SpinnerInputView @JvmOverloads constructor(
     context: Context,
@@ -36,7 +36,7 @@ internal class SpinnerInputView @JvmOverloads constructor(
 internal class EnumParameterViewFactoryProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? {
         val classifier = parameter.type.takeIf { it.java.isEnum } ?: return null
-        return inflate<SpinnerInputView>(R.layout.df_devfun_spinner_input) {
+        return viewFactory<SpinnerInputView>(R.layout.df_devfun_spinner_input) {
             valueOptions = classifier.java.enumConstants.toList()
         }
     }

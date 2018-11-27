@@ -10,7 +10,7 @@ import com.nextfaze.devfun.invoke.Parameter
 import com.nextfaze.devfun.invoke.ParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.view.ViewFactory
-import com.nextfaze.devfun.view.inflate
+import com.nextfaze.devfun.view.viewFactory
 import kotlinx.android.synthetic.main.df_devfun_date_input.view.*
 import java.util.Calendar
 import java.util.Date
@@ -43,6 +43,6 @@ internal class DateTimeInputView @JvmOverloads constructor(context: Context, att
 internal class DateParameterViewFactoryProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? {
         parameter.type.takeIf { it == Date::class } ?: return null
-        return inflate(R.layout.df_devfun_date_input)
+        return viewFactory(R.layout.df_devfun_date_input)
     }
 }

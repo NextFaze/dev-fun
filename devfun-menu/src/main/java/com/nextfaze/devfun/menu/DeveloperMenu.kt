@@ -22,7 +22,7 @@ import com.nextfaze.devfun.menu.controllers.KeySequence
 import com.nextfaze.devfun.menu.controllers.VOLUME_KEY_SEQUENCE
 import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.view.ViewFactoryProvider
-import com.nextfaze.devfun.view.viewFactory
+import com.nextfaze.devfun.view.viewFactoryProvider
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.reflect.KClass
@@ -81,13 +81,13 @@ interface MenuController {
  * ```kotlin
  * // MenuHeader is the "key" (used by DevMenu to inflate the menu header)
  * // DemoMenuHeaderView is the custom view type
- * devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+ * devFun.viewFactories += viewFactoryProvider<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
  *     setTitle(activityProvider()!!::class.splitSimpleName)
  *     setCurrentUser(session.user)
  * }
  * ```
  *
- * @see viewFactory
+ * @see viewFactoryProvider
  */
 interface MenuHeader
 

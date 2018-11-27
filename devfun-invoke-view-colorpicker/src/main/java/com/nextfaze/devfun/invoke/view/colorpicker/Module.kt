@@ -11,7 +11,7 @@ import com.nextfaze.devfun.invoke.ParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.view.ViewFactory
-import com.nextfaze.devfun.view.inflate
+import com.nextfaze.devfun.view.viewFactory
 import com.rarepebble.colorpicker.ColorPickerView
 
 @AutoService(DevFunModule::class)
@@ -28,7 +28,7 @@ internal class DevInvokeViewColorPicker : AbstractDevFunModule() {
 private object ColorPickerParameterViewProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? =
         when {
-            parameter.type == Int::class && parameter.annotations.any { it is ColorPicker } -> inflate(R.layout.df_invoke_view_colorpicker)
+            parameter.type == Int::class && parameter.annotations.any { it is ColorPicker } -> viewFactory(R.layout.df_invoke_view_colorpicker)
             else -> null
         }
 }

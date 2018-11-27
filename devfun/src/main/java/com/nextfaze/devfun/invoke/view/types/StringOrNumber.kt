@@ -3,7 +3,11 @@ package com.nextfaze.devfun.invoke.view.types
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.view.inputmethod.EditorInfo.*
+import android.view.inputmethod.EditorInfo.TYPE_CLASS_NUMBER
+import android.view.inputmethod.EditorInfo.TYPE_CLASS_TEXT
+import android.view.inputmethod.EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
+import android.view.inputmethod.EditorInfo.TYPE_NUMBER_FLAG_SIGNED
+import android.view.inputmethod.EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE
 import com.google.android.material.textfield.TextInputLayout
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.invoke.Parameter
@@ -11,7 +15,7 @@ import com.nextfaze.devfun.invoke.ParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.WithLabel
 import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.view.ViewFactory
-import com.nextfaze.devfun.view.inflate
+import com.nextfaze.devfun.view.viewFactory
 import kotlin.reflect.KClass
 
 internal class StringOrNumberTextView @JvmOverloads constructor(
@@ -46,7 +50,7 @@ internal class StringOrNumberTextView @JvmOverloads constructor(
 internal class StringOrNumberParameterViewFactoryProvider : ParameterViewFactoryProvider {
     override fun get(parameter: Parameter): ViewFactory<View>? {
         fun inflateEditText(inputType: Int) =
-            inflate<StringOrNumberTextView>(R.layout.df_devfun_edit_text_input) {
+            viewFactory<StringOrNumberTextView>(R.layout.df_devfun_edit_text_input) {
                 type = parameter.type
                 editText!!.inputType = inputType
             }

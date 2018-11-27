@@ -19,7 +19,7 @@ import com.nextfaze.devfun.demo.inject.applicationComponent
 import com.nextfaze.devfun.inject.InstanceProvider
 import com.nextfaze.devfun.inject.dagger2.tryGetInstanceFromComponent
 import com.nextfaze.devfun.menu.MenuHeader
-import com.nextfaze.devfun.view.viewFactory
+import com.nextfaze.devfun.view.viewFactoryProvider
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoSet
@@ -68,7 +68,7 @@ private class DemoInstanceProvider(private val app: Application, private val act
 }
 
 private fun demoMenuHeaderFactory(session: Session, activityProvider: ActivityProvider) =
-    viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+    viewFactoryProvider<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
         setTitle(activityProvider()!!::class.splitSimpleName)
         setCurrentUser(session.user)
     }

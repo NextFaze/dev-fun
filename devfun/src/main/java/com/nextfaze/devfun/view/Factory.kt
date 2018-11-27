@@ -16,6 +16,7 @@ import kotlin.reflect.KClass
  * Used by [DevFun] to inflate views when needed.
  *
  * @see ViewFactoryProvider
+ * @see viewFactory
  */
 interface ViewFactory<out V : View> {
     /**
@@ -34,6 +35,8 @@ interface ViewFactory<out V : View> {
  * Provides [ViewFactory] instances for some class type/key.
  *
  * The class "key" does need to be in any way related to the resulting view factory, and is merely just a tag-like system.
+ *
+ * @see viewFactoryProvider
  */
 interface ViewFactoryProvider {
     /**
@@ -79,8 +82,8 @@ internal class DefaultCompositeViewFactory :
 private class DevFunSimpleInvokeViewsFactory : ViewFactoryProvider {
     override fun get(clazz: KClass<*>): ViewFactory<View>? =
         when (clazz) {
-            InjectedParameterView::class -> inflate(R.layout.df_devfun_injected)
-            ErrorParameterView::class -> inflate(R.layout.df_devfun_type_error)
+            InjectedParameterView::class -> viewFactory(R.layout.df_devfun_injected)
+            ErrorParameterView::class -> viewFactory(R.layout.df_devfun_type_error)
             else -> null
         }
 }

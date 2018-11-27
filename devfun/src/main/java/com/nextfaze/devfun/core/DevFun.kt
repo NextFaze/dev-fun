@@ -47,8 +47,8 @@ import com.nextfaze.devfun.view.CompositeViewFactoryProvider
 import com.nextfaze.devfun.view.DefaultCompositeViewFactory
 import com.nextfaze.devfun.view.ViewFactory
 import com.nextfaze.devfun.view.ViewFactoryProvider
-import com.nextfaze.devfun.view.inflate
 import com.nextfaze.devfun.view.viewFactory
+import com.nextfaze.devfun.view.viewFactoryProvider
 import kotlin.reflect.KClass
 
 /**
@@ -200,20 +200,20 @@ class DevFun {
      * i.e. Most recently added are checked first.
      *
      * ### Utility Functions
-     * - [viewFactory] to create a ViewFactoryProvider that returns a [ViewFactory] for some layout
-     * - [inflate] in your custom ViewFactoryProvider to create/inflate just some layout
+     * - [viewFactoryProvider] to create a ViewFactoryProvider that returns a [ViewFactory] for some layout
+     * - [viewFactory] in your custom ViewFactoryProvider to create/inflate just some layout
      *
      * ### Example Usage
      * - Simple layout inflation (e.g. to change DevMenu header view):
      *     ```kotlin
      *     // Using a custom view/layout
-     *     devFun.viewFactories += viewFactory<MenuHeader, View>(R.layout.dev_fun_menu_header)
+     *     devFun.viewFactories += viewFactoryProvider<MenuHeader, View>(R.layout.dev_fun_menu_header)
      *     ```
      *
      * - From [demo](https://github.com/NextFaze/dev-fun/blob/master/demo/src/debug/java/com/nextfaze/devfun/demo/devfun/DevFun.kt#L70)
      * using/configuring a custom view type:
      *     ```kotlin
-     *     devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+     *     devFun.viewFactories += viewFactoryProvider<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
      *         setTitle(activityProvider()!!::class.splitSimpleName)
      *         setCurrentUser(session.user)
      *     }
@@ -254,7 +254,7 @@ class DevFun {
      * If you have included the menu `devfun-menu` then the color picker module will be included transitively.
      *
      * @see ViewFactory
-     * @see inflate
+     * @see viewFactory
      */
     val parameterViewFactories: CompositeParameterViewFactoryProvider by lazy { get<CompositeParameterViewFactoryProvider>() }
 
