@@ -233,8 +233,14 @@ private data class ReflectedMethodImpl(override val method: Method, val instance
 internal fun KFunction<*>.toSignatureString(removePackageString: String? = null) = toString().toSignatureString(removePackageString)
 internal fun KProperty<*>.toSignatureString(removePackageString: String? = null) = toString().toSignatureString(removePackageString)
 
+private val stdPackages = listOf("kotlin", "java.util", "java.lang").map { Regex("([\\s(\\[<])$it.") }
+
 private fun String.toSignatureString(removePackageString: String? = null): String {
-    val signature = replace(" kotlin.", " ")
+    var signature = this
+    stdPackages.forEach {
+        signature = it.replace(signature, "\$1")
+    }
+
     if (removePackageString == null) return signature
 
     val regex = Regex(removePackageString.split(".").joinToString("\\.") { "($it)?" })
