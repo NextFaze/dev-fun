@@ -9,6 +9,7 @@ import com.nextfaze.devfun.invoke.view.ValueSource
 import com.nextfaze.devfun.invoke.view.types.BooleanParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.DateParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.EnumParameterViewFactoryProvider
+import com.nextfaze.devfun.invoke.view.types.EnumSetParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.RangedNumberParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.StringOrNumberParameterViewFactoryProvider
 import com.nextfaze.devfun.view.ViewFactory
@@ -121,6 +122,7 @@ internal class DefaultCompositeParameterViewFactoryProvider : CompositeParameter
 
     init {
         this += EnumParameterViewFactoryProvider()
+        this += EnumSetParameterViewFactoryProvider()
         this += BooleanParameterViewFactoryProvider()
         this += StringOrNumberParameterViewFactoryProvider()
         this += RangedNumberParameterViewFactoryProvider()

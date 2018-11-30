@@ -14,14 +14,14 @@ import java.util.concurrent.CopyOnWriteArrayList
  *
  * @see DisplayBoundsTracker
  */
-typealias DisplayBoundsChangeListener = (old: Rect, new: Rect) -> Unit
+internal typealias DisplayBoundsChangeListener = (old: Rect, new: Rect) -> Unit
 
 /**
  * Tracks the *activity/app* bounds (not the device).
  *
  * @see DisplayBoundsChangeListener
  */
-interface DisplayBoundsTracker {
+internal interface DisplayBoundsTracker {
     /** The foreground status of the app. */
     val displayBounds: Rect
 

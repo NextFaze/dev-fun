@@ -1,0 +1,71 @@
+package com.nextfaze.devfun.internal
+
+import android.annotation.SuppressLint
+import android.view.View
+import com.nextfaze.devfun.invoke.view.types.WithMask
+import java.util.EnumSet
+
+/**
+ * This is an experimental feature.
+ *
+ * @see WithMask
+ */
+@SuppressLint("InlinedApi")
+enum class SystemUiFlags(override val mask: Long) : WithMask {
+    LOW_PROFILE(View.SYSTEM_UI_FLAG_LOW_PROFILE.toLong()),
+    HIDE_NAVIGATION(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION.toLong()),
+    FULLSCREEN(View.SYSTEM_UI_FLAG_FULLSCREEN.toLong()),
+    LAYOUT_STABLE(View.SYSTEM_UI_FLAG_LAYOUT_STABLE.toLong()),
+    LAYOUT_HIDE_NAVIGATION(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION.toLong()),
+    LAYOUT_FULLSCREEN(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN.toLong()),
+    IMMERSIVE(View.SYSTEM_UI_FLAG_IMMERSIVE.toLong()),
+    IMMERSIVE_STICKY(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY.toLong()),
+    LIGHT_STATUS_BAR(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.toLong()),
+    LIGHT_NAVIGATION_BAR(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.toLong()),
+    STATUS_BAR_DISABLE_EXPAND(SystemUiFlags.STATUS_BAR_DISABLE_EXPAND),
+    STATUS_BAR_DISABLE_NOTIFICATION_ICONS(SystemUiFlags.STATUS_BAR_DISABLE_NOTIFICATION_ICONS),
+    STATUS_BAR_DISABLE_NOTIFICATION_ALERTS(SystemUiFlags.STATUS_BAR_DISABLE_NOTIFICATION_ALERTS),
+    STATUS_BAR_DISABLE_NOTIFICATION_TICKER(SystemUiFlags.STATUS_BAR_DISABLE_NOTIFICATION_TICKER),
+    STATUS_BAR_DISABLE_SYSTEM_INFO(SystemUiFlags.STATUS_BAR_DISABLE_SYSTEM_INFO),
+    STATUS_BAR_DISABLE_HOME(SystemUiFlags.STATUS_BAR_DISABLE_HOME),
+    STATUS_BAR_DISABLE_BACK(SystemUiFlags.STATUS_BAR_DISABLE_BACK),
+    STATUS_BAR_DISABLE_CLOCK(SystemUiFlags.STATUS_BAR_DISABLE_CLOCK),
+    STATUS_BAR_DISABLE_RECENT(SystemUiFlags.STATUS_BAR_DISABLE_RECENT),
+    STATUS_BAR_DISABLE_SEARCH(SystemUiFlags.STATUS_BAR_DISABLE_SEARCH),
+    STATUS_BAR_TRANSIENT(SystemUiFlags.STATUS_BAR_TRANSIENT),
+    NAVIGATION_BAR_TRANSIENT(SystemUiFlags.NAVIGATION_BAR_TRANSIENT),
+    STATUS_BAR_UNHIDE(SystemUiFlags.STATUS_BAR_UNHIDE),
+    NAVIGATION_BAR_UNHIDE(SystemUiFlags.NAVIGATION_BAR_UNHIDE),
+    STATUS_BAR_TRANSLUCENT(SystemUiFlags.STATUS_BAR_TRANSLUCENT),
+    NAVIGATION_BAR_TRANSLUCENT(SystemUiFlags.NAVIGATION_BAR_TRANSLUCENT),
+    NAVIGATION_BAR_TRANSPARENT(SystemUiFlags.NAVIGATION_BAR_TRANSPARENT),
+    STATUS_BAR_TRANSPARENT(SystemUiFlags.STATUS_BAR_TRANSPARENT);
+
+    companion object {
+        // @hide values //
+        private const val STATUS_BAR_DISABLE_EXPAND = 0x00010000L
+        private const val STATUS_BAR_DISABLE_NOTIFICATION_ICONS = 0x00020000L
+        private const val STATUS_BAR_DISABLE_NOTIFICATION_ALERTS = 0x00040000L
+        private const val STATUS_BAR_DISABLE_NOTIFICATION_TICKER = 0x00080000L
+        private const val STATUS_BAR_DISABLE_SYSTEM_INFO = 0x00100000L
+        private const val STATUS_BAR_DISABLE_HOME = 0x00200000L
+        private const val STATUS_BAR_DISABLE_BACK = 0x00400000L
+        private const val STATUS_BAR_DISABLE_CLOCK = 0x00800000L
+        private const val STATUS_BAR_DISABLE_RECENT = 0x01000000L
+        private const val STATUS_BAR_DISABLE_SEARCH = 0x02000000L
+        private const val STATUS_BAR_TRANSIENT = 0x04000000L
+        private const val NAVIGATION_BAR_TRANSIENT = 0x08000000L
+        private const val STATUS_BAR_UNHIDE = 0x10000000L
+        private const val NAVIGATION_BAR_UNHIDE = 0x20000000L
+        private const val STATUS_BAR_TRANSLUCENT = 0x40000000L
+        private const val NAVIGATION_BAR_TRANSLUCENT = 0x80000000
+        private const val NAVIGATION_BAR_TRANSPARENT = 0x00008000L
+        private const val STATUS_BAR_TRANSPARENT = 0x00000008L
+
+        private val values = values().associateBy { it.mask }
+
+        fun fromValue(value: Long): EnumSet<SystemUiFlags> = EnumSet.noneOf(SystemUiFlags::class.java).apply {
+            addAll(values.filter { (it.key and value) > 0 }.values)
+        }
+    }
+}

@@ -114,24 +114,8 @@ private fun FragmentManager.iterateChildren(): Iterator<Fragment?> {
 // View Traversal
 //
 
-private inline fun ViewGroup.forEachChild(operation: (View) -> Unit) {
-    for (element in iterateChildren()) operation(element)
-}
-
-private fun ViewGroup.iterateChildren(): Iterator<View> {
-    class ViewGroupIterator : Iterator<View> {
-        private val childCount = this@iterateChildren.childCount
-        private var current = 0
-
-        override fun hasNext() = current < childCount
-        override fun next() = this@iterateChildren.getChildAt(current++)
-    }
-
-    return ViewGroupIterator()
-}
-
 private fun <T : Any> traverseViewHierarchy(viewGroup: ViewGroup, clazz: KClass<out T>): T? {
-    viewGroup.forEachChild {
+    viewGroup.children<View>().forEach {
         if (it::class.isSubclassOf(clazz)) {
             @Suppress("UNCHECKED_CAST")
             return it as T
