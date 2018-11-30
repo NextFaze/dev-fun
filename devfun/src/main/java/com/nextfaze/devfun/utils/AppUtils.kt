@@ -169,3 +169,8 @@ internal class FetchPrefsTransformer(context: Context) : FunctionTransformer {
         }
     }
 }
+
+@DeveloperCategory("App Utils", group = "Misc")
+internal object MiscUtils {
+    @DeveloperFunction("Force GC") fun forceGarbageCollection() = System.gc()
+}

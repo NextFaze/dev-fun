@@ -5,13 +5,8 @@ import android.view.View
 import com.nextfaze.devfun.invoke.view.types.WithMask
 import java.util.EnumSet
 
-/**
- * This is an experimental feature.
- *
- * @see WithMask
- */
 @SuppressLint("InlinedApi")
-enum class SystemUiFlags(override val mask: Long) : WithMask {
+internal enum class SystemUiFlags(override val mask: Long) : WithMask {
     LOW_PROFILE(View.SYSTEM_UI_FLAG_LOW_PROFILE.toLong()),
     HIDE_NAVIGATION(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION.toLong()),
     FULLSCREEN(View.SYSTEM_UI_FLAG_FULLSCREEN.toLong()),
