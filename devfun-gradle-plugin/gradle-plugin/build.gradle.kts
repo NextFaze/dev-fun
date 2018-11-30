@@ -29,3 +29,7 @@ dependencies {
 
 configureDokka()
 createVersionFile(pkg = "com.nextfaze.devfun.gradle.plugin")
+
+kapt {
+    annotationProcessor("com.google.auto.service.processor.AutoServiceProcessor")
+}
