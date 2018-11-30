@@ -2,7 +2,7 @@
 
 # invoke
 
-`abstract fun invoke(item: `[`FunctionItem`](../../com.nextfaze.devfun.function/-function-item/index.md)`): `[`InvokeResult`](../../com.nextfaze.devfun.function/-invoke-result/index.md)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Invoker.kt#L31)
+`abstract fun invoke(item: `[`FunctionItem`](../../com.nextfaze.devfun.function/-function-item/index.md)`): `[`InvokeResult`](../../com.nextfaze.devfun.function/-invoke-result/index.md)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Invoker.kt#L32)
 
 Invokes a function item, using the invocation UI if needed.
 
@@ -13,7 +13,7 @@ Any exceptions thrown during invocation should be caught and returned as an [Inv
 The result of the invocation and/or any exception thrown (other than [DebugException](../../com.nextfaze.devfun/-debug-exception/index.md)).
     If the result is `null` then the invocation is pending user interaction.
 
-`abstract fun invoke(function: `[`UiFunction`](../-ui-function/index.md)`): `[`InvokeResult`](../../com.nextfaze.devfun.function/-invoke-result/index.md)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Invoker.kt#L41)
+`abstract fun invoke(function: `[`UiFunction`](../-ui-function/index.md)`): `[`InvokeResult`](../../com.nextfaze.devfun.function/-invoke-result/index.md)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Invoker.kt#L42)
 
 Invokes a function using the invocation UI.
 

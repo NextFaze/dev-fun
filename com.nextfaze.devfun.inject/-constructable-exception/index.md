@@ -2,7 +2,7 @@
 
 # ConstructableException
 
-`class ConstructableException : `[`Exception`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-exception/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/Constructable.kt#L147)
+`class ConstructableException : `[`Exception`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-exception/index.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/inject/Constructable.kt#L148)
 
 Thrown when [ConstructingInstanceProvider](../-constructing-instance-provider/index.md) fails to create a new instance of a class.
 

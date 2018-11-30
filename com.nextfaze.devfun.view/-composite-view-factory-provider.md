@@ -2,7 +2,7 @@
 
 # CompositeViewFactoryProvider
 
-`interface CompositeViewFactoryProvider : `[`ViewFactoryProvider`](-view-factory-provider/index.md)`, `[`Composite`](../com.nextfaze.devfun.core/-composite/index.md)`<`[`ViewFactoryProvider`](-view-factory-provider/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/view/Factory.kt#L55)
+`interface CompositeViewFactoryProvider : `[`ViewFactoryProvider`](-view-factory-provider/index.md)`, `[`Composite`](../com.nextfaze.devfun.core/-composite/index.md)`<`[`ViewFactoryProvider`](-view-factory-provider/index.md)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/view/Factory.kt#L58)
 
 A [ViewFactoryProvider](-view-factory-provider/index.md) that delegates to other providers.
 

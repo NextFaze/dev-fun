@@ -2,13 +2,15 @@
 
 # ViewFactory
 
-`interface ViewFactory<out V : `[`View`](https://developer.android.com/reference/android/view/View.html)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/view/Factory.kt#L20)
+`interface ViewFactory<out V : `[`View`](https://developer.android.com/reference/android/view/View.html)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/view/Factory.kt#L21)
 
 Used by [DevFun](../../com.nextfaze.devfun.core/-dev-fun/index.md) to inflate views when needed.
 
 **See Also**
 
 [ViewFactoryProvider](../-view-factory-provider/index.md)
+
+[viewFactory](../view-factory.md)
 
 ### Functions
 

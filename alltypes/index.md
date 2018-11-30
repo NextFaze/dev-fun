@@ -29,6 +29,7 @@ Documentation is generated using Dokka.
 | [com.nextfaze.devfun.inject.ClassInstanceNotFoundException](../com.nextfaze.devfun.inject/-class-instance-not-found-exception/index.md) | Exception thrown when attempting to provide a type that was not found from any [InstanceProvider](../com.nextfaze.devfun.inject/-instance-provider/index.md). |
 | [com.nextfaze.devfun.overlay.ClickListener](../com.nextfaze.devfun.overlay/-click-listener.md) |  |
 | [com.nextfaze.devfun.menu.controllers.CogOverlay](../com.nextfaze.devfun.menu.controllers/-cog-overlay/index.md) | Controls the floating cog overlay. |
+| [kotlin.collections.Collection](../com.nextfaze.devfun.invoke.view.types/kotlin.collections.-collection/index.md) (extensions in package com.nextfaze.devfun.invoke.view.types) |  |
 | [com.nextfaze.devfun.invoke.view.ColorPicker](../com.nextfaze.devfun.invoke.view/-color-picker/index.md) | Annotated `Int` value parameters will render a color picker view rather than an input/edit for use with invoke UI. |
 | [wiki.Components](../wiki/-components.md) | DevFun is designed to be modular, in terms of both its dependencies (limiting impact to main source tree) and its plugin-like architecture. ![Component Dependencies](https://github.com/NextFaze/dev-fun/raw/gh-pages/assets/uml/components.png) |
 | [com.nextfaze.devfun.core.Composite](../com.nextfaze.devfun.core/-composite/index.md) | Use by providers to facilitate user provided types [T](../com.nextfaze.devfun.core/-composite/index.md#T) to the composting provider. |
@@ -73,8 +74,6 @@ Documentation is generated using Dokka.
 | [com.nextfaze.devfun.reference.DeveloperReference](../com.nextfaze.devfun.reference/-developer-reference/index.md) | Annotated elements will be recorded by DevFun for later retrieval via `devFun.developerReferences<DeveloperReference>()`. |
 | [com.nextfaze.devfun.reference.DeveloperReferenceProperties](../com.nextfaze.devfun.reference/-developer-reference-properties.md) | Properties interface for @[DeveloperReference](../com.nextfaze.devfun.reference/-developer-reference/index.md). |
 | [androidx.fragment.app.DialogFragment](../com.nextfaze.devfun.internal.android/androidx.fragment.app.-dialog-fragment/index.md) (extensions in package com.nextfaze.devfun.internal.android) |  |
-| [com.nextfaze.devfun.overlay.DisplayBoundsChangeListener](../com.nextfaze.devfun.overlay/-display-bounds-change-listener.md) | Function signature of callbacks for display bound changes. |
-| [com.nextfaze.devfun.overlay.DisplayBoundsTracker](../com.nextfaze.devfun.overlay/-display-bounds-tracker/index.md) | Tracks the *activity/app* bounds (not the device). |
 | [com.nextfaze.devfun.overlay.Dock](../com.nextfaze.devfun.overlay/-dock/index.md) |  |
 | [com.nextfaze.devfun.error.ErrorDetails](../com.nextfaze.devfun.error/-error-details/index.md) | Details/information of an error. |
 | [com.nextfaze.devfun.error.ErrorHandler](../com.nextfaze.devfun.error/-error-handler/index.md) | Handles errors that occur during/throughout DevFun. |
@@ -169,8 +168,10 @@ Documentation is generated using Dokka.
 | [com.nextfaze.devfun.invoke.UiFunction](../com.nextfaze.devfun.invoke/-ui-function/index.md) | Describes a function to be executed via the DevFun Invocation UI. |
 | [com.nextfaze.devfun.overlay.logger.UpdateCallback](../com.nextfaze.devfun.overlay.logger/-update-callback.md) |  |
 | [com.nextfaze.devfun.invoke.view.ValueSource](../com.nextfaze.devfun.invoke.view/-value-source/index.md) | Used in conjunction with [From](../com.nextfaze.devfun.invoke.view/-from/index.md) to allow the Invoke UI to provide an initial value. |
+| [android.view.View](../com.nextfaze.devfun.internal.android/android.view.-view/index.md) (extensions in package com.nextfaze.devfun.internal.android) |  |
 | [com.nextfaze.devfun.view.ViewFactory](../com.nextfaze.devfun.view/-view-factory/index.md) | Used by [DevFun](../com.nextfaze.devfun.core/-dev-fun/index.md) to inflate views when needed. |
 | [com.nextfaze.devfun.view.ViewFactoryProvider](../com.nextfaze.devfun.view/-view-factory-provider/index.md) | Provides [ViewFactory](../com.nextfaze.devfun.view/-view-factory/index.md) instances for some class type/key. |
+| [android.view.ViewGroup](../com.nextfaze.devfun.internal.android/android.view.-view-group/index.md) (extensions in package com.nextfaze.devfun.internal.android) |  |
 | [com.nextfaze.devfun.overlay.VisibilityListener](../com.nextfaze.devfun.overlay/-visibility-listener.md) |  |
 | [com.nextfaze.devfun.overlay.VisibilityPredicate](../com.nextfaze.devfun.overlay/-visibility-predicate.md) |  |
 | [com.nextfaze.devfun.overlay.VisibilityScope](../com.nextfaze.devfun.overlay/-visibility-scope/index.md) | Determines when an overlay can be visible. |
@@ -178,6 +179,7 @@ Documentation is generated using Dokka.
 | [com.nextfaze.devfun.invoke.WithInitialValue](../com.nextfaze.devfun.invoke/-with-initial-value/index.md) | [Parameter](../com.nextfaze.devfun.invoke/-parameter/index.md) objects that implement this will use the value provided by [WithInitialValue.value](../com.nextfaze.devfun.invoke/-with-initial-value/value.md) rather than checking for an @[From](../com.nextfaze.devfun.invoke.view/-from/index.md) annotation. |
 | [com.nextfaze.devfun.invoke.WithKParameter](../com.nextfaze.devfun.invoke/-with-k-parameter/index.md) | [Parameter](../com.nextfaze.devfun.invoke/-parameter/index.md) objects that implement this will have their values backed by a native function parameter description. |
 | [com.nextfaze.devfun.invoke.view.WithLabel](../com.nextfaze.devfun.invoke.view/-with-label/index.md) | View used with the Invoke UI will automatically be wrapped and be given a label unless they provide their own with this interface. |
+| [com.nextfaze.devfun.invoke.view.types.WithMask](../com.nextfaze.devfun.invoke.view.types/-with-mask/index.md) | This is an experimental feature. TODO? Could inline classes be a cleaner way of doing this given most of Android's flags are Int/Long values? |
 | [com.nextfaze.devfun.invoke.WithNullability](../com.nextfaze.devfun.invoke/-with-nullability/index.md) | [Parameter](../com.nextfaze.devfun.invoke/-parameter/index.md) objects that implement this will can be nullable. |
 | [com.nextfaze.devfun.reference.WithProperties](../com.nextfaze.devfun.reference/-with-properties/index.md) | Declares a definition that has [properties](../com.nextfaze.devfun.reference/-with-properties/properties.md) associated with it. The type will be `AnnotationNameProperties`. |
 | [com.nextfaze.devfun.internal.WithSubGroup](../com.nextfaze.devfun.internal/-with-sub-group/index.md) | When implemented by a [FunctionItem](../com.nextfaze.devfun.function/-function-item/index.md) the DevMenu will render a sub-group for it. *Not explicitly intended for public use - primarilyhere as a "fix/workaround" for #19 (where Context overrides the user defined group)* |

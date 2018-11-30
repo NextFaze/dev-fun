@@ -2,7 +2,7 @@
 
 # ReflectedProperty
 
-`interface ReflectedProperty` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/Reflected.kt#L62)
+`interface ReflectedProperty` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/Reflected.kt#L66)
 
 ### Properties
 

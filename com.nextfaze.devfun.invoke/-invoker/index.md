@@ -2,7 +2,7 @@
 
 # Invoker
 
-`interface Invoker` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Invoker.kt#L21)
+`interface Invoker` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/Invoker.kt#L22)
 
 Used to invoke a [FunctionItem](../../com.nextfaze.devfun.function/-function-item/index.md) or [UiFunction](../-ui-function/index.md) and automatically handles parameter injection and errors.
 

@@ -28,6 +28,8 @@
 |---|---|
 | [android.app.Application.ActivityLifecycleCallbacks](android.app.-application.-activity-lifecycle-callbacks/index.md) |  |
 | [android.content.Context](android.content.-context/index.md) |  |
+| [android.view.View](android.view.-view/index.md) |  |
+| [android.view.ViewGroup](android.view.-view-group/index.md) |  |
 | [androidx.fragment.app.DialogFragment](androidx.fragment.app.-dialog-fragment/index.md) |  |
 | [androidx.fragment.app.Fragment](androidx.fragment.app.-fragment/index.md) |  |
 | [androidx.fragment.app.FragmentActivity](androidx.fragment.app.-fragment-activity/index.md) |  |

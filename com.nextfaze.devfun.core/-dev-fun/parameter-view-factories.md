@@ -22,7 +22,7 @@ If you have included the menu `devfun-menu` then the color picker module will be
 
 [ViewFactory](../../com.nextfaze.devfun.view/-view-factory/index.md)
 
-[inflate](../../com.nextfaze.devfun.view/inflate.md)
+[viewFactory](../../com.nextfaze.devfun.view/view-factory.md)
 
 **Getter**
 
@@ -44,5 +44,5 @@ If you have included the menu `devfun-menu` then the color picker module will be
 
 [ViewFactory](../../com.nextfaze.devfun.view/-view-factory/index.md)
 
-[inflate](../../com.nextfaze.devfun.view/inflate.md)
+[viewFactory](../../com.nextfaze.devfun.view/view-factory.md)
 

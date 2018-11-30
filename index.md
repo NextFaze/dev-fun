@@ -34,6 +34,7 @@ For an overview of all the components and libraries see [wiki/components](wiki/-
 | [com.nextfaze.devfun.invoke](com.nextfaze.devfun.invoke/index.md) |  |
 | [com.nextfaze.devfun.invoke.view](com.nextfaze.devfun.invoke.view/index.md) |  |
 | [com.nextfaze.devfun.invoke.view.simple](com.nextfaze.devfun.invoke.view.simple/index.md) |  |
+| [com.nextfaze.devfun.invoke.view.types](com.nextfaze.devfun.invoke.view.types/index.md) |  |
 | [com.nextfaze.devfun.menu](com.nextfaze.devfun.menu/index.md) | Adds a developer menu, accessible by a floating cog (long-press to drag) or device button sequence. |
 | [com.nextfaze.devfun.menu.controllers](com.nextfaze.devfun.menu.controllers/index.md) |  |
 | [com.nextfaze.devfun.overlay](com.nextfaze.devfun.overlay/index.md) |  |

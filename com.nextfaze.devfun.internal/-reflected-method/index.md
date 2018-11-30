@@ -2,7 +2,7 @@
 
 # ReflectedMethod
 
-`interface ReflectedMethod : () -> `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?, (`[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)`) -> `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/Reflected.kt#L46)
+`interface ReflectedMethod : () -> `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?, (`[`InstanceProvider`](../../com.nextfaze.devfun.inject/-instance-provider/index.md)`) -> `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/internal/Reflected.kt#L50)
 
 ### Properties
 

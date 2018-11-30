@@ -11,7 +11,7 @@ Example usage from demo (~line 64 `demoMenuHeaderFactory` in `com.nextfaze.devfu
 ``` kotlin
 // MenuHeader is the "key" (used by DevMenu to inflate the menu header)
 // DemoMenuHeaderView is the custom view type
-devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+devFun.viewFactories += viewFactoryProvider<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
     setTitle(activityProvider()!!::class.splitSimpleName)
     setCurrentUser(session.user)
 }
@@ -19,5 +19,5 @@ devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.dem
 
 **See Also**
 
-[viewFactory](../com.nextfaze.devfun.view/view-factory.md)
+[viewFactoryProvider](../com.nextfaze.devfun.view/view-factory-provider.md)
 

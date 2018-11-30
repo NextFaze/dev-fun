@@ -8,12 +8,14 @@ $dokka.location:com.nextfaze.devfun.internal$splitCamelCase(kotlin.String)com.n
 $dokka.location:com.nextfaze.devfun.internal$splitSimpleName#kotlin.reflect.KClass((kotlin.Any))com.nextfaze.devfun.internal/kotlin.reflect.-k-class/split-simple-name.md
 $dokka.location:com.nextfaze.devfun.internal$toReflected(java.lang.reflect.Method, com.nextfaze.devfun.inject.InstanceProvider)com.nextfaze.devfun.internal/java.lang.reflect.-method/to-reflected.md
 $dokka.location:com.nextfaze.devfun.internal.android$activityManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/activity-manager.md
+$dokka.location:com.nextfaze.devfun.internal.android$children(android.view.ViewGroup)com.nextfaze.devfun.internal.android/android.view.-view-group/children.md
 $dokka.location:com.nextfaze.devfun.internal.android$clipboardManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/clipboard-manager.md
 $dokka.location:com.nextfaze.devfun.internal.android$connectivityManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/connectivity-manager.md
 $dokka.location:com.nextfaze.devfun.internal.android$defaultTag#androidx.fragment.app.Fragmentcom.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment/default-tag.md
 $dokka.location:com.nextfaze.devfun.internal.android$defaultTag#java.lang.Class((androidx.fragment.app.Fragment))com.nextfaze.devfun.internal.android/java.lang.-class/default-tag.md
 $dokka.location:com.nextfaze.devfun.internal.android$defaultTag#kotlin.reflect.KClass((androidx.fragment.app.Fragment))com.nextfaze.devfun.internal.android/kotlin.reflect.-k-class/default-tag.md
 $dokka.location:com.nextfaze.devfun.internal.android$find(androidx.fragment.app.FragmentManager)com.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment-manager/find.md
+$dokka.location:com.nextfaze.devfun.internal.android$inflateView(android.view.View, kotlin.Int, kotlin.Function1((com.nextfaze.devfun.internal.android.inflateView.T, kotlin.Unit)))com.nextfaze.devfun.internal.android/android.view.-view/inflate-view.md
 $dokka.location:com.nextfaze.devfun.internal.android$keyguardManager#android.content.Contextcom.nextfaze.devfun.internal.android/android.content.-context/keyguard-manager.md
 $dokka.location:com.nextfaze.devfun.internal.android$obtain(androidx.fragment.app.FragmentActivity, kotlin.Function0((com.nextfaze.devfun.internal.android.obtain.T)))com.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment-activity/obtain.md
 $dokka.location:com.nextfaze.devfun.internal.android$obtain(androidx.fragment.app.FragmentManager, kotlin.Function0((com.nextfaze.devfun.internal.android.obtain.T)))com.nextfaze.devfun.internal.android/androidx.fragment.app.-fragment-manager/obtain.md
@@ -39,6 +41,7 @@ $dokka.location:com.nextfaze.devfun.invoke$parameterInstances(java.lang.reflect.
 $dokka.location:com.nextfaze.devfun.invoke$receiverClass#java.lang.reflect.Methodcom.nextfaze.devfun.invoke/java.lang.reflect.-method/receiver-class.md
 $dokka.location:com.nextfaze.devfun.invoke$receiverClassForInvocation#java.lang.reflect.Methodcom.nextfaze.devfun.invoke/java.lang.reflect.-method/receiver-class-for-invocation.md
 $dokka.location:com.nextfaze.devfun.invoke$receiverInstance(java.lang.reflect.Method, com.nextfaze.devfun.inject.InstanceProvider)com.nextfaze.devfun.invoke/java.lang.reflect.-method/receiver-instance.md
+$dokka.location:com.nextfaze.devfun.invoke.view.types$value#kotlin.collections.Collection((com.nextfaze.devfun.invoke.view.types.WithMask))com.nextfaze.devfun.invoke.view.types/kotlin.collections.-collection/value.md
 com.nextfaze.devfun
 com.nextfaze.devfun.category
 com.nextfaze.devfun.compiler
@@ -62,6 +65,7 @@ com.nextfaze.devfun.internal.string
 com.nextfaze.devfun.invoke
 com.nextfaze.devfun.invoke.view
 com.nextfaze.devfun.invoke.view.simple
+com.nextfaze.devfun.invoke.view.types
 com.nextfaze.devfun.menu
 com.nextfaze.devfun.menu.controllers
 com.nextfaze.devfun.overlay

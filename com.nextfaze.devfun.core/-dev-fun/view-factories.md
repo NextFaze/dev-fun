@@ -16,8 +16,8 @@ i.e. Most recently added are checked first.
 
 ### Utility Functions
 
-* [viewFactory](../../com.nextfaze.devfun.view/view-factory.md) to create a ViewFactoryProvider that returns a [ViewFactory](../../com.nextfaze.devfun.view/-view-factory/index.md) for some layout
-* [inflate](../../com.nextfaze.devfun.view/inflate.md) in your custom ViewFactoryProvider to create/inflate just some layout
+* [viewFactoryProvider](../../com.nextfaze.devfun.view/view-factory-provider.md) to create a ViewFactoryProvider that returns a [ViewFactory](../../com.nextfaze.devfun.view/-view-factory/index.md) for some layout
+* [viewFactory](../../com.nextfaze.devfun.view/view-factory.md) in your custom ViewFactoryProvider to create/inflate just some layout
 
 ### Example Usage
 
@@ -26,7 +26,7 @@ i.e. Most recently added are checked first.
 
 ``` kotlin
   // Using a custom view/layout
-    devFun.viewFactories += viewFactory<MenuHeader, View>(R.layout.dev_fun_menu_header)
+    devFun.viewFactories += viewFactoryProvider<MenuHeader, View>(R.layout.dev_fun_menu_header)
 ```
 
 
@@ -35,7 +35,7 @@ using/configuring a custom view type:
 
 
 ``` kotlin
-  devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+  devFun.viewFactories += viewFactoryProvider<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
         setTitle(activityProvider()!!::class.splitSimpleName)
         setCurrentUser(session.user)
     }
@@ -77,8 +77,8 @@ i.e. Most recently added are checked first.
 
 ### Utility Functions
 
-* [viewFactory](../../com.nextfaze.devfun.view/view-factory.md) to create a ViewFactoryProvider that returns a [ViewFactory](../../com.nextfaze.devfun.view/-view-factory/index.md) for some layout
-* [inflate](../../com.nextfaze.devfun.view/inflate.md) in your custom ViewFactoryProvider to create/inflate just some layout
+* [viewFactoryProvider](../../com.nextfaze.devfun.view/view-factory-provider.md) to create a ViewFactoryProvider that returns a [ViewFactory](../../com.nextfaze.devfun.view/-view-factory/index.md) for some layout
+* [viewFactory](../../com.nextfaze.devfun.view/view-factory.md) in your custom ViewFactoryProvider to create/inflate just some layout
 
 ### Example Usage
 
@@ -87,7 +87,7 @@ i.e. Most recently added are checked first.
 
 ``` kotlin
   // Using a custom view/layout
-    devFun.viewFactories += viewFactory<MenuHeader, View>(R.layout.dev_fun_menu_header)
+    devFun.viewFactories += viewFactoryProvider<MenuHeader, View>(R.layout.dev_fun_menu_header)
 ```
 
 
@@ -96,7 +96,7 @@ using/configuring a custom view type:
 
 
 ``` kotlin
-  devFun.viewFactories += viewFactory<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
+  devFun.viewFactories += viewFactoryProvider<MenuHeader, DemoMenuHeaderView>(R.layout.demo_menu_header) {
         setTitle(activityProvider()!!::class.splitSimpleName)
         setCurrentUser(session.user)
     }
