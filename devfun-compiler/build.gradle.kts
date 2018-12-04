@@ -17,7 +17,7 @@ kapt {
 
 task<ShadowJar> {
     classifier = ""
-    configurations = listOf(project.configurations.shadow)
+    configurations = listOf(project.configurations.shadow.get())
     relocate("com.squareup.kotlinpoet", "com.squareup.kotlinpoet.devfun")
     relocate("kotlinx.metadata", "kotlinx.metadata.devfun")
     mergeServiceFiles()

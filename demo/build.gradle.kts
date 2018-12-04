@@ -84,7 +84,7 @@ dependencies {
     compileOnly(Dependency.daggerAnnotations)
 
     // OkHttp - https://github.com/square/okhttp
-    implementation("com.squareup.okhttp3:okhttp:3.11.0")
+    implementation("com.squareup.okhttp3:okhttp:3.12.0")
 
     // Joda Time - https://github.com/dlew/joda-time-android
     implementation("net.danlew:android.joda:2.9.9.4")
