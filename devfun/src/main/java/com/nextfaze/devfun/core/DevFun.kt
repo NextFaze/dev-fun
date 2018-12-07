@@ -24,6 +24,7 @@ import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.function.PropertyTransformer
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
+import com.nextfaze.devfun.internal.WindowCallbacks
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.CompositeParameterViewFactoryProvider
@@ -167,6 +168,7 @@ class DevFun {
     }
 
     private lateinit var appStateTracker: AppStateTracker
+    private lateinit var windowCallbacks: WindowCallbacks
     private val moduleLoader = ModuleLoader(this)
     private val definitionsLoader = DefinitionsLoader()
     private val initializationCallbacks = mutableListOf<OnInitialized>()
@@ -290,6 +292,7 @@ class DevFun {
         _application = context.applicationContext as Application
 
         appStateTracker = AppStateTracker(context)
+        windowCallbacks = WindowCallbacks(_application!!, appStateTracker)
         rootInstanceProvider.apply {
             this += ConstructingInstanceProvider(this)
             this += KObjectInstanceProvider()
@@ -300,6 +303,7 @@ class DevFun {
             this += captureInstance<ActivityTracker> { appStateTracker }
             this += captureInstance<ForegroundTracker> { appStateTracker }
             this += captureInstance<ActivityProvider> { appStateTracker }
+            this += captureInstance { windowCallbacks }
             this += AndroidInstanceProviderImpl(context.applicationContext, appStateTracker)
             this += moduleLoader
 
@@ -369,6 +373,7 @@ class DevFun {
         moduleLoader.dispose()
         rootInstanceProvider.clear()
         appStateTracker.dispose()
+        windowCallbacks.dispose()
         _devFun = null
         _application = null
     }

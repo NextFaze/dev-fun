@@ -2,40 +2,20 @@ package com.nextfaze.devfun.overlay
 
 import android.app.Application
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.text.SpannableStringBuilder
-import android.view.Display
-import android.view.WindowManager
 import androidx.annotation.LayoutRes
 import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.ForegroundTracker
 import com.nextfaze.devfun.core.R
-import com.nextfaze.devfun.core.devFun
-import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.internal.WindowCallbacks
 import com.nextfaze.devfun.internal.android.*
-import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.invoke.Invoker
 import com.nextfaze.devfun.invoke.OnClick
 import com.nextfaze.devfun.invoke.UiField
 import com.nextfaze.devfun.invoke.uiButton
 import com.nextfaze.devfun.invoke.uiFunction
-import java.util.Collections
-import java.util.WeakHashMap
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.LazyThreadSafetyMode.NONE
-
-/**
- * Function signature of a listener for the current full-screen status. This callback may be called multiple times with the same value.
- *
- * @see OverlayManager.addFullScreenUsageStateListener
- * @see OverlayManager.plusAssign
- * @see OverlayManager.isFullScreenInUse
- */
-typealias FullScreenUsageStateListener = (Boolean) -> Unit
 
 /**
  * Handles creation, destruction, and visibility of overlays.
@@ -114,92 +94,6 @@ interface OverlayManager {
         additionalOptions: List<UiField<*>> = emptyList(),
         onResetClick: OnClick = { overlayWindow.resetPositionAndState() }
     )
-
-    /**
-     * Flag indicating if the full-screen is in use for the current display.
-     *
-     * Android creates a new [Display] for each activity. Thus this flag effectively represents the current activity.
-     *
-     * @see notifyUsingFullScreen
-     * @see addFullScreenUsageStateListener
-     */
-    val isFullScreenInUse: Boolean
-
-    /**
-     * Notify DevFun that you want to present a full-screen/dialog to signal that you want overlays to be hidden.
-     *
-     * Calling this effectively associates [who] with the current display - Android creates a new [Display] for each activity.
-     * Multiple calls to this does not require multiple finish calls.
-     *
-     * Be sure to notify when you're done with [notifyFinishUsingFullScreen].
-     *
-     * @param who A reference to the user of the notification (a weak reference will be held).
-     * @return `true` if the notification was taken successfully (requires there be an Activity present), or `false` if no Activity present.
-     *
-     * @see removeFullScreenUsageStateListener
-     * @see isFullScreenInUse
-     * @see addFullScreenUsageStateListener
-     * @see removeFullScreenUsageStateListener
-     */
-    fun notifyUsingFullScreen(who: Any): Boolean
-
-    /**
-     * Notify that you are done with your full-screen/dialog usage to signal the overlays they can be visible (if nothing else is using it).
-     *
-     * @param who The same reference as passed in with [notifyUsingFullScreen].
-     *
-     * @see notifyUsingFullScreen
-     * @see isFullScreenInUse
-     * @see addFullScreenUsageStateListener
-     * @see removeFullScreenUsageStateListener
-     */
-    fun notifyFinishUsingFullScreen(who: Any)
-
-    /**
-     * Add a listener for the current full-screen status. This callback may be called multiple times with the same value.
-     *
-     * Will be called upon each Activity onResume and each time something notifies their usage.
-     *
-     * @return The listener you passed in for assigning/chaining purposes.
-     *
-     * @see removeFullScreenUsageStateListener
-     * @see notifyUsingFullScreen
-     * @see isFullScreenInUse
-     */
-    fun addFullScreenUsageStateListener(listener: FullScreenUsageStateListener): FullScreenUsageStateListener
-
-    /**
-     * Remove a listener for the current full-screen status.
-     *
-     * @return The listener you passed in for assigning/chaining purposes.
-     *
-     * @see addFullScreenUsageStateListener
-     * @see notifyUsingFullScreen
-     * @see isFullScreenInUse
-     */
-    fun removeFullScreenUsageStateListener(listener: FullScreenUsageStateListener): FullScreenUsageStateListener
-
-    /**
-     * Add a listener for the current full-screen status. This callback may be called multiple times with the same value.
-     *
-     * Will be called upon each Activity onResume and each time something notifies their usage.
-     *
-     * @see addFullScreenUsageStateListener
-     * @see minusAssign
-     */
-    operator fun plusAssign(listener: FullScreenUsageStateListener) {
-        addFullScreenUsageStateListener(listener)
-    }
-
-    /**
-     * Add a listener for the current full-screen status.
-     *
-     * @see removeFullScreenUsageStateListener
-     * @see plusAssign
-     */
-    operator fun minusAssign(listener: FullScreenUsageStateListener) {
-        removeFullScreenUsageStateListener(listener)
-    }
 }
 
 @Constructable(singleton = true)
@@ -208,17 +102,16 @@ internal class OverlayManagerImpl(
     context: Context,
     private val foregroundTracker: ForegroundTracker,
     private val displayBoundsTracker: DisplayBoundsTracker,
+    private val windowCallbacks: WindowCallbacks,
     private val activityProvider: ActivityProvider,
     private val permissions: OverlayPermissions,
     private val invoker: Invoker
 ) : OverlayManager {
     private val application = context.applicationContext as Application
-    private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     private val overlaysLock = Any()
     private val overlays = mutableMapOf<String, OverlayWindow>()
 
-    override val isFullScreenInUse get() = fullScreenUsage.isInUse
     override val canDrawOverlays get() = permissions.canDrawOverlays
 
     init {
@@ -235,7 +128,6 @@ internal class OverlayManagerImpl(
         context.registerActivityCallbacks(
             onResumed = {
                 requestPermission()
-                notifyCurrentFullScreenUsage()
             }
         )
     }
@@ -271,6 +163,7 @@ internal class OverlayManagerImpl(
             activityProvider,
             foregroundTracker,
             displayBoundsTracker,
+            windowCallbacks,
             layoutId,
             name,
             prefsName,
@@ -319,100 +212,4 @@ internal class OverlayManagerImpl(
             )
         )
     }
-
-    private val fullScreenUsage = devFun.get<FullScreenUsageTracker>()
-    private val fullScreenUseStateListeners = CopyOnWriteArrayList<FullScreenUsageStateListener>()
-
-    override fun notifyUsingFullScreen(who: Any): Boolean {
-        if (fullScreenUsage.notifyUsingFullScreen(who)) {
-            notifyCurrentFullScreenUsage()
-            return true
-        }
-        return false
-    }
-
-    override fun notifyFinishUsingFullScreen(who: Any) {
-        if (fullScreenUsage.notifyFinishUsingFullScreen(who)) {
-            notifyCurrentFullScreenUsage()
-        }
-    }
-
-    override fun addFullScreenUsageStateListener(listener: FullScreenUsageStateListener): FullScreenUsageStateListener {
-        fullScreenUseStateListeners += listener
-        return listener
-    }
-
-    override fun removeFullScreenUsageStateListener(listener: FullScreenUsageStateListener): FullScreenUsageStateListener {
-        fullScreenUseStateListeners -= listener
-        return listener
-    }
-
-    private fun notifyCurrentFullScreenUsage() {
-        handler.post {
-            val inUse by lazy(NONE) { fullScreenUsage.isInUse }
-            fullScreenUseStateListeners.forEach { it(inUse) }
-        }
-    }
-
-    @DeveloperFunction("Clear full-screen usages\n(needed if DevFun bugged out - please report!)")
-    private fun clearUsages() {
-        fullScreenUsage.clearUsages()
-        notifyCurrentFullScreenUsage()
-    }
-}
-
-@Constructable(singleton = true)
-private class FullScreenUsageTracker(private val activityProvider: ActivityProvider) {
-    private val log = logger()
-
-    private val usagesLock = Any()
-    private val usages = WeakHashMap<Display, MutableSet<Any>>()
-
-    val isInUse: Boolean
-        get() {
-            val display = activityProvider()?.defaultDisplay ?: return false
-            synchronized(usagesLock) {
-                return usages[display]?.takeIf { it.isNotEmpty() } != null
-            }
-        }
-
-    fun notifyUsingFullScreen(who: Any): Boolean {
-        val display = activityProvider()?.defaultDisplay ?: return false
-        log.t {
-            """notifying usage {
-                |  who: $who
-                |  display: $display
-                |  others: ${synchronized(usagesLock) { usages[display] }}
-                }
-                """.trimMargin()
-        }
-        synchronized(usagesLock) {
-            usages.getOrPut(display) { Collections.newSetFromMap(WeakHashMap<Any, Boolean>()) }.apply { this += who }
-        }
-        return true
-    }
-
-    fun notifyFinishUsingFullScreen(who: Any): Boolean {
-        val display = activityProvider()?.defaultDisplay ?: return true
-        val nowUnused = synchronized(usagesLock) {
-            usages[display]?.let { refs ->
-                refs.remove(who)
-                refs.isEmpty().also { if (it) usages.remove(display) }
-            } ?: true
-        }
-        log.t {
-            """notifying stop usage {
-                |  who: $who,
-                |  display: $display,
-                |  nowUnused: $nowUnused,
-                |  others: ${synchronized(usagesLock) { usages[display] }}
-                }
-                """.trimMargin()
-        }
-        return nowUnused
-    }
-
-    fun clearUsages() = synchronized(usagesLock) { usages.clear() }
-
-    private val Context.defaultDisplay: Display get() = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
 }

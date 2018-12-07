@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.GravityCompat
 import com.google.android.material.snackbar.Snackbar
 import com.nextfaze.devfun.demo.inject.ActivityInjector
@@ -62,6 +63,14 @@ class MainActivity : BaseActivity() {
 
             drawerLayout.closeDrawer(GravityCompat.START)
             return@setSelected true
+        }
+
+        helloWorldTextView.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Test Overlay Visibility")
+                .setMessage("Overlays should be hidden when this dialog is visible.")
+                .create()
+                .show()
         }
     }
 

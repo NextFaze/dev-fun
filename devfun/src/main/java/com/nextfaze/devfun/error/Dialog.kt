@@ -27,7 +27,6 @@ import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.string.*
-import com.nextfaze.devfun.overlay.OverlayManager
 import kotlinx.android.synthetic.main.df_devfun_error_dialog_fragment.*
 import java.lang.Math.abs
 import java.text.SimpleDateFormat
@@ -56,7 +55,6 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
     private val handler = Handler()
 
     private val errorHandler by lazy { devFun.get<ErrorHandler>() }
-    private val overlays by lazy { devFun.get<OverlayManager>() }
 
     private val isInjectModuleMissing by lazy {
         classExists("dagger.Provides") && !classExists("com.nextfaze.devfun.inject.dagger2.InjectFromDagger2")
@@ -148,16 +146,10 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        overlays.notifyUsingFullScreen(this)
-    }
-
     override fun onPerformDismiss() {
         errors.forEach {
             errorHandler.markSeen(it.nanoTime)
         }
-        overlays.notifyFinishUsingFullScreen(this)
     }
 
     private fun fixLayout() {

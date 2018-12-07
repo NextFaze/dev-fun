@@ -14,13 +14,13 @@ import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.internal.WindowCallbacks
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.menu.controllers.CogOverlay
 import com.nextfaze.devfun.menu.controllers.GRAVE_KEY_SEQUENCE
 import com.nextfaze.devfun.menu.controllers.KeySequence
 import com.nextfaze.devfun.menu.controllers.VOLUME_KEY_SEQUENCE
-import com.nextfaze.devfun.overlay.OverlayManager
 import com.nextfaze.devfun.view.ViewFactoryProvider
 import com.nextfaze.devfun.view.viewFactoryProvider
 import kotlin.annotation.AnnotationRetention.SOURCE
@@ -96,7 +96,6 @@ val DevFun.devMenu get() = get<DevMenu>()
 @AutoService(DevFunModule::class)
 @MenuCategory
 class DevMenu : AbstractDevFunModule(), DeveloperMenu {
-    private val overlays by lazy { devFun.get<OverlayManager>() }
     private val activityProvider by lazy { devFun.get<ActivityProvider>() }
 
     private val views = object : ViewFactoryProvider {
@@ -110,7 +109,8 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
 
     override fun init(context: Context) {
         val activityProvider = get<ActivityProvider>()
-        this += KeySequence(context, activityProvider).also {
+        val windowCallbacks = get<WindowCallbacks>()
+        this += KeySequence(context, activityProvider, windowCallbacks).also {
             it += GRAVE_KEY_SEQUENCE
             it += VOLUME_KEY_SEQUENCE
         }
@@ -124,7 +124,6 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
         controllers.forEach(MenuController::detach)
         devFun.instanceProviders -= instances
         devFun.viewFactories -= views
-        overlays.notifyFinishUsingFullScreen(this)
     }
 
     private val controllers = hashSetOf<MenuController>()
@@ -157,7 +156,6 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
         try {
             DeveloperMenuDialogFragment.show(activity)
         } catch (t: Throwable) {
-            overlays.notifyFinishUsingFullScreen(this)
             get<ErrorHandler>().onError(t, "Show Menu Failed", "Please report this error!")
         }
     }
@@ -169,15 +167,8 @@ class DevMenu : AbstractDevFunModule(), DeveloperMenu {
     override fun attach(developerMenu: DeveloperMenu) = Unit
     override fun detach() = Unit
 
-    override fun onShown() {
-        overlays.notifyUsingFullScreen(this)
-        controllers.forEach { it.onShown() }
-    }
-
-    override fun onDismissed() {
-        overlays.notifyFinishUsingFullScreen(this)
-        controllers.forEach { it.onDismissed() }
-    }
+    override fun onShown() = controllers.forEach { it.onShown() }
+    override fun onDismissed() = controllers.forEach { it.onDismissed() }
 
     @DeveloperFunction
     fun showAvailableControllers(activity: Activity): String {

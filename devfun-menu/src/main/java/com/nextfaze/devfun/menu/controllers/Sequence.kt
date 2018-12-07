@@ -1,21 +1,17 @@
 package com.nextfaze.devfun.menu.controllers
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.text.SpannableStringBuilder
 import android.view.KeyEvent
-import android.view.Window
 import androidx.annotation.StringRes
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
 import com.nextfaze.devfun.core.ActivityProvider
-import com.nextfaze.devfun.internal.android.*
+import com.nextfaze.devfun.core.devFun
+import com.nextfaze.devfun.internal.KeyEventListener
+import com.nextfaze.devfun.internal.WindowCallbacks
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.menu.DeveloperMenu
 import com.nextfaze.devfun.menu.MenuController
@@ -45,12 +41,16 @@ internal val VOLUME_KEY_SEQUENCE = KeySequence.Definition(
  * - The grave/tilde key: `~`
  * - Volume button sequence: `down,down,up,down`
  */
-class KeySequence(context: Context, private val activityProvider: ActivityProvider) : MenuController {
+class KeySequence(
+    context: Context,
+    private val activityProvider: ActivityProvider,
+    private val windowCallbacks: WindowCallbacks = devFun.get() // internal - not ideal...
+) : MenuController {
     private val application = context.applicationContext as Application
     private val handler = Handler(Looper.getMainLooper())
     private val sequenceStates = mutableSetOf<Definition>()
 
-    private var listener: Application.ActivityLifecycleCallbacks? = null
+    private var keyEventListener: KeyEventListener? = null
     private var developerMenu: DeveloperMenu? = null
 
     operator fun plusAssign(sequenceDefinition: Definition) {
@@ -63,17 +63,15 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
 
     override fun attach(developerMenu: DeveloperMenu) {
         this.developerMenu = developerMenu
-        listener = application.registerActivityCallbacks(
-            // note: cant use function references due to https://youtrack.jetbrains.com/issue/KT-22736
-            onCreated = { activity, _ -> onActivityCreated(activity) },
-            onResumed = { onActivityResumed(it) }
-        )
+        keyEventListener = windowCallbacks.addKeyEventListener { event ->
+            onKeyEvent(event.action, event.keyCode)
+        }
     }
 
     override fun detach() {
-        listener?.unregister(application)
-        listener = null
         developerMenu = null
+        keyEventListener?.also { windowCallbacks -= it }
+        keyEventListener = null
     }
 
     override val title: String get() = application.getString(R.string.df_menu_key_sequence)
@@ -86,24 +84,6 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
                     it += application.getText(def.description)
                 }
             }
-
-    private fun onActivityCreated(activity: Activity) {
-        if (activity is FragmentActivity) {
-            activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
-                override fun onFragmentStarted(fm: FragmentManager, f: Fragment) {
-                    @Suppress("DEPRECATION")
-                    when (f) {
-                        is DialogFragment -> f.dialog?.window?.wrapCallbackIfNecessary()
-                        is android.app.DialogFragment -> f.dialog?.window?.wrapCallbackIfNecessary()
-                    }
-                }
-            }, false)
-        }
-    }
-
-    private fun onActivityResumed(activity: Activity) {
-        activity.window?.wrapCallbackIfNecessary()
-    }
 
     private fun onKeyEvent(action: Int, code: Int): Boolean {
         if (action != KeyEvent.ACTION_DOWN) return false
@@ -129,20 +109,6 @@ class KeySequence(context: Context, private val activityProvider: ActivityProvid
     override fun onDismissed() = resetAllSequences()
 
     private fun resetAllSequences() = sequenceStates.forEach { it.reset() }
-
-    private fun Window.wrapCallbackIfNecessary() {
-        if (callback !is WindowCallbackWrapper) callback = WindowCallbackWrapper(callback)
-    }
-
-    @SuppressLint("RestrictedApi")
-    private inner class WindowCallbackWrapper(callback: Window.Callback) : androidx.appcompat.view.WindowCallbackWrapper(callback) {
-        @SuppressLint("RestrictedApi")
-        override fun dispatchKeyEvent(event: KeyEvent): Boolean =
-            when {
-                onKeyEvent(event.action, event.keyCode) -> true
-                else -> super.dispatchKeyEvent(event)
-            }
-    }
 
     data class Definition(private val keyCodes: IntArray, @StringRes val description: Int, val consumeEvent: Boolean) {
         private var currIndex: Int = 0

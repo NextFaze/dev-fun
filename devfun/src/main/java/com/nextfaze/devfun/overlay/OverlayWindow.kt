@@ -23,6 +23,7 @@ import com.nextfaze.devfun.core.ForegroundTracker
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.error.ErrorHandler
+import com.nextfaze.devfun.internal.WindowCallbacks
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.pref.*
@@ -163,6 +164,7 @@ internal class OverlayWindowImpl(
     private val activityProvider: ActivityProvider,
     private val foregroundTracker: ForegroundTracker,
     private val displayBoundsTracker: DisplayBoundsTracker,
+    private val windowCallbacks: WindowCallbacks,
     @LayoutRes layoutId: Int,
     name: String,
     override val prefsName: String,
@@ -206,7 +208,7 @@ internal class OverlayWindowImpl(
 
     private val foregroundListener = foregroundTracker.addForegroundChangeListener { updateVisibility() }
     private val boundsListener = displayBoundsTracker.addDisplayBoundsChangeListener { _, bounds -> updateOverlayBounds(bounds) }
-    private val fullScreenLockListener = overlays.addFullScreenUsageStateListener { updateVisibility() }
+    private val activityWindowFocusChangeListener = windowCallbacks.addResumedActivityFocusChangeListener { updateVisibility() }
 
     private var permissionsListener: OverlayPermissionListener? = null
     private var addToWindow = false
@@ -240,7 +242,7 @@ internal class OverlayWindowImpl(
     }
 
     private fun shouldBeVisible() =
-        enabled && !(hideWhenDialogsPresent && overlays.isFullScreenInUse) && overlays.canDrawOverlays &&
+        enabled && !(hideWhenDialogsPresent && !windowCallbacks.resumedActivityHasFocus) && overlays.canDrawOverlays &&
                 when (visibilityScope) {
                     VisibilityScope.FOREGROUND_ONLY -> {
                         val activity = activityProvider()
@@ -484,7 +486,7 @@ internal class OverlayWindowImpl(
     override fun dispose() {
         foregroundTracker -= foregroundListener
         displayBoundsTracker -= boundsListener
-        overlays -= fullScreenLockListener
+        windowCallbacks -= activityWindowFocusChangeListener
     }
 
     override val configurationOptions: List<UiField<*>>

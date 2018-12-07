@@ -16,9 +16,9 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.textfield.TextInputLayout
+import com.nextfaze.devfun.DebugException
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.error.ErrorHandler
-import com.nextfaze.devfun.DebugException
 import com.nextfaze.devfun.internal.android.*
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.splitCamelCase
@@ -28,7 +28,6 @@ import com.nextfaze.devfun.invoke.view.WithValue
 import com.nextfaze.devfun.invoke.view.simple.ErrorParameterView
 import com.nextfaze.devfun.invoke.view.simple.InjectedParameterView
 import com.nextfaze.devfun.invoke.view.types.getTypeOrNull
-import com.nextfaze.devfun.overlay.OverlayManager
 import kotlinx.android.synthetic.main.df_devfun_invoker_dialog_fragment.*
 
 internal class InvokingDialogFragment : BaseDialogFragment() {
@@ -47,7 +46,6 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
 
     private val devFun = com.nextfaze.devfun.core.devFun
     private val errorHandler by lazy { devFun.get<ErrorHandler>() }
-    private val overlays by lazy { devFun.get<OverlayManager>() }
 
     private var canExecute = true
 
@@ -91,15 +89,6 @@ internal class InvokingDialogFragment : BaseDialogFragment() {
     override fun onResume() {
         super.onResume()
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        overlays.notifyUsingFullScreen(this)
-    }
-
-    override fun onPerformDismiss() {
-        overlays.notifyFinishUsingFullScreen(this)
     }
 
     private fun performOnViewCreated() {
