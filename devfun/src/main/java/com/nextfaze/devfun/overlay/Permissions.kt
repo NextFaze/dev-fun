@@ -145,7 +145,7 @@ internal class OverlayPermissionsImpl(
     override val canDrawOverlays: Boolean
         get() = when {
             Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(application) -> true
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.O -> forceCheckPermissionsEnabled()
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> forceCheckPermissionsEnabled()
             else -> false
         }
 
@@ -183,12 +183,14 @@ internal class OverlayPermissionsImpl(
     }
 
     /**
-     * Forcefully check if we have permissions on SDK 26
+     * Forcefully check if we have permissions on SDK 26+
      *
      * See
      * - https://stackoverflow.com/questions/46187625/settings-candrawoverlayscontext-returns-false-on-android-oreo
      * - https://stackoverflow.com/questions/46173460/why-in-android-o-method-settings-candrawoverlays-returns-false-when-user-has
      * - https://issuetracker.google.com/issues/66072795
+     *
+     * Note: Also encountered with SDK 28.
      */
     @TargetApi(Build.VERSION_CODES.O)
     private fun forceCheckPermissionsEnabled() =
