@@ -64,7 +64,7 @@ data class AndroidDependencies(val agpVersion: String) {
     val gradlePlugin = "com.android.tools.build:gradle:$agpVersion"
 }
 
-data class KotlinDependencies(val version: String, val coroutinesVersion: String = "1.0.0") {
+data class KotlinDependencies(val version: String, val coroutinesVersion: String = "1.0.1") {
     val gradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$version"
     val gradlePluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$version"
     val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$version"
