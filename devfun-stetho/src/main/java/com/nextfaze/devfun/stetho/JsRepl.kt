@@ -33,7 +33,6 @@ fun buildJsRuntime(context: Context, activityProvider: ActivityProvider, devFun:
     TrackingJsRuntimeReplFactoryBuilder(context).apply {
         importPackage("android.os")
         importPackage("android.view")
-        importPackage("android.support.v4.view")
         importPackage("android.widget")
 
         addVariable("handler", handler)
