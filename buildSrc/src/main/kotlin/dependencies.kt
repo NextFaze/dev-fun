@@ -25,7 +25,7 @@ object Dependency {
 
     const val javaxInject = "javax.inject:javax.inject:1"
 
-    const val daggerVersion = "2.17"
+    const val daggerVersion = "2.19"
     fun dagger(version: String = daggerVersion) = "com.google.dagger:dagger:$version"
     fun daggerCompiler(version: String = daggerVersion) = "com.google.dagger:dagger-compiler:$version"
     val dagger = dagger()
@@ -51,8 +51,8 @@ object Dependency {
 data class AndroidDependencies(val agpVersion: String) {
     val ktx = "androidx.core:core-ktx:1.0.0"
     val recyclerView = "androidx.recyclerview:recyclerview:1.0.0"
-    val appCompat = "androidx.appcompat:appcompat:1.0.0"
-    val annotations = "androidx.annotation:annotation:1.0.0"
+    val appCompat = "androidx.appcompat:appcompat:1.0.2"
+    val annotations = "androidx.annotation:annotation:1.0.1"
     val constraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
     val design = "com.google.android.material:material:1.0.0"
     val multidex = "androidx.multidex:multidex:2.0.0"
