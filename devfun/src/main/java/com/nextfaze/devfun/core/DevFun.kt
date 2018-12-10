@@ -316,7 +316,7 @@ class DevFun {
             this += singletonInstance<ViewFactoryProvider> { get<CompositeViewFactoryProvider>() }
 
             // Parameter View Factories
-            this += singletonInstance<CompositeParameterViewFactoryProvider> { DefaultCompositeParameterViewFactoryProvider() }
+            this += singletonInstance<CompositeParameterViewFactoryProvider> { DefaultCompositeParameterViewFactoryProvider(this@DevFun) }
             this += singletonInstance<ParameterViewFactoryProvider> { get<CompositeParameterViewFactoryProvider>() }
 
             // Custom Transformers

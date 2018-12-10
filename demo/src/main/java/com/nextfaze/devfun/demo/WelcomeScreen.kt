@@ -19,6 +19,7 @@ import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.invoke.view.ColorPicker
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.ValueSource
+import com.nextfaze.devfun.invoke.view.Values
 import com.nextfaze.devfun.reference.DeveloperLogger
 import com.uber.autodispose.android.lifecycle.scope
 import com.uber.autodispose.kotlin.autoDisposable
@@ -101,6 +102,24 @@ class WelcomeFragment : BaseFragment() {
     @DeveloperFunction
     @Suppress("UNUSED_PARAMETER")
     private fun invokeUiWithMissingType(context: Context, anIntParam: Int, anEnumParam: SomeEnum, someType: SomeType) = Unit
+
+    data class SomeObject(val hello: String)
+
+    private val listItems = listOf(SomeObject("hello"), SomeObject("world"))
+
+    @Constructable
+    private inner class SomeObjects : ValueSource<List<SomeObject>> {
+        override val value get() = listItems
+    }
+
+    @Constructable
+    private inner class InitialSelected : ValueSource<SomeObject> {
+        override val value get() = listItems.last()
+    }
+
+    @DeveloperFunction
+    private fun invokeUiWithList(@Values(SomeObjects::class) @From(InitialSelected::class) someObject: SomeObject) =
+        Toast.makeText(activity!!, "selected=$someObject", Toast.LENGTH_LONG).show()
 }
 
 /**

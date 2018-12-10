@@ -3,6 +3,7 @@ package com.nextfaze.devfun.invoke
 import android.view.View
 import com.nextfaze.devfun.core.Composite
 import com.nextfaze.devfun.core.Composited
+import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.invoke.view.From
 import com.nextfaze.devfun.invoke.view.ValueSource
@@ -10,6 +11,7 @@ import com.nextfaze.devfun.invoke.view.types.BooleanParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.DateParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.EnumParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.EnumSetParameterViewFactoryProvider
+import com.nextfaze.devfun.invoke.view.types.IterableParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.RangedNumberParameterViewFactoryProvider
 import com.nextfaze.devfun.invoke.view.types.StringOrNumberParameterViewFactoryProvider
 import com.nextfaze.devfun.view.ViewFactory
@@ -116,7 +118,7 @@ interface ParameterViewFactoryProvider {
  */
 interface CompositeParameterViewFactoryProvider : ParameterViewFactoryProvider, Composite<ParameterViewFactoryProvider>
 
-internal class DefaultCompositeParameterViewFactoryProvider : CompositeParameterViewFactoryProvider,
+internal class DefaultCompositeParameterViewFactoryProvider(devFun: DevFun) : CompositeParameterViewFactoryProvider,
     Composited<ParameterViewFactoryProvider>() {
     private val log = logger()
 
@@ -127,6 +129,7 @@ internal class DefaultCompositeParameterViewFactoryProvider : CompositeParameter
         this += StringOrNumberParameterViewFactoryProvider()
         this += RangedNumberParameterViewFactoryProvider()
         this += DateParameterViewFactoryProvider()
+        this += IterableParameterViewFactoryProvider(devFun)
     }
 
     override fun get(parameter: Parameter): ViewFactory<View>? {
