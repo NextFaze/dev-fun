@@ -2,7 +2,7 @@
 
 # FOREGROUND_ONLY
 
-`FOREGROUND_ONLY` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L53)
+`FOREGROUND_ONLY` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/overlay/OverlayWindow.kt#L54)
 
 Only visible when the app is in the foreground.
 

@@ -2,9 +2,9 @@
 
 # ValueSource
 
-`interface ValueSource<out V : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/invoke/view/ValueSource.kt#L40)
+`interface ValueSource<out V : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-annotations/src/main/java/com/nextfaze/devfun/invoke/view/ValueSource.kt#L42)
 
-Used in conjunction with [From](../-from/index.md) to allow the Invoke UI to provide an initial value.
+Used in conjunction with [From](../-from/index.md) or [Values](../-values/index.md) to provide the Invoke UI with an initial value or set of values.
 
 Example usage from DevMenu (~line 215 in `com.nextfaze.devfun.menu.controllers.Cog.kt`):
 

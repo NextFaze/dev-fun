@@ -2,7 +2,7 @@
 
 # &lt;init&gt;
 
-`KeySequence(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.core/-activity-provider.md)`)`
+`KeySequence(context: `[`Context`](https://developer.android.com/reference/android/content/Context.html)`, activityProvider: `[`ActivityProvider`](../../com.nextfaze.devfun.core/-activity-provider.md)`, windowCallbacks: `[`WindowCallbacks`](../../com.nextfaze.devfun.internal/-window-callbacks/index.md)` = devFun.get())`
 
 Allows toggling the Developer Menu using button/key sequences.
 

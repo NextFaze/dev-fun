@@ -2,7 +2,7 @@
 
 # WithInitialValue
 
-`interface WithInitialValue<out T>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/View.kt#L60)
+`interface WithInitialValue<out T>` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/View.kt#L62)
 
 [Parameter](../-parameter/index.md) objects that implement this will use the value provided by [WithInitialValue.value](value.md) rather than checking
 for an @[From](../../com.nextfaze.devfun.invoke.view/-from/index.md) annotation.

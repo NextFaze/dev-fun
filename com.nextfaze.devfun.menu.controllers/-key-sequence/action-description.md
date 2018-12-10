@@ -2,7 +2,7 @@
 
 # actionDescription
 
-`val actionDescription: `[`SpannableStringBuilder`](https://developer.android.com/reference/android/text/SpannableStringBuilder.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L80)
+`val actionDescription: `[`SpannableStringBuilder`](https://developer.android.com/reference/android/text/SpannableStringBuilder.html)`?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-menu/src/main/java/com/nextfaze/devfun/menu/controllers/Sequence.kt#L78)
 
 Overrides [MenuController.actionDescription](../../com.nextfaze.devfun.menu/-menu-controller/action-description.md)
 

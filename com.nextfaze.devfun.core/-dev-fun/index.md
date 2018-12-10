@@ -2,7 +2,7 @@
 
 # DevFun
 
-`class DevFun` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L164)
+`class DevFun` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L165)
 
 Primary entry point and initializer of DevFun and associated libraries.
 

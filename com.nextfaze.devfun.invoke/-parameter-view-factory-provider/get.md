@@ -2,7 +2,7 @@
 
 # get
 
-`abstract operator fun get(parameter: `[`Parameter`](../-parameter/index.md)`): `[`ViewFactory`](../../com.nextfaze.devfun.view/-view-factory/index.md)`<`[`View`](https://developer.android.com/reference/android/view/View.html)`>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/View.kt#L106)
+`abstract operator fun get(parameter: `[`Parameter`](../-parameter/index.md)`): `[`ViewFactory`](../../com.nextfaze.devfun.view/-view-factory/index.md)`<`[`View`](https://developer.android.com/reference/android/view/View.html)`>?` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/invoke/View.kt#L108)
 
 Get a view factory for some function parameter.
 

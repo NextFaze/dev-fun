@@ -14,4 +14,4 @@
 | Name | Summary |
 |---|---|
 | [threadLocal](thread-local.md) | `fun <T> threadLocal(initializer: () -> `[`T`](thread-local.md#T)`): `[`ThreadLocalDelegate`](-thread-local-delegate/index.md)`<`[`T`](thread-local.md#T)`>` |
-| [weak](weak.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> weak(): `[`WeakProperty`](-weak-property/index.md)`<`[`T`](weak.md#T)`>` |
+| [weak](weak.md) | `fun <T : `[`Any`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)`> weak(initialValue: `[`T`](weak.md#T)`? = null): `[`WeakProperty`](-weak-property/index.md)`<`[`T`](weak.md#T)`>` |

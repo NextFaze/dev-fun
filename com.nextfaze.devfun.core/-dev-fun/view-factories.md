@@ -2,7 +2,7 @@
 
 # viewFactories
 
-`val viewFactories: `[`CompositeViewFactoryProvider`](../../com.nextfaze.devfun.view/-composite-view-factory-provider.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L239)
+`val viewFactories: `[`CompositeViewFactoryProvider`](../../com.nextfaze.devfun.view/-composite-view-factory-provider.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun/src/main/java/com/nextfaze/devfun/core/DevFun.kt#L241)
 
 Composite list of all [ViewFactoryProvider](../../com.nextfaze.devfun.view/-view-factory-provider/index.md)s.
 
