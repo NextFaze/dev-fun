@@ -74,7 +74,7 @@ See the documentation for advanced usage, including custom names, custom argumen
 #### Project Setup
 - **REQUIRED** Android Gradle 3.0.0+ (due to [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589))
 - Recommended to use Kotlin 1.3.0, though should work on previous versions _(somewhat untested)_
-- Recommended to use KAPT3 (`plugins { kotlin("kapt") }`), though KAPT1 also works
+- Recommended to use KAPT3 (`plugins { id("kotlin-kapt") }`), though KAPT1 also works
 - Compiled with `minSdkVersion` >= 15
 - Built against **AndroidX 1.0.0** (this is equivalent to Android Support libraries 28.0.0)  
   See [Migrating to AndroidX](https://developer.android.com/jetpack/androidx/migrate) for more information (it's actually quite easy).  
