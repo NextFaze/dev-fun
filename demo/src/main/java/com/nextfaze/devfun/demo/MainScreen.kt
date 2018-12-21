@@ -13,6 +13,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.nextfaze.devfun.demo.inject.ActivityInjector
 import com.nextfaze.devfun.demo.kotlin.startActivity
 import com.nextfaze.devfun.function.DeveloperFunction
+import com.nextfaze.devfun.inject.Constructable
+import com.nextfaze.devfun.invoke.view.From
+import com.nextfaze.devfun.invoke.view.ValueSource
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.main_activity.*
@@ -96,4 +99,18 @@ class MainActivity : BaseActivity() {
     private fun doubleHelloWorld() {
         helloWorldTextView.text = helloWorldTextView.text.toString() + " " + helloWorldTextView.text
     }
+
+    private data class SomeType(val string: String)
+
+    @Constructable
+    private class CurrentSomeType : ValueSource<SomeType> {
+        override val value get() = SomeType("Hello World")
+    }
+
+    /**
+     * TODO This should be permitted but the instance provider system doesn't see the [From] annotation.
+     * TODO This should be tested from test module (along with other invoke UI behaviours).
+     */
+    @DeveloperFunction
+    private fun testFromInstanceResolution(@From(CurrentSomeType::class) someType: SomeType) = showToast("someType=$someType")
 }

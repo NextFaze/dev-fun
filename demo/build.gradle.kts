@@ -63,6 +63,7 @@ dependencies {
     implementation(Dependency.kotlin.reflect)
     implementation(Dependency.kotlin.coroutines)
     implementation(Dependency.kotlin.coroutinesAndroid)
+    implementation(Dependency.kotlin.test)
 
     // Support libs
     implementation(Dependency.android.annotations)

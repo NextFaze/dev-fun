@@ -129,15 +129,19 @@ class DaggerInjectionTests {
             // i.e. if we're calling a function in the Fragment then we should be able to inject the non-scoped instances to the call.
             // We can't get the correct non-scoped instance when we don't know the context as there could be more than one instance etc.
             val testDevFunctions = listOf(
-//                    DaggerScopesActivity::testInjectableNotScopedWithZeroArgsConstructor,
-//                    DaggerScopesActivity::testInjectableNotScopedWithMultipleArgsConstructor,
-//                    DaggerScopesActivity::testInjectablePackagePrivateNotScoped,
-//                    DaggerScopesActivity::testInjectablePackagePrivateNotScopedWithArgs,
+//                DaggerScopesActivity::testQualifiedString1,
+//                DaggerScopesActivity::testQualifiedString2,
+//                DaggerScopesActivity::testQualifiedClasses,
+//                DaggerScopesActivity::testMultiset,
+//                DaggerScopesActivity::testInjectableNotScopedWithZeroArgsConstructor,
+//                DaggerScopesActivity::testInjectableNotScopedWithMultipleArgsConstructor,
+//                DaggerScopesActivity::testInjectablePackagePrivateNotScoped,
+//                DaggerScopesActivity::testInjectablePackagePrivateNotScopedWithArgs,
                 DaggerScopesActivity::testInjectablePackagePrivateRetainedViaAnnotation,
-//                    DaggerScopesFragment::testInjectableNotScopedWithZeroArgsConstructor,
-//                    DaggerScopesFragment::testInjectableNotScopedWithMultipleArgsConstructor,
-//                    DaggerScopesFragment::testInjectablePackagePrivateNotScoped,
-//                    DaggerScopesFragment::testInjectablePackagePrivateNotScopedWithArgs,
+//                DaggerScopesFragment::testInjectableNotScopedWithZeroArgsConstructor,
+//                DaggerScopesFragment::testInjectableNotScopedWithMultipleArgsConstructor,
+//                DaggerScopesFragment::testInjectablePackagePrivateNotScoped,
+//                DaggerScopesFragment::testInjectablePackagePrivateNotScopedWithArgs,
                 DaggerScopesFragment::testInjectablePackagePrivateRetainedViaAnnotation
             )
             val items = devFun.categories.flatMap { it.items }
@@ -147,7 +151,6 @@ class DaggerInjectionTests {
                 val item = items.single { it.function.clazz == clazz && it.function.method.name.startsWith(name) }
                 item.call()!!.exception?.run { throw this }
             }
-
         }
 
         val activity = activityRule.activity

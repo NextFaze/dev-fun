@@ -28,8 +28,10 @@ object Dependency {
     const val daggerVersion = "2.19"
     fun dagger(version: String = daggerVersion) = "com.google.dagger:dagger:$version"
     fun daggerCompiler(version: String = daggerVersion) = "com.google.dagger:dagger-compiler:$version"
+    fun daggerSpi(version: String = daggerVersion) = "com.google.dagger:dagger-spi:$version"
     val dagger = dagger()
     val daggerCompiler = daggerCompiler()
+    val daggerSpi = daggerSpi()
     const val daggerAnnotations = "org.glassfish:javax.annotation:10.0-b28"
 
     const val slf4jApi = "org.slf4j:slf4j-api:1.7.25"

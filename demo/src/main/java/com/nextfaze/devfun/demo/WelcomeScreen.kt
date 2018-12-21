@@ -39,6 +39,9 @@ class WelcomeActivity : BaseActivity() {
             setContentFragment { WelcomeFragment() }
         }
     }
+
+    @DeveloperFunction
+    private fun somePrivateDebugFunction() = showToast("hello world")
 }
 
 class WelcomeFragment : BaseFragment() {
