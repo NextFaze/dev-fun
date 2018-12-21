@@ -131,7 +131,7 @@ internal class DefaultInvoker(
                             DevFun > Misc > Reload Item Definitions""".trimIndent()
                     )
             val parameters = kFun.parameters.filter { it.kind == KParameter.Kind.VALUE }.map(::NativeParameter)
-            val invoke: SimpleInvoke = { it ->
+            val invoke: SimpleInvoke = {
                 log.d { "Invoke $item\nwith args: $it" }
                 item.invoke(item.receiverInstance(devFun.instanceProviders), it)
             }

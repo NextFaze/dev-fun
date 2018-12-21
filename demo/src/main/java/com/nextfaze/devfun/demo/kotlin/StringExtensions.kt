@@ -26,6 +26,5 @@ operator fun SpannableStringBuilder.plusAssign(span: Span) {
 }
 
 fun i(str: CharSequence) = str to listOf(StyleSpan(Typeface.ITALIC))
-fun i(span: Span) = span.first to span.second + StyleSpan(Typeface.ITALIC)
 fun scale(span: Span, scale: Float) = span.first to span.second + RelativeSizeSpan(scale)
 fun color(span: Span, @ColorInt color: Int) = span.first to span.second + ForegroundColorSpan(color)

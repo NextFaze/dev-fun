@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="7">
+    <list size="8">
       <item index="0" class="java.lang.String" itemvalue="com.google.auto.service.AutoService" />
       <item index="1" class="java.lang.String" itemvalue="com.nextfaze.devfun.category.DeveloperCategory" />
       <item index="2" class="java.lang.String" itemvalue="com.nextfaze.devfun.function.DeveloperArguments" />
@@ -9,6 +9,7 @@
       <item index="4" class="java.lang.String" itemvalue="com.nextfaze.devfun.function.DeveloperProperty" />
       <item index="5" class="java.lang.String" itemvalue="com.nextfaze.devfun.reference.DeveloperLogger" />
       <item index="6" class="java.lang.String" itemvalue="dagger.Provides" />
+      <item index="7" class="java.lang.String" itemvalue="org.gradle.api.tasks.TaskAction" />
     </list>
   </component>
   <component name="NullableNotNullManager">

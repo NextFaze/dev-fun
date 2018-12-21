@@ -44,6 +44,7 @@ inline fun Project.configureAndroidLib() {
     }
 }
 
+@Suppress("UnstableApiUsage")
 private inline fun Project.`androidExt`(noinline configure: BaseExtension.() -> Unit): Unit =
     (this as ExtensionAware).extensions.configure("android", configure)
 

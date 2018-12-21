@@ -65,6 +65,7 @@ dependencies {
     implementation(Dependency.kotlin.coroutinesAndroid)
 
     // Support libs
+    implementation(Dependency.android.annotations)
     implementation(Dependency.android.appCompat)
     implementation(Dependency.android.design)
     implementation(Dependency.android.constraintLayout)
@@ -104,7 +105,7 @@ dependencies {
     debugImplementation(project(":devfun-util-leakcanary"))
 
     // RxJava: Reactive Extensions for the JVM - https://github.com/ReactiveX/RxJava
-    implementation("io.reactivex.rxjava2:rxjava:2.2.2")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.4")
 
     // RxJava bindings for Android - https://github.com/ReactiveX/RxAndroid
     implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
@@ -120,8 +121,10 @@ dependencies {
     // Instrumentation tests
     androidTestImplementation(Dependency.kotlin.test)
 
+    androidTestImplementation(Dependency.android.testCoreKtx)
     androidTestImplementation(Dependency.android.testRules)
     androidTestImplementation(Dependency.android.testRunner)
+    androidTestImplementation(Dependency.android.testJUnitKtx)
     androidTestImplementation(Dependency.android.espressoCore)
 }
 

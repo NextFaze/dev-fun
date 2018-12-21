@@ -57,8 +57,10 @@ data class AndroidDependencies(val agpVersion: String) {
     val design = "com.google.android.material:material:1.0.0"
     val multidex = "androidx.multidex:multidex:2.0.0"
 
+    val testCoreKtx = "androidx.test:core-ktx:1.1.0"
     val testRules = "androidx.test:rules:1.1.0"
     val testRunner = "androidx.test:runner:1.1.0"
+    val testJUnitKtx = "androidx.test.ext:junit-ktx:1.1.0"
     val espressoCore = "androidx.test.espresso:espresso-core:3.1.0"
 
     val gradlePlugin = "com.android.tools.build:gradle:$agpVersion"

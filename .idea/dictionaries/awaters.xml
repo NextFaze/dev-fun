@@ -19,6 +19,7 @@
       <w>cmapx</w>
       <w>codegen</w>
       <w>colorpicker</w>
+      <w>constraintlayout</w>
       <w>constructables</w>
       <w>coroutines</w>
       <w>cpat</w>
@@ -66,6 +67,7 @@
       <w>martín</w>
       <w>matías</w>
       <w>memoized</w>
+      <w>messager</w>
       <w>metis</w>
       <w>morrisjs</w>
       <w>multidex</w>

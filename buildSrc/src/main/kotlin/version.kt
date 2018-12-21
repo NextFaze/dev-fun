@@ -6,6 +6,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.*
 import java.io.File
 
+@Suppress("unused")
 fun Project.createVersionFile(pkg: String = "com.nextfaze.${name.replace("-", ".")}") {
     val version = version.toString()
 

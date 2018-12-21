@@ -23,6 +23,4 @@ val <T : Any> Optional<T>.value: T?
 
 fun <T : Any> T?.toOptional(): Optional<T> = this?.let(::Some) ?: Optional.None
 
-fun <T : Any> Observable<Optional<T>>.filterPresent(): Observable<T> = ofType<Optional.Some<T>>().map { it.value }
-
 private inline fun <reified R : Any> Observable<*>.ofType(): Observable<R> = ofType(R::class.java)

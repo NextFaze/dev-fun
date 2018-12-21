@@ -2,8 +2,10 @@ package com.nextfaze.devfun.demo.test
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.nextfaze.devfun.core.call
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.demo.R
