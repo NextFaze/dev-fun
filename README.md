@@ -264,7 +264,7 @@ an existing annotation and change the retention.
 - [`@DeveloperReference`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-developer-reference/)
   Tags the element - retrieve later at run-time via `devFun.developerReferences<DeveloperReference>()` - in general you'll want to create
   your own annotation "tag".
-- [`@[Dagger2Component`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-dagger2-component/)
+- [`@Dagger2Component`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-dagger2-component/)
   Used in conjunction with dagger2 inject lib. Use it to tag functions/properties/extensions to tell DevFun how/where to get your components.
 - [`@DeveloperLogger`](https://nextfaze.github.io/dev-fun/com.nextfaze.devfun.reference/-developer-logger/)
   Results in a floating overlay they calls the function every 1 second (by default - long-press to change) showing the `.toString()` of the
