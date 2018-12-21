@@ -59,7 +59,7 @@ internal class DefaultCompositeInstanceProvider(cacheLevel: CacheLevel) : Compos
     private val errorHandler by lazy { get(ErrorHandler::class) }
 
     @DeveloperProperty(category = DeveloperCategory(group = "Instance Providers"))
-    private var caching: CacheLevel = cacheLevel
+    private var typeCaching: CacheLevel = cacheLevel
 
     private val aggressiveCachingProvider by lazy { AggressiveTypeCachingProvider(this) }
     private val singleLoopCachingProvider by lazy { SingleLoopTypeCachingProvider(this) }
@@ -67,7 +67,7 @@ internal class DefaultCompositeInstanceProvider(cacheLevel: CacheLevel) : Compos
     private val crumbs by threadLocal { mutableSetOf<Crumb>() }
 
     override fun <T : Any> get(clazz: KClass<out T>): T =
-        when (caching) {
+        when (typeCaching) {
             CacheLevel.AGGRESSIVE -> aggressiveCachingProvider[clazz]
             CacheLevel.SINGLE_LOOP -> singleLoopCachingProvider[clazz]
             CacheLevel.NONE -> getInstance(clazz, null)

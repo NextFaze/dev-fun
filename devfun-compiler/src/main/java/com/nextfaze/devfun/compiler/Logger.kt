@@ -2,7 +2,7 @@ package com.nextfaze.devfun.compiler
 
 import java.io.PrintWriter
 import java.io.StringWriter
-import javax.annotation.processing.ProcessingEnvironment
+import javax.annotation.processing.Messager
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.AnnotationMirror
@@ -20,9 +20,9 @@ internal interface Logger {
 internal val Throwable.stackTraceAsString get() = StringWriter().apply { printStackTrace(PrintWriter(this)) }.toString()
 
 @Singleton
-internal class Logging @Inject constructor(private val env: ProcessingEnvironment, private val options: Options) {
+internal class Logging @Inject constructor(private val messager: Messager, private val options: Options) {
 
-    fun create(ref: Any): Logger = LoggerImpl(env, ref::class.qualifiedName.toString(), options.promoteNoteMessages)
+    fun create(ref: Any): Logger = LoggerImpl(messager, ref::class.qualifiedName.toString(), options.promoteNoteMessages)
 
     operator fun invoke() =
         object : ReadOnlyProperty<Any, Logger> {
@@ -30,9 +30,9 @@ internal class Logging @Inject constructor(private val env: ProcessingEnvironmen
         }
 }
 
-private class LoggerImpl(private val env: ProcessingEnvironment, private val ref: String, private val noteAsWarning: Boolean) : Logger {
+private class LoggerImpl(private val messager: Messager, private val ref: String, private val noteAsWarning: Boolean) : Logger {
     override fun note(element: Element?, annotationMirror: AnnotationMirror?, body: () -> String) =
-        env.messager.printMessage(
+        messager.printMessage(
             if (noteAsWarning) Diagnostic.Kind.MANDATORY_WARNING else Diagnostic.Kind.NOTE,
             "$ref: ${body()}",
             element,
@@ -40,7 +40,7 @@ private class LoggerImpl(private val env: ProcessingEnvironment, private val ref
         )
 
     override fun warn(element: Element?, annotationMirror: AnnotationMirror?, body: () -> String) =
-        env.messager.printMessage(
+        messager.printMessage(
             Diagnostic.Kind.MANDATORY_WARNING,
             "$ref: ${body()}",
             element,
@@ -48,7 +48,7 @@ private class LoggerImpl(private val env: ProcessingEnvironment, private val ref
         )
 
     override fun error(element: Element?, annotationMirror: AnnotationMirror?, body: () -> String) =
-        env.messager.printMessage(
+        messager.printMessage(
             Diagnostic.Kind.ERROR,
             "$ref: ${body()}",
             element,

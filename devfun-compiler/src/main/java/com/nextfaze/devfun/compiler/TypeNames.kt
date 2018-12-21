@@ -14,4 +14,5 @@ internal object TypeNames {
     val enumStar = enum.parameterizedBy(STAR)
     val array = Array<Any>::class.asTypeName()
     val nothing = ClassName("kotlin", "Nothing")
+    val string = String::class.asTypeName()
 }

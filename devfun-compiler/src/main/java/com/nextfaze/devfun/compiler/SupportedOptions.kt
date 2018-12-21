@@ -1,6 +1,5 @@
 package com.nextfaze.devfun.compiler
 
-import javax.annotation.processing.ProcessingEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.Element
@@ -10,9 +9,9 @@ import javax.lang.model.util.Elements
 @Singleton
 internal class Options @Inject constructor(
     override val elements: Elements,
-    private val env: ProcessingEnvironment
+    private val options: Map<String, String>
 ) : WithElements {
-    private fun String.optionOf(): String? = env.options[this]?.trim()?.takeIf { it.isNotBlank() }
+    private fun String.optionOf(): String? = options[this]?.trim()?.takeIf { it.isNotBlank() }
     private fun String.booleanOf(default: Boolean = false): Boolean = optionOf()?.toBoolean() ?: default
 
     val useKotlinReflection = FLAG_USE_KOTLIN_REFLECTION.booleanOf()

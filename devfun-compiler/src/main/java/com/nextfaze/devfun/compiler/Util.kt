@@ -9,16 +9,17 @@ import javax.lang.model.util.Elements
 
 
 /** Same as `Iterable.joinToString` but returns and empty string if [List] is empty. (i.e. wont include [prefix] or [postfix]). */
-internal fun <T> List<T>.joiner(
+internal fun <T> Collection<T>.joiner(
     separator: CharSequence = ", ",
     prefix: CharSequence = "",
     postfix: CharSequence = "",
     limit: Int = -1,
     truncated: CharSequence = "...",
+    ifEmpty: String = "",
     transform: ((T) -> CharSequence)? = null
 ) =
     when {
-        isEmpty() -> ""
+        isEmpty() -> ifEmpty
         else -> joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
     }
 

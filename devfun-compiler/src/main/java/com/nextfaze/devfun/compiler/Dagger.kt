@@ -9,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
+import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
 import javax.inject.Singleton
 import javax.lang.model.util.Elements
@@ -21,7 +22,8 @@ internal interface ApplicationComponent : Injector
 
 @Module
 internal class MainModule(private val env: ProcessingEnvironment) {
-    @Provides fun processingEnvironment() = env
+    @Provides fun options(): Map<String, String> = env.options
+    @Provides fun messager(): Messager = env.messager
     @Provides fun filer(): Filer = env.filer
     @Provides fun elements(): Elements = env.elementUtils
     @Provides fun types(): Types = env.typeUtils
