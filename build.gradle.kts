@@ -28,6 +28,7 @@ registerDependencies()
 
 plugins {
     `build-scan`
+    idea
 }
 
 buildScan {
@@ -71,4 +72,10 @@ val cleanRoot = task<Delete>("cleanRoot") {
 }
 getTasksByName("clean", true).forEach {
     it.dependsOn(cleanRoot)
+}
+
+idea {
+    module {
+        excludeDirs = excludeDirs + file("_working")
+    }
 }
