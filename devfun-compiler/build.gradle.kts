@@ -47,6 +47,7 @@ dependencies {
     // Dagger
     kapt(Dependency.daggerCompiler)
     implementation(Dependency.dagger)
+    implementation(Dependency.daggerSpi)
     compileOnly(Dependency.daggerAnnotations)
 
     // Google AutoService - https://github.com/google/auto/tree/master/service

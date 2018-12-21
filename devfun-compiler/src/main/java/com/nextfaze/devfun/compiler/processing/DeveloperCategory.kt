@@ -8,15 +8,17 @@ import com.nextfaze.devfun.compiler.Options
 import com.nextfaze.devfun.compiler.StringPreprocessor
 import com.nextfaze.devfun.compiler.applyNotNull
 import com.nextfaze.devfun.generated.DevFunGenerated
-import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.buildCodeBlock
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import kotlin.collections.set
-import kotlin.reflect.KClass
 
 @Singleton
 internal class DeveloperCategoryHandler @Inject constructor(
@@ -37,26 +39,21 @@ internal class DeveloperCategoryHandler @Inject constructor(
     private var simpleCategoryDefinitionUsed = false
     private val simpleCategoryDefinitionName = ClassName.bestGuess("SimpleCategoryDefinition")
     private val simpleCategoryDefinition by lazy {
-        val kClassType = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.STAR).asNullable()
-        val stringType = String::class.asTypeName().asNullable()
-        val intType = Int::class.asTypeName().asNullable()
-
-        TypeSpec.classBuilder(simpleCategoryDefinitionName)
-            .addSuperinterface(CategoryDefinition::class)
-            .addModifiers(KModifier.PRIVATE, KModifier.DATA)
-            .primaryConstructor(
-                FunSpec.constructorBuilder()
-                    .addParameter(ParameterSpec.builder("clazz", kClassType, KModifier.OVERRIDE).defaultValue("null").build())
-                    .addParameter(ParameterSpec.builder("name", stringType, KModifier.OVERRIDE).defaultValue("null").build())
-                    .addParameter(ParameterSpec.builder("group", stringType, KModifier.OVERRIDE).defaultValue("null").build())
-                    .addParameter(ParameterSpec.builder("order", intType, KModifier.OVERRIDE).defaultValue("null").build())
-                    .build()
-            )
-            .addProperty(PropertySpec.builder("clazz", kClassType).initializer("clazz").build())
-            .addProperty(PropertySpec.builder("name", stringType).initializer("name").build())
-            .addProperty(PropertySpec.builder("group", stringType).initializer("group").build())
-            .addProperty(PropertySpec.builder("order", intType).initializer("order").build())
-            .build()
+        CategoryDefinition::class.toDataClassTypeSpec(simpleCategoryDefinitionName).build()
+//        val kClassType = KClass::class.asTypeName().parameterizedBy(WildcardTypeName.STAR).asNullable()
+//        val stringType = String::class.asTypeName().asNullable()
+//        val intType = Int::class.asTypeName().asNullable()
+//
+//        TypeSpec.classBuilder(simpleCategoryDefinitionName)
+//            .addSuperinterface(CategoryDefinition::class)
+//            .addModifiers(KModifier.PRIVATE, KModifier.DATA)
+//            .setConstructorParams(
+//                CtorParam("clazz", kClassType, "null"),
+//                CtorParam("name", stringType, "null"),
+//                CtorParam("group", stringType, "null"),
+//                CtorParam("order", intType, "null")
+//            )
+//            .build()
     }
 
     override fun processAnnotatedElement(annotatedElement: AnnotatedElement, env: RoundEnvironment) {

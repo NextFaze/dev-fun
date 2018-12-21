@@ -11,17 +11,20 @@ import androidx.fragment.app.FragmentActivity
 import com.google.auto.service.AutoService
 import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.core.AbstractDevFunModule
-import com.nextfaze.devfun.core.ActivityProvider
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
 import com.nextfaze.devfun.core.devFun
 import com.nextfaze.devfun.core.isDevFunInitialized
+import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.inject.ConstructingInstanceProvider
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.inject.dagger.DaggerSpiGraph
 import com.nextfaze.devfun.inject.isSubclassOf
+import com.nextfaze.devfun.internal.ParameterInstanceProvider
 import com.nextfaze.devfun.internal.ReflectedMethod
 import com.nextfaze.devfun.internal.android.*
+import com.nextfaze.devfun.internal.loadServices
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.string.*
 import com.nextfaze.devfun.internal.toReflected
@@ -43,6 +46,7 @@ import javax.inject.Scope
 import javax.inject.Singleton
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
 
 private val log = logger("${BuildConfig.APPLICATION_ID}.instances")
 
@@ -303,17 +307,20 @@ class InjectFromDagger2 : AbstractDevFunModule() {
     override fun init(context: Context) {
         val application = context.applicationContext as Application
         val androidInstanceProvider = devFun.get<AndroidInstanceProviderInternal>()
-        val provider = Dagger2AnnotatedInstanceProvider(devFun, androidInstanceProvider).takeIf { it.hasComponents }
-                ?: Dagger2ReflectiveInstanceProvider(application, get(), androidInstanceProvider)
+        val errorHandler = devFun.get<ErrorHandler>()
+        val provider = Dagger2AnnotatedInstanceProvider(devFun, application, errorHandler, androidInstanceProvider).takeIf { it.hasComponents }
+                ?: Dagger2ReflectiveInstanceProvider(application, errorHandler, androidInstanceProvider)
         devFun.instanceProviders += provider.also {
             log.d { "InjectFromDagger2 using instance provider $it" }
             instanceProvider = it
         }
+        devFun.parameterProviders += provider
     }
 
     override fun dispose() {
         instanceProvider?.let {
             devFun.instanceProviders -= it
+            devFun.parameterProviders -= it
             instanceProvider = null
         }
     }
@@ -335,8 +342,10 @@ class InjectFromDagger2 : AbstractDevFunModule() {
 }
 
 abstract class Dagger2InstanceProvider(
-    val androidInstances: AndroidInstanceProviderInternal
-) : InstanceProvider {
+    protected val app: Application,
+    private val errorHandler: ErrorHandler,
+    protected val androidInstances: AndroidInstanceProviderInternal
+) : InstanceProvider, ParameterInstanceProvider {
     @Suppress("MemberVisibilityCanBePrivate")
     var deferToAndroidInstanceProvider: Boolean = true
 
@@ -346,13 +355,28 @@ abstract class Dagger2InstanceProvider(
             else -> null
         }
 
+    override fun <T : Any> get(parameter: KParameter): T? {
+        return null
+    }
+
     abstract fun description(): CharSequence
+
+    private fun loadSpiGraph() {
+        val graphs = loadServices(DaggerSpiGraph::class, app, errorHandler).toList()
+        if (graphs.isEmpty()) return
+
+        val scopes = graphs.flatMap { it.components.flatMap { it.scopes } }.toSet()
+
+        val qualifiedNodes = graphs.flatMap { it.bindingNodes.filter { it.key.startsWith('@') } }
+    }
 }
 
 private class Dagger2AnnotatedInstanceProvider(
-    private val devFun: DevFun,
+    devFun: DevFun,
+    app: Application,
+    errorHandler: ErrorHandler,
     androidInstances: AndroidInstanceProviderInternal
-) : Dagger2InstanceProvider(androidInstances) {
+) : Dagger2InstanceProvider(app, errorHandler, androidInstances) {
     private val log = logger()
 
     private data class ComponentReference(
@@ -505,10 +529,10 @@ private class Dagger2AnnotatedInstanceProvider(
 }
 
 private class Dagger2ReflectiveInstanceProvider(
-    private val app: Application,
-    private val activityProvider: ActivityProvider,
+    app: Application,
+    errorHandler: ErrorHandler,
     androidInstances: AndroidInstanceProviderInternal
-) : Dagger2InstanceProvider(androidInstances) {
+) : Dagger2InstanceProvider(app, errorHandler, androidInstances) {
     private val log = logger()
     private var applicationComponents: List<Any>? = null
 
@@ -522,7 +546,7 @@ private class Dagger2ReflectiveInstanceProvider(
             tryGetInstanceFromComponent(component, clazz)?.let { return it }
         }
 
-        activityProvider()?.let { activity ->
+        androidInstances.activity?.let { activity ->
             tryGetComponents(activity, required = false).forEach { component ->
                 tryGetInstanceFromComponent(component, clazz)?.let { return it }
             }

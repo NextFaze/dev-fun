@@ -1,12 +1,25 @@
 package com.nextfaze.devfun.compiler.processing
 
-import com.nextfaze.devfun.compiler.*
+import com.nextfaze.devfun.compiler.Options
+import com.nextfaze.devfun.compiler.StringPreprocessor
+import com.nextfaze.devfun.compiler.WithElements
+import com.nextfaze.devfun.compiler.escapeDollar
+import com.nextfaze.devfun.compiler.getAnnotation
+import com.nextfaze.devfun.compiler.isPublic
+import com.nextfaze.devfun.compiler.joiner
+import com.nextfaze.devfun.compiler.stripInternal
+import com.nextfaze.devfun.compiler.toKClassBlock
 import com.squareup.kotlinpoet.*
 import javax.annotation.processing.RoundEnvironment
-import javax.lang.model.element.*
+import javax.lang.model.element.AnnotationMirror
+import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
+import kotlin.reflect.full.memberProperties
 
 internal interface Processor : WithElements {
     val preprocessor: StringPreprocessor
@@ -88,6 +101,35 @@ internal interface AnnotationProcessor : Processor {
             )
         }
     }
+
+    fun TypeSpec.Builder.setConstructorParams(vararg params: CtorParam) =
+        primaryConstructor(
+            FunSpec.constructorBuilder().addParameters(
+                params.map {
+                    ParameterSpec.builder(it.name, it.type, KModifier.OVERRIDE).apply {
+                        if (it.defaultValue != null) {
+                            defaultValue(it.defaultValue)
+                        }
+                    }.build()
+                }
+            ).build()
+        ).addProperties(
+            params.map {
+                PropertySpec.builder(it.name, it.type, KModifier.OVERRIDE).initializer(it.name).build()
+            }
+        )
+
+    fun KClass<*>.toDataClassTypeSpec(name: ClassName) =
+        TypeSpec.classBuilder(name)
+            .addModifiers(KModifier.PRIVATE, KModifier.DATA)
+            .addSuperinterface(this)
+            .setConstructorParams(
+                *memberProperties.map {
+                    val type = it.returnType
+                    val typeName = if (type.isMarkedNullable) type.asTypeName().asNullable() else type.asTypeName()
+                    CtorParam(it.name, typeName, if (type.isMarkedNullable) "null" else null)
+                }.sortedBy { it.name }.toTypedArray()
+            )
 }
 
 internal data class AnnotatedElement(
@@ -99,3 +141,9 @@ internal data class AnnotatedElement(
 ) {
     val annotation: AnnotationMirror = element.getAnnotation(annotationElement)!!
 }
+
+internal data class CtorParam(
+    val name: String,
+    val type: TypeName,
+    val defaultValue: String? = null
+)

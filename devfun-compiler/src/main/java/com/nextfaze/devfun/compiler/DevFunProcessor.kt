@@ -357,7 +357,7 @@ class DevFunProcessor : DaggerProcessor() {
             .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE)
             .addMember(
                 "%L",
-                """"UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "REDUNDANT_PROJECTION", "USELESS_CAST", "PackageDirectoryMismatch", "PackageName""""
+                """"UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "REDUNDANT_PROJECTION", "USELESS_CAST", "PackageDirectoryMismatch", "PackageName", "NO_REFLECTION_IN_CLASS_PATH""""
             )
             .build()
 

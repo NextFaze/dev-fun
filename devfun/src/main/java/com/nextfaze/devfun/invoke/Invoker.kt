@@ -12,6 +12,7 @@ import com.nextfaze.devfun.function.FunctionItem
 import com.nextfaze.devfun.function.InvokeResult
 import com.nextfaze.devfun.inject.Constructable
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.internal.WithParameters
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.toSignatureString
 import kotlin.reflect.KClass
@@ -110,7 +111,14 @@ internal class DefaultInvoker(
 
         val instanceProvider = Checker()
         val receiver = item.receiverInstance(instanceProvider)
-        val args = item.parameterInstances(instanceProvider)
+
+        val args = if (item.function !is WithParameters) {
+            item.parameterInstances(instanceProvider)
+        } else {
+            (item.function as WithParameters).parameters.map {
+                devFun.parameterProviders[it] ?: instanceProvider[it.type.classifier as KClass<*>]
+            }
+        }
 
         if (haveAllInstances) {
             return try {

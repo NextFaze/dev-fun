@@ -2,6 +2,7 @@ package com.nextfaze.devfun.internal
 
 import android.content.Context
 import android.text.SpannableStringBuilder
+import androidx.annotation.RestrictTo
 import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.error.ErrorHandler
 import com.nextfaze.devfun.error.SimpleError
@@ -10,7 +11,8 @@ import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
-internal fun <T : Any> loadServices(clazz: KClass<T>, context: Context, errorHandler: ErrorHandler): Sequence<T> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun <T : Any> loadServices(clazz: KClass<T>, context: Context, errorHandler: ErrorHandler): Sequence<T> {
     fun Throwable.toLoaderError(body: CharSequence? = null) =
         SimpleError(
             this,

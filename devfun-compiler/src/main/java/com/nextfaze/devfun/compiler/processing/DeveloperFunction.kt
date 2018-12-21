@@ -5,6 +5,7 @@ import com.nextfaze.devfun.compiler.properties.ImplementationGenerator
 import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.function.FunctionDefinition
 import com.nextfaze.devfun.generated.DevFunGenerated
+import com.nextfaze.devfun.internal.WithParameters
 import com.nextfaze.devfun.reference.ReferenceDefinition
 import com.nextfaze.devfun.reference.WithProperties
 import com.squareup.kotlinpoet.*
@@ -17,6 +18,8 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.util.Elements
 import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.KType
 
 private const val RECEIVER_VAR_NAME = "receiver"
 private const val ARGS_VAR_NAME = "args"
@@ -31,6 +34,7 @@ internal class DeveloperFunctionHandler @Inject constructor(
     private val annotations: AnnotationElements,
     private val developerCategory: DeveloperCategoryHandler,
     private val implementationGenerator: ImplementationGenerator,
+    private val annotationGenerator: AnnotationGenerator,
     logging: Logging
 ) : AnnotationProcessor {
     private val log by logging()
@@ -88,12 +92,26 @@ internal class DeveloperFunctionHandler @Inject constructor(
 
     private val devFunClassElement = elements.getTypeElement(DeveloperFunction::class.qualifiedName).toClassElement()
 
+    private var kParamClassUsed = false
+    private val kParamClassName = ClassName.bestGuess("DfParam")
+    private val kParamClass by lazy { KParameter::class.toDataClassTypeSpec(kParamClassName).build() }
+
+    private var kTypeClassUsed = false
+    private val kTypeClassName = ClassName.bestGuess("DfType")
+    private val kTypeClass by lazy { KType::class.toDataClassTypeSpec(kTypeClassName).build() }
+
     override fun applyToFileSpec(fileSpec: FileSpec.Builder) {
         if (abstractFunctionDefinitionUsed) {
             fileSpec.addType(abstractFunctionDefinition)
         }
         if (privateObjectInstanceFuncUsed) {
             fileSpec.addProperty(privateObjectInstanceFunc)
+        }
+        if (kParamClassUsed) {
+            fileSpec.addType(kParamClass)
+        }
+        if (kTypeClassUsed) {
+            fileSpec.addType(kTypeClass)
         }
     }
 
@@ -232,6 +250,36 @@ internal class DeveloperFunctionHandler @Inject constructor(
 
         // Method reference
         def.addProperty(FunctionDefinition::method.toPropertySpec(lazy = element.toMethodRef(), kDoc = elementDesc).build())
+
+        // Function parameters
+        val params = element.parameters.mapIndexed { index, it ->
+            kParamClassUsed = true
+            kTypeClassUsed = true
+
+            val annotations = it.annotationMirrors.mapNotNull {
+                annotationGenerator.generateInstance(it)
+            }
+
+            CodeBlock.of(
+                "%N(index = %V, name = %V, type = %L, kind = %V, isOptional = false, isVararg = false, annotations = %L)",
+                kParamClassName.toString(),
+                index,
+                it.simpleName.toString(),
+                CodeBlock.of(
+                    "%N(classifier = %L, arguments = emptyList(), isMarkedNullable = false, annotations = emptyList())",
+                    kTypeClassName.toString(),
+                    it.asType().toKClassBlock()
+                ),
+                KParameter.Kind.VALUE,
+                annotations.toListOfBlock(Annotation::class)
+            )
+        }
+        def.addSuperinterface(WithParameters::class)
+            .addProperty(
+                WithParameters::parameters.toPropertySpec(
+                    lazy = CodeBlock.of("%L", params.toListOfBlock(KParameter::class))
+                ).build()
+            )
 
         // Call invocation
         val invocation = run generateInvocation@{

@@ -24,6 +24,7 @@ import com.nextfaze.devfun.function.DeveloperFunction
 import com.nextfaze.devfun.function.PropertyTransformer
 import com.nextfaze.devfun.generated.DevFunGenerated
 import com.nextfaze.devfun.inject.*
+import com.nextfaze.devfun.internal.ParameterInstanceProvider
 import com.nextfaze.devfun.internal.WindowCallbacks
 import com.nextfaze.devfun.internal.log.*
 import com.nextfaze.devfun.internal.string.*
@@ -173,6 +174,7 @@ class DevFun {
     private val definitionsLoader = DefinitionsLoader(this)
     private val initializationCallbacks = mutableListOf<OnInitialized>()
     private val rootInstanceProvider = DefaultCompositeInstanceProvider(CacheLevel.AGGRESSIVE)
+    private val rootParameterInstanceProvider = DefaultCompositeParameterInstanceProvider(CacheLevel.AGGRESSIVE, this)
     private val definitionsProcessor = DefinitionsProcessor(this)
 
     private var _application: Application? = null
@@ -189,6 +191,19 @@ class DevFun {
      * @see instanceOf
      */
     val instanceProviders: CompositeInstanceProvider = rootInstanceProvider
+
+    /**
+     * Composite list of all [ParameterInstanceProvider]s.
+     *
+     * Add instance providers using [Composite.plusAssign] `devFun.parameterProviders += MyParameterInstanceProvider()`
+     *
+     * Providers are checked in reverse order.
+     * i.e. Most recently added are checked first.
+     *
+     * __Experimental API__
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val parameterProviders: CompositeParameterInstanceProvider = rootParameterInstanceProvider
 
     /**
      * Composite list of all [ViewFactoryProvider]s.
@@ -299,6 +314,7 @@ class DevFun {
             this += captureInstance { this@DevFun }
             this += captureInstance<InstanceProvider> { this }
             this += captureInstance<ThrowingInstanceProvider> { this }
+            this += captureInstance { rootParameterInstanceProvider }
             this += captureInstance { definitionsLoader }
             this += captureInstance<ActivityTracker> { appStateTracker }
             this += captureInstance<ForegroundTracker> { appStateTracker }
@@ -372,6 +388,7 @@ class DevFun {
     fun dispose() { // todo test me
         moduleLoader.dispose()
         rootInstanceProvider.clear()
+        rootParameterInstanceProvider.clear()
         appStateTracker.dispose()
         windowCallbacks.dispose()
         _devFun = null
