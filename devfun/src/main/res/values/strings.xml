@@ -41,8 +41,8 @@ Version %1$s
 
     <!-- Service Loader -->
     <string name="df_devfun_service_loader_exception">Service Loader Exception</string>
-    <string name="df_devfun_service_loader_error">Failed to load a DevFun module.</string>
-    <string name="df_devfun_service_loader_module_error">Failed to load DevFun module: </string>
+    <string name="df_devfun_service_loader_error">Failed to load a %1$s module.</string>
+    <string name="df_devfun_service_loader_module_error">Failed to load %1$s module: </string>
 
     <!-- Error Dialog -->
     <string name="df_devfun_error_position">%1$d of %2$d</string>

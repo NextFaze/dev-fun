@@ -170,7 +170,7 @@ class DevFun {
     private lateinit var appStateTracker: AppStateTracker
     private lateinit var windowCallbacks: WindowCallbacks
     private val moduleLoader = ModuleLoader(this)
-    private val definitionsLoader = DefinitionsLoader()
+    private val definitionsLoader = DefinitionsLoader(this)
     private val initializationCallbacks = mutableListOf<OnInitialized>()
     private val rootInstanceProvider = DefaultCompositeInstanceProvider(CacheLevel.AGGRESSIVE)
     private val definitionsProcessor = DefinitionsProcessor(this)

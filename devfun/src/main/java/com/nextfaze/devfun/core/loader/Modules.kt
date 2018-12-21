@@ -1,17 +1,12 @@
 package com.nextfaze.devfun.core.loader
 
 import android.content.Context
-import android.text.SpannableStringBuilder
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.core.DevFunModule
-import com.nextfaze.devfun.core.R
 import com.nextfaze.devfun.error.ErrorHandler
-import com.nextfaze.devfun.error.SimpleError
 import com.nextfaze.devfun.inject.InstanceProvider
+import com.nextfaze.devfun.internal.loadServices
 import com.nextfaze.devfun.internal.log.*
-import com.nextfaze.devfun.internal.string.*
-import java.util.ServiceConfigurationError
-import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
 internal class ModuleLoader(private val devFun: DevFun) : InstanceProvider {
@@ -61,44 +56,9 @@ internal class ModuleLoader(private val devFun: DevFun) : InstanceProvider {
     }
 
     fun init(modules: Iterable<DevFunModule>, useServiceLoader: Boolean) {
-        fun Throwable.toLoaderError(body: CharSequence? = null) =
-            SimpleError(
-                this,
-                context.getString(R.string.df_devfun_service_loader_exception),
-                body ?: context.getString(R.string.df_devfun_service_loader_error)
-            )
-
-        fun ServiceConfigurationError.toConfigurationError() =
-            serviceConfigurationErrorRegex.find(toString())?.groups?.get(1)?.value?.let { moduleName ->
-                val body = SpannableStringBuilder().apply {
-                    this += context.getText(R.string.df_devfun_service_loader_module_error)
-                    this += " "
-                    this += pre(moduleName)
-                }
-                toLoaderError(body)
-            } ?: toLoaderError()
-
         if (useServiceLoader) {
-            val it = ServiceLoader.load(DevFunModule::class.java).iterator()
-
-            class SafeIterator : Iterator<DevFunModule?> {
-                override fun hasNext() = it.hasNext()
-                override fun next() =
-                    try {
-                        it.next()
-                    } catch (t: ServiceConfigurationError) {
-                        errorHandler.onError(t.toConfigurationError())
-                        null
-                    } catch (t: Throwable) {
-                        errorHandler.onError(t.toLoaderError())
-                        null
-                    }
-            }
-
-            SafeIterator().forEach {
-                if (it != null) {
-                    this += it
-                }
+            loadServices(DevFunModule::class, context, errorHandler).forEach {
+                this += it
             }
         }
 
@@ -147,6 +107,3 @@ internal class ModuleLoader(private val devFun: DevFun) : InstanceProvider {
         _modules.clear()
     }
 }
-
-private val serviceConfigurationErrorRegex =
-    Regex("""^java.util.ServiceConfigurationError: com.nextfaze.devfun.core.DevFunModule: Provider ([^\s]*)""")
