@@ -1,13 +1,20 @@
 package com.nextfaze.devfun.test
 
 import android.os.Build
+import androidx.annotation.NonNull
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
 import com.nextfaze.devfun.category.DeveloperCategory
 import com.nextfaze.devfun.compiler.FLAG_DEBUG_VERBOSE
 import com.nextfaze.devfun.compiler.PACKAGE_ROOT
 import com.nextfaze.devfun.compiler.PACKAGE_SUFFIX
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.internal.android.*
+import com.nhaarman.mockito_kotlin.KStubbing
 import org.jetbrains.kotlin.utils.PathUtil
+import org.mockito.Mockito
 import org.testng.ITestResult
 import org.testng.annotations.AfterMethod
 import org.testng.annotations.BeforeMethod
@@ -58,16 +65,22 @@ abstract class AbstractKotlinKapt3Tester {
         get() = listOf("com.nextfaze.devfun.compiler.DevFunProcessor", "com.nextfaze.devfun.compiler.DevAnnotationProcessor")
             .map { Class.forName(it).newInstance() as Processor }
 
-    private val kotlinStdLib = PathUtil.getResourcePathForClass(AnnotationRetention::class.java)
-    private val kotlinReflectLib = PathUtil.getResourcePathForClass(NoSuchPropertyException::class.java)
-    private val kotlinTestLib = PathUtil.getResourcePathForClass(Asserter::class.java)
-    private val annotationsJar = PathUtil.getResourcePathForClass(DeveloperCategory::class.java)
-    private val internalJar = PathUtil.getResourcePathForClass(AbstractActivityLifecycleCallbacks::class.java)
-    private val devFunJar = PathUtil.getResourcePathForClass(DevFun::class.java)
-    private val androidJar = PathUtil.getResourcePathForClass(Build::class.java)
-
-    protected val compileClasspath =
-        listOf(kotlinStdLib, kotlinReflectLib, kotlinTestLib, annotationsJar, internalJar, devFunJar, androidJar)
+    protected val compileClasspath = listOf(
+        AnnotationRetention::class, // kotlin-stdlib
+        NoSuchPropertyException::class, // kotlin-reflect
+        Asserter::class, // kotlin-test
+        DeveloperCategory::class, // devfun-annotations
+        AbstractActivityLifecycleCallbacks::class, // devfun-internal
+        DevFun::class, // devfun-core,
+        Build::class, // android,
+        ActivityCompat::class, // androidx-core
+        NonNull::class, // androidx-annotation
+        FragmentActivity::class, // androidx-fragment
+        ViewModelStoreOwner::class, // androidx-lifecycle
+        LifecycleOwner::class, // androidx-lifecycle-common,
+        Mockito::class, // mockito
+        KStubbing::class // mockito-kotlin
+    ).map { PathUtil.getResourcePathForClass(it.java) }
 
     private var origLoader: ClassLoader? = null
 

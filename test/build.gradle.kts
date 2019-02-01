@@ -63,6 +63,9 @@ dependencies {
     testImplementation(Dependency.kotlin.test)
     testImplementation(Dependency.kotlin.reflect)
 
+    // AndroidX
+    testImplementation(Dependency.android.appCompat)
+
     // AutoService
     testImplementation(Dependency.autoService)
 

@@ -233,9 +233,35 @@ class TestContext(
     private val categories by lazy { devFun.categories }
     private val funDefItems by lazy { categories.flatMap { it.items }.toSet().groupBy { it.function } }
 
-    private val Method.isTestMethod
-        get() = name.startsWith("test", ignoreCase = true) ||
-                declaringClass.simpleName.startsWith("fn_")
+    private enum class TestMethods(val definitions: Boolean, val items: Boolean) {
+        ALL(true, true),
+        DEFINITION(true, false),
+        ITEM(false, true)
+    }
+
+    private val Method.testType: TestMethods?
+        get() {
+            val name = name
+            if (!name.startsWith("test", ignoreCase = true) &&
+                !name.startsWith("getTest", ignoreCase = true) /* properties */) {
+                return null
+            }
+            if (declaringClass.simpleName.startsWith("fn_")) return TestMethods.ALL
+
+            val methods = name.substringBefore('_', missingDelimiterValue = "")
+                .replace("getTest", "", ignoreCase = true) // properties
+                .replace("test", "", ignoreCase = true)
+
+            val testFunctionItems = methods.contains("FI")
+            val testFunctionDefinitions = methods.contains("FD")
+
+            return when {
+                testFunctionItems && testFunctionDefinitions -> TestMethods.ALL
+                testFunctionItems -> TestMethods.ITEM
+                testFunctionDefinitions -> TestMethods.DEFINITION
+                else -> TestMethods.ALL
+            }
+        }
 
     fun testInvocations(logger: Logger) {
         funDefs.forEach { fd ->
@@ -245,10 +271,15 @@ class TestContext(
             devFun.instanceProviders += dfIp
 
             val receiver = fd.receiverInstance(devFun.instanceProviders)
-            if (fd.method.isTestMethod) {
-                when {
-                    fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
-                    else -> fd.invoke(receiver, fd.parameterInstances(devFun.instanceProviders, null))
+            val testType = fd.method.testType
+            if (testType != null) {
+                if (testType.definitions) {
+                    when {
+                        fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
+                        else -> fd.invoke(receiver, fd.parameterInstances(devFun.instanceProviders, null))
+                    }
+                } else {
+                    logger.d { "Skipped $fd as testType=$testType" }
                 }
             } else {
                 val v = when {
@@ -280,13 +311,18 @@ class TestContext(
 
                 val fd = it.function
                 val receiver = fd.receiverInstance(devFun.instanceProviders)
-                if (it.function.method.isTestMethod) {
-                    when {
-                        fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
-                        else -> it.invoke(
-                            fd.receiverInstance(devFun.instanceProviders),
-                            fd.parameterInstances(devFun.instanceProviders, it.args)
-                        )
+                val testType = fd.method.testType
+                if (testType != null) {
+                    if (testType.items) {
+                        when {
+                            fd.method.name.endsWith("\$annotations") -> fd.getterMethod!!.invoke(receiver) // is property
+                            else -> it.invoke(
+                                fd.receiverInstance(devFun.instanceProviders),
+                                fd.parameterInstances(devFun.instanceProviders, it.args)
+                            )
+                        }
+                    } else {
+                        logger.d { "Skipped $it as testType=$testType" }
                     }
                 } else {
                     val v = when {
@@ -319,7 +355,8 @@ class TestContext(
             when (ref) {
                 is MethodReference -> {
                     logger.d { "Invoke developer reference ${ref.method} ..." }
-                    if (ref.method.isTestMethod) {
+                    val testType = ref.method.testType
+                    if (testType != null) {
                         ref.method.toReflected(devFun.instanceProviders).invoke()
                     } else {
                         assertEquals(

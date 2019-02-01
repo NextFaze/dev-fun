@@ -66,7 +66,7 @@ internal object RequiresApiTransformer : FunctionTransformer {
 internal class CustomProviderTransformer(private val instanceProvider: ThrowingInstanceProvider) : FunctionTransformer {
     override fun accept(functionDefinition: FunctionDefinition) =
         functionDefinition.transformer != SingleFunctionTransformer::class &&
-                instanceProvider[functionDefinition.transformer].accept(functionDefinition)
+            instanceProvider[functionDefinition.transformer].accept(functionDefinition)
 
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition) =
         instanceProvider[functionDefinition.transformer].apply(functionDefinition, categoryDefinition)
@@ -90,29 +90,52 @@ internal class ContextTransformer(
     private val activityProvider: ActivityProvider,
     private val instanceProvider: ThrowingInstanceProvider
 ) : FunctionTransformer {
-    // if the method is static then we don't care about context
+    // if the method is static then we don't care about context (unless it is an extension function w/ first arg as Fragment/Activity)
     // however we also need to check if the method is a "property" (Kotlin creates a synthetic static method to hold annotations)
     // we don't check for Activity/Fragment subclass here though since we'll just need to do it again in apply (to remove it if not in context)
     override fun accept(functionDefinition: FunctionDefinition) =
-        !functionDefinition.method.isStatic || functionDefinition.method.isProperty
+        !functionDefinition.method.isStatic || functionDefinition.method.isProperty ||
+            (functionDefinition.method.isStatic &&
+                functionDefinition.method.parameterTypes.getOrNull(0)?.kotlin
+                    ?.let { it.isSubclassOf<Activity>() || it.isSubclassOf<Fragment>() } == true
+                )
 
     override fun apply(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? {
-        if (Activity::class.java.isAssignableFrom(functionDefinition.clazz.java)) {
+        val transformed = apply(functionDefinition.clazz, functionDefinition, categoryDefinition)
+        if (transformed != null) {
+            return transformed
+        }
+
+        // Possibly an extension method
+        if (functionDefinition.method.isStatic) {
+            val receiver = functionDefinition.method.parameterTypes.getOrNull(0)?.kotlin ?: return null
+            return apply(receiver, functionDefinition, categoryDefinition)
+        }
+
+        return null
+    }
+
+    private fun apply(
+        receiver: KClass<*>,
+        functionDefinition: FunctionDefinition,
+        categoryDefinition: CategoryDefinition
+    ): Collection<FunctionItem>? {
+        if (receiver.isSubclassOf<Activity>()) {
             val activity = activityProvider() ?: return emptyList()
             return when {
-                activity::class.isSubclassOf(functionDefinition.clazz) -> transformItem(functionDefinition, categoryDefinition)
+                activity::class.isSubclassOf(receiver) -> transformItem(receiver, functionDefinition, categoryDefinition)
                 else -> emptyList() // remove this item if it's not related to the current activity
             }
         }
 
-        if (functionDefinition.clazz.isSubclassOf<Fragment>()) {
+        if (receiver.isSubclassOf<Fragment>()) {
             val activity = activityProvider() ?: return emptyList()
             return if (activity is FragmentActivity) {
                 if (activity.supportFragmentManager.fragments.any {
                         // not sure how/why, but under some circumstances some of them are null
-                        it != null && it.isAdded && functionDefinition.clazz.java.isAssignableFrom(it::class.java)
+                        it != null && it.isAdded && it::class.isSubclassOf(receiver)
                     }) {
-                    transformItem(functionDefinition, categoryDefinition)
+                    transformItem(receiver, functionDefinition, categoryDefinition)
                 } else {
                     // remove fragments that are not added or related to added fragments
                     emptyList()
@@ -126,12 +149,16 @@ internal class ContextTransformer(
         return null
     }
 
-    private fun transformItem(functionDefinition: FunctionDefinition, categoryDefinition: CategoryDefinition): Collection<FunctionItem>? =
+    private fun transformItem(
+        receiver: KClass<*>,
+        functionDefinition: FunctionDefinition,
+        categoryDefinition: CategoryDefinition
+    ): Collection<FunctionItem>? =
         with(instanceProvider[functionDefinition.transformer]) {
             when {
                 accept(functionDefinition) ->
                     apply(functionDefinition, categoryDefinition)
-                        ?.map { ContextFunctionItem(it, functionDefinition.clazz.splitSimpleName) } ?: emptyList()
+                        ?.map { ContextFunctionItem(it, receiver.splitSimpleName) } ?: emptyList()
                 else -> emptyList()
             }
         }
