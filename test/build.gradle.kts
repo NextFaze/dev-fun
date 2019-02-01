@@ -47,7 +47,11 @@ dependencies {
     kaptTest(project(":devfun-compiler"))
 
     // TestNG - http://testng.org
-    testImplementation("org.testng:testng:6.13.1")
+    testImplementation("org.testng:testng:6.14.3")
+
+    // Bug? Needed since updating to Gradle 5.1.1
+    testImplementation("org.jetbrains.intellij.deps:trove4j:1.0.20181211")
+    testImplementation(Dependency.kotlin.scriptRuntime)
 
     // Logging - https://logback.qos.ch
     testImplementation("ch.qos.logback:logback-core:1.2.3")

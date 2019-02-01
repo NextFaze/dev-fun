@@ -74,6 +74,7 @@ data class KotlinDependencies(val version: String, val coroutinesVersion: String
     val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$version"
     val reflect = "org.jetbrains.kotlin:kotlin-reflect:$version"
     val test = "org.jetbrains.kotlin:kotlin-test:$version"
+    val scriptRuntime = "org.jetbrains.kotlin:kotlin-script-runtime:$version"
     val androidExtensions = "org.jetbrains.kotlin:kotlin-android-extensions:$version"
     val compilerEmbeddable = "org.jetbrains.kotlin:kotlin-compiler-embeddable:$version"
     val annotationProcessingEmbeddable = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:$version"

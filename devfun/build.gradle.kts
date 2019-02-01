@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension
+
 plugins {
     id("com.android.library")
     kotlin("android")
@@ -13,7 +15,12 @@ description = """Core DevFun library that initializes and manages DevFun modules
 configureAndroidLib()
 
 androidExtensions {
-    isExperimental = true
+    // Kotlin DSL bug
+    // https://youtrack.jetbrains.com/issue/KT-22213
+    // Fix: https://github.com/gradle/kotlin-dsl/issues/644#issuecomment-398502551
+    configure(delegateClosureOf<AndroidExtensionsExtension> {
+        isExperimental = true
+    })
 }
 
 dependencies {
@@ -26,7 +33,6 @@ dependencies {
     api(Dependency.kotlin.stdLib)
     implementation(Dependency.kotlin.reflect)
     implementation(Dependency.kotlin.coroutines)
-    compileOnly(Dependency.kotlin.androidExtensions) // setting 'isExperimental' doesn't seem to add dependency anymore?
 
     // Support libs
     implementation(Dependency.android.appCompat)

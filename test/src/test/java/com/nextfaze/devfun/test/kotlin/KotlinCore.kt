@@ -3,6 +3,15 @@ package com.nextfaze.devfun.test.kotlin
 import com.nextfaze.devfun.internal.log.*
 import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.backend.jvm.JvmIrCodegenFactory
+import org.jetbrains.kotlin.base.kapt3.AptMode
+import org.jetbrains.kotlin.base.kapt3.DetectMemoryLeaksMode
+import org.jetbrains.kotlin.base.kapt3.KaptFlag.CORRECT_ERROR_TYPES
+import org.jetbrains.kotlin.base.kapt3.KaptFlag.INCLUDE_COMPILE_CLASSPATH
+import org.jetbrains.kotlin.base.kapt3.KaptFlag.MAP_DIAGNOSTIC_LOCATIONS
+import org.jetbrains.kotlin.base.kapt3.KaptFlag.STRICT
+import org.jetbrains.kotlin.base.kapt3.KaptFlag.USE_LIGHT_ANALYSIS
+import org.jetbrains.kotlin.base.kapt3.KaptFlags
+import org.jetbrains.kotlin.base.kapt3.KaptOptions
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
@@ -16,7 +25,11 @@ import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
-import org.jetbrains.kotlin.codegen.*
+import org.jetbrains.kotlin.codegen.ClassBuilderFactories
+import org.jetbrains.kotlin.codegen.ClassBuilderFactory
+import org.jetbrains.kotlin.codegen.CompilationErrorHandler
+import org.jetbrains.kotlin.codegen.DefaultCodegenFactory
+import org.jetbrains.kotlin.codegen.KotlinCodegenFacade
 import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions
@@ -35,7 +48,6 @@ import org.jetbrains.kotlin.diagnostics.PsiDiagnosticUtils
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.kapt3.base.KaptPaths
 import org.jetbrains.kotlin.load.kotlin.PackagePartProvider
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
@@ -109,21 +121,38 @@ class KotlinCore(
         }
         val javaSourceRoots = javaFiles.map { it.parentFile }.toSet().toList()
 
-        val paths = KaptPaths(
+        val options = KaptOptions(
             projectBaseDir = null,
             compileClasspath = PathUtil.getJdkClassesRootsFromCurrentJre() + PathUtil.kotlinPathsForIdeaPlugin.stdlibPath + compileClasspath,
-            annotationProcessingClasspath = emptyList(),
             javaSourceRoots = javaSourceRoots,
+
             sourcesOutputDir = sourcesOutputDir,
-            classFilesOutputDir = classesOutputDir,
+            classesOutputDir = classesOutputDir,
             stubsOutputDir = stubsDir,
-            incrementalDataOutputDir = incrementalDir
+            incrementalDataOutputDir = incrementalDir,
+
+            processingOptions = kaptOptions,
+            detectMemoryLeaks = DetectMemoryLeaksMode.NONE,
+
+            flags = KaptFlags.fromSet(
+                setOf(
+                    USE_LIGHT_ANALYSIS,
+                    INCLUDE_COMPILE_CLASSPATH,
+                    CORRECT_ERROR_TYPES,
+                    MAP_DIAGNOSTIC_LOCATIONS,
+                    STRICT
+                )
+            ),
+            javacOptions = emptyMap(),
+            mode = AptMode.STUBS_AND_APT,
+
+            processors = emptyList(),
+            processingClasspath = emptyList()
         )
 
         val kapt3Extension = Kapt3ExtensionForTests(
-            processors = processors,
-            paths = paths,
-            options = kaptOptions
+            options = options,
+            processors = processors
         )
 
         try {
@@ -243,13 +272,13 @@ private class WarningsMessageCollector(
 
         if ((collectWarnings || throwOnWarnings) && severity.isWarning) {
             warnings +=
-                    if (location == null) {
-                        "$severity\n> $message"
-                    } else {
-                        val severityChar = severity.toString()[0].toLowerCase()
-                        val tmpPath = "${location.path}: (${location.line}, ${location.column}):" // : at end triggers file hotlink in logs
-                        "$severity\n$severityChar: $tmpPath\n\t$message"
-                    }
+                if (location == null) {
+                    "$severity\n> $message"
+                } else {
+                    val severityChar = severity.toString()[0].toLowerCase()
+                    val tmpPath = "${location.path}: (${location.line}, ${location.column}):" // : at end triggers file hotlink in logs
+                    "$severity\n$severityChar: $tmpPath\n\t$message"
+                }
         }
     }
 

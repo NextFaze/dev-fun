@@ -1,5 +1,6 @@
 package com.nextfaze.devfun.test.kotlin
 
+import org.jetbrains.kotlin.base.kapt3.KaptOptions
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.codegen.AbstractClassBuilder
 import org.jetbrains.kotlin.codegen.ClassBuilder
@@ -7,10 +8,9 @@ import org.jetbrains.kotlin.codegen.ClassBuilderFactory
 import org.jetbrains.kotlin.codegen.ClassBuilderMode
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.kapt3.AbstractKapt3Extension
-import org.jetbrains.kotlin.kapt3.AptMode
 import org.jetbrains.kotlin.kapt3.KaptContextForStubGeneration
 import org.jetbrains.kotlin.kapt3.base.KaptContext
-import org.jetbrains.kotlin.kapt3.base.KaptPaths
+import org.jetbrains.kotlin.kapt3.base.LoadedProcessors
 import org.jetbrains.kotlin.kapt3.javac.KaptJavaFileObject
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter
 import org.jetbrains.kotlin.kapt3.util.MessageCollectorBackedKaptLogger
@@ -24,35 +24,13 @@ import org.jetbrains.org.objectweb.asm.tree.MethodNode
 import javax.annotation.processing.Processor
 
 internal class Kapt3ExtensionForTests(
-    paths: KaptPaths,
-    private val processors: List<Processor>,
-    options: Map<String, String>
-) : AbstractKapt3Extension(
-    paths = paths /*KaptPaths(
-        projectBaseDir = project.basePath?.let(::File),
-        compileClasspath = PathUtil.getJdkClassesRootsFromCurrentJre() + PathUtil.kotlinPathsForIdeaPlugin.stdlibPath,
-        annotationProcessingClasspath = emptyList(),
-        javaSourceRoots = javaSourceRoots,
-        sourcesOutputDir = outputDir,
-        classFilesOutputDir = outputDir,
-        stubsOutputDir = stubsOutputDir,
-        incrementalDataOutputDir = incrementalDataOutputDir
-    )*/,
-    options = options,
-    javacOptions = emptyMap(),
-    annotationProcessorFqNames = emptyList(),
-    aptMode = AptMode.STUBS_AND_APT,
-    pluginInitializedTime = System.currentTimeMillis(),
-    logger = MessageCollectorBackedKaptLogger(true),
-    correctErrorTypes = true,
-    mapDiagnosticLocations = true,
-    compilerConfiguration = CompilerConfiguration.EMPTY,
-    strictMode = true
-) {
+    options: KaptOptions,
+    private val processors: List<Processor>
+) : AbstractKapt3Extension(options, MessageCollectorBackedKaptLogger(options.flags), CompilerConfiguration.EMPTY) {
     internal var savedStubs: List<String>? = null
     internal var savedBindings: Map<String, KaptJavaFileObject>? = null
 
-    override fun loadProcessors() = processors
+    override fun loadProcessors() = LoadedProcessors(processors, Kapt3ExtensionForTests::class.java.classLoader!!)
 
     override fun saveStubs(kaptContext: KaptContext, stubs: List<ClassFileToSourceStubConverter.KaptStub>) {
         if (savedStubs != null) {
