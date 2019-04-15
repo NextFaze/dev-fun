@@ -12,7 +12,8 @@ import javax.tools.StandardLocation
 // /home/user/<path>/<to>/<project>/<app-name>/build/intermediates/classes/<build-type>/META-INF/services/com.nextfaze.devfun.generated.MenuDefinitions
 // Path may also be changed using gradle project.buildDir = '...' (default build dir ends with /build/, so we don't include that in regex)
 private val servicesPathRegex =
-    File.separator.let { s ->
+    File.separator.let { separator ->
+        val s = if (separator == """\""") """\\""" else separator
         Regex("(.*)(${s}intermediates${s}classes$s|${s}tmp${s}kotlin-classes$s|${s}tmp${s}kapt3${s}classes$s)(.*)${s}META-INF${s}services$s.*")
     }
 
