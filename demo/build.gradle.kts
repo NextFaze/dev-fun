@@ -1,8 +1,8 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android-extensions")
     kotlin("android")
     kotlin("kapt")
+    id("kotlin-android-extensions")
     id("com.nextfaze.devfun")
 }
 
