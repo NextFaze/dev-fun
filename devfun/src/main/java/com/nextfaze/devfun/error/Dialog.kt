@@ -271,11 +271,7 @@ internal class HVScrollView @JvmOverloads constructor(context: Context, attrs: A
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        val superHandled = super.onTouchEvent(event)
-        val hHandled = hScrollView.onTouchEvent(event)
-        return superHandled || hHandled
-    }
+    override fun onTouchEvent(event: MotionEvent) = super.onTouchEvent(event) || hScrollView.onTouchEvent(event)
 }
 
 private fun classExists(fqn: String) =
