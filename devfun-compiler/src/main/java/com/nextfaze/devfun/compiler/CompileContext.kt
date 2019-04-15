@@ -116,8 +116,13 @@ internal class CompileContext @Inject constructor(
     }
 
     private val resourcePathMatch by lazy {
-        servicesPathRegex.matchEntire(servicesPath) ?: run {
-            log.error { "Failed to match resources path from $servicesPath" }
+        try {
+            servicesPathRegex.matchEntire(servicesPath) ?: run {
+                log.error { "Failed to match resources path from $servicesPath" }
+                throwBuildConfigException("Failed to locate active BuildConfig.java")
+            }
+        } catch (t: Throwable) {
+            log.error { "Regex exception - failed to match resources path from $servicesPath\n\t${t.message}" }
             throwBuildConfigException("Failed to locate active BuildConfig.java")
         }
     }
