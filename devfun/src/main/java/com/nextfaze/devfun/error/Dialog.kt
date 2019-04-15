@@ -2,6 +2,7 @@ package com.nextfaze.devfun.error
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ClipData
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -19,6 +20,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.FragmentActivity
@@ -62,6 +64,7 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
 
     private lateinit var errors: List<RenderedError>
     private var currentErrorIdx: Int = 0
+    private val currentError get() = errors[abs(currentErrorIdx % errors.size)]
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,9 +86,7 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
         }
     }
 
-    private fun bindCurrentError() {
-        setCurrentError(errors[abs(currentErrorIdx % errors.size)])
-    }
+    private fun bindCurrentError() = setCurrentError(currentError)
 
     private fun showPreviousError() {
         if (currentErrorIdx > 0) {
@@ -121,6 +122,8 @@ internal class ErrorDialogFragment : BaseDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         stackTraceTextView.setOnLongClickListener {
             log.w { "Exception:\n${stackTraceTextView.text}" }
+            it.context.clipboardManager.primaryClip = ClipData.newPlainText("stackTrace", currentError.stackTrace)
+            Toast.makeText(context, "Stacktrace logged and copied to clipboard.", Toast.LENGTH_SHORT).show()
             true
         }
 
