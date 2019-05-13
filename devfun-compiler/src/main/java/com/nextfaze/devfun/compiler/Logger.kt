@@ -22,7 +22,8 @@ internal val Throwable.stackTraceAsString get() = StringWriter().apply { printSt
 @Singleton
 internal class Logging @Inject constructor(private val messager: Messager, private val options: Options) {
 
-    fun create(ref: Any): Logger = LoggerImpl(messager, ref::class.qualifiedName.toString(), options.promoteNoteMessages)
+    fun create(ref: Any): Logger =
+        LoggerImpl(messager, ref::class.qualifiedName.toString(), options.noteLoggingEnabled, options.promoteNoteMessages)
 
     operator fun invoke() =
         object : ReadOnlyProperty<Any, Logger> {
@@ -30,19 +31,27 @@ internal class Logging @Inject constructor(private val messager: Messager, priva
         }
 }
 
-private class LoggerImpl(private val messager: Messager, private val ref: String, private val noteAsWarning: Boolean) : Logger {
-    override fun note(element: Element?, annotationMirror: AnnotationMirror?, body: () -> String) =
+private class LoggerImpl(
+    private val messager: Messager,
+    private val ref: String,
+    private val noteLoggingEnabled: Boolean,
+    private val noteAsWarning: Boolean
+) : Logger {
+    override fun note(element: Element?, annotationMirror: AnnotationMirror?, body: () -> String) {
+        if (!noteLoggingEnabled && !noteAsWarning) return
+
         messager.printMessage(
             if (noteAsWarning) Diagnostic.Kind.MANDATORY_WARNING else Diagnostic.Kind.NOTE,
-            "$ref: ${body()}",
+            "$ref: ${body()}\n \n",
             element,
             annotationMirror
         )
+    }
 
     override fun warn(element: Element?, annotationMirror: AnnotationMirror?, body: () -> String) =
         messager.printMessage(
             Diagnostic.Kind.MANDATORY_WARNING,
-            "$ref: ${body()}",
+            "$ref: ${body()}\n \n",
             element,
             annotationMirror
         )
@@ -50,7 +59,7 @@ private class LoggerImpl(private val messager: Messager, private val ref: String
     override fun error(element: Element?, annotationMirror: AnnotationMirror?, body: () -> String) =
         messager.printMessage(
             Diagnostic.Kind.ERROR,
-            "$ref: ${body()}",
+            "$ref: ${body()}\n \n",
             element,
             annotationMirror
         )

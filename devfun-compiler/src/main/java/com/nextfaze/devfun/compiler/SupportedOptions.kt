@@ -32,6 +32,7 @@ internal class Options @Inject constructor(
     val generateInterfaces = GENERATE_INTERFACES.booleanOf(true)
     val generateDefinitions = GENERATE_DEFINITIONS.booleanOf(true)
 
+    val noteLoggingEnabled = NOTE_LOGGING_ENABLED.booleanOf(false)
     val promoteNoteMessages = PROMOTE_NOTE_LOG_MESSAGES.booleanOf(false)
 
     private val elementFilterInclude = ELEMENTS_FILTER_INCLUDE.optionOf()?.split(",")?.map { it.trim() } ?: emptyList()

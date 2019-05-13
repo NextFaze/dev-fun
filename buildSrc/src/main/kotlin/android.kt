@@ -33,6 +33,7 @@ inline fun Project.configureAndroidLib() {
                     includeCompileClasspath = false
                     if (project.isSnapshot) {
                         argument("devfun.debug.verbose", "true")
+                        argument("devfun.logging.note.enabled", "true")
                     }
                 }
             }

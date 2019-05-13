@@ -277,6 +277,8 @@ const val GENERATE_DEFINITIONS = "devfun.definitions.generate"
 /**
  * Flag to have all `note` messages output as `warning` - workaround for various KAPT logging implementations and for debugging purposes.  _(default: `<false>`)_
  *
+ * Note: Not needed with Kotlin 1.3.3x when new KAPT options are enabled - use [NOTE_LOGGING_ENABLED] instead.
+ *
  * Set using APT options:
  * ```kotlin
  * android {
@@ -289,8 +291,30 @@ const val GENERATE_DEFINITIONS = "devfun.definitions.generate"
  *      }
  * }
  * ```
+ *
+ * @see NOTE_LOGGING_ENABLED
  */
 const val PROMOTE_NOTE_LOG_MESSAGES = "devfun.logging.note.promote"
+
+/**
+ * Flag to enable logging of `note` messages.  _(default: `<false>`)_
+ *
+ * Set using APT options:
+ * ```kotlin
+ * android {
+ *      defaultConfig {
+ *          javaCompileOptions {
+ *              annotationProcessorOptions {
+ *                  argument("devfun.logging.note.enabled", "true")
+ *              }
+ *          }
+ *      }
+ * }
+ * ```
+ *
+ * @see PROMOTE_NOTE_LOG_MESSAGES
+ */
+const val NOTE_LOGGING_ENABLED = "devfun.logging.note.enabled"
 
 internal const val META_INF_SERVICES = "META-INF/services"
 private const val DEFINITIONS_FILE_NAME = "DevFunDefinitions.kt"
@@ -315,7 +339,9 @@ private const val DEFINITIONS_CLASS_NAME = "DevFunDefinitions"
     EXT_PACKAGE_OVERRIDE,
     GENERATE_DEFINITIONS,
     ELEMENTS_FILTER_INCLUDE,
-    ELEMENTS_FILTER_EXCLUDE
+    ELEMENTS_FILTER_EXCLUDE,
+    PROMOTE_NOTE_LOG_MESSAGES,
+    NOTE_LOGGING_ENABLED
 )
 @AutoService(Processor::class)
 class DevFunProcessor : DaggerProcessor() {
