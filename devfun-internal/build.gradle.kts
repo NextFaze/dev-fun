@@ -22,6 +22,7 @@ dependencies {
     // Android Support Annotations
     implementation(Dependency.android.annotations)
     implementation(Dependency.android.appCompat)
+    implementation(Dependency.android.core)
 }
 
 configureDokka()

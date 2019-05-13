@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.kapt3.AbstractKapt3Extension
 import org.jetbrains.kotlin.kapt3.KaptContextForStubGeneration
 import org.jetbrains.kotlin.kapt3.base.KaptContext
 import org.jetbrains.kotlin.kapt3.base.LoadedProcessors
+import org.jetbrains.kotlin.kapt3.base.incremental.IncrementalProcessor
 import org.jetbrains.kotlin.kapt3.javac.KaptJavaFileObject
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter
 import org.jetbrains.kotlin.kapt3.util.MessageCollectorBackedKaptLogger
@@ -25,7 +26,7 @@ import javax.annotation.processing.Processor
 
 internal class Kapt3ExtensionForTests(
     options: KaptOptions,
-    private val processors: List<Processor>
+    private val processors: List<IncrementalProcessor>
 ) : AbstractKapt3Extension(options, MessageCollectorBackedKaptLogger(options.flags), CompilerConfiguration.EMPTY) {
     internal var savedStubs: List<String>? = null
     internal var savedBindings: Map<String, KaptJavaFileObject>? = null

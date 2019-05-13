@@ -23,15 +23,15 @@ dependencies {
     api(Dependency.kotlin.stdLib)
 
     // Support libs
+    implementation(Dependency.android.annotations)
     api(Dependency.android.appCompat)
+    implementation(Dependency.android.core)
     implementation(Dependency.android.recyclerView)
     implementation(Dependency.android.constraintLayout)
 
     // Google AutoService
     kapt(Dependency.autoService)
-    compileOnly(Dependency.autoService) {
-        isTransitive = false
-    }
+    compileOnly(Dependency.autoServiceAnnotations)
 }
 
 configureDokka()

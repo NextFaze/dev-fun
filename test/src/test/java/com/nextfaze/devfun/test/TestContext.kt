@@ -35,6 +35,7 @@ import com.nextfaze.devfun.test.kotlin.KotlinCore
 import com.nhaarman.mockito_kotlin.KStubbing
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import org.jetbrains.kotlin.kapt3.base.incremental.IncrementalProcessor
 import org.mockito.Mockito
 import org.slf4j.Logger
 import java.io.File
@@ -44,7 +45,6 @@ import java.net.URLClassLoader
 import java.nio.file.Files
 import java.util.Collections
 import java.util.Enumeration
-import javax.annotation.processing.Processor
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
@@ -167,7 +167,7 @@ class TestContext(
         }
     }
 
-    fun runKapt(compileClasspath: List<File>, processors: List<Processor>) {
+    fun runKapt(compileClasspath: List<File>, processors: List<IncrementalProcessor>) {
         kaptWarnings = kotlinCore.runKapt(compileClasspath, processors, kotlinFiles, javaFiles)
     }
 

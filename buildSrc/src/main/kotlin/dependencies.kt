@@ -25,7 +25,7 @@ object Dependency {
 
     const val javaxInject = "javax.inject:javax.inject:1"
 
-    const val daggerVersion = "2.19"
+    const val daggerVersion = "2.22.1"
     fun dagger(version: String = daggerVersion) = "com.google.dagger:dagger:$version"
     fun daggerCompiler(version: String = daggerVersion) = "com.google.dagger:dagger-compiler:$version"
     fun daggerSpi(version: String = daggerVersion) = "com.google.dagger:dagger-spi:$version"
@@ -34,41 +34,45 @@ object Dependency {
     val daggerSpi = daggerSpi()
     const val daggerAnnotations = "org.glassfish:javax.annotation:10.0-b28"
 
-    const val slf4jApi = "org.slf4j:slf4j-api:1.7.25"
+    const val slf4jApi = "org.slf4j:slf4j-api:1.7.26"
 
-    const val autoService = "com.google.auto.service:auto-service:1.0-rc4"
+    const val autoService = "com.google.auto.service:auto-service:1.0-rc5"
+    const val autoServiceAnnotations = "com.google.auto.service:auto-service-annotations:1.0-rc5"
 
-    private const val stethoVersion = "1.5.0"
+    private const val stethoVersion = "1.5.1"
     const val stetho = "com.facebook.stetho:stetho:$stethoVersion"
     const val stethoJsRhino = "com.facebook.stetho:stetho-js-rhino:$stethoVersion"
 
-    const val glide = "com.github.bumptech.glide:glide:4.8.0"
+    const val glide = "com.github.bumptech.glide:glide:4.9.0"
 
-    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.2"
+    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.3"
 
     lateinit var dokkaVersion: String
     val dokkaFatJar by lazy { "org.jetbrains.dokka:dokka-fatjar:$dokkaVersion" }
 }
 
 data class AndroidDependencies(val agpVersion: String) {
-    val ktx = "androidx.core:core-ktx:1.0.0"
+    val ktx = "androidx.core:core-ktx:1.0.1"
+    val core = "androidx.core:core:1.0.1"
     val recyclerView = "androidx.recyclerview:recyclerview:1.0.0"
     val appCompat = "androidx.appcompat:appcompat:1.0.2"
     val annotations = "androidx.annotation:annotation:1.0.1"
     val constraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
     val design = "com.google.android.material:material:1.0.0"
-    val multidex = "androidx.multidex:multidex:2.0.0"
+    val multidex = "androidx.multidex:multidex:2.0.1"
 
     val testCoreKtx = "androidx.test:core-ktx:1.1.0"
-    val testRules = "androidx.test:rules:1.1.0"
-    val testRunner = "androidx.test:runner:1.1.0"
+    val testRules = "androidx.test:rules:1.1.1"
+    val testRunner = "androidx.test:runner:1.1.1"
     val testJUnitKtx = "androidx.test.ext:junit-ktx:1.1.0"
-    val espressoCore = "androidx.test.espresso:espresso-core:3.1.0"
+    val espressoCore = "androidx.test.espresso:espresso-core:3.1.1"
 
     val gradlePlugin = "com.android.tools.build:gradle:$agpVersion"
 }
 
-data class KotlinDependencies(val version: String, val coroutinesVersion: String = "1.0.1") {
+// TODO Update coroutines to 1.2.0 when Kotlin 1.3.40 is released
+// Using 1.2.0 forces users to modifier their build script: https://github.com/Kotlin/kotlinx.coroutines/issues/1064
+data class KotlinDependencies(val version: String, val coroutinesVersion: String = "1.1.1") {
     val gradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$version"
     val gradlePluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$version"
     val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$version"

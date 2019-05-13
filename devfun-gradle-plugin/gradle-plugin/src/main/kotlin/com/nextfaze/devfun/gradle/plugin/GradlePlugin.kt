@@ -10,7 +10,6 @@ import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.gradle.internal.classloader.ClassLoaderHierarchy
 import org.gradle.internal.classloader.ClassLoaderVisitor
-import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin
 import java.io.File
 import java.net.URL
@@ -94,7 +93,6 @@ Falling back to compile-time path introspection.""",
     private fun addKotlinPluginToClassPath(project: Project) {
         val kotlinVersion = PluginApiVersionFromClassPath.tryGetVersion(project)
                 ?: PluginApiVersionFromSignatures.tryGetVersion(project)
-                ?: PluginApiVersionFromCompileVersion.tryGetVersion(project)
                 ?: run {
                     project.logger.warn("Failed to determine Kotlin Gradle Plugin API version - assuming builtin: ${KotlinVersion.CURRENT}.")
                     KotlinVersion.CURRENT
@@ -217,26 +215,6 @@ private object PluginApiVersionFromSignatures {
         if (hasGroupNameMethod) return KotlinVersion(1, 2, 51)
         if (applyUsesSourceSet) return KotlinVersion(1, 2, 61)
         if (applyUsesKotlinCompilation) return KotlinVersion(1, 2, 71)
-        return null
-    }
-}
-
-private object PluginApiVersionFromCompileVersion {
-    private val versionRegex = Regex("""(\d+)\.(\d+)\.(\d+).*""")
-
-    fun tryGetVersion(project: Project): KotlinVersion? {
-        project.logger.log(logLevel, "Attempting to resolve version from compile version...")
-        try {
-            // The compiler version seems to be more representative of the plugin API version
-            val match = versionRegex.find(KotlinCompilerVersion.VERSION)
-            if (match != null && match.groups.size == 4) {
-                val g = match.groups
-                return KotlinVersion(g[1]!!.value.toInt(), g[2]!!.value.toInt(), g[3]!!.value.toInt())
-            }
-        } catch (t: Throwable) {
-            project.logger.log(logLevel, "Exception during parsing of compile version.", t)
-        }
-
         return null
     }
 }

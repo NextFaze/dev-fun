@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
-
 plugins {
     id("com.android.library")
     kotlin("android")

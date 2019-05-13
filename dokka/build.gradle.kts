@@ -1,7 +1,4 @@
-import java.io.FileNotFoundException
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.DokkaAndroidTask
-import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.LinkMapping
 
@@ -19,7 +16,9 @@ dependencies {
     implementation(Dependency.kotlin.stdLib)
 
     // Support libs
+    implementation(Dependency.android.annotations)
     implementation(Dependency.android.appCompat)
+    implementation(Dependency.android.core)
 
     // Dagger
     implementation(Dependency.dagger)

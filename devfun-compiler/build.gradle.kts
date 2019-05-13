@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 
 plugins {
     id("kotlin")
@@ -10,10 +9,6 @@ plugins {
 description = """Annotation processor that handles @DeveloperFunction and @DeveloperCategory annotations.
     |
     |This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.""".trimMargin()
-
-kapt {
-    correctErrorTypes = true
-}
 
 task<ShadowJar> {
     classifier = ""
@@ -35,7 +30,7 @@ dependencies {
     // Kotlin
     implementation(Dependency.kotlin.stdLib)
     implementation(Dependency.kotlin.reflect)
-    shadow("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.0.4") {
+    shadow("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.0.5.1") {
         isTransitive = false // just Kotlin libs we already declare
     }
 
@@ -49,11 +44,12 @@ dependencies {
     implementation(Dependency.dagger)
     compileOnly(Dependency.daggerAnnotations)
 
+    // JavaX Inject
+    implementation(Dependency.javaxInject)
+
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt(Dependency.autoService)
-    compileOnly(Dependency.autoService) {
-        isTransitive = false
-    }
+    compileOnly(Dependency.autoServiceAnnotations)
 }
 
 configureDokka()

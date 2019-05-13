@@ -32,7 +32,7 @@ plugins {
 }
 
 buildScan {
-    setTermsOfServiceUrl("https://gradle.com/terms-of-service")
+    termsOfServiceUrl = "https://gradle.com/terms-of-service"
     setTermsOfServiceAgree("yes")
 }
 
@@ -63,15 +63,6 @@ allprojects {
             resolutionStrategy.cacheChangingModulesFor(0, TimeUnit.SECONDS)
         }
     }
-}
-
-val cleanRoot = task<Delete>("cleanRoot") {
-    delete(rootProject.buildDir)
-    delete(rootProject.file(".gradle"))
-    delete(rootProject.file("buildSrc/.gradle"))
-}
-getTasksByName("clean", true).forEach {
-    it.dependsOn(cleanRoot)
 }
 
 idea {

@@ -34,6 +34,7 @@ class DevStetho : AbstractDevFunModule() {
     }
 }
 
+@Suppress("unused")
 val DevFun.stetho get() = get<DevStetho>()
 
 class Page(context: Context, private val devStetho: DevStetho) : StethoPage(context) {

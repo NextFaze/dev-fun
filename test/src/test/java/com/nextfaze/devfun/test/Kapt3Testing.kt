@@ -13,6 +13,8 @@ import com.nextfaze.devfun.compiler.PACKAGE_SUFFIX
 import com.nextfaze.devfun.core.DevFun
 import com.nextfaze.devfun.internal.android.*
 import com.nhaarman.mockito_kotlin.KStubbing
+import org.jetbrains.kotlin.kapt3.base.incremental.DeclaredProcType
+import org.jetbrains.kotlin.kapt3.base.incremental.IncrementalProcessor
 import org.jetbrains.kotlin.utils.PathUtil
 import org.mockito.Mockito
 import org.testng.ITestResult
@@ -61,9 +63,9 @@ fun devFunKaptOptions(
     }
 
 abstract class AbstractKotlinKapt3Tester {
-    protected val processors: List<Processor>
+    protected val processors: List<IncrementalProcessor>
         get() = listOf("com.nextfaze.devfun.compiler.DevFunProcessor", "com.nextfaze.devfun.compiler.DevAnnotationProcessor")
-            .map { Class.forName(it).newInstance() as Processor }
+            .map { IncrementalProcessor(Class.forName(it).newInstance() as Processor, DeclaredProcType.NON_INCREMENTAL) }
 
     protected val compileClasspath = listOf(
         AnnotationRetention::class, // kotlin-stdlib

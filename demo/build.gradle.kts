@@ -67,6 +67,7 @@ dependencies {
 
     // Support libs
     implementation(Dependency.android.annotations)
+    implementation(Dependency.android.core)
     implementation(Dependency.android.appCompat)
     implementation(Dependency.android.design)
     implementation(Dependency.android.constraintLayout)

@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension
-
 plugins {
     id("com.android.library")
     kotlin("android")
@@ -15,12 +13,7 @@ description = """Core DevFun library that initializes and manages DevFun modules
 configureAndroidLib()
 
 androidExtensions {
-    // Kotlin DSL bug
-    // https://youtrack.jetbrains.com/issue/KT-22213
-    // Fix: https://github.com/gradle/kotlin-dsl/issues/644#issuecomment-398502551
-    configure(delegateClosureOf<AndroidExtensionsExtension> {
-        isExperimental = true
-    })
+    isExperimental = true
 }
 
 dependencies {
@@ -35,7 +28,9 @@ dependencies {
     implementation(Dependency.kotlin.coroutines)
 
     // Support libs
+    implementation(Dependency.android.annotations)
     implementation(Dependency.android.appCompat)
+    implementation(Dependency.android.core)
     implementation(Dependency.android.design)
     implementation(Dependency.android.constraintLayout)
 
@@ -44,9 +39,7 @@ dependencies {
 
     // Google AutoService
     kapt(Dependency.autoService)
-    compileOnly(Dependency.autoService) {
-        isTransitive = false
-    }
+    compileOnly(Dependency.autoServiceAnnotations)
 }
 
 configureDokka()

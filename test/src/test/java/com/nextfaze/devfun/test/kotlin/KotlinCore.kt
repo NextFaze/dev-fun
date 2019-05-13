@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.diagnostics.PsiDiagnosticUtils
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.kapt3.base.incremental.IncrementalProcessor
 import org.jetbrains.kotlin.load.kotlin.PackagePartProvider
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
@@ -55,7 +56,6 @@ import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.jvm.extensions.AnalysisHandlerExtension
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
-import javax.annotation.processing.Processor
 import kotlin.test.assertTrue
 
 private const val COMPILER_VERBOSE = true
@@ -80,7 +80,7 @@ class KotlinCore(
 
     fun runKapt(
         compileClasspath: List<File>,
-        processors: List<Processor>,
+        processors: List<IncrementalProcessor>,
         kotlinFiles: List<File>,
         javaFiles: List<File>
     ): List<String> {
@@ -147,7 +147,12 @@ class KotlinCore(
             mode = AptMode.STUBS_AND_APT,
 
             processors = emptyList(),
-            processingClasspath = emptyList()
+            processingClasspath = emptyList(),
+
+            changedFiles = emptyList(),
+            classpathChanges = emptyList(),
+            compiledSources = emptyList(),
+            incrementalCache = null
         )
 
         val kapt3Extension = Kapt3ExtensionForTests(

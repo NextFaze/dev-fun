@@ -21,16 +21,16 @@ dependencies {
     api(Dependency.kotlin.stdLib)
 
     // Android
+    implementation(Dependency.android.annotations)
     implementation(Dependency.android.appCompat)
+    implementation(Dependency.android.core)
 
     // Dagger 2 - https://github.com/google/dagger
     compileOnly(Dependency.dagger)
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt(Dependency.autoService)
-    compileOnly(Dependency.autoService) {
-        isTransitive = false
-    }
+    compileOnly(Dependency.autoServiceAnnotations)
 }
 
 configureDokka()

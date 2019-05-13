@@ -22,7 +22,9 @@ dependencies {
     api(Dependency.kotlin.stdLib)
 
     // Android
+    implementation(Dependency.android.annotations)
     implementation(Dependency.android.appCompat)
+    implementation(Dependency.android.core)
 
     // Http Server
     api("org.nanohttpd:nanohttpd:2.3.1")
@@ -30,9 +32,7 @@ dependencies {
 
     // Google AutoService - https://github.com/google/auto/tree/master/service
     kapt(Dependency.autoService)
-    compileOnly(Dependency.autoService) {
-        isTransitive = false
-    }
+    compileOnly(Dependency.autoServiceAnnotations)
 }
 
 configureDokka()

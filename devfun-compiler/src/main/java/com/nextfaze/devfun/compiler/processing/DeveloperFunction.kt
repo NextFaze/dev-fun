@@ -187,7 +187,9 @@ internal class DeveloperFunctionHandler @Inject constructor(
         val callFunDirectly = element.isPublic && clazz.isPublic && allArgTypesPublic && allTypeParamsPublic
 
         // For simplicity, for now we always invoke extension functions via reflection
-        val isExtensionFunction by lazy { element.parameters.firstOrNull()?.simpleName?.toString() == "\$receiver" }
+        val isExtensionFunction by lazy { // $receiver Kotlin < 1.3.30, $this$functionName Kotlin >= 1.3.30
+            element.parameters.firstOrNull()?.simpleName?.toString().let { it == "\$receiver" || it?.startsWith("\$this") == true }
+        }
 
         // Kotlin properties
         val isProperty = element.isProperty

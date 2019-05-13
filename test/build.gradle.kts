@@ -49,10 +49,6 @@ dependencies {
     // TestNG - http://testng.org
     testImplementation("org.testng:testng:6.14.3")
 
-    // Bug? Needed since updating to Gradle 5.1.1
-    testImplementation("org.jetbrains.intellij.deps:trove4j:1.0.20181211")
-    testImplementation(Dependency.kotlin.scriptRuntime)
-
     // Logging - https://logback.qos.ch
     testImplementation("ch.qos.logback:logback-core:1.2.3")
     testImplementation("ch.qos.logback:logback-classic:1.2.3")
@@ -70,8 +66,8 @@ dependencies {
     testImplementation(Dependency.autoService)
 
     // Mockito - http://mockito.org/
-    testImplementation("org.mockito:mockito-inline:2.13.0")
-    testImplementation("com.nhaarman:mockito-kotlin:1.5.0")
+    testImplementation("org.mockito:mockito-inline:2.27.0")
+    testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
 
     // Javac Tools
     val toolsJar = File("${System.getProperty("java.home")}/../lib/tools.jar")
@@ -79,6 +75,11 @@ dependencies {
         throw RuntimeException("Tools jar not found at ${toolsJar.canonicalPath}")
     }
     testImplementation(files(toolsJar.canonicalPath))
+
+    // Full Java
+    val bootJars = System.getProperty("sun.boot.class.path").toString().split(File.pathSeparator)
+    val rtJar = bootJars.filter { it.endsWith("rt.jar") }.map { File(it) }.single()
+    testImplementation(files(rtJar.canonicalPath))
 }
 
 project.afterEvaluate {
