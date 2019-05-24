@@ -73,7 +73,7 @@ See the documentation for advanced usage, including custom names, custom argumen
 ## Quick Start
 #### Project Setup
 - **REQUIRED** Android Gradle 3.0.0+ (due to [#37140464](https://issuetracker.google.com/issues/37140464) and [KT-16589](https://youtrack.jetbrains.com/issue/KT-16589))
-- Recommended to use Kotlin 1.3.0, though should work on previous versions _(somewhat untested)_
+- Recommended to use Kotlin 1.3.31, though should work on previous versions _(somewhat untested)_
 - Recommended to use KAPT3 (`plugins { id("kotlin-kapt") }`), though KAPT1 also works
 - Compiled with `minSdkVersion` >= 15
 - Built against **AndroidX 1.0.0** (this is equivalent to Android Support libraries 28.0.0)  
@@ -86,7 +86,7 @@ Add the DevFun Gradle plugin to your build script.
 If you can use the Gradle `plugins` block (which locates and downloads it for you):
 ```kotlin
 plugins {
-    id("com.nextfaze.devfun") version "2.0.1"
+    id("com.nextfaze.devfun") version "2.1.0"
 }
 ```
 
@@ -95,7 +95,7 @@ Add the plugin to your classpath (found in the `jcenter()` repository):
 ```kotlin
 buildscript {
     dependencies {
-        classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.0.1")
+        classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.1.0")
     }
 }
 ```
@@ -126,36 +126,36 @@ Add dependencies to build.gradle:
 ```kotlin
 dependencies {
     // Annotations, Compiler, and Developer Menu
-    kaptDebug("com.nextfaze.devfun:devfun-compiler:2.0.1")
-    implementation("com.nextfaze.devfun:devfun-annotations:2.0.1")
-    debugImplementation("com.nextfaze.devfun:devfun-menu:2.0.1")
+    kaptDebug("com.nextfaze.devfun:devfun-compiler:2.1.0")
+    implementation("com.nextfaze.devfun:devfun-annotations:2.1.0")
+    debugImplementation("com.nextfaze.devfun:devfun-menu:2.1.0")
     
     // Dagger 2.x component inspector - only if using Dagger 2.x!
-    debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.0.1")
+    debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.1.0")
     
     // Chrome Dev Tools JavaScript console integration
     // NOTE: Stetho 1.4.x has some issues with latest (alpha) AGP & SDK 28
-    debugImplementation("com.nextfaze.devfun:devfun-stetho:2.0.1")
+    debugImplementation("com.nextfaze.devfun:devfun-stetho:2.1.0")
     
     // HTTP server and simple index page
-    debugImplementation("com.nextfaze.devfun:devfun-httpd:2.0.1")
-    debugImplementation("com.nextfaze.devfun:devfun-httpd-frontend:2.0.1")
+    debugImplementation("com.nextfaze.devfun:devfun-httpd:2.1.0")
+    debugImplementation("com.nextfaze.devfun:devfun-httpd-frontend:2.1.0")
     
     // Glide util functions
-    debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.0.1")
+    debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.1.0")
     
     // Leak Canary util functions
-    debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.0.1")
+    debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.1.0")
     
     /*
      * Transitively included libs - in general you don"t need to add these explicitly (except maybe for custom module libs).
      */
     
     // Adds view factory handler for @ColorPicker for invoke UI - transitively included via devfun-menu
-    // debugImplementation("com.nextfaze.devfun:devfun-invoke-view-colorpicker:2.0.1")
+    // debugImplementation("com.nextfaze.devfun:devfun-invoke-view-colorpicker:2.1.0")
     
     // DevFun core - transitive included from menu et al.
-    // debugImplementation("com.nextfaze.devfun:devfun:2.0.1")
+    // debugImplementation("com.nextfaze.devfun:devfun:2.1.0")
 }
 ```
 
@@ -357,7 +357,7 @@ This can also be toggled at any time via [devFunVerbose](https://nextfaze.github
 
 
 ## Kotlin `stdlib` Conflict 
-DevFun was compiled against Kotlin 1.3.0.  
+DevFun was compiled against Kotlin 1.3.31.  
 *Earlier versions of Kotlin are generally untested and unsupported (if you need support for an older version make an issue).*  
 
 Thus if you receive a dependency conflict error such as:  
@@ -526,7 +526,7 @@ Feel free also to submit your own handy util functions or whatever for addition.
 
 # License
 
-    Copyright 2018 NextFaze
+    Copyright 2019 NextFaze
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

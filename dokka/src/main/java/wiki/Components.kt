@@ -84,7 +84,7 @@ Provides DevFun annotations and various interface definitions:
 This library contains primarily interface definitions and inline functions, and will have a
 negligible impact on your method count and dex sizes. Apply to your main `compile` configuration:
  * ```kotlin
- * implementation("com.nextfaze.devfun:devfun-annotations:2.0.1")
+ * implementation("com.nextfaze.devfun:devfun-annotations:2.1.0")
  * ```
 
 
@@ -93,7 +93,7 @@ Annotation processor [DevFunProcessor] that handles [DeveloperFunction], [Develo
 
 This should be applied to your non-main kapt configuration 'kaptDebug' to avoid running/using it on release builds.
  * ```kotlin
- * kaptDebug("com.nextfaze.devfun:devfun-compiler:2.0.1")
+ * kaptDebug("com.nextfaze.devfun:devfun-compiler:2.1.0")
  * ```
 
 Configuration options can be applied using Android DSL:
@@ -120,7 +120,7 @@ In your `build.gradle` add the DevFun Gradle plugin to your build script.
 If you can use the Gradle `plugins` block (which you should be able to do - this locates and downloads it for you):
  * ```kotlin
  * plugins {
- *     id("com.nextfaze.devfun") version "2.0.1"
+ *     id("com.nextfaze.devfun") version "2.1.0"
  * }
  * ```
 
@@ -129,7 +129,7 @@ Add the plugin to your classpath (found in the `jcenter()` repository):
  * ```kotlin
  * buildscript {
  *     dependencies {
- *         classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.0.1")
+ *         classpath("com.nextfaze.devfun:devfun-gradle-plugin:2.1.0")
  *     }
  * }
  * ```
@@ -154,7 +154,7 @@ Core of [DevFun]. Loads modules and definitions.
 
 Apply to your non-main configuration:
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun:devfun:2.0.1")
+ * debugImplementation("com.nextfaze.devfun:devfun:2.1.0")
  * ```
 
 Modules are loaded by [DevFun] using Java's [ServiceLoader].
@@ -174,7 +174,7 @@ See the demo app [DemoInstanceProvider](https://github.com/NextFaze/dev-fun/tree
 ### Menu
 Adds a developer menu [DevMenu], accessible by a floating cog [CogOverlay] (long-press to drag) or device button sequence [KeySequence].
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun:menu:2.0.1")
+ * debugImplementation("com.nextfaze.devfun:menu:2.1.0")
  * ```
 
 Button sequences: *(this are not configurable at the moment but are intended to be eventually)*
@@ -208,7 +208,7 @@ Modules to facilitate dependency injection for function invocation.
 Adds module [InjectFromDagger2] which adds an [InstanceProvider] that can reflectively locate components or (if used) resolve
 [Dagger2Component] uses. Tested from Dagger 2.4 to 2.17.
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.0.1")
+ * debugImplementation("com.nextfaze.devfun:devfun-inject-dagger2:2.1.0")
  * ```
 
 Simply graphs should be well supported. More complex graphs _should_ work (it has been working well in-house). Please report any issues you
@@ -312,7 +312,7 @@ _Still playing with this concept and naming conventions etc._
 ### Glide
 Module [GlideUtils] provides some utility functions when using Glide.
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.0.1")
+ * debugImplementation("com.nextfaze.devfun:devfun-util-glide:2.1.0")
  * ```
 
 Features:
@@ -324,7 +324,7 @@ Features:
 ### Leak Canary
 Module [LeakCanaryUtils] provides some utility functions when using Leak Canary.
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.0.1")
+ * debugImplementation("com.nextfaze.devfun:devfun-util-leakcanary:2.1.0")
  * ```
 
 Features:
@@ -341,7 +341,7 @@ Adds a parameter annotation [ColorPicker] that lets the invocation UI render a c
 
 _Note: Only needed if you don't include `devfun-menu` (as it uses/includes the color picker transitively)._
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun-invoke-view-colorpicker:2.0.1")
+ * debugImplementation("com.nextfaze.devfun-invoke-view-colorpicker:2.1.0")
  * ```
 
 
@@ -363,7 +363,7 @@ Module [DevHttpD] adds a local HTTP server (uses [NanoHttpD](https://github.com/
 
 Provides a single `POST` method `invoke` with one parameter `hashCode` (expecting [FunctionItem.hashCode])
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun:httpd:2.0.1")
+ * debugImplementation("com.nextfaze.devfun:httpd:2.1.0")
  * ```
 
 Use with HttpD Front-end.
@@ -396,7 +396,7 @@ Module [HttpFrontEnd] generates an admin interface using SB Admin 2 (similar to 
 
 __Depends on [DevHttpD].__
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun:httpd-frontend:2.0.1")
+ * debugImplementation("com.nextfaze.devfun:httpd-frontend:2.1.0")
  * ```
 
 Page is rather simple at the moment, but in the future it's somewhat intended (as a learning exercise) to create a React front end using
@@ -408,7 +408,7 @@ Kotlin or something.
 ### Stetho
 Module [DevStetho] allows generated methods to be invoked from Chrome's Dev Tools JavaScript console.
  * ```kotlin
- * debugImplementation("com.nextfaze.devfun:devfun-stetho:2.0.1")
+ * debugImplementation("com.nextfaze.devfun:devfun-stetho:2.1.0")
  * ```
 
 Opening console will show available functions.
