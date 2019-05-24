@@ -2,4 +2,4 @@
 
 # stetho
 
-`val `[`DevFun`](../com.nextfaze.devfun.core/-dev-fun/index.md)`.stetho: `[`DevStetho`](-dev-stetho/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-stetho/src/main/java/com/nextfaze/devfun/stetho/Stetho.kt#L37)
+`val `[`DevFun`](../com.nextfaze.devfun.core/-dev-fun/index.md)`.stetho: `[`DevStetho`](-dev-stetho/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-stetho/src/main/java/com/nextfaze/devfun/stetho/Stetho.kt#L38)

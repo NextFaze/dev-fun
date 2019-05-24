@@ -2,7 +2,7 @@
 
 # Injector
 
-`interface Injector` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Dagger.kt#L41)
+`interface Injector` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Dagger.kt#L43)
 
 Dagger injector for [DaggerProcessor](../-dagger-processor/index.md).
 

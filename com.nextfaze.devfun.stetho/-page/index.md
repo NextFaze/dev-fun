@@ -2,7 +2,7 @@
 
 # Page
 
-`class Page : Page` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-stetho/src/main/java/com/nextfaze/devfun/stetho/Stetho.kt#L39)
+`class Page : Page` [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-stetho/src/main/java/com/nextfaze/devfun/stetho/Stetho.kt#L40)
 
 ### Constructors
 

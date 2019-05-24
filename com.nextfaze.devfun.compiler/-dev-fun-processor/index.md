@@ -2,7 +2,7 @@
 
 # DevFunProcessor
 
-`@SupportedOptions(["devfun.kotlin.reflection", "devfun.debug.comments", "devfun.debug.verbose", "devfun.package.root", "devfun.package.suffix", "devfun.package.override", "devfun.application.package", "devfun.application.variant", "devfun.ext.package.suffix", "devfun.ext.package.root", "devfun.ext.package.override", "devfun.definitions.generate", "devfun.elements.include", "devfun.elements.exclude"]) class DevFunProcessor : `[`DaggerProcessor`](../-dagger-processor/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/DevFunProcessor.kt#L321)
+`@SupportedOptions(["devfun.kotlin.reflection", "devfun.debug.comments", "devfun.debug.verbose", "devfun.package.root", "devfun.package.suffix", "devfun.package.override", "devfun.application.package", "devfun.application.variant", "devfun.ext.package.suffix", "devfun.ext.package.root", "devfun.ext.package.override", "devfun.definitions.generate", "devfun.elements.include", "devfun.elements.exclude", "devfun.logging.note.promote", "devfun.logging.note.enabled"]) class DevFunProcessor : `[`DaggerProcessor`](../-dagger-processor/index.md) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/DevFunProcessor.kt#L347)
 
 Annotation processor for [DeveloperAnnotation](../../com.nextfaze.devfun/-developer-annotation/index.md) annotated annotations.
 

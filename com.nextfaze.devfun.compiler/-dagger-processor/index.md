@@ -2,7 +2,7 @@
 
 # DaggerProcessor
 
-`abstract class DaggerProcessor : `[`AbstractProcessor`](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/AbstractProcessor.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Dagger.kt#L51)
+`abstract class DaggerProcessor : `[`AbstractProcessor`](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/AbstractProcessor.html) [(source)](https://github.com/NextFaze/dev-fun/tree/master/devfun-compiler/src/main/java/com/nextfaze/devfun/compiler/Dagger.kt#L53)
 
 Base [AbstractProcessor](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/AbstractProcessor.html) class with Dagger support.
 
